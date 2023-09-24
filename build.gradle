@@ -11,6 +11,12 @@ version = '1.0-SNAPSHOT'
 sourceCompatibility = 17
 targetCompatibility = 17
 
+dependencies {
+    implementation project(path: ":api")
+    implementation project(path: ":common")
+    implementation project(path: ":nms:v1_20_R1", configuration: "reobf")
+}
+
 allprojects {
     apply plugin: 'java'
     apply plugin: 'java-library'
@@ -52,6 +58,10 @@ allprojects {
             exclude group: 'org.yaml', module: 'snakeyaml'
         }
     }
+}
+
+build {
+    dependsOn(shadowJar)
 }
 
 java {

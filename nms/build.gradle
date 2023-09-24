@@ -1,19 +1,12 @@
 plugins {
-    id 'java'
+    id("io.papermc.paperweight.userdev") version "1.5.4" apply false
 }
 
-group = 'com.artillexstudios.axapi'
-version = '1.0-SNAPSHOT'
+group = "com.artillexstudios.axapi"
+version = rootProject.version
 
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    testImplementation platform('org.junit:junit-bom:5.9.1')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
-}
-
-test {
-    useJUnitPlatform()
+subprojects {
+    dependencies {
+        compileOnly project(":api")
+    }
 }
