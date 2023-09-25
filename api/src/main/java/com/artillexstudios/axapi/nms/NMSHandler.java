@@ -12,4 +12,8 @@ public interface NMSHandler {
     void injectPlayer(Player player);
 
     void uninjectPlayer(Player player);
+
+    int getProtocolVersionId(Player player);
+
+    void setItemStackTexture(ItemStack item, String texture);
 }

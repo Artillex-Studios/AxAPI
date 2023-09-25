@@ -6,6 +6,7 @@ import com.mojang.datafixers.util.Pair;
 import io.netty.buffer.Unpooled;
 import io.papermc.paper.adventure.PaperAdventure;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
@@ -103,9 +104,9 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
 
         FriendlyByteBuf byteBuf = new FriendlyByteBuf(Unpooled.buffer());
         byteBuf.writeVarInt(entityId);
-        byteBuf.writeDouble(this.location.x());
-        byteBuf.writeDouble(this.location.y());
-        byteBuf.writeDouble(this.location.z());
+        byteBuf.writeDouble(this.location.getX());
+        byteBuf.writeDouble(this.location.getY());
+        byteBuf.writeDouble(this.location.getZ());
         byteBuf.writeByte(0);
         byteBuf.writeByte(0);
         byteBuf.writeBoolean(true);
@@ -128,9 +129,9 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
 
         FriendlyByteBuf byteBuf = new FriendlyByteBuf(Unpooled.buffer());
         byteBuf.writeVarInt(entityId);
-        byteBuf.writeDouble(location.x());
-        byteBuf.writeDouble(location.y());
-        byteBuf.writeDouble(location.z());
+        byteBuf.writeDouble(location.getX());
+        byteBuf.writeDouble(location.getY());
+        byteBuf.writeDouble(location.getZ());
         byteBuf.writeByte(0);
         byteBuf.writeByte(0);
         byteBuf.writeBoolean(true);
@@ -193,9 +194,9 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
             ClientboundAddEntityPacket packet = new ClientboundAddEntityPacket(
                     entityId,
                     UUID.randomUUID(),
-                    location.x(),
-                    location.y(),
-                    location.z(),
+                    location.getX(),
+                    location.getY(),
+                    location.getZ(),
                     0,
                     0,
                     this.entityType,
@@ -311,7 +312,7 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
             values.add(SynchedEntityData.DataValue.create(EntityDataSerializers.OPTIONAL_COMPONENT.createAccessor(2), Optional.of(PaperAdventure.asVanilla(component))));
         } else if (name != null) {
             values.add(SynchedEntityData.DataValue.create(EntityDataSerializers.BOOLEAN.createAccessor(3), true));
-            values.add(SynchedEntityData.DataValue.create(EntityDataSerializers.OPTIONAL_COMPONENT.createAccessor(2), Optional.of(PaperAdventure.asVanilla(name))));
+            values.add(SynchedEntityData.DataValue.create(EntityDataSerializers.OPTIONAL_COMPONENT.createAccessor(2), Optional.of(net.minecraft.network.chat.Component.Serializer.fromJson(GsonComponentSerializer.gson().serializer().toJsonTree(name)))));
         }
 
         return values;

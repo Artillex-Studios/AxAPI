@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.utils;
 
 import me.neznamy.yamlassist.YamlAssist;
+import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -12,9 +13,9 @@ public class YamlUtils {
         List<String> suggestions = YamlAssist.getSuggestions(file);
         if (suggestions.isEmpty()) return true;
 
-        // TODO: Log suggestions
+        Bukkit.getConsoleSender().sendMessage(StringUtils.formatToString("<color:#ff0000>Possible solutions:"));
         for (String suggestion : suggestions) {
-
+            Bukkit.getConsoleSender().sendMessage(StringUtils.formatToString("<color:#ff0000> - <white>" + suggestion));
         }
         return false;
     }

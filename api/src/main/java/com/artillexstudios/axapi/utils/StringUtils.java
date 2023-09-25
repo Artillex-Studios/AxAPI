@@ -9,6 +9,7 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,9 +53,19 @@ public class StringUtils {
         return newList;
     }
 
-    public static String formatNumber(DecimalFormat format, double number) {
-        return format.format(number);
+    public static String formatNumber(String pattern, double number) {
+        DecimalFormat formatter = new DecimalFormat(pattern);
+        return formatter.format(number);
     }
 
+    @NotNull
+    public static String formatTime(long time) {
+        Duration remainingTime = Duration.ofMillis(time);
+        long total = remainingTime.getSeconds();
+        long hours = total / 3600;
+        long minutes = (total % 3600) / 60;
+        long seconds = total % 60;
 
+        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+    }
 }
