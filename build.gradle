@@ -4,7 +4,6 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
-
 group = 'com.artillexstudios.axapi'
 version = '1.0-SNAPSHOT'
 
@@ -71,6 +70,7 @@ allprojects {
 shadowJar {
     relocate("it.unimi.dsi", "com.artillexstudios.axapi.libs.fastutil")
     relocate("net.kyori", "com.artillexstudios.axapi.libs.kyori")
+    archiveClassifier.set('')
 }
 
 build {
@@ -79,4 +79,16 @@ build {
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+}
+
+publishing {
+    publications {
+        release(MavenPublication) {
+            groupId = 'com.github.artillex-studios'
+            artifactId = 'AxAPI'
+            version = '1.0-SNAPSHOT'
+
+            from components.java
+        }
+    }
 }
