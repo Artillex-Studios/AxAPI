@@ -66,7 +66,7 @@ allprojects {
 
 shadowJar {
     relocate("net.kyori", "com.artillexstudios.axapi.kyori")
-    archiveClassifier.set('')
+//    archiveClassifier.set('')
 }
 
 build {
