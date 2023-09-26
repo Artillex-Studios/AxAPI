@@ -1,6 +1,5 @@
 rootProject.name = 'AxAPI'
 include 'api'
-include 'common'
 include 'nms'
 include 'nms:v1_20_R1'
 findProject(':nms:v1_20_R1')?.name = 'v1_20_R1'
