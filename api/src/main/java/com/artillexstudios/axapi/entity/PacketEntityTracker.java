@@ -23,7 +23,11 @@ public class PacketEntityTracker {
                     }
 
                     if (player.getLocation().distanceSquared(entity.getLocation()) <= entity.getViewDistanceSquared()) {
-                        entity.show(player);
+                        try {
+                            entity.show(player);
+                        } catch (Exception exception) {
+                            exception.printStackTrace();
+                        }
                     } else {
                         entity.hide(player);
                     }

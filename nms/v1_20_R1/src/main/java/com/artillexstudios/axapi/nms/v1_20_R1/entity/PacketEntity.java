@@ -190,27 +190,32 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     public void show(Player player) {
         if (forceHidden.contains(player.getUniqueId())) return;
 
-        if (viewers.add(player)) {
-            ClientboundAddEntityPacket packet = new ClientboundAddEntityPacket(
-                    entityId,
-                    UUID.randomUUID(),
-                    location.getX(),
-                    location.getY(),
-                    location.getZ(),
-                    0,
-                    0,
-                    this.entityType,
-                    1,
-                    Vec3.ZERO,
-                    0
-            );
+        try {
+            if (viewers.add(player)) {
+                ClientboundAddEntityPacket packet = new ClientboundAddEntityPacket(
+                        entityId,
+                        UUID.randomUUID(),
+                        location.getX(),
+                        location.getY(),
+                        location.getZ(),
+                        0,
+                        0,
+                        this.entityType,
+                        1,
+                        Vec3.ZERO,
+                        0
+                );
 
-            ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
-            serverPlayer.connection.send(packet);
-//            serverPlayer.connection.send(new ClientboundSetEntityDataPacket(entityId, dataValues(serverPlayer)));
-            serverPlayer.connection.send(changeEquipment());
+                ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
+                serverPlayer.connection.send(packet);
+                serverPlayer.connection.send(new ClientboundSetEntityDataPacket(entityId, dataValues(serverPlayer)));
 
-            viewers.add(player);
+                if (!equipments.isEmpty()) {
+                    serverPlayer.connection.send(changeEquipment());
+                }
+            }
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
 
