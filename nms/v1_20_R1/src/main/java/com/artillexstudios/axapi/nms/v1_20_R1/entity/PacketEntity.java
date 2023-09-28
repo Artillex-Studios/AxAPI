@@ -207,7 +207,7 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
 
             ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
             serverPlayer.connection.send(packet);
-            serverPlayer.connection.send(new ClientboundSetEntityDataPacket(entityId, dataValues(serverPlayer)));
+//            serverPlayer.connection.send(new ClientboundSetEntityDataPacket(entityId, dataValues(serverPlayer)));
             serverPlayer.connection.send(changeEquipment());
 
             viewers.add(player);
