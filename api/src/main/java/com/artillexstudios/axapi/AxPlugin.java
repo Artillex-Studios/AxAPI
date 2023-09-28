@@ -15,6 +15,9 @@ public abstract class AxPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        Scheduler.scheduler.init(this);
+        Scheduler.get().runAsyncTimer(task -> PacketEntityTracker.tickAll(), 0, 1);
+
         Bukkit.getPluginManager().registerEvents(new Listener() {
             @EventHandler
             public void onPlayerQuitEvent(@NotNull final PlayerQuitEvent event) {
@@ -37,9 +40,7 @@ public abstract class AxPlugin extends JavaPlugin {
 
     @Override
     public void onLoad() {
-        Scheduler.scheduler.init(this);
         NMSHandlers.initialise();
-        Scheduler.get().runAsyncTimer(task -> PacketEntityTracker.tickAll(), 0, 1);
 
         load();
     }
