@@ -14,6 +14,8 @@ public class ComponentHologramLine extends com.artillexstudios.axapi.hologram.im
 
     public ComponentHologramLine(Location location) {
         packetArmorStand = new com.artillexstudios.axapi.nms.v1_20_R1.entity.PacketArmorStand(location);
+        packetArmorStand.setInvisible(true);
+        packetArmorStand.setMarker(true);
     }
 
     @Override

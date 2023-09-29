@@ -20,7 +20,7 @@ public class PacketArmorStand extends PacketEntity implements com.artillexstudio
     private boolean small = false;
     private boolean marker = false;
     private boolean hasArms = false;
-    private boolean hasBasePlate = false;
+    private boolean hasBasePlate = true;
 
     public PacketArmorStand(Location location) {
         super(EntityType.ARMOR_STAND, location);
