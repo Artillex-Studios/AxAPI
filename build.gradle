@@ -80,17 +80,6 @@ allprojects {
         implementation("com.github.Revxrsal.Lamp:common:3.1.6")
         implementation("com.github.Revxrsal.Lamp:bukkit:3.1.6")
     }
-
-    publishing {
-        publications {
-            maven(MavenPublication) {
-                groupId "com.github.artillex-studios"
-                artifactId "AxAPI"
-                version "1.0"
-                from components.java
-            }
-        }
-    }
 }
 
 build {
@@ -99,4 +88,15 @@ build {
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId "com.github.artillex-studios"
+            artifactId "AxAPI"
+            version "1.0"
+            from components.java
+        }
+    }
 }
