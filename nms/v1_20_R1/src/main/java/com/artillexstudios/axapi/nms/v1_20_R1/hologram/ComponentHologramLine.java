@@ -6,7 +6,6 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
 import java.util.Set;
 
 public class ComponentHologramLine extends com.artillexstudios.axapi.hologram.impl.ComponentHologramLine {

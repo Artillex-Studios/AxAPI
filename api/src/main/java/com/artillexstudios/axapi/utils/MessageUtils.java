@@ -21,7 +21,7 @@ public class MessageUtils {
     }
 
     public void sendLang(CommandSender commandSender, String message, TagResolver... resolvers) {
-        sendFormatted(commandSender, config.getString(prefixRoute) + message, resolvers);
+        sendFormatted(commandSender, config.getString(prefixRoute) + config.getString(message), resolvers);
     }
 
     public void sendFormatted(CommandSender sender, String message, Map<String, String> replacements) {
@@ -32,6 +32,6 @@ public class MessageUtils {
     }
 
     public void sendLang(CommandSender sender, String message, Map<String, String> replacements) {
-        sendFormatted(sender, config.getString(prefixRoute) + message, replacements);
+        sendFormatted(sender, config.getString(prefixRoute) + config.getString(message), replacements);
     }
 }

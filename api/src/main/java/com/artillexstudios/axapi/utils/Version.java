@@ -14,7 +14,7 @@ public enum Version {
     v1_19(759, "v1_19_R1", "1.19"),
     v1_18_2(758, "v1_18_R2", "1.18.2"),
     v1_18(757, "v1_18_R1", "1.18.1", "1.18"),
-    UNKNOWN(-1, "UNKNOWN");
+    UNKNOWN(-1, "UNKNOWN", "UNKNOWN");
 
     private static final Int2ObjectArrayMap<Version> versionMap = new Int2ObjectArrayMap<>();
 

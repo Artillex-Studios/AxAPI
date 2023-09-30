@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class Config {
     private YamlDocument configuration;
@@ -123,6 +124,10 @@ public class Config {
 
     public Section getSection(String key) {
         return configuration.getSection(key);
+    }
+
+    public <T> Optional<T> getOptional(String key) {
+        return (Optional<T>) configuration.getOptional(key);
     }
 
     public boolean reload() {
