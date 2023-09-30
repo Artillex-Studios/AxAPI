@@ -18,7 +18,7 @@ public class PacketEntityTracker {
                 // Reuse the same location object with the values changed, so we can avoid unnecessary heap churn
                 player.getLocation(playerLocation);
 
-                entities.values().forEach(entity -> {
+                for (PacketEntity entity : entities.values()) {
                     if (!entity.getLocation().getWorld().equals(playerLocation.getWorld())) {
                         entity.hide(player);
                         return;
@@ -34,7 +34,7 @@ public class PacketEntityTracker {
                     } else {
                         entity.hide(player);
                     }
-                });
+                }
             }
         }
     }

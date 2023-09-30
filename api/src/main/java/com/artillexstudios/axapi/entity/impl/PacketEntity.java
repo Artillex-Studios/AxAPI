@@ -57,4 +57,10 @@ public interface PacketEntity {
     Set<Player> getViewers();
 
     int getEntityId();
+
+    <T> void write(String key, T value);
+
+    boolean has(String key);
+
+    <T> T get(String key);
 }

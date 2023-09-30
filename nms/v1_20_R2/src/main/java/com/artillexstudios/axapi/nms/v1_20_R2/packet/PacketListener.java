@@ -1,4 +1,4 @@
-package com.artillexstudios.axapi.nms.v1_20_R1.packet;
+package com.artillexstudios.axapi.nms.v1_20_R2.packet;
 
 import com.artillexstudios.axapi.entity.PacketEntityTracker;
 import com.artillexstudios.axapi.entity.impl.PacketEntity;

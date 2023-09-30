@@ -1,10 +1,9 @@
-package com.artillexstudios.axapi.nms.v1_20_R1.entity;
+package com.artillexstudios.axapi.nms.v1_19_R1.entity;
 
 import com.artillexstudios.axapi.entity.PacketEntityTracker;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
 import com.mojang.datafixers.util.Pair;
 import io.netty.buffer.Unpooled;
-import io.papermc.paper.adventure.PaperAdventure;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.network.FriendlyByteBuf;
@@ -19,8 +18,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -74,7 +73,12 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
         nameOverrides.put(player.getUniqueId(), name);
 
         ServerPlayer viewer = ((CraftPlayer) player).getHandle();
-        viewer.connection.send(new ClientboundSetEntityDataPacket(entityId, dataValues(viewer)));
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        buf.writeVarInt(entityId);
+        SynchedEntityData.pack(dataValues(viewer), buf);
+
+        viewer.connection.send(new ClientboundSetEntityDataPacket(buf));
+        buf.release();
     }
 
     @Override
@@ -90,7 +94,12 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
             if (nameOverrides.containsKey(viewer.getUniqueId())) continue;
 
             ServerPlayer player = ((CraftPlayer) viewer).getHandle();
-            player.connection.send(new ClientboundSetEntityDataPacket(entityId, dataValues(player)));
+            FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+            buf.writeVarInt(entityId);
+            SynchedEntityData.pack(dataValues(player), buf);
+
+            player.connection.send(new ClientboundSetEntityDataPacket(buf));
+            buf.release();
         }
     }
 
@@ -151,7 +160,12 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
         for (Player viewer : viewers) {
             ServerPlayer player = ((CraftPlayer) viewer).getHandle();
 
-            player.connection.send(new ClientboundSetEntityDataPacket(entityId, dataValues(player)));
+            FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+            buf.writeVarInt(entityId);
+            SynchedEntityData.pack(dataValues(player), buf);
+
+            player.connection.send(new ClientboundSetEntityDataPacket(buf));
+            buf.release();
         }
     }
 
@@ -162,7 +176,12 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
         for (Player viewer : viewers) {
             ServerPlayer player = ((CraftPlayer) viewer).getHandle();
 
-            player.connection.send(new ClientboundSetEntityDataPacket(entityId, dataValues(player)));
+            FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+            buf.writeVarInt(entityId);
+            SynchedEntityData.pack(dataValues(player), buf);
+
+            player.connection.send(new ClientboundSetEntityDataPacket(buf));
+            buf.release();
         }
     }
 
@@ -209,7 +228,12 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
 
                 ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
                 serverPlayer.connection.send(packet);
-                serverPlayer.connection.send(new ClientboundSetEntityDataPacket(entityId, dataValues(serverPlayer)));
+                FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+                buf.writeVarInt(entityId);
+                SynchedEntityData.pack(dataValues(serverPlayer), buf);
+
+                serverPlayer.connection.send(new ClientboundSetEntityDataPacket(buf));
+                buf.release();
 
                 if (!equipments.isEmpty()) {
                     serverPlayer.connection.send(changeEquipment());
@@ -317,23 +341,23 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
         return viewDistanceSquared;
     }
 
-    public List<SynchedEntityData.DataValue<?>> dataValues(ServerPlayer player) {
-        List<SynchedEntityData.DataValue<?>> values = new ArrayList<>();
+    public List<SynchedEntityData.DataItem<?>> dataValues(ServerPlayer player) {
+        List<SynchedEntityData.DataItem<?>> values = new ArrayList<>();
         if (invisible) {
-            values.add(SynchedEntityData.DataValue.create(EntityDataSerializers.BYTE.createAccessor(0), (byte) 0x20));
+            values.add(new SynchedEntityData.DataItem<>(EntityDataSerializers.BYTE.createAccessor(0), (byte) 0x20));
         }
 
         if (silent) {
-            values.add(SynchedEntityData.DataValue.create(EntityDataSerializers.BOOLEAN.createAccessor(4), true));
+            values.add(new SynchedEntityData.DataItem<>(EntityDataSerializers.BOOLEAN.createAccessor(4), true));
         }
 
         var component = nameOverrides.get(player.getUUID());
         if (component != null) {
-            values.add(SynchedEntityData.DataValue.create(EntityDataSerializers.BOOLEAN.createAccessor(3), true));
-            values.add(SynchedEntityData.DataValue.create(EntityDataSerializers.OPTIONAL_COMPONENT.createAccessor(2), Optional.of(PaperAdventure.asVanilla(component))));
+            values.add(new SynchedEntityData.DataItem<>(EntityDataSerializers.BOOLEAN.createAccessor(3), true));
+            values.add(new SynchedEntityData.DataItem<>(EntityDataSerializers.OPTIONAL_COMPONENT.createAccessor(2), Optional.of(net.minecraft.network.chat.Component.Serializer.fromJson(GsonComponentSerializer.gson().serializer().toJsonTree(name)))));
         } else if (name != null) {
-            values.add(SynchedEntityData.DataValue.create(EntityDataSerializers.BOOLEAN.createAccessor(3), true));
-            values.add(SynchedEntityData.DataValue.create(EntityDataSerializers.OPTIONAL_COMPONENT.createAccessor(2), Optional.of(net.minecraft.network.chat.Component.Serializer.fromJson(GsonComponentSerializer.gson().serializer().toJsonTree(name)))));
+            values.add(new SynchedEntityData.DataItem<>(EntityDataSerializers.BOOLEAN.createAccessor(3), true));
+            values.add(new SynchedEntityData.DataItem<>(EntityDataSerializers.OPTIONAL_COMPONENT.createAccessor(2), Optional.of(net.minecraft.network.chat.Component.Serializer.fromJson(GsonComponentSerializer.gson().serializer().toJsonTree(name)))));
         }
 
         return values;
