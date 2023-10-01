@@ -62,6 +62,10 @@ allprojects {
         }
     }
 
+    shadowJar {
+        archiveClassifier.set("")
+    }
+
     dependencies {
         compileOnly("io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT") {
             exclude group: 'net.kyori', module: 'adventure'
@@ -80,6 +84,10 @@ allprojects {
         implementation("com.github.Revxrsal.Lamp:common:3.1.6")
         implementation("com.github.Revxrsal.Lamp:bukkit:3.1.6")
     }
+}
+
+shadowJar {
+    archiveClassifier.set("")
 }
 
 build {
