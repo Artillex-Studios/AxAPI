@@ -54,7 +54,10 @@ public class PacketListener extends ChannelDuplexHandler {
 
                 PacketEntity entity = PacketEntityTracker.getById(entityId);
                 if (entity != null) {
-                    Bukkit.getPluginManager().callEvent(new PacketEntityInteractEvent(player, entity, attack, vector, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND));
+                    PacketEntityInteractEvent event = new PacketEntityInteractEvent(player, entity, attack, vector, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
+                    com.artillexstudios.axapi.nms.v1_19_R3.entity.PacketEntity packetEntity = (com.artillexstudios.axapi.nms.v1_19_R3.entity.PacketEntity) entity;
+                    packetEntity.acceptEventConsumers(event);
+                    Bukkit.getPluginManager().callEvent(event);
                 }
             } catch (Exception exception) {
                 exception.printStackTrace();

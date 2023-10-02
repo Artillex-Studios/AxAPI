@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.entity.impl;
 
+import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
@@ -10,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public interface PacketEntity {
 
@@ -63,4 +65,8 @@ public interface PacketEntity {
     boolean has(String key);
 
     <T> T get(String key);
+
+    void onClick(Consumer<PacketEntityInteractEvent> event);
+
+    void removeClickListener(Consumer<PacketEntityInteractEvent> eventConsumer);
 }

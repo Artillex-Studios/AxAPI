@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.nms.v1_18_R2.entity;
 
 import com.artillexstudios.axapi.entity.PacketEntityTracker;
+import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
 import com.mojang.datafixers.util.Pair;
 import io.netty.buffer.Unpooled;
@@ -33,6 +34,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class PacketEntity implements com.artillexstudios.axapi.entity.impl.PacketEntity {
     public final Set<Player> viewers = new HashSet<>();
@@ -43,6 +45,7 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     private final HashMap<UUID, Location> locationOverrides = new HashMap<>();
     private final List<Pair<net.minecraft.world.entity.EquipmentSlot, net.minecraft.world.item.ItemStack>> equipments = new ArrayList<>();
     private final List<UUID> forceHidden = new ArrayList<>();
+    private final List<Consumer<PacketEntityInteractEvent>> eventConsumers = new ArrayList<>();
     public boolean invisible = false;
     public boolean silent = false;
     private Location location;
@@ -274,6 +277,7 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
         }
 
         viewers.clear();
+        eventConsumers.clear();
     }
 
     @Override
@@ -334,6 +338,22 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     @Override
     public <T> T get(String key) {
         return (T) keys.get(key);
+    }
+
+    @Override
+    public void onClick(Consumer<PacketEntityInteractEvent> event) {
+        eventConsumers.add(event);
+    }
+
+    @Override
+    public void removeClickListener(Consumer<PacketEntityInteractEvent> eventConsumer) {
+        eventConsumers.remove(eventConsumer);
+    }
+
+    public void acceptEventConsumers(PacketEntityInteractEvent event) {
+        for (Consumer<PacketEntityInteractEvent> eventConsumer : eventConsumers) {
+            eventConsumer.accept(event);
+        }
     }
 
     public int getViewDistanceSquared() {

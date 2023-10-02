@@ -43,6 +43,17 @@ allprojects {
         options.encoding = "UTF-8"
     }
 
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                groupId "com.github.artillex-studios"
+                artifactId "AxAPI"
+                version "1.0"
+                from components.java
+            }
+        }
+    }
+
     repositories {
         mavenCentral()
 
@@ -96,15 +107,4 @@ build {
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(17))
-}
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            groupId "com.github.artillex-studios"
-            artifactId "AxAPI"
-            version "1.0"
-            from components.java
-        }
-    }
 }
