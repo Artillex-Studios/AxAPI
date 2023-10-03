@@ -43,17 +43,6 @@ allprojects {
         options.encoding = "UTF-8"
     }
 
-    publishing {
-        publications {
-            maven(MavenPublication) {
-                groupId "com.github.artillex-studios"
-                artifactId "AxAPI"
-                version "1.0"
-                from components.java
-            }
-        }
-    }
-
     repositories {
         mavenCentral()
 
@@ -71,10 +60,6 @@ allprojects {
             name = 'AlessioDP'
             url = 'https://repo.alessiodp.com/releases/'
         }
-    }
-
-    shadowJar {
-        archiveClassifier.set("")
     }
 
     dependencies {
@@ -97,12 +82,23 @@ allprojects {
     }
 }
 
-shadowJar {
-    archiveClassifier.set("")
+project.afterEvaluate {
+    tasks.withType(PublishToMavenLocal).configureEach {
+        dependsOn shadowJar
+    }
 }
 
-build {
-    dependsOn(shadowJar)
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId "com.github.artillex-studios"
+            artifactId "AxAPI"
+            version "1.0"
+//            from components.java
+
+            artifact shadowJar
+        }
+    }
 }
 
 java {
