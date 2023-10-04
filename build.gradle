@@ -90,13 +90,15 @@ project.afterEvaluate {
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
+        jar(MavenPublication) {
+            from components.java
             groupId "com.github.artillex-studios"
-            artifactId "AxAPI"
             version "1.0"
-//            from components.java
+            artifactId "AxAPI"
 
-            artifact shadowJar
+            artifact("$buildDir/libs/AxAPI-1.0-SNAPSHOT-all.jar") {
+                classifier = 'publish'
+            }
         }
     }
 }
