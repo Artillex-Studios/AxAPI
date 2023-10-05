@@ -8,6 +8,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -22,8 +23,8 @@ public class ItemBuilder {
     public ItemBuilder(@NotNull Section section) {
         this.itemStack = new ItemStack(getMaterial(section.getString("type", "stone")));
         section.getOptionalString("texture").ifPresent(this::setTextureValue);
-        section.getOptionalString("name").ifPresent(this::setName);
-        section.getOptionalStringList("lore").ifPresent(this::setLore);
+        section.getOptionalString("name").ifPresent(name -> setName(StringUtils.formatToString(name)));
+        section.getOptionalStringList("lore").ifPresent(name -> setLore(StringUtils.formatListToString(name)));
         section.getOptionalInt("custom-model-data").ifPresent(this::setCustomModelData);
         section.getOptionalInt("amount").ifPresent(this::amount);
         section.getOptionalBoolean("glow").ifPresent(this::glow);
@@ -43,6 +44,13 @@ public class ItemBuilder {
     public ItemBuilder setName(String name) {
         ItemMeta meta = this.itemStack.getItemMeta();
         meta.setDisplayName(name);
+        itemStack.setItemMeta(meta);
+        return this;
+    }
+
+    public <T, Z> ItemBuilder storePersistentData(NamespacedKey key, PersistentDataType<T,Z> type, Z value) {
+        ItemMeta meta = this.itemStack.getItemMeta();
+        meta.getPersistentDataContainer().set(key, type, value);
         itemStack.setItemMeta(meta);
         return this;
     }
