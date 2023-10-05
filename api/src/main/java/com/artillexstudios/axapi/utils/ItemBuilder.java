@@ -2,12 +2,14 @@ package com.artillexstudios.axapi.utils;
 
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,10 +26,11 @@ public class ItemBuilder {
         this.itemStack = new ItemStack(getMaterial(section.getString("type", "stone")));
         section.getOptionalString("texture").ifPresent(this::setTextureValue);
         section.getOptionalString("name").ifPresent(name -> setName(StringUtils.formatToString(name)));
-        section.getOptionalStringList("lore").ifPresent(name -> setLore(StringUtils.formatListToString(name)));
+        section.getOptionalString("color").ifPresent(this::setColor);
         section.getOptionalInt("custom-model-data").ifPresent(this::setCustomModelData);
         section.getOptionalInt("amount").ifPresent(this::amount);
         section.getOptionalBoolean("glow").ifPresent(this::glow);
+        section.getOptionalStringList("lore").ifPresent(name -> setLore(StringUtils.formatListToString(name)));
         section.getOptionalStringList("enchants").ifPresent(enchants -> addEnchants(createEnchantmentsMap(enchants)));
         section.getOptionalStringList("item-flags").ifPresent(flags -> applyItemFlags(getItemFlags(flags)));
     }
@@ -52,6 +55,16 @@ public class ItemBuilder {
         ItemMeta meta = this.itemStack.getItemMeta();
         meta.getPersistentDataContainer().set(key, type, value);
         itemStack.setItemMeta(meta);
+        return this;
+    }
+
+    public ItemBuilder setColor(String colorString) {
+        if (itemStack.getItemMeta() instanceof LeatherArmorMeta meta) {
+            String[] rgb = colorString.replace(" ", "").split(",");
+            meta.setColor(Color.fromRGB(Integer.parseInt(rgb[0]), Integer.parseInt(rgb[1]), Integer.parseInt(rgb[2])));
+
+            itemStack.setItemMeta(meta);
+        }
         return this;
     }
 
