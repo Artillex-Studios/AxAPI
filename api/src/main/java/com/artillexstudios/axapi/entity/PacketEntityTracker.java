@@ -14,11 +14,13 @@ public class PacketEntityTracker {
     public static void tickAll() {
         synchronized (mutex) {
             Location playerLocation = new Location(null, 0, 0, 0, 0, 0);
-            for (Player player : Bukkit.getOnlinePlayers()) {
+            var onlinePlayers = Bukkit.getOnlinePlayers();
+            var entities = PacketEntityTracker.entities.values();
+            for (Player player : onlinePlayers) {
                 // Reuse the same location object with the values changed, so we can avoid unnecessary heap churn
                 player.getLocation(playerLocation);
 
-                for (PacketEntity entity : entities.values()) {
+                for (PacketEntity entity : entities) {
                     if (!entity.getLocation().getWorld().equals(playerLocation.getWorld())) {
                         entity.hide(player);
                         return;

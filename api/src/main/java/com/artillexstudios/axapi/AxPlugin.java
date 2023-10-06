@@ -16,7 +16,7 @@ public abstract class AxPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         Scheduler.scheduler.init(this);
-        Scheduler.get().runAsyncTimer(task -> PacketEntityTracker.tickAll(), 0, 1);
+        Scheduler.get().runAsyncTimer(task -> PacketEntityTracker.tickAll(), 0, 5);
 
         Bukkit.getPluginManager().registerEvents(new Listener() {
             @EventHandler
