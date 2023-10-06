@@ -62,6 +62,14 @@ allprojects {
         }
     }
 
+    shadowJar {
+        relocate('me.neznamy.yamlassist', 'com.artillexstudios.axapi.libs.yamlassist')
+        relocate('dev.dejvokep', 'com.artillexstudios.axapi.libs.boostedyaml')
+        relocate('net.byteflux', 'com.artillexstudios.axapi.libs.libby')
+        relocate('net.kyori', 'com.artillexstudios.axapi.libs.kyori')
+        relocate('revxrsal.commands', 'com.artillexstudios.axapi.libs.lamp')
+    }
+
     dependencies {
         compileOnly("io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT") {
             exclude group: 'net.kyori', module: 'adventure'

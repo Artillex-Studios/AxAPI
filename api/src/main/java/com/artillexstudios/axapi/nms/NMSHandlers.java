@@ -18,7 +18,7 @@ public class NMSHandlers {
             try {
                 packetEntityFactory = (PacketEntityFactory) Class.forName(String.format("com.artillexstudios.axapi.nms.%s.PacketEntityFactory", version)).getConstructor().newInstance();
             } catch (Exception exception) {
-                exception.printStackTrace();
+
             }
         }
 
@@ -26,7 +26,7 @@ public class NMSHandlers {
             try {
                 hologramFactory = (HologramFactory) Class.forName(String.format("com.artillexstudios.axapi.nms.%s.HologramFactory", version)).getConstructor().newInstance();
             } catch (Exception exception) {
-                exception.printStackTrace();
+
             }
         }
 
@@ -34,20 +34,32 @@ public class NMSHandlers {
             try {
                 nmsHandler = (NMSHandler) Class.forName(String.format("com.artillexstudios.axapi.nms.%s.NMSHandler", version)).getConstructor().newInstance();
             } catch (Exception exception) {
-                exception.printStackTrace();
+
             }
         }
     }
 
     public static PacketEntityFactory getPacketEntityFactory() {
+        if (packetEntityFactory == null) {
+            throw new RuntimeException("PacketEntityFactory has not been initialised! This could be due to incorrect usage, or unsupported NMS version!");
+        }
+
         return packetEntityFactory;
     }
 
     public static HologramFactory getHologramFactory() {
+        if (packetEntityFactory == null) {
+            throw new RuntimeException("HologramFactory has not been initialised! This could be due to incorrect usage, or unsupported NMS version!");
+        }
+
         return hologramFactory;
     }
 
     public static NMSHandler getNmsHandler() {
+        if (packetEntityFactory == null) {
+            throw new RuntimeException("NMSHandler has not been initialised! This could be due to incorrect usage, or unsupported NMS version!");
+        }
+
         return nmsHandler;
     }
 }
