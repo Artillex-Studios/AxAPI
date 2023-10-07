@@ -2,6 +2,8 @@ package com.artillexstudios.axapi.utils;
 
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -25,12 +27,12 @@ public class ItemBuilder {
     public ItemBuilder(@NotNull Section section) {
         this.itemStack = new ItemStack(getMaterial(section.getString("type", "stone")));
         section.getOptionalString("texture").ifPresent(this::setTextureValue);
-        section.getOptionalString("name").ifPresent(name -> setName(StringUtils.formatToString(name)));
+        section.getOptionalString("name").ifPresent(this::setName);
         section.getOptionalString("color").ifPresent(this::setColor);
         section.getOptionalInt("custom-model-data").ifPresent(this::setCustomModelData);
         section.getOptionalInt("amount").ifPresent(this::amount);
         section.getOptionalBoolean("glow").ifPresent(this::glow);
-        section.getOptionalStringList("lore").ifPresent(name -> setLore(StringUtils.formatListToString(name)));
+        section.getOptionalStringList("lore").ifPresent(StringUtils::formatListToString);
         section.getOptionalStringList("enchants").ifPresent(enchants -> addEnchants(createEnchantmentsMap(enchants)));
         section.getOptionalStringList("item-flags").ifPresent(flags -> applyItemFlags(getItemFlags(flags)));
     }
@@ -44,9 +46,18 @@ public class ItemBuilder {
         this.itemStack = new ItemStack(material);
     }
 
+    public ItemBuilder(@NotNull ItemStack item) {
+        this.itemStack = item;
+    }
+
     public ItemBuilder setName(String name) {
+        setName(name, TagResolver.resolver());
+        return this;
+    }
+
+    public ItemBuilder setName(String name, TagResolver... resolvers) {
         ItemMeta meta = this.itemStack.getItemMeta();
-        meta.setDisplayName(name);
+        meta.setDisplayName(StringUtils.formatToString(name, resolvers));
         itemStack.setItemMeta(meta);
         return this;
     }
@@ -93,8 +104,13 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setLore(List<String> lore) {
+        setLore(lore, TagResolver.resolver());
+        return this;
+    }
+
+    public ItemBuilder setLore(List<String> lore, TagResolver... resolvers) {
         ItemMeta meta = this.itemStack.getItemMeta();
-        meta.setLore(lore);
+        meta.setLore(StringUtils.formatListToString(lore, resolvers));
         itemStack.setItemMeta(meta);
         return this;
     }

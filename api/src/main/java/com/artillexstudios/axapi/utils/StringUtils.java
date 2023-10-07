@@ -14,14 +14,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StringUtils {
-    public static final LegacyComponentSerializer LEGACY_COMPONENT_SERIALIZER = LegacyComponentSerializer.builder()
-            .hexColors()
-            .useUnusualXRepeatedCharacterHexFormat()
-            .build();
+    public static final LegacyComponentSerializer LEGACY_COMPONENT_SERIALIZER;
 
-    public static final MiniMessage MINI_MESSAGE = MiniMessage.builder()
-            .tags(StandardTags.defaults())
-            .build();
+    public static final MiniMessage MINI_MESSAGE;
+
+    static {
+        if (Version.getServerVersion().protocolId >= Version.v1_16_5.protocolId) {
+            MINI_MESSAGE = MiniMessage.builder()
+                    .tags(StandardTags.defaults())
+                    .build();
+
+            LEGACY_COMPONENT_SERIALIZER = LegacyComponentSerializer.builder()
+                    .hexColors()
+                    .useUnusualXRepeatedCharacterHexFormat()
+                    .build();
+        } else {
+            MINI_MESSAGE = MiniMessage.builder()
+                    .tags(StandardTags.defaults())
+                    .build();
+
+            LEGACY_COMPONENT_SERIALIZER = LegacyComponentSerializer.legacyAmpersand()
+                    .toBuilder()
+                    .useUnusualXRepeatedCharacterHexFormat()
+                    .build();
+        }
+    }
 
     @NotNull
     public static Component format(@NotNull String input, TagResolver... resolvers) {

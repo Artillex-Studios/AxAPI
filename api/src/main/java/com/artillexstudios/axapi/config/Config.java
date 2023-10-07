@@ -108,6 +108,14 @@ public class Config {
         return configuration.getBoolean(key, def);
     }
 
+    public float getFloat(String key) {
+        return configuration.getFloat(key);
+    }
+
+    public float getFloat(String key, float def) {
+        return configuration.getFloat(key, def);
+    }
+
     public <T, U> List<Map<T, U>> getMapList(String key) {
         List<Map<T, U>> listMap = new ArrayList<>();
         List<Map<?, ?>> list = configuration.getMapList(key);
