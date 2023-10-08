@@ -120,8 +120,8 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
         byteBuf.writeDouble(this.location.getX());
         byteBuf.writeDouble(this.location.getY());
         byteBuf.writeDouble(this.location.getZ());
-        byteBuf.writeByte(0);
-        byteBuf.writeByte(0);
+        byteBuf.writeByte((byte) ((int) (location.getYaw() * 256.0F / 360.0F)));
+        byteBuf.writeByte((byte) ((int) (location.getPitch() * 256.0F / 360.0F)));
         byteBuf.writeBoolean(true);
 
         ClientboundTeleportEntityPacket teleportEntityPacket = new ClientboundTeleportEntityPacket(byteBuf);
@@ -145,8 +145,8 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
         byteBuf.writeDouble(location.getX());
         byteBuf.writeDouble(location.getY());
         byteBuf.writeDouble(location.getZ());
-        byteBuf.writeByte(0);
-        byteBuf.writeByte(0);
+        byteBuf.writeByte((byte) ((int) (location.getYaw() * 256.0F / 360.0F)));
+        byteBuf.writeByte((byte) ((int) (location.getPitch() * 256.0F / 360.0F)));
         byteBuf.writeBoolean(true);
 
         ClientboundTeleportEntityPacket teleportEntityPacket = new ClientboundTeleportEntityPacket(byteBuf);
@@ -221,8 +221,8 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
                         location.getX(),
                         location.getY(),
                         location.getZ(),
-                        0,
-                        0,
+                        (byte) ((int) (location.getPitch() * 256.0F / 360.0F)),
+                        (byte) ((int) (location.getYaw() * 256.0F / 360.0F)),
                         this.entityType,
                         1,
                         Vec3.ZERO,

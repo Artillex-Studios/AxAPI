@@ -6,6 +6,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.md_5.bungee.api.ChatColor;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
@@ -25,6 +26,7 @@ public class StringUtils {
                     .build();
 
             LEGACY_COMPONENT_SERIALIZER = LegacyComponentSerializer.builder()
+                    .character('\u00a7')
                     .hexColors()
                     .useUnusualXRepeatedCharacterHexFormat()
                     .build();
@@ -33,8 +35,8 @@ public class StringUtils {
                     .tags(StandardTags.defaults())
                     .build();
 
-            LEGACY_COMPONENT_SERIALIZER = LegacyComponentSerializer.legacyAmpersand()
-                    .toBuilder()
+            LEGACY_COMPONENT_SERIALIZER = LegacyComponentSerializer.builder()
+                    .character('\u00a7')
                     .useUnusualXRepeatedCharacterHexFormat()
                     .build();
         }
@@ -47,7 +49,7 @@ public class StringUtils {
 
     @NotNull
     public static String formatToString(@NotNull String input, TagResolver... resolvers) {
-        return LEGACY_COMPONENT_SERIALIZER.serialize(format(input, resolvers));
+        return ChatColor.translateAlternateColorCodes('&', LEGACY_COMPONENT_SERIALIZER.serialize(format(input, resolvers)));
     }
 
     @NotNull
