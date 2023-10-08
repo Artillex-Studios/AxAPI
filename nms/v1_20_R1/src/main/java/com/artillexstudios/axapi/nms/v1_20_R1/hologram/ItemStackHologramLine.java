@@ -1,7 +1,10 @@
 package com.artillexstudios.axapi.nms.v1_20_R1.hologram;
 
+import com.artillexstudios.axapi.entity.PacketEntityFactory;
+import com.artillexstudios.axapi.entity.impl.PacketArmorStand;
 import com.artillexstudios.axapi.entity.impl.PacketItem;
 import org.bukkit.Location;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -12,7 +15,7 @@ public class ItemStackHologramLine extends com.artillexstudios.axapi.hologram.im
     private final PacketItem packetItem;
 
     public ItemStackHologramLine(Location location) {
-        this.packetItem = new com.artillexstudios.axapi.nms.v1_20_R1.entity.PacketItem(location);
+        this.packetItem = (PacketItem) PacketEntityFactory.get().spawnEntity(location, EntityType.DROPPED_ITEM);
     }
 
     @Override

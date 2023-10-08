@@ -1,8 +1,10 @@
 package com.artillexstudios.axapi.nms.v1_19_R1.hologram;
 
+import com.artillexstudios.axapi.entity.PacketEntityFactory;
 import com.artillexstudios.axapi.entity.impl.PacketArmorStand;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,7 +14,7 @@ public class ComponentHologramLine extends com.artillexstudios.axapi.hologram.im
     private final PacketArmorStand packetArmorStand;
 
     public ComponentHologramLine(Location location) {
-        packetArmorStand = new com.artillexstudios.axapi.nms.v1_19_R1.entity.PacketArmorStand(location);
+        packetArmorStand = (PacketArmorStand) PacketEntityFactory.get().spawnEntity(location, EntityType.ARMOR_STAND);
         packetArmorStand.setInvisible(true);
         packetArmorStand.setMarker(true);
     }
