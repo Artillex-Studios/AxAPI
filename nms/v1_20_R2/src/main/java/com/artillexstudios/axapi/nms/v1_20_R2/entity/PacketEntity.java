@@ -257,17 +257,30 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     }
 
     @Override
-    public void setItem(EquipmentSlot slot, @NotNull ItemStack item) {
-        net.minecraft.world.entity.EquipmentSlot equipmentSlot = byName(slot.name());
+    public void setItem(EquipmentSlot slot, @Nullable ItemStack item) {
+        var equipmentSlot = net.minecraft.world.entity.EquipmentSlot.byTypeAndIndex(slot.getType() == EquipmentSlot.Type.ARMOR ? net.minecraft.world.entity.EquipmentSlot.Type.ARMOR : net.minecraft.world.entity.EquipmentSlot.Type.HAND, slot.getIndex());
 
-        if (equipmentSlot != null) {
-            equipments.add(Pair.of(equipmentSlot, CraftItemStack.asNMSCopy(item)));
-
-            var packet = changeEquipment();
-            for (Player viewer : viewers) {
-                ServerPlayer serverPlayer = ((CraftPlayer) viewer).getHandle();
-                serverPlayer.connection.send(packet);
+        var iterator = equipments.iterator();
+        while (iterator.hasNext()) {
+            var next = iterator.next();
+            if (next.getFirst() == equipmentSlot) {
+                iterator.remove();
+                break;
             }
+        }
+
+        if (item != null) {
+            equipments.add(Pair.of(equipmentSlot, CraftItemStack.asNMSCopy(item)));
+        }
+
+        if (equipments.isEmpty()) {
+            return;
+        }
+
+        var packet = changeEquipment();
+        for (Player viewer : viewers) {
+            ServerPlayer serverPlayer = ((CraftPlayer) viewer).getHandle();
+            serverPlayer.connection.send(packet);
         }
     }
 

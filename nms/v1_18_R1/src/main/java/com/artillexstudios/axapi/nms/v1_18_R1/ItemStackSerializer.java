@@ -7,14 +7,12 @@ import org.bukkit.inventory.ItemStack;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 
 public class ItemStackSerializer {
 
     public byte[] serializeAsBytes(ItemStack itemStack) {
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(); ObjectOutputStream stream = new ObjectOutputStream(outputStream)) {
-            NbtIo.writeCompressed(CraftItemStack.asNMSCopy(itemStack).save(new CompoundTag()), stream);
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            NbtIo.writeCompressed(CraftItemStack.asNMSCopy(itemStack).save(new CompoundTag()), outputStream);
             return outputStream.toByteArray();
         } catch (Exception exception) {
             throw new RuntimeException(exception);
@@ -22,8 +20,8 @@ public class ItemStackSerializer {
     }
 
     public ItemStack deserializeFromBytes(byte[] bytes) {
-        try (ByteArrayInputStream stream = new ByteArrayInputStream(bytes); ObjectInputStream inputStream = new ObjectInputStream(stream)) {
-            return CraftItemStack.asBukkitCopy(net.minecraft.world.item.ItemStack.of(NbtIo.read(inputStream)));
+        try (ByteArrayInputStream stream = new ByteArrayInputStream(bytes)) {
+            return CraftItemStack.asBukkitCopy(net.minecraft.world.item.ItemStack.of(NbtIo.readCompressed(stream)));
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }

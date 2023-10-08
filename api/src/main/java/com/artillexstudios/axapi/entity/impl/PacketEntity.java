@@ -6,10 +6,8 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -49,7 +47,7 @@ public interface PacketEntity {
 
     void remove();
 
-    void setItem(EquipmentSlot slot, @NotNull ItemStack item);
+    void setItem(EquipmentSlot slot, @Nullable ItemStack item);
 
     @Nullable
     ItemStack getItem(EquipmentSlot equipmentSlot);
