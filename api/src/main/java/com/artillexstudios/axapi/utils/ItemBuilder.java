@@ -2,7 +2,6 @@ package com.artillexstudios.axapi.utils;
 
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -20,19 +19,36 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ItemBuilder {
     private final ItemStack itemStack;
+    private final TagResolver[] resolvers;
 
     public ItemBuilder(@NotNull Section section) {
         this.itemStack = new ItemStack(getMaterial(section.getString("type", "stone")));
+        resolvers = new TagResolver[]{TagResolver.resolver()};
         section.getOptionalString("texture").ifPresent(this::setTextureValue);
-        section.getOptionalString("name").ifPresent(this::setName);
+        section.getOptionalString("name").ifPresent(name -> this.setName(name, resolvers));
         section.getOptionalString("color").ifPresent(this::setColor);
         section.getOptionalInt("custom-model-data").ifPresent(this::setCustomModelData);
         section.getOptionalInt("amount").ifPresent(this::amount);
         section.getOptionalBoolean("glow").ifPresent(this::glow);
-        section.getOptionalStringList("lore").ifPresent(StringUtils::formatListToString);
+        section.getOptionalStringList("lore").ifPresent(lore -> this.setLore(lore, resolvers));
+        section.getOptionalStringList("enchants").ifPresent(enchants -> addEnchants(createEnchantmentsMap(enchants)));
+        section.getOptionalStringList("item-flags").ifPresent(flags -> applyItemFlags(getItemFlags(flags)));
+    }
+
+    public ItemBuilder(@NotNull Section section, TagResolver... resolvers) {
+        this.itemStack = new ItemStack(getMaterial(section.getString("type", "stone")));
+        this.resolvers = resolvers;
+        section.getOptionalString("texture").ifPresent(this::setTextureValue);
+        section.getOptionalString("name").ifPresent(name -> this.setName(name, resolvers));
+        section.getOptionalString("color").ifPresent(this::setColor);
+        section.getOptionalInt("custom-model-data").ifPresent(this::setCustomModelData);
+        section.getOptionalInt("amount").ifPresent(this::amount);
+        section.getOptionalBoolean("glow").ifPresent(this::glow);
+        section.getOptionalStringList("lore").ifPresent(lore -> this.setLore(lore, resolvers));
         section.getOptionalStringList("enchants").ifPresent(enchants -> addEnchants(createEnchantmentsMap(enchants)));
         section.getOptionalStringList("item-flags").ifPresent(flags -> applyItemFlags(getItemFlags(flags)));
     }
@@ -44,14 +60,24 @@ public class ItemBuilder {
 
     public ItemBuilder(@NotNull Material material) {
         this.itemStack = new ItemStack(material);
+        resolvers = new TagResolver[]{TagResolver.resolver()};
     }
 
     public ItemBuilder(@NotNull ItemStack item) {
         this.itemStack = item;
+        resolvers = new TagResolver[]{TagResolver.resolver()};
     }
 
     public ItemBuilder setName(String name) {
         setName(name, TagResolver.resolver());
+        return this;
+    }
+
+    public ItemBuilder setName(String name, Map<String, String> replacements) {
+        AtomicReference<String> toFormat = new AtomicReference<>(name);
+        replacements.forEach((pattern, replacement) -> toFormat.set(toFormat.get().replace(pattern, replacement)));
+
+        setName(toFormat.get(), TagResolver.resolver());
         return this;
     }
 
@@ -105,6 +131,18 @@ public class ItemBuilder {
 
     public ItemBuilder setLore(List<String> lore) {
         setLore(lore, TagResolver.resolver());
+        return this;
+    }
+
+    public ItemBuilder setLore(List<String> lore, Map<String, String> replacements) {
+        List<String> newList = new ArrayList<>(replacements.size());
+        for (String line : lore) {
+            AtomicReference<String> toFormat = new AtomicReference<>(line);
+            replacements.forEach((pattern, replacement) -> toFormat.set(toFormat.get().replace(pattern, replacement)));
+            newList.add(toFormat.get());
+        }
+
+        setLore(newList, TagResolver.resolver());
         return this;
     }
 

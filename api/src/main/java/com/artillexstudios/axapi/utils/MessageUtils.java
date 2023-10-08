@@ -9,10 +9,18 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class MessageUtils {
     private final YamlDocument config;
+    private final YamlDocument prefixConfig;
     private final String prefixRoute;
 
     public MessageUtils(YamlDocument config, String prefixRoute) {
         this.config = config;
+        this.prefixConfig = config;
+        this.prefixRoute = prefixRoute;
+    }
+
+    public MessageUtils(YamlDocument config, String prefixRoute, YamlDocument prefixConfig) {
+        this.config = config;
+        this.prefixConfig = prefixConfig;
         this.prefixRoute = prefixRoute;
     }
 
@@ -21,7 +29,7 @@ public class MessageUtils {
     }
 
     public void sendLang(CommandSender commandSender, String message, TagResolver... resolvers) {
-        sendFormatted(commandSender, config.getString(prefixRoute) + config.getString(message), resolvers);
+        sendFormatted(commandSender, prefixConfig.getString(prefixRoute) + config.getString(message), resolvers);
     }
 
     public void sendFormatted(CommandSender sender, String message, Map<String, String> replacements) {
@@ -32,6 +40,6 @@ public class MessageUtils {
     }
 
     public void sendLang(CommandSender sender, String message, Map<String, String> replacements) {
-        sendFormatted(sender, config.getString(prefixRoute) + config.getString(message), replacements);
+        sendFormatted(sender, prefixConfig.getString(prefixRoute) + config.getString(message), replacements);
     }
 }
