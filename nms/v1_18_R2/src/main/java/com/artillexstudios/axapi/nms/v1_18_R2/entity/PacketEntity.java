@@ -221,8 +221,8 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
                         location.getX(),
                         location.getY(),
                         location.getZ(),
-                        (byte) ((int) (location.getPitch() * 256.0F / 360.0F)),
-                        (byte) ((int) (location.getYaw() * 256.0F / 360.0F)),
+                        location.getPitch(),
+                        location.getYaw(),
                         entityType,
                         0,
                         Vec3.ZERO
