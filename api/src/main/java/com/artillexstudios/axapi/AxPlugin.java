@@ -30,7 +30,7 @@ public abstract class AxPlugin extends JavaPlugin {
 
             @EventHandler
             public void onPlayerJoinEvent(@NotNull final PlayerJoinEvent event) {
-                NMSHandlers.getNmsHandler().injectPlayer(event.getPlayer(), pluginName);
+                NMSHandlers.getNmsHandler().injectPlayer(event.getPlayer());
             }
         }, this);
 
