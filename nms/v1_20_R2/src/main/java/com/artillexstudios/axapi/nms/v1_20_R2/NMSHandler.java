@@ -1,9 +1,11 @@
 package com.artillexstudios.axapi.nms.v1_20_R2;
 
 import com.artillexstudios.axapi.nms.v1_20_R2.packet.PacketListener;
+import com.artillexstudios.axapi.selection.BlockSetter;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import net.minecraft.server.level.ServerPlayer;
+import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_20_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -89,5 +91,10 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
 
             item.setItemMeta(skullMeta);
         }
+    }
+
+    @Override
+    public BlockSetter newSetter(World world) {
+        return null;
     }
 }
