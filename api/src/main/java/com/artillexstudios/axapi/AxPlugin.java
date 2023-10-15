@@ -11,6 +11,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Locale;
+
 public abstract class AxPlugin extends JavaPlugin {
 
     @Override
@@ -18,6 +20,7 @@ public abstract class AxPlugin extends JavaPlugin {
         Scheduler.scheduler.init(this);
         Scheduler.get().runAsyncTimer(task -> PacketEntityTracker.tickAll(), 0, 5);
 
+        var pluginName = this.getName().toLowerCase(Locale.ENGLISH);
         Bukkit.getPluginManager().registerEvents(new Listener() {
             @EventHandler
             public void onPlayerQuitEvent(@NotNull final PlayerQuitEvent event) {
@@ -27,7 +30,7 @@ public abstract class AxPlugin extends JavaPlugin {
 
             @EventHandler
             public void onPlayerJoinEvent(@NotNull final PlayerJoinEvent event) {
-                NMSHandlers.getNmsHandler().injectPlayer(event.getPlayer());
+                NMSHandlers.getNmsHandler().injectPlayer(event.getPlayer(), pluginName);
             }
         }, this);
 
@@ -40,7 +43,7 @@ public abstract class AxPlugin extends JavaPlugin {
 
     @Override
     public void onLoad() {
-        NMSHandlers.initialise();
+        NMSHandlers.initialise(this);
 
         load();
     }

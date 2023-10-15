@@ -10,15 +10,21 @@ import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Method;
+import java.util.Locale;
 import java.util.UUID;
 
 public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     private final ItemStackSerializer serializer = new ItemStackSerializer();
     private static final String PACKET_HANDLER = "packet_handler";
-    private static final String AXAPI_HANDLER = "axapi_handler";
+    private final String AXAPI_HANDLER;
     private Method skullMetaMethod;
+
+    public NMSHandler(JavaPlugin plugin) {
+        AXAPI_HANDLER = "axapi_handler_" + plugin.getName().toLowerCase(Locale.ENGLISH);
+    }
 
     @Override
     public byte[] serializeItemStack(ItemStack itemStack) {

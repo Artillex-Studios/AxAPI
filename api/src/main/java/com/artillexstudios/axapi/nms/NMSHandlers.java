@@ -3,6 +3,7 @@ package com.artillexstudios.axapi.nms;
 import com.artillexstudios.axapi.entity.PacketEntityFactory;
 import com.artillexstudios.axapi.hologram.HologramFactory;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public class NMSHandlers {
     private static PacketEntityFactory packetEntityFactory;
@@ -10,7 +11,7 @@ public class NMSHandlers {
     private static NMSHandler nmsHandler;
     private static String version;
 
-    public static void initialise() {
+    public static void initialise(JavaPlugin plugin) {
         final String packageName = Bukkit.getServer().getClass().getPackage().getName();
         version = packageName.substring(packageName.lastIndexOf('.') + 1);
 
@@ -32,7 +33,7 @@ public class NMSHandlers {
 
         if (nmsHandler == null) {
             try {
-                nmsHandler = (NMSHandler) Class.forName(String.format("com.artillexstudios.axapi.nms.%s.NMSHandler", version)).getConstructor().newInstance();
+                nmsHandler = (NMSHandler) Class.forName(String.format("com.artillexstudios.axapi.nms.%s.NMSHandler", version)).getConstructor(JavaPlugin.class).newInstance(plugin);
             } catch (Exception exception) {
 
             }
