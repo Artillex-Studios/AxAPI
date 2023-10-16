@@ -31,12 +31,6 @@ public class PacketItem extends PacketEntity implements com.artillexstudios.axap
     @Override
     public void setItemStack(ItemStack itemStack) {
         this.itemStack = itemStack;
-
-        for (Player viewer : viewers) {
-            ServerPlayer serverPlayer = ((CraftPlayer) viewer).getHandle();
-
-            serverPlayer.connection.send(new ClientboundSetEntityDataPacket(entityId, dataValues(serverPlayer)));
-        }
     }
 
     @Override

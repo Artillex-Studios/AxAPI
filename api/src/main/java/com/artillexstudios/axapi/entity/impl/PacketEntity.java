@@ -13,25 +13,17 @@ import java.util.function.Consumer;
 
 public interface PacketEntity {
 
-    void setName(Component name, Player player);
-
     Component getName();
 
     void setName(Component name);
 
-    Component getName(Player player);
-
     void teleport(Location location);
-
-    void teleport(Location location, Player player);
 
     void setInvisible(boolean invisible);
 
     void setSilent(boolean silent);
 
     Location getLocation();
-
-    Location getLocation(Player player);
 
     int getViewDistance();
 
@@ -42,8 +34,6 @@ public interface PacketEntity {
     void show(Player player);
 
     void hide(Player player);
-
-    void forceHide(Player player);
 
     void remove();
 
@@ -57,12 +47,6 @@ public interface PacketEntity {
     Set<Player> getViewers();
 
     int getEntityId();
-
-    <T> void write(String key, T value);
-
-    boolean has(String key);
-
-    <T> T get(String key);
 
     void onClick(Consumer<PacketEntityInteractEvent> event);
 
