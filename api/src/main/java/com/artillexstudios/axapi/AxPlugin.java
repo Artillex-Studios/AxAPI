@@ -11,20 +11,20 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Locale;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public abstract class AxPlugin extends JavaPlugin {
+    public static PacketEntityTracker tracker;
 
     @Override
     public void onEnable() {
         Scheduler.scheduler.init(this);
-        Scheduler.get().runAsyncTimer(task -> PacketEntityTracker.tickAll(), 0, 5);
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(tracker::process, 0, 50, TimeUnit.MILLISECONDS);
 
-        var pluginName = this.getName().toLowerCase(Locale.ENGLISH);
         Bukkit.getPluginManager().registerEvents(new Listener() {
             @EventHandler
             public void onPlayerQuitEvent(@NotNull final PlayerQuitEvent event) {
-                PacketEntityTracker.clearPlayer(event.getPlayer());
                 NMSHandlers.getNmsHandler().uninjectPlayer(event.getPlayer());
             }
 
@@ -46,6 +46,7 @@ public abstract class AxPlugin extends JavaPlugin {
         NMSHandlers.initialise(this);
 
         load();
+        tracker = NMSHandlers.getNmsHandler().newTracker();
     }
 
     public void load() {

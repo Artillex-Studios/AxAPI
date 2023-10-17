@@ -1,5 +1,7 @@
 package com.artillexstudios.axapi.nms.v1_20_R1;
 
+import com.artillexstudios.axapi.entity.PacketEntityTracker;
+import com.artillexstudios.axapi.nms.v1_20_R1.entity.EntityTracker;
 import com.artillexstudios.axapi.nms.v1_20_R1.packet.PacketListener;
 import com.artillexstudios.axapi.selection.BlockSetter;
 import com.mojang.authlib.GameProfile;
@@ -97,6 +99,10 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
 
             item.setItemMeta(skullMeta);
         }
+    }
+
+    public PacketEntityTracker newTracker() {
+        return new EntityTracker();
     }
 
     @Override

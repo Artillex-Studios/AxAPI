@@ -1,10 +1,12 @@
 package com.artillexstudios.axapi.nms.v1_20_R1.entity;
 
+import com.artillexstudios.axapi.entity.PacketEntityTracker;
 import com.destroystokyo.paper.util.misc.PooledLinkedHashSets;
 import io.papermc.paper.util.MCUtil;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ReferenceSets;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerPlayerConnection;
@@ -13,26 +15,35 @@ import org.spigotmc.TrackingRange;
 
 import java.util.Set;
 
-public class EntityTracker {
+public class EntityTracker implements PacketEntityTracker {
     private final Int2ObjectMap<TrackedEntity> entityMap = new Int2ObjectOpenHashMap<>();
 
-    public void addEntity(PacketEntity entity) {
-        var trackedEntity = new TrackedEntity(entity);
-        entity.tracker = trackedEntity;
+    @Override
+    public com.artillexstudios.axapi.entity.impl.PacketEntity getById(int id) {
+        return entityMap.get(id).entity;
+    }
 
-        entityMap.put(entity.entityId, trackedEntity);
+    @Override
+    public void addEntity(com.artillexstudios.axapi.entity.impl.PacketEntity entity) {
+        var packetEntity = (PacketEntity) entity;
+        var trackedEntity = new TrackedEntity(packetEntity);
+        packetEntity.tracker = trackedEntity;
+
+        entityMap.put(packetEntity.entityId, trackedEntity);
 
         trackedEntity.updateTracking(trackedEntity.getPlayersInTrackingRange());
     }
 
-    public void removeEntity(PacketEntity entity) {
-        var trackedEntity = entityMap.remove(entity.entityId);
+    @Override
+    public void removeEntity(com.artillexstudios.axapi.entity.impl.PacketEntity entity) {
+        var packetEntity = (PacketEntity) entity;
+        var trackedEntity = entityMap.remove(packetEntity.entityId);
 
         if (trackedEntity != null) {
             trackedEntity.broadcastRemove();
         }
 
-        entity.tracker = null;
+        packetEntity.tracker = null;
     }
 
     public void process() {
@@ -46,7 +57,7 @@ public class EntityTracker {
     }
 
     public static class TrackedEntity {
-        public final Set<ServerPlayerConnection> seenBy = new ReferenceOpenHashSet<>();
+        public final Set<ServerPlayerConnection> seenBy = ReferenceSets.synchronize(new ReferenceOpenHashSet<>());
         private final PacketEntity entity;
         private com.destroystokyo.paper.util.misc.PooledLinkedHashSets.PooledObjectLinkedOpenHashSet<ServerPlayer> lastTrackerCandidates;
 

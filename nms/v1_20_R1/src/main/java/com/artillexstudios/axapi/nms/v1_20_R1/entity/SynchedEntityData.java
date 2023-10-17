@@ -82,17 +82,4 @@ public class SynchedEntityData {
         this.isDirty = false;
         return list;
     }
-
-    public List<net.minecraft.network.syncher.SynchedEntityData.DataValue<?>> packAll() {
-        if (this.isEmpty()) {
-            return null;
-        }
-
-        List<net.minecraft.network.syncher.SynchedEntityData.DataValue<?>> list = new ArrayList<>();
-        for (net.minecraft.network.syncher.SynchedEntityData.DataItem<?> dataItem : this.items.values()) {
-            list.add(dataItem.value());
-        }
-
-        return list;
-    }
 }

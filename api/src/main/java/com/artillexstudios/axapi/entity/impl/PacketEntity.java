@@ -42,8 +42,6 @@ public interface PacketEntity {
     @Nullable
     ItemStack getItem(EquipmentSlot equipmentSlot);
 
-    void clear(Player player);
-
     Set<Player> getViewers();
 
     int getEntityId();

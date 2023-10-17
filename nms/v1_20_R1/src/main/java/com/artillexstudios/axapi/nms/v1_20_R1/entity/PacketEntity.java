@@ -1,11 +1,11 @@
 package com.artillexstudios.axapi.nms.v1_20_R1.entity;
 
+import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import io.netty.buffer.Unpooled;
-import io.papermc.paper.adventure.PaperAdventure;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.core.NonNullList;
@@ -30,7 +30,7 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
+import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
@@ -39,7 +39,6 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -72,6 +71,7 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
         data = new com.artillexstudios.axapi.nms.v1_20_R1.entity.SynchedEntityData();
         defineEntityData();
         trackedValues = data.getNonDefaultValues();
+        AxPlugin.tracker.addEntity(this);
 
         handSlots = NonNullList.withSize(2, net.minecraft.world.item.ItemStack.EMPTY);
         armorSlots = NonNullList.withSize(4, net.minecraft.world.item.ItemStack.EMPTY);
@@ -139,7 +139,7 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
             return;
         }
 
-        data.set(EntityData.CUSTOM_NAME, Optional.of(net.minecraft.network.chat.Component.Serializer.fromJson(GsonComponentSerializer.gson().serializer().toJsonTree(name))));
+        data.set(EntityData.CUSTOM_NAME, Optional.ofNullable(net.minecraft.network.chat.Component.Serializer.fromJson(GsonComponentSerializer.gson().serializer().toJsonTree(name))));
     }
 
     @Override
@@ -188,7 +188,7 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
 
     @Override
     public void remove() {
-        this.tracker.broadcastRemove();
+        AxPlugin.tracker.removeEntity(this);
         eventConsumers.clear();
     }
 
@@ -196,7 +196,7 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     public void setItem(EquipmentSlot slot, @Nullable ItemStack item) {
         var equipmentSlot = net.minecraft.world.entity.EquipmentSlot.byTypeAndIndex(slot.getType() == EquipmentSlot.Type.ARMOR ? net.minecraft.world.entity.EquipmentSlot.Type.ARMOR : net.minecraft.world.entity.EquipmentSlot.Type.HAND, slot.getIndex());
 
-        setItemSlot(equipmentSlot, item == null ? net.minecraft.world.item.ItemStack.EMPTY : CraftItemStack.asNMSCopy(item));
+        setItemSlot(equipmentSlot, item == null ? net.minecraft.world.item.ItemStack.EMPTY : item.getType() == Material.AIR ? net.minecraft.world.item.ItemStack.EMPTY : CraftItemStack.asNMSCopy(item));
     }
 
     @Nullable
@@ -205,11 +205,6 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
         var equipmentSlot = net.minecraft.world.entity.EquipmentSlot.byTypeAndIndex(slot.getType() == EquipmentSlot.Type.ARMOR ? net.minecraft.world.entity.EquipmentSlot.Type.ARMOR : net.minecraft.world.entity.EquipmentSlot.Type.HAND, slot.getIndex());
 
         return CraftItemStack.asCraftMirror(getItemBySlot(equipmentSlot));
-    }
-
-    @Override
-    public void clear(Player player) {
-
     }
 
     @Override
@@ -240,19 +235,6 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
 
     public int getViewDistanceSquared() {
         return viewDistanceSquared;
-    }
-
-    public List<SynchedEntityData.DataValue<?>> dataValues(ServerPlayer player) {
-        List<SynchedEntityData.DataValue<?>> values = new ArrayList<>();
-        if (invisible) {
-            values.add(SynchedEntityData.DataValue.create(EntityDataSerializers.BYTE.createAccessor(0), (byte) 0x20));
-        }
-
-        if (silent) {
-            values.add(SynchedEntityData.DataValue.create(EntityDataSerializers.BOOLEAN.createAccessor(4), true));
-        }
-
-        return values;
     }
 
     public void setItemSlot(net.minecraft.world.entity.EquipmentSlot equipmentSlot, net.minecraft.world.item.ItemStack itemStack) {
@@ -288,11 +270,7 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
         }
 
         List<Pair<net.minecraft.world.entity.EquipmentSlot, net.minecraft.world.item.ItemStack>> equipments = Lists.newArrayList();
-        net.minecraft.world.entity.EquipmentSlot[] equipmentSlots = net.minecraft.world.entity.EquipmentSlot.values();
-        var i = equipmentSlots.length;
-
-        for (int j = 0; j < i; j++) {
-            var slot = equipmentSlots[j];
+        for (net.minecraft.world.entity.EquipmentSlot slot : net.minecraft.world.entity.EquipmentSlot.values()) {
             var item = getItemBySlot(slot);
 
             if (!item.isEmpty()) {
