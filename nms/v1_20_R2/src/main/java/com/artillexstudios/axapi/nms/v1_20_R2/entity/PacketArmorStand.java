@@ -2,21 +2,17 @@ package com.artillexstudios.axapi.nms.v1_20_R2.entity;
 
 import com.artillexstudios.axapi.utils.RotationType;
 import net.minecraft.core.Rotations;
-import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.server.level.ServerPlayer;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_20_R2.entity.CraftPlayer;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
 import org.bukkit.util.EulerAngle;
 
-import java.util.EnumMap;
-import java.util.List;
-
 public class PacketArmorStand extends PacketEntity implements com.artillexstudios.axapi.entity.impl.PacketArmorStand {
-    private final EnumMap<RotationType, Rotations> rotationOverrides = new EnumMap<>(RotationType.class);
+    private static final Rotations DEFAULT_HEAD_POSE = new Rotations(0.0F, 0.0F, 0.0F);
+    private static final Rotations DEFAULT_BODY_POSE = new Rotations(0.0F, 0.0F, 0.0F);
+    private static final Rotations DEFAULT_LEFT_ARM_POSE = new Rotations(-10.0F, 0.0F, -10.0F);
+    private static final Rotations DEFAULT_RIGHT_ARM_POSE = new Rotations(-15.0F, 0.0F, 10.0F);
+    private static final Rotations DEFAULT_LEFT_LEG_POSE = new Rotations(-1.0F, 0.0F, -1.0F);
+    private static final Rotations DEFAULT_RIGHT_LEG_POSE = new Rotations(1.0F, 0.0F, 1.0F);
     private boolean small = false;
     private boolean marker = false;
     private boolean hasArms = false;
@@ -34,69 +30,52 @@ public class PacketArmorStand extends PacketEntity implements com.artillexstudio
     public void setSmall(boolean small) {
         this.small = small;
 
-        for (Player viewer : viewers) {
-            ServerPlayer player = ((CraftPlayer) viewer).getHandle();
-
-            player.connection.send(new ClientboundSetEntityDataPacket(entityId, dataValues(player)));
-        }
+        data.set(EntityData.ARMOR_STAND_DATA, (byte) ((small ? 0x01 : 0) | (hasArms ? 0x04 : 0) | (!hasBasePlate ? 0x08 : 0) | (marker ? 0x10 : 0)));
     }
 
     @Override
     public void setMarker(boolean marker) {
         this.marker = marker;
 
-        for (Player viewer : viewers) {
-            ServerPlayer player = ((CraftPlayer) viewer).getHandle();
-
-            player.connection.send(new ClientboundSetEntityDataPacket(entityId, dataValues(player)));
-        }
+        data.set(EntityData.ARMOR_STAND_DATA, (byte) ((small ? 0x01 : 0) | (hasArms ? 0x04 : 0) | (!hasBasePlate ? 0x08 : 0) | (marker ? 0x10 : 0)));
     }
 
     @Override
     public void setHasArms(boolean hasArms) {
         this.hasArms = hasArms;
 
-        for (Player viewer : viewers) {
-            ServerPlayer player = ((CraftPlayer) viewer).getHandle();
-
-            player.connection.send(new ClientboundSetEntityDataPacket(entityId, dataValues(player)));
-        }
+        data.set(EntityData.ARMOR_STAND_DATA, (byte) ((small ? 0x01 : 0) | (hasArms ? 0x04 : 0) | (!hasBasePlate ? 0x08 : 0) | (marker ? 0x10 : 0)));
     }
 
     @Override
     public void setHasBasePlate(boolean hasBasePlate) {
         this.hasBasePlate = hasBasePlate;
 
-        for (Player viewer : viewers) {
-            ServerPlayer player = ((CraftPlayer) viewer).getHandle();
-
-            player.connection.send(new ClientboundSetEntityDataPacket(entityId, dataValues(player)));
-        }
+        data.set(EntityData.ARMOR_STAND_DATA, (byte) ((small ? 0x01 : 0) | (hasArms ? 0x04 : 0) | (!hasBasePlate ? 0x08 : 0) | (marker ? 0x10 : 0)));
     }
 
     @Override
     public void setRotation(RotationType rotationType, EulerAngle rotation) {
-        rotationOverrides.put(rotationType, toRotations(rotation));
-
-        for (Player viewer : viewers) {
-            ServerPlayer player = ((CraftPlayer) viewer).getHandle();
-
-            player.connection.send(new ClientboundSetEntityDataPacket(entityId, dataValues(player)));
+        switch (rotationType) {
+            case RIGHT_LEG -> data.set(EntityData.ARMOR_STAND_RIGHT_LEG_ROTATION, toRotations(rotation));
+            case RIGHT_ARM -> data.set(EntityData.ARMOR_STAND_RIGHT_ARM_ROTATION, toRotations(rotation));
+            case HEAD -> data.set(EntityData.ARMOR_STAND_HEAD_ROTATION, toRotations(rotation));
+            case LEFT_ARM -> data.set(EntityData.ARMOR_STAND_LEFT_ARM_ROTATION, toRotations(rotation));
+            case LEFT_LEG -> data.set(EntityData.ARMOR_STAND_LEFT_LEG_ROTATION, toRotations(rotation));
+            case BODY -> data.set(EntityData.ARMOR_STAND_BODY_ROTATION, toRotations(rotation));
         }
     }
 
     @Override
-    public List<SynchedEntityData.DataValue<?>> dataValues(ServerPlayer player) {
-        List<SynchedEntityData.DataValue<?>> values = super.dataValues(player);
+    public void defineEntityData() {
+        super.defineEntityData();
 
-        byte mask = (byte) ((small ? 0x01 : 0) | (hasArms ? 0x04 : 0) | (!hasBasePlate ? 0x08 : 0) | (marker ? 0x10 : 0));
-
-        if (mask != 0) {
-            values.add(SynchedEntityData.DataValue.create(EntityDataSerializers.BYTE.createAccessor(15), mask));
-        }
-
-        rotationOverrides.forEach((key, value) -> values.add(SynchedEntityData.DataValue.create(EntityDataSerializers.ROTATIONS.createAccessor(key.index), value)));
-
-        return values;
+        data.define(EntityData.ARMOR_STAND_DATA, (byte) 0);
+        data.define(EntityData.ARMOR_STAND_HEAD_ROTATION, DEFAULT_HEAD_POSE);
+        data.define(EntityData.ARMOR_STAND_BODY_ROTATION, DEFAULT_BODY_POSE);
+        data.define(EntityData.ARMOR_STAND_LEFT_ARM_ROTATION, DEFAULT_LEFT_ARM_POSE);
+        data.define(EntityData.ARMOR_STAND_RIGHT_ARM_ROTATION, DEFAULT_RIGHT_ARM_POSE);
+        data.define(EntityData.ARMOR_STAND_LEFT_LEG_ROTATION, DEFAULT_LEFT_LEG_POSE);
+        data.define(EntityData.ARMOR_STAND_RIGHT_LEG_ROTATION, DEFAULT_RIGHT_LEG_POSE);
     }
 }

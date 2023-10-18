@@ -1,83 +1,128 @@
 package com.artillexstudios.axapi.nms.v1_19_R3.entity;
 
-import com.artillexstudios.axapi.entity.PacketEntityTracker;
+import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
+import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import io.netty.buffer.Unpooled;
-import io.papermc.paper.adventure.PaperAdventure;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
-import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
+import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftItemStack;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class PacketEntity implements com.artillexstudios.axapi.entity.impl.PacketEntity {
-    public final Set<Player> viewers = new HashSet<>();
     public final int entityId;
     private final net.minecraft.world.entity.EntityType<?> entityType;
-    private final HashMap<UUID, Component> nameOverrides = new HashMap<>();
-    private final HashMap<String, Object> keys = new HashMap<>();
-    private final HashMap<UUID, Location> locationOverrides = new HashMap<>();
-    private final List<Pair<net.minecraft.world.entity.EquipmentSlot, net.minecraft.world.item.ItemStack>> equipments = new ArrayList<>();
-    private final List<UUID> forceHidden = new ArrayList<>();
     private final List<Consumer<PacketEntityInteractEvent>> eventConsumers = new ArrayList<>();
+    private final NonNullList<net.minecraft.world.item.ItemStack> handSlots;
+    private final NonNullList<net.minecraft.world.item.ItemStack> armorSlots;
     public boolean invisible = false;
     public boolean silent = false;
+    public com.artillexstudios.axapi.nms.v1_19_R3.entity.SynchedEntityData data;
+    public EntityTracker.TrackedEntity tracker;
+    private List<SynchedEntityData.DataValue<?>> trackedValues;
     private Location location;
     private Component name = null;
     private int viewDistance = 32;
     private int viewDistanceSquared = 32 * 32;
+    private boolean itemDirty = false;
+    private boolean shouldTeleport = false;
 
     public PacketEntity(EntityType entityType, Location location) {
         entityId = Entity.nextEntityId();
         this.location = location;
         this.entityType = net.minecraft.world.entity.EntityType.byString(entityType.getName()).orElse(net.minecraft.world.entity.EntityType.ARMOR_STAND);
+        data = new com.artillexstudios.axapi.nms.v1_19_R3.entity.SynchedEntityData();
+        defineEntityData();
+        trackedValues = data.getNonDefaultValues();
+        AxPlugin.tracker.addEntity(this);
+
+        handSlots = NonNullList.withSize(2, net.minecraft.world.item.ItemStack.EMPTY);
+        armorSlots = NonNullList.withSize(4, net.minecraft.world.item.ItemStack.EMPTY);
     }
 
-    private static net.minecraft.world.entity.EquipmentSlot byName(String name) {
-        net.minecraft.world.entity.EquipmentSlot[] values = net.minecraft.world.entity.EquipmentSlot.values();
+    private static net.minecraft.world.item.ItemStack stripMeta(net.minecraft.world.item.ItemStack itemStack, boolean copyItemStack) {
+        if (!itemStack.isEmpty() && (itemStack.hasTag() || itemStack.getCount() >= 2)) {
+            net.minecraft.world.item.ItemStack copy = copyItemStack ? itemStack.copy() : itemStack;
 
-        for (net.minecraft.world.entity.EquipmentSlot value : values) {
-            if (value.getName().equalsIgnoreCase(name)) {
-                return value;
+            CompoundTag tag = copy.getTag();
+            copy.setCount(copy.getCount() > 1 ? 2 : 1);
+            if (tag != null) {
+                Tag var6 = tag.get("display");
+                if (var6 instanceof CompoundTag displayTag) {
+                    displayTag.remove("Lore");
+                    displayTag.remove("Name");
+                }
+
+                var6 = tag.get("Enchantments");
+                if (var6 instanceof ListTag enchantmentsTag) {
+                    if (!enchantmentsTag.isEmpty()) {
+                        ListTag enchantments = new ListTag();
+                        CompoundTag fakeEnchantment = new CompoundTag();
+                        if (EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SOUL_SPEED, itemStack) > 0) {
+                            fakeEnchantment.putString("id", Enchantment.SOUL_SPEED.getKey().asString());
+                            fakeEnchantment.putInt("lvl", 1);
+                        }
+
+                        enchantments.add(fakeEnchantment);
+                        tag.put("Enchantments", enchantments);
+                    }
+                }
+
+                tag.remove("AttributeModifiers");
+                tag.remove("author");
+                tag.remove("filtered_title");
+                tag.remove("pages");
+                tag.remove("filtered_pages");
+                tag.remove("title");
+                tag.remove("generation");
             }
+
+
+            tag.remove("LodestonePos");
+            if (tag.contains("LodestoneDimension")) {
+                tag.putString("LodestoneDimension", "paper:paper");
+            }
+
+            return copy;
+        } else {
+            return itemStack;
         }
-
-        return null;
-    }
-
-    @Override
-    public void setName(Component name, Player player) {
-        nameOverrides.put(player.getUniqueId(), name);
-
-        ServerPlayer viewer = ((CraftPlayer) player).getHandle();
-        viewer.connection.send(new ClientboundSetEntityDataPacket(entityId, dataValues(viewer)));
     }
 
     @Override
@@ -88,95 +133,35 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     @Override
     public void setName(Component name) {
         this.name = name;
-
-        for (Player viewer : viewers) {
-            if (nameOverrides.containsKey(viewer.getUniqueId())) continue;
-
-            ServerPlayer player = ((CraftPlayer) viewer).getHandle();
-            player.connection.send(new ClientboundSetEntityDataPacket(entityId, dataValues(player)));
+        if (name == null) {
+            data.set(EntityData.CUSTOM_NAME, Optional.empty());
+            return;
         }
-    }
 
-    @Override
-    public Component getName(Player player) {
-        return nameOverrides.getOrDefault(player.getUniqueId(), this.name);
+        data.set(EntityData.CUSTOM_NAME, Optional.ofNullable(net.minecraft.network.chat.Component.Serializer.fromJson(GsonComponentSerializer.gson().serializer().toJsonTree(name))));
     }
 
     @Override
     public void teleport(Location location) {
         this.location = location;
-
-        FriendlyByteBuf byteBuf = new FriendlyByteBuf(Unpooled.buffer());
-        byteBuf.writeVarInt(entityId);
-        byteBuf.writeDouble(this.location.getX());
-        byteBuf.writeDouble(this.location.getY());
-        byteBuf.writeDouble(this.location.getZ());
-        byteBuf.writeByte((byte) ((int) (location.getYaw() * 256.0F / 360.0F)));
-        byteBuf.writeByte((byte) ((int) (location.getPitch() * 256.0F / 360.0F)));
-        byteBuf.writeBoolean(true);
-
-        ClientboundTeleportEntityPacket teleportEntityPacket = new ClientboundTeleportEntityPacket(byteBuf);
-
-        for (Player viewer : viewers) {
-            if (locationOverrides.containsKey(viewer.getUniqueId())) continue;
-
-            ServerPlayer player = ((CraftPlayer) viewer).getHandle();
-            player.connection.send(teleportEntityPacket);
-        }
-
-        byteBuf.release();
-    }
-
-    @Override
-    public void teleport(Location location, Player player) {
-        this.locationOverrides.put(player.getUniqueId(), location);
-
-        FriendlyByteBuf byteBuf = new FriendlyByteBuf(Unpooled.buffer());
-        byteBuf.writeVarInt(entityId);
-        byteBuf.writeDouble(location.getX());
-        byteBuf.writeDouble(location.getY());
-        byteBuf.writeDouble(location.getZ());
-        byteBuf.writeByte((byte) ((int) (location.getYaw() * 256.0F / 360.0F)));
-        byteBuf.writeByte((byte) ((int) (location.getPitch() * 256.0F / 360.0F)));
-        byteBuf.writeBoolean(true);
-
-        ClientboundTeleportEntityPacket teleportEntityPacket = new ClientboundTeleportEntityPacket(byteBuf);
-        ServerPlayer viewer = ((CraftPlayer) player).getHandle();
-        viewer.connection.send(teleportEntityPacket);
-
-        byteBuf.release();
+        this.shouldTeleport = true;
     }
 
     @Override
     public void setInvisible(boolean invisible) {
         this.invisible = invisible;
-
-        for (Player viewer : viewers) {
-            ServerPlayer player = ((CraftPlayer) viewer).getHandle();
-
-            player.connection.send(new ClientboundSetEntityDataPacket(entityId, dataValues(player)));
-        }
+        data.set(EntityData.BYTE_DATA, invisible ? (byte) 0x20 : (byte) 0);
     }
 
     @Override
     public void setSilent(boolean silent) {
         this.silent = silent;
-
-        for (Player viewer : viewers) {
-            ServerPlayer player = ((CraftPlayer) viewer).getHandle();
-
-            player.connection.send(new ClientboundSetEntityDataPacket(entityId, dataValues(player)));
-        }
+        data.set(EntityData.SILENT, silent);
     }
 
     @Override
     public Location getLocation() {
         return this.location;
-    }
-
-    @Override
-    public Location getLocation(Player player) {
-        return this.locationOverrides.getOrDefault(player.getUniqueId(), this.location);
     }
 
     @Override
@@ -192,68 +177,17 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
 
     @Override
     public void show(Player player) {
-        if (forceHidden.contains(player.getUniqueId())) return;
 
-        try {
-            if (viewers.add(player)) {
-                ClientboundAddEntityPacket packet = new ClientboundAddEntityPacket(
-                        entityId,
-                        UUID.randomUUID(),
-                        location.getX(),
-                        location.getY(),
-                        location.getZ(),
-                        location.getPitch(),
-                        location.getYaw(),
-                        this.entityType,
-                        1,
-                        Vec3.ZERO,
-                        0
-                );
-
-                ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
-                serverPlayer.connection.send(packet);
-                serverPlayer.connection.send(new ClientboundSetEntityDataPacket(entityId, dataValues(serverPlayer)));
-
-                if (!equipments.isEmpty()) {
-                    serverPlayer.connection.send(changeEquipment());
-                }
-            }
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
     }
 
     @Override
     public void hide(Player player) {
-        if (viewers.remove(player)) {
-            ClientboundRemoveEntitiesPacket packet = new ClientboundRemoveEntitiesPacket(this.entityId);
 
-            ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
-            serverPlayer.connection.send(packet);
-        }
-    }
-
-    @Override
-    public void forceHide(Player player) {
-        forceHidden.add(player.getUniqueId());
-        hide(player);
-    }
-
-    public void forceShow(Player player) {
-        forceHidden.remove(player.getUniqueId());
-        show(player);
     }
 
     @Override
     public void remove() {
-        PacketEntityTracker.stopTracking(this);
-
-        for (Player viewer : viewers) {
-            hide(viewer);
-            clear(viewer);
-        }
-
-        viewers.clear();
+        AxPlugin.tracker.removeEntity(this);
         eventConsumers.clear();
     }
 
@@ -261,73 +195,25 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     public void setItem(EquipmentSlot slot, @Nullable ItemStack item) {
         var equipmentSlot = net.minecraft.world.entity.EquipmentSlot.byTypeAndIndex(slot.getType() == EquipmentSlot.Type.ARMOR ? net.minecraft.world.entity.EquipmentSlot.Type.ARMOR : net.minecraft.world.entity.EquipmentSlot.Type.HAND, slot.getIndex());
 
-        var iterator = equipments.iterator();
-        while (iterator.hasNext()) {
-            var next = iterator.next();
-            if (next.getFirst() == equipmentSlot) {
-                iterator.remove();
-                break;
-            }
-        }
-
-        if (item != null) {
-            equipments.add(Pair.of(equipmentSlot, CraftItemStack.asNMSCopy(item)));
-        }
-
-        if (equipments.isEmpty()) {
-            return;
-        }
-
-        var packet = changeEquipment();
-        for (Player viewer : viewers) {
-            ServerPlayer serverPlayer = ((CraftPlayer) viewer).getHandle();
-            serverPlayer.connection.send(packet);
-        }
+        setItemSlot(equipmentSlot, item == null ? net.minecraft.world.item.ItemStack.EMPTY : item.getType() == Material.AIR ? net.minecraft.world.item.ItemStack.EMPTY : CraftItemStack.asNMSCopy(item));
     }
 
     @Nullable
     @Override
-    public ItemStack getItem(EquipmentSlot equipmentSlot) {
-        for (Pair<net.minecraft.world.entity.EquipmentSlot, net.minecraft.world.item.ItemStack> equipment : equipments) {
-            if (equipment.getFirst() == byName(equipmentSlot.name())) {
-                return equipment.getSecond().getBukkitStack();
-            }
-        }
+    public ItemStack getItem(EquipmentSlot slot) {
+        var equipmentSlot = net.minecraft.world.entity.EquipmentSlot.byTypeAndIndex(slot.getType() == EquipmentSlot.Type.ARMOR ? net.minecraft.world.entity.EquipmentSlot.Type.ARMOR : net.minecraft.world.entity.EquipmentSlot.Type.HAND, slot.getIndex());
 
-        return null;
-    }
-
-    @Override
-    public void clear(Player player) {
-        viewers.remove(player);
-        nameOverrides.remove(player.getUniqueId());
-        locationOverrides.remove(player.getUniqueId());
-        forceHidden.remove(player.getUniqueId());
+        return CraftItemStack.asCraftMirror(getItemBySlot(equipmentSlot));
     }
 
     @Override
     public Set<Player> getViewers() {
-        return this.viewers;
+        return this.tracker.seenBy.stream().map(it -> it.getPlayer().getBukkitEntity()).collect(Collectors.toSet());
     }
 
     @Override
     public int getEntityId() {
         return this.entityId;
-    }
-
-    @Override
-    public <T> void write(String key, T value) {
-        keys.put(key, value);
-    }
-
-    @Override
-    public boolean has(String key) {
-        return keys.containsKey(key);
-    }
-
-    @Override
-    public <T> T get(String key) {
-        return (T) keys.get(key);
     }
 
     @Override
@@ -350,29 +236,116 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
         return viewDistanceSquared;
     }
 
-    public List<SynchedEntityData.DataValue<?>> dataValues(ServerPlayer player) {
-        List<SynchedEntityData.DataValue<?>> values = new ArrayList<>();
-        if (invisible) {
-            values.add(SynchedEntityData.DataValue.create(EntityDataSerializers.BYTE.createAccessor(0), (byte) 0x20));
+    public void setItemSlot(net.minecraft.world.entity.EquipmentSlot equipmentSlot, net.minecraft.world.item.ItemStack itemStack) {
+        switch (equipmentSlot.getType()) {
+            case HAND -> handSlots.add(equipmentSlot.getIndex(), itemStack);
+            case ARMOR -> armorSlots.add(equipmentSlot.getIndex(), itemStack);
         }
 
-        if (silent) {
-            values.add(SynchedEntityData.DataValue.create(EntityDataSerializers.BOOLEAN.createAccessor(4), true));
-        }
-
-        var component = nameOverrides.get(player.getUUID());
-        if (component != null) {
-            values.add(SynchedEntityData.DataValue.create(EntityDataSerializers.BOOLEAN.createAccessor(3), true));
-            values.add(SynchedEntityData.DataValue.create(EntityDataSerializers.OPTIONAL_COMPONENT.createAccessor(2), Optional.of(PaperAdventure.asVanilla(component))));
-        } else if (name != null) {
-            values.add(SynchedEntityData.DataValue.create(EntityDataSerializers.BOOLEAN.createAccessor(3), true));
-            values.add(SynchedEntityData.DataValue.create(EntityDataSerializers.OPTIONAL_COMPONENT.createAccessor(2), Optional.of(net.minecraft.network.chat.Component.Serializer.fromJson(GsonComponentSerializer.gson().serializer().toJsonTree(name)))));
-        }
-
-        return values;
+        itemDirty = true;
     }
 
-    public ClientboundSetEquipmentPacket changeEquipment() {
-        return new ClientboundSetEquipmentPacket(entityId, equipments);
+    public net.minecraft.world.item.ItemStack getItemBySlot(net.minecraft.world.entity.EquipmentSlot equipmentSlot) {
+        return switch (equipmentSlot.getType()) {
+            case HAND -> this.handSlots.get(equipmentSlot.getIndex());
+            case ARMOR -> this.armorSlots.get(equipmentSlot.getIndex());
+        };
+    }
+
+    public void addPairing(ServerPlayer player) {
+        List<Packet<ClientGamePacketListener>> list = new ArrayList<>();
+
+        addPairingData(list::add);
+
+        player.connection.send(new ClientboundBundlePacket(list));
+    }
+
+    private void addPairingData(Consumer<Packet<ClientGamePacketListener>> consumer) {
+        var packet = getAddEntityPacket();
+        consumer.accept(packet);
+
+        if (trackedValues != null) {
+            consumer.accept(new ClientboundSetEntityDataPacket(this.entityId, this.trackedValues));
+        }
+
+        List<Pair<net.minecraft.world.entity.EquipmentSlot, net.minecraft.world.item.ItemStack>> equipments = Lists.newArrayList();
+        for (net.minecraft.world.entity.EquipmentSlot slot : net.minecraft.world.entity.EquipmentSlot.values()) {
+            var item = getItemBySlot(slot);
+
+            if (!item.isEmpty()) {
+                var sanitised = LivingEntity.sanitizeItemStack(item.copy(), false);
+                equipments.add(Pair.of(slot, stripMeta(sanitised, false)));
+            }
+        }
+
+        if (!equipments.isEmpty()) {
+            consumer.accept(new ClientboundSetEquipmentPacket(entityId, equipments));
+        }
+    }
+
+    public void removePairing(ServerPlayer player) {
+        player.connection.send(new ClientboundRemoveEntitiesPacket(entityId));
+    }
+
+    private ClientboundAddEntityPacket getAddEntityPacket() {
+        return new ClientboundAddEntityPacket(entityId, UUID.randomUUID(), location.getX(), location.getY(), location.getZ(), location.getPitch(), location.getYaw(), this.entityType, 1, Vec3.ZERO, 0);
+    }
+
+    public void sendChanges() {
+        sendDirtyEntityData();
+
+        if (itemDirty) {
+            itemDirty = false;
+            List<Pair<net.minecraft.world.entity.EquipmentSlot, net.minecraft.world.item.ItemStack>> equipments = Lists.newArrayList();
+            net.minecraft.world.entity.EquipmentSlot[] equipmentSlots = net.minecraft.world.entity.EquipmentSlot.values();
+            var i = equipmentSlots.length;
+
+            for (int j = 0; j < i; j++) {
+                var slot = equipmentSlots[j];
+                var item = getItemBySlot(slot);
+
+                if (!item.isEmpty()) {
+                    var sanitised = LivingEntity.sanitizeItemStack(item.copy(), false);
+                    equipments.add(Pair.of(slot, stripMeta(sanitised, false)));
+                }
+            }
+
+            if (!equipments.isEmpty()) {
+                tracker.broadcast(new ClientboundSetEquipmentPacket(entityId, equipments));
+            }
+        }
+
+        if (shouldTeleport) {
+            shouldTeleport = false;
+
+            FriendlyByteBuf byteBuf = new FriendlyByteBuf(Unpooled.buffer());
+            byteBuf.writeVarInt(entityId);
+            byteBuf.writeDouble(this.location.getX());
+            byteBuf.writeDouble(this.location.getY());
+            byteBuf.writeDouble(this.location.getZ());
+            byteBuf.writeByte((byte) ((int) (location.getYaw() * 256.0F / 360.0F)));
+            byteBuf.writeByte((byte) ((int) (location.getPitch() * 256.0F / 360.0F)));
+            byteBuf.writeBoolean(true);
+
+            tracker.broadcast(new ClientboundTeleportEntityPacket(byteBuf));
+
+            byteBuf.release();
+        }
+    }
+
+    private void sendDirtyEntityData() {
+        List<SynchedEntityData.DataValue<?>> list = data.packDirty();
+
+        if (list != null) {
+            this.trackedValues = data.getNonDefaultValues();
+            this.tracker.broadcast(new ClientboundSetEntityDataPacket(entityId, list));
+        }
+    }
+
+    public void defineEntityData() {
+        data.define(EntityData.BYTE_DATA, (byte) 0);
+        data.define(EntityData.CUSTOM_NAME_VISIBLE, false);
+        data.define(EntityData.CUSTOM_NAME, Optional.empty());
+        data.define(EntityData.SILENT, false);
     }
 }

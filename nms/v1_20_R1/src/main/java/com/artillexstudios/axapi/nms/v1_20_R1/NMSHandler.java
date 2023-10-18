@@ -101,6 +101,7 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
         }
     }
 
+    @Override
     public PacketEntityTracker newTracker() {
         return new EntityTracker();
     }
