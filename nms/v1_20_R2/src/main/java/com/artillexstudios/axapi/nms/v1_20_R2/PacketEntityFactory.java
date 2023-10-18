@@ -1,6 +1,5 @@
 package com.artillexstudios.axapi.nms.v1_20_R2;
 
-import com.artillexstudios.axapi.entity.PacketEntityTracker;
 import com.artillexstudios.axapi.entity.impl.PacketEntity;
 import com.artillexstudios.axapi.nms.v1_20_R2.entity.PacketArmorStand;
 import com.artillexstudios.axapi.nms.v1_20_R2.entity.PacketItem;
@@ -20,7 +19,6 @@ public class PacketEntityFactory implements com.artillexstudios.axapi.entity.Pac
             entity = new com.artillexstudios.axapi.nms.v1_20_R2.entity.PacketEntity(entityType, location);
         }
 
-        PacketEntityTracker.startTracking(entity);
         return entity;
     }
 }
