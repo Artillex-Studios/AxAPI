@@ -13,11 +13,14 @@ import java.text.DecimalFormat;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class StringUtils {
     public static final LegacyComponentSerializer LEGACY_COMPONENT_SERIALIZER;
 
     public static final MiniMessage MINI_MESSAGE;
+    private static Pattern HEX_PATTERN = Pattern.compile("&#([0-9a-fA-F]{6})");
 
     static {
         if (Version.getServerVersion().protocolId >= Version.v1_16_5.protocolId) {
@@ -49,7 +52,7 @@ public class StringUtils {
 
     @NotNull
     public static String formatToString(@NotNull String input, TagResolver... resolvers) {
-        return ChatColor.translateAlternateColorCodes('&', LEGACY_COMPONENT_SERIALIZER.serialize(format(input, resolvers)));
+        return ChatColor.translateAlternateColorCodes('&', legacyHexFormat(LEGACY_COMPONENT_SERIALIZER.serialize(format(input, resolvers))));
     }
 
     @NotNull
@@ -60,6 +63,23 @@ public class StringUtils {
         }
 
         return newList;
+    }
+
+    // Thanks! https://www.spigotmc.org/threads/hex-color-code-translate.449748/
+    public static String legacyHexFormat(String message) {
+        Matcher matcher = HEX_PATTERN.matcher(message);
+        var builder = new StringBuilder(message.length() + 4 * 8);
+
+        while (matcher.find()) {
+            var group = matcher.group(1);
+            matcher.appendReplacement(builder, ChatColor.COLOR_CHAR + "x"
+                    + ChatColor.COLOR_CHAR + group.charAt(0) + ChatColor.COLOR_CHAR + group.charAt(1)
+                    + ChatColor.COLOR_CHAR + group.charAt(2) + ChatColor.COLOR_CHAR + group.charAt(3)
+                    + ChatColor.COLOR_CHAR + group.charAt(4) + ChatColor.COLOR_CHAR + group.charAt(5)
+            );
+        }
+
+        return matcher.appendTail(builder).toString();
     }
 
     @NotNull

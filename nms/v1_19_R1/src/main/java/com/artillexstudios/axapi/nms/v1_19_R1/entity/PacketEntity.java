@@ -69,10 +69,11 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
         data = new com.artillexstudios.axapi.nms.v1_19_R1.entity.SynchedEntityData();
         defineEntityData();
         trackedValues = data.getAll();
-        AxPlugin.tracker.addEntity(this);
 
         handSlots = NonNullList.withSize(2, net.minecraft.world.item.ItemStack.EMPTY);
         armorSlots = NonNullList.withSize(4, net.minecraft.world.item.ItemStack.EMPTY);
+
+        AxPlugin.tracker.addEntity(this);
     }
 
     private static net.minecraft.world.item.ItemStack stripMeta(net.minecraft.world.item.ItemStack itemStack, boolean copyItemStack) {
