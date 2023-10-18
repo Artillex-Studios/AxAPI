@@ -238,8 +238,8 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
 
     public void setItemSlot(net.minecraft.world.entity.EquipmentSlot equipmentSlot, net.minecraft.world.item.ItemStack itemStack) {
         switch (equipmentSlot.getType()) {
-            case HAND -> handSlots.add(equipmentSlot.getIndex(), itemStack);
-            case ARMOR -> armorSlots.add(equipmentSlot.getIndex(), itemStack);
+            case HAND -> handSlots.set(equipmentSlot.getIndex(), itemStack);
+            case ARMOR -> armorSlots.set(equipmentSlot.getIndex(), itemStack);
         }
 
         itemDirty = true;
