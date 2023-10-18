@@ -24,7 +24,7 @@ public class ItemStackHologramLine extends com.artillexstudios.axapi.hologram.im
 
     @Override
     public void set(@NotNull ItemStack content, @NotNull Player player) {
-        this.packetItem.setItemStack(content, player);
+        this.packetItem.setItemStack(content);
     }
 
     @NotNull
@@ -36,7 +36,7 @@ public class ItemStackHologramLine extends com.artillexstudios.axapi.hologram.im
     @NotNull
     @Override
     public ItemStack get(@NotNull Player player) {
-        return this.packetItem.getItemStack(player);
+        return this.packetItem.getItemStack();
     }
 
     @Override

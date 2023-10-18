@@ -26,7 +26,7 @@ public class ComponentHologramLine extends com.artillexstudios.axapi.hologram.im
 
     @Override
     public void set(@NotNull Component content, @NotNull Player player) {
-        packetArmorStand.setName(content, player);
+        packetArmorStand.setName(content);
     }
 
     @NotNull
@@ -38,7 +38,7 @@ public class ComponentHologramLine extends com.artillexstudios.axapi.hologram.im
     @NotNull
     @Override
     public Component get(@NotNull Player player) {
-        return packetArmorStand.getName(player);
+        return packetArmorStand.getName();
     }
 
     @Override
