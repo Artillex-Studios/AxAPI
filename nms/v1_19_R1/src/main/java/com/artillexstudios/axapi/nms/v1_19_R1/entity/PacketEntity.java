@@ -21,6 +21,7 @@ import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -29,6 +30,7 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_19_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
@@ -61,10 +63,12 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     private int viewDistanceSquared = 32 * 32;
     private boolean itemDirty = false;
     private boolean shouldTeleport = false;
+    public ServerLevel level;
 
     public PacketEntity(EntityType entityType, Location location) {
         entityId = Entity.nextEntityId();
         this.location = location;
+        this.level = ((CraftWorld) location.getWorld()).getHandle();
         this.entityType = net.minecraft.world.entity.EntityType.byString(entityType.getName()).orElse(net.minecraft.world.entity.EntityType.ARMOR_STAND);
         data = new com.artillexstudios.axapi.nms.v1_19_R1.entity.SynchedEntityData();
         defineEntityData();
@@ -134,16 +138,19 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     public void setName(Component name) {
         this.name = name;
         if (name == null) {
+            data.set(EntityData.CUSTOM_NAME_VISIBLE, false);
             data.set(EntityData.CUSTOM_NAME, Optional.empty());
             return;
         }
 
+        data.set(EntityData.CUSTOM_NAME_VISIBLE, true);
         data.set(EntityData.CUSTOM_NAME, Optional.ofNullable(net.minecraft.network.chat.Component.Serializer.fromJson(GsonComponentSerializer.gson().serializer().toJsonTree(name))));
     }
 
     @Override
     public void teleport(Location location) {
         this.location = location;
+        this.level = ((CraftWorld) location.getWorld()).getHandle();
         this.shouldTeleport = true;
     }
 
@@ -189,6 +196,7 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     public void remove() {
         AxPlugin.tracker.removeEntity(this);
         eventConsumers.clear();
+        level = null;
     }
 
     @Override

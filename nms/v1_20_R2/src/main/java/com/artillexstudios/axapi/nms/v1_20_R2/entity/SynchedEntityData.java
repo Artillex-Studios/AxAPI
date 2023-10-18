@@ -37,6 +37,10 @@ public class SynchedEntityData {
         return list;
     }
 
+    public boolean isDirty() {
+        return this.isDirty;
+    }
+
     private <T> net.minecraft.network.syncher.SynchedEntityData.DataItem<T> getItem(EntityDataAccessor<T> key) {
         return (net.minecraft.network.syncher.SynchedEntityData.DataItem) this.items.get(key.getId());
     }

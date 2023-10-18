@@ -8,7 +8,6 @@ import it.unimi.dsi.fastutil.objects.ReferenceSets;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerPlayerConnection;
-import org.bukkit.craftbukkit.v1_20_R2.CraftWorld;
 
 import java.util.List;
 import java.util.Set;
@@ -45,12 +44,14 @@ public class EntityTracker implements PacketEntityTracker {
     }
 
     public void process() {
-        for (TrackedEntity tracker : entityMap.values()) {
+        var values = entityMap.int2ObjectEntrySet();
+        for (Int2ObjectMap.Entry<TrackedEntity> value : values) {
+            var tracker = value.getValue();
             tracker.updateTracking(tracker.getPlayersInTrackingRange());
         }
 
-        for (TrackedEntity tracker : entityMap.values()) {
-            tracker.entity.sendChanges();
+        for (Int2ObjectMap.Entry<TrackedEntity> value : values) {
+            value.getValue().entity.sendChanges();
         }
     }
 
@@ -100,9 +101,7 @@ public class EntityTracker implements PacketEntityTracker {
         }
 
         public List<ServerPlayer> getPlayersInTrackingRange() {
-            var location = entity.getLocation();
-
-            return ((CraftWorld) location.getWorld()).getHandle().players();
+            return entity.level.players();
         }
 
         public void broadcast(Packet<?> packet) {

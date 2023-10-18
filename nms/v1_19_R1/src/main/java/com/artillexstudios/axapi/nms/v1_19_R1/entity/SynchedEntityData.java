@@ -44,6 +44,10 @@ public class SynchedEntityData {
         }
     }
 
+    public boolean isDirty() {
+        return this.isDirty;
+    }
+
     public boolean isEmpty() {
         return this.items.isEmpty();
     }
