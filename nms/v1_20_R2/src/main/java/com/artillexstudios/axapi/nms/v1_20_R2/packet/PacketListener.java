@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.nms.v1_20_R2.packet;
 
+import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.entity.PacketEntityTracker;
 import com.artillexstudios.axapi.entity.impl.PacketEntity;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
@@ -52,7 +53,7 @@ public class PacketListener extends ChannelDuplexHandler {
 
                 byteBuf.release();
 
-                PacketEntity entity = PacketEntityTracker.getById(entityId);
+                PacketEntity entity = AxPlugin.tracker.getById(entityId);
                 if (entity != null) {
                     PacketEntityInteractEvent event = new PacketEntityInteractEvent(player, entity, attack, vector, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
                     com.artillexstudios.axapi.nms.v1_20_R2.entity.PacketEntity packetEntity = (com.artillexstudios.axapi.nms.v1_20_R2.entity.PacketEntity) entity;
