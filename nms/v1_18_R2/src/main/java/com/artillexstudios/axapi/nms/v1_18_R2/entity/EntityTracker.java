@@ -1,17 +1,15 @@
 package com.artillexstudios.axapi.nms.v1_18_R2.entity;
 
 import com.artillexstudios.axapi.entity.PacketEntityTracker;
-import com.destroystokyo.paper.util.misc.PooledLinkedHashSets;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ReferenceSets;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.server.MCUtil;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerPlayerConnection;
-import org.spigotmc.TrackingRange;
 
+import java.util.List;
 import java.util.Set;
 
 public class EntityTracker implements PacketEntityTracker {
@@ -60,25 +58,18 @@ public class EntityTracker implements PacketEntityTracker {
     public static class TrackedEntity {
         public final Set<ServerPlayerConnection> seenBy = ReferenceSets.synchronize(new ReferenceOpenHashSet<>());
         private final PacketEntity entity;
-        private PooledLinkedHashSets.PooledObjectLinkedOpenHashSet<ServerPlayer> lastTrackerCandidates;
+        private List<ServerPlayer> lastTrackerCandidates;
 
         public TrackedEntity(PacketEntity entity) {
             this.entity = entity;
         }
 
-        public void updateTracking(PooledLinkedHashSets.PooledObjectLinkedOpenHashSet<ServerPlayer> newTrackerCandidates) {
-            PooledLinkedHashSets.PooledObjectLinkedOpenHashSet<ServerPlayer> oldTrackerCandidates = this.lastTrackerCandidates;
+        public void updateTracking(List<ServerPlayer> newTrackerCandidates) {
+            List<ServerPlayer> oldTrackerCandidates = this.lastTrackerCandidates;
             this.lastTrackerCandidates = newTrackerCandidates;
 
             if (newTrackerCandidates != null) {
-                Object[] rawData = newTrackerCandidates.getBackingSet();
-
-                for (int i = 0, len = rawData.length; i < len; ++i) {
-                    Object raw = rawData[i];
-                    if (!(raw instanceof ServerPlayer player)) {
-                        continue;
-                    }
-
+                for (ServerPlayer player : newTrackerCandidates) {
                     this.updatePlayer(player);
                 }
             }
@@ -109,10 +100,8 @@ public class EntityTracker implements PacketEntityTracker {
             }
         }
 
-        public PooledLinkedHashSets.PooledObjectLinkedOpenHashSet<ServerPlayer> getPlayersInTrackingRange() {
-            var location = entity.getLocation();
-
-            return entity.level.getChunkSource().chunkMap.playerEntityTrackerTrackMaps[TrackingRange.TrackingRangeType.OTHER.ordinal()].getObjectsInRange(MCUtil.getCoordinateKey(MCUtil.fastFloor(location.getX()) >> 4, MCUtil.fastFloor(location.getZ()) >> 4));
+        public List<ServerPlayer> getPlayersInTrackingRange() {
+            return entity.level.players();
         }
 
         public void broadcast(Packet<?> packet) {
