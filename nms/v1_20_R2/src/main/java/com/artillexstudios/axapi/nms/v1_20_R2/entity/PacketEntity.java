@@ -317,6 +317,8 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
                 if (!item.isEmpty()) {
                     var sanitised = LivingEntity.sanitizeItemStack(item.copy(), false);
                     equipments.add(Pair.of(slot, stripMeta(sanitised, false)));
+                } else {
+                    equipments.add(Pair.of(slot, item));
                 }
             }
 
