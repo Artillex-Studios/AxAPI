@@ -17,7 +17,8 @@ public class EntityTracker implements PacketEntityTracker {
 
     @Override
     public com.artillexstudios.axapi.entity.impl.PacketEntity getById(int id) {
-        return entityMap.get(id).entity;
+        var entity = entityMap.get(id);
+        return entity == null ? null : entity.entity;
     }
 
     @Override

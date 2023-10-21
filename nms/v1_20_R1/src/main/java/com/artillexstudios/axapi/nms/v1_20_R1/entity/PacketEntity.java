@@ -197,7 +197,6 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     @Override
     public void remove() {
         AxPlugin.tracker.removeEntity(this);
-        eventConsumers.clear();
         level = null;
     }
 
@@ -252,6 +251,7 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
             case ARMOR -> armorSlots.set(equipmentSlot.getIndex(), itemStack);
         }
 
+        System.out.println("SET ITEM IN SLOT: " + equipmentSlot + " to: " + itemStack);
         itemDirty = true;
     }
 
