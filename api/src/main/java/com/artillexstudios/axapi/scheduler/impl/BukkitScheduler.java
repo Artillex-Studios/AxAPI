@@ -23,7 +23,7 @@ public class BukkitScheduler implements Scheduler {
 
     @Override
     public void execute(Runnable runnable) {
-        Bukkit.getScheduler().runTask(this.plugin, runnable);
+        runnable.run();
     }
 
     @Override
@@ -68,7 +68,7 @@ public class BukkitScheduler implements Scheduler {
 
     @Override
     public void executeAt(Location location, Runnable runnable) {
-        Bukkit.getScheduler().runTask(this.plugin, runnable);
+        runnable.run();
     }
 
     @Override
@@ -78,7 +78,7 @@ public class BukkitScheduler implements Scheduler {
 
     @Override
     public void execute(Entity entity, Runnable run, Runnable retired, long delay) {
-        Bukkit.getScheduler().runTask(this.plugin, run);
+        run.run();
     }
 
     @Override
