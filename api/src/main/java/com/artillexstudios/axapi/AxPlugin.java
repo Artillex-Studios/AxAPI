@@ -20,7 +20,14 @@ public abstract class AxPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         Scheduler.scheduler.init(this);
-        Executors.newScheduledThreadPool(3).scheduleAtFixedRate(tracker::process, 0, 50, TimeUnit.MILLISECONDS);
+
+        Executors.newScheduledThreadPool(3).scheduleAtFixedRate(() -> {
+            try {
+                tracker.process();
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+        }, 0, 50, TimeUnit.MILLISECONDS);
 
         Bukkit.getPluginManager().registerEvents(new Listener() {
             @EventHandler
