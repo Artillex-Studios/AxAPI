@@ -17,8 +17,10 @@ public class EntityTracker implements PacketEntityTracker {
 
     @Override
     public com.artillexstudios.axapi.entity.impl.PacketEntity getById(int id) {
-        var entity = entityMap.get(id);
-        return entity == null ? null : entity.entity;
+        synchronized (entityMap) {
+            var entity = entityMap.get(id);
+            return entity == null ? null : entity.entity;
+        }
     }
 
     @Override
@@ -27,32 +29,38 @@ public class EntityTracker implements PacketEntityTracker {
         var trackedEntity = new TrackedEntity(packetEntity);
         packetEntity.tracker = trackedEntity;
 
-        entityMap.put(packetEntity.entityId, trackedEntity);
+        synchronized (entityMap) {
+            entityMap.put(packetEntity.entityId, trackedEntity);
 
-        trackedEntity.updateTracking(trackedEntity.getPlayersInTrackingRange());
+            trackedEntity.updateTracking(trackedEntity.getPlayersInTrackingRange());
+        }
     }
 
     @Override
     public void removeEntity(com.artillexstudios.axapi.entity.impl.PacketEntity entity) {
         var packetEntity = (PacketEntity) entity;
-        var trackedEntity = entityMap.remove(packetEntity.entityId);
 
-        if (trackedEntity != null) {
-            trackedEntity.broadcastRemove();
+        synchronized (entityMap) {
+            var trackedEntity = entityMap.remove(packetEntity.entityId);
+
+            if (trackedEntity != null) {
+                trackedEntity.broadcastRemove();
+            }
+
+            packetEntity.tracker = null;
         }
-
-        packetEntity.tracker = null;
     }
 
     public void process() {
-        var values = entityMap.int2ObjectEntrySet();
-        for (Int2ObjectMap.Entry<TrackedEntity> value : values) {
-            var tracker = value.getValue();
-            tracker.updateTracking(tracker.getPlayersInTrackingRange());
-        }
+        synchronized (entityMap) {
+            for (Int2ObjectMap.Entry<TrackedEntity> value : entityMap.int2ObjectEntrySet()) {
+                var tracker = value.getValue();
+                tracker.updateTracking(tracker.getPlayersInTrackingRange());
+            }
 
-        for (Int2ObjectMap.Entry<TrackedEntity> value : values) {
-            value.getValue().entity.sendChanges();
+            for (Int2ObjectMap.Entry<TrackedEntity> value : entityMap.int2ObjectEntrySet()) {
+                value.getValue().entity.sendChanges();
+            }
         }
     }
 
