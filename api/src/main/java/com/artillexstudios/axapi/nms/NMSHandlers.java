@@ -11,7 +11,7 @@ public class NMSHandlers {
     private static NMSHandler nmsHandler;
     private static String version;
 
-    public static void initialise(JavaPlugin plugin) {
+    public static boolean initialise(JavaPlugin plugin) {
         final String packageName = Bukkit.getServer().getClass().getPackage().getName();
         version = packageName.substring(packageName.lastIndexOf('.') + 1);
 
@@ -19,7 +19,7 @@ public class NMSHandlers {
             try {
                 packetEntityFactory = (PacketEntityFactory) Class.forName(String.format("com.artillexstudios.axapi.nms.%s.PacketEntityFactory", version)).getConstructor().newInstance();
             } catch (Exception exception) {
-
+                return false;
             }
         }
 
@@ -27,7 +27,7 @@ public class NMSHandlers {
             try {
                 hologramFactory = (HologramFactory) Class.forName(String.format("com.artillexstudios.axapi.nms.%s.HologramFactory", version)).getConstructor().newInstance();
             } catch (Exception exception) {
-
+                return false;
             }
         }
 
@@ -35,9 +35,11 @@ public class NMSHandlers {
             try {
                 nmsHandler = (NMSHandler) Class.forName(String.format("com.artillexstudios.axapi.nms.%s.NMSHandler", version)).getConstructor(JavaPlugin.class).newInstance(plugin);
             } catch (Exception exception) {
-
+                return false;
             }
         }
+
+        return true;
     }
 
     public static PacketEntityFactory getPacketEntityFactory() {

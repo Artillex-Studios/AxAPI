@@ -16,30 +16,33 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class AxPlugin extends JavaPlugin {
     public static PacketEntityTracker tracker;
+    private static boolean hasNMSHandler;
 
     @Override
     public void onEnable() {
         Scheduler.scheduler.init(this);
 
-        Executors.newScheduledThreadPool(3).scheduleAtFixedRate(() -> {
-            try {
-                tracker.process();
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
-        }, 0, 50, TimeUnit.MILLISECONDS);
+        if (hasNMSHandler) {
+            Executors.newScheduledThreadPool(3).scheduleAtFixedRate(() -> {
+                try {
+                    tracker.process();
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }
+            }, 0, 50, TimeUnit.MILLISECONDS);
 
-        Bukkit.getPluginManager().registerEvents(new Listener() {
-            @EventHandler
-            public void onPlayerQuitEvent(@NotNull final PlayerQuitEvent event) {
-                NMSHandlers.getNmsHandler().uninjectPlayer(event.getPlayer());
-            }
+            Bukkit.getPluginManager().registerEvents(new Listener() {
+                @EventHandler
+                public void onPlayerQuitEvent(@NotNull final PlayerQuitEvent event) {
+                    NMSHandlers.getNmsHandler().uninjectPlayer(event.getPlayer());
+                }
 
-            @EventHandler
-            public void onPlayerJoinEvent(@NotNull final PlayerJoinEvent event) {
-                NMSHandlers.getNmsHandler().injectPlayer(event.getPlayer());
-            }
-        }, this);
+                @EventHandler
+                public void onPlayerJoinEvent(@NotNull final PlayerJoinEvent event) {
+                    NMSHandlers.getNmsHandler().injectPlayer(event.getPlayer());
+                }
+            }, this);
+        }
 
         enable();
     }
@@ -50,10 +53,12 @@ public abstract class AxPlugin extends JavaPlugin {
 
     @Override
     public void onLoad() {
-        NMSHandlers.initialise(this);
+        hasNMSHandler = NMSHandlers.initialise(this);
 
         load();
-        tracker = NMSHandlers.getNmsHandler().newTracker();
+        if (hasNMSHandler) {
+            tracker = NMSHandlers.getNmsHandler().newTracker();
+        }
     }
 
     public void load() {

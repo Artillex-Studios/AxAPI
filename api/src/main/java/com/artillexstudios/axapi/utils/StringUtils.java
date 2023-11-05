@@ -47,12 +47,12 @@ public class StringUtils {
 
     @NotNull
     public static Component format(@NotNull String input, TagResolver... resolvers) {
-        return MINI_MESSAGE.deserialize(input, resolvers).applyFallbackStyle(TextDecoration.ITALIC.withState(false));
+        return LEGACY_COMPONENT_SERIALIZER.deserialize(formatToString(input, resolvers)).applyFallbackStyle(TextDecoration.ITALIC.withState(false));
     }
 
     @NotNull
     public static String formatToString(@NotNull String input, TagResolver... resolvers) {
-        return ChatColor.translateAlternateColorCodes('&', legacyHexFormat(LEGACY_COMPONENT_SERIALIZER.serialize(format(input, resolvers))));
+        return ChatColor.translateAlternateColorCodes('&', legacyHexFormat(LEGACY_COMPONENT_SERIALIZER.serialize(MINI_MESSAGE.deserialize(input, resolvers))));
     }
 
     @NotNull

@@ -2,7 +2,7 @@ package com.artillexstudios.axapi.selection;
 
 import org.bukkit.World;
 
-public class Selection3D {
+public class Cuboid {
     private final int maxX;
     private final int minX;
     private final int maxZ;
@@ -11,7 +11,7 @@ public class Selection3D {
     private final int minY;
     private final World world;
 
-    public Selection3D(World world, int x1, int x2, int z1, int z2, int y1, int y2) {
+    public Cuboid(World world, int x1, int x2, int z1, int z2, int y1, int y2) {
         this.world = world;
         this.minX = Math.min(x1, x2);
         this.maxX = Math.max(x1, x2);
