@@ -2,7 +2,7 @@ plugins {
     id("io.papermc.paperweight.userdev") version "1.5.4" apply false
 }
 
-group = "com.artillexstudios.axapi"
+group = "com.artillexstudios.axapi.nms"
 version = rootProject.version
 
 subprojects {

@@ -2,7 +2,7 @@ plugins {
     id("io.papermc.paperweight.userdev")
 }
 
-group = 'com.artillexstudios.axapi'
+group = 'com.artillexstudios.axapi.nms.v1_18_R2'
 version = '1.0-SNAPSHOT'
 
 dependencies {
