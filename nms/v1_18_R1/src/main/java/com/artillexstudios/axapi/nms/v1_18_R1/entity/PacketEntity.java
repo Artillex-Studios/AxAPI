@@ -59,7 +59,7 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     public EntityTracker.TrackedEntity tracker;
     private List<SynchedEntityData.DataItem<?>> trackedValues;
     private Location location;
-    private Component name = null;
+    private Component name = Component.empty();
     private int viewDistance = 32;
     private int viewDistanceSquared = 32 * 32;
     private boolean itemDirty = false;
@@ -138,6 +138,7 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     @Override
     public void setName(Component name) {
         if (name == null) {
+            this.name = Component.empty();
             data.set(EntityData.CUSTOM_NAME_VISIBLE, false);
             data.set(EntityData.CUSTOM_NAME, Optional.empty());
             return;
