@@ -6,7 +6,10 @@ import com.artillexstudios.axapi.nms.v1_19_R3.packet.PacketListener;
 import com.artillexstudios.axapi.selection.BlockSetter;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import io.netty.channel.Channel;
+import net.minecraft.network.Connection;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
@@ -14,6 +17,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Locale;
 import java.util.UUID;
@@ -23,9 +27,20 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     private static final String PACKET_HANDLER = "packet_handler";
     private final String AXAPI_HANDLER;
     private Method skullMetaMethod;
+    private Field channelField;
+    private Field connectionField;
 
     public NMSHandler(JavaPlugin plugin) {
         AXAPI_HANDLER = "axapi_handler_" + plugin.getName().toLowerCase(Locale.ENGLISH);
+
+        try {
+            connectionField = Class.forName("net.minecraft.server.network.PlayerConnection").getDeclaredField("h");
+            connectionField.setAccessible(true);
+            channelField = Class.forName("net.minecraft.network.NetworkManager").getDeclaredField("m");
+            channelField.setAccessible(true);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
     }
 
     @Override
@@ -42,7 +57,7 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     public void injectPlayer(Player player) {
         var serverPlayer = ((CraftPlayer) player).getHandle();
 
-        var channel = serverPlayer.connection.connection.channel;
+        var channel = getChannel(getConnection(serverPlayer.connection));
 
         if (!channel.pipeline().names().contains(PACKET_HANDLER)) {
             return;
@@ -61,7 +76,7 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     public void uninjectPlayer(Player player) {
         var serverPlayer = ((CraftPlayer) player).getHandle();
 
-        var channel = serverPlayer.connection.connection.channel;
+        var channel = getChannel(getConnection(serverPlayer.connection));
 
         channel.eventLoop().submit(() -> {
             if (channel.pipeline().get(AXAPI_HANDLER) != null) {
@@ -109,5 +124,21 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     @Override
     public BlockSetter newSetter(World world) {
         return null;
+    }
+
+    private Channel getChannel(Connection connection) {
+        try {
+            return (Channel) channelField.get(connection);
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
+        }
+    }
+
+    private Connection getConnection(ServerGamePacketListenerImpl serverGamePacketListener) {
+        try {
+            return (Connection) connectionField.get(serverGamePacketListener);
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
+        }
     }
 }

@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ItemBuilder {
@@ -51,6 +52,20 @@ public class ItemBuilder {
         section.getOptionalStringList("lore").ifPresent(lore -> this.setLore(lore, resolvers));
         section.getOptionalStringList("enchants").ifPresent(enchants -> addEnchants(createEnchantmentsMap(enchants)));
         section.getOptionalStringList("item-flags").ifPresent(flags -> applyItemFlags(getItemFlags(flags)));
+    }
+
+    public ItemBuilder(Map<Object, Object> map, TagResolver... resolvers) {
+        this.itemStack = new ItemStack(getMaterial((String) map.get("type")));
+        this.resolvers = resolvers;
+        Optional.ofNullable(map.get("texture")).ifPresent(string -> this.setTextureValue((String) string));
+        Optional.ofNullable(map.get("name")).ifPresent(name -> this.setName((String) name, resolvers));
+        Optional.ofNullable(map.get("color")).ifPresent(color -> this.setColor((String) color));
+        Optional.ofNullable(map.get("custom-model-data")).ifPresent(number -> this.setCustomModelData((int) number));
+        Optional.ofNullable(map.get("amount")).ifPresent(amount -> itemStack.setAmount((int) amount));
+        Optional.ofNullable(map.get("glow")).ifPresent(glow -> this.glow((boolean) glow));
+        Optional.ofNullable(map.get("lore")).ifPresent(lore -> this.setLore((List<String>) lore, resolvers));
+        Optional.ofNullable(map.get("enchants")).ifPresent(enchants -> addEnchants(createEnchantmentsMap((List<String>) enchants)));
+        Optional.ofNullable(map.get("item-flags")).ifPresent(flags -> applyItemFlags(getItemFlags((List<String>) flags)));
     }
 
     private static Material getMaterial(String name) {

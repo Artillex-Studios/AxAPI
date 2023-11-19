@@ -3,6 +3,7 @@ package com.artillexstudios.axapi.nms.v1_18_R1.hologram;
 import com.artillexstudios.axapi.entity.PacketEntityFactory;
 import com.artillexstudios.axapi.entity.impl.PacketArmorStand;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -21,7 +22,11 @@ public class ComponentHologramLine extends com.artillexstudios.axapi.hologram.im
 
     @Override
     public void set(@NotNull Component content) {
-        packetArmorStand.setName(content);
+        if (!PlainTextComponentSerializer.plainText().serialize(content).isBlank()) {
+            packetArmorStand.setName(content);
+        } else {
+            packetArmorStand.setName(null);
+        }
     }
 
     @Override

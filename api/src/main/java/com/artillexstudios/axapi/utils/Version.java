@@ -25,7 +25,7 @@ public enum Version {
     private static Version serverVersion;
 
     static {
-        final String serverVersion = Bukkit.getServer().getMinecraftVersion();
+        final String serverVersion = Bukkit.getServer().getBukkitVersion().split("-")[0];
 
         for (Version value : values()) {
             versionMap.put(value.protocolId, value);

@@ -137,15 +137,18 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
 
     @Override
     public void setName(Component name) {
-        this.name = name;
         if (name == null) {
             data.set(EntityData.CUSTOM_NAME_VISIBLE, false);
             data.set(EntityData.CUSTOM_NAME, Optional.empty());
             return;
         }
 
-        data.set(EntityData.CUSTOM_NAME_VISIBLE, true);
-        data.set(EntityData.CUSTOM_NAME, Optional.ofNullable(net.minecraft.network.chat.Component.Serializer.fromJson(GsonComponentSerializer.gson().serializer().toJsonTree(name))));
+        if (!this.name.equals(name)) {
+            this.name = name;
+
+            data.set(EntityData.CUSTOM_NAME_VISIBLE, true);
+            data.set(EntityData.CUSTOM_NAME, Optional.ofNullable(net.minecraft.network.chat.Component.Serializer.fromJson(GsonComponentSerializer.gson().serializer().toJsonTree(name))));
+        }
     }
 
     @Override

@@ -70,7 +70,9 @@ allprojects {
             exclude group: 'net.kyori', module: 'adventure'
         }
 
-        implementation("com.github.NEZNAMY:YamlAssist:1.0.5")
+        implementation("com.github.NEZNAMY:YamlAssist:1.0.5") {
+            exclude group: 'org.yaml', module: 'snakeyaml'
+        }
 
         implementation("dev.dejvokep:boosted-yaml:1.3") {
             exclude group: 'org.yaml', module: 'snakeyaml'
