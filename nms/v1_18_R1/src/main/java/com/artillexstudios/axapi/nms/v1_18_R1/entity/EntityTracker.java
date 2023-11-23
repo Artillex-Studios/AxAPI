@@ -11,28 +11,36 @@ import net.minecraft.server.network.ServerPlayerConnection;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class EntityTracker implements PacketEntityTracker {
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     private final Int2ObjectMap<TrackedEntity> entityMap = new Int2ObjectOpenHashMap<>();
 
     @Override
     public com.artillexstudios.axapi.entity.impl.PacketEntity getById(int id) {
-        synchronized (entityMap) {
-            var entity = entityMap.get(id);
+        lock.readLock().lock();
+        try {
+            TrackedEntity entity = entityMap.get(id);
             return entity == null ? null : entity.entity;
+        } finally {
+            lock.readLock().unlock();
         }
     }
 
     @Override
     public void addEntity(com.artillexstudios.axapi.entity.impl.PacketEntity entity) {
-        var packetEntity = (PacketEntity) entity;
-        var trackedEntity = new TrackedEntity(packetEntity);
+        PacketEntity packetEntity = (PacketEntity) entity;
+        TrackedEntity trackedEntity = new TrackedEntity(packetEntity);
         packetEntity.tracker = trackedEntity;
 
-        synchronized (entityMap) {
+        lock.writeLock().lock();
+        try {
             entityMap.put(packetEntity.entityId, trackedEntity);
 
             trackedEntity.updateTracking(trackedEntity.getPlayersInTrackingRange());
+        } finally {
+            lock.writeLock().unlock();
         }
     }
 
@@ -40,27 +48,34 @@ public class EntityTracker implements PacketEntityTracker {
     public void removeEntity(com.artillexstudios.axapi.entity.impl.PacketEntity entity) {
         var packetEntity = (PacketEntity) entity;
 
-        synchronized (entityMap) {
-            var trackedEntity = entityMap.remove(packetEntity.entityId);
+        lock.writeLock().lock();
+        try {
+            TrackedEntity trackedEntity = entityMap.remove(packetEntity.entityId);
 
             if (trackedEntity != null) {
                 trackedEntity.broadcastRemove();
             }
 
             packetEntity.tracker = null;
+        } finally {
+            lock.writeLock().unlock();
         }
     }
 
+    @Override
     public void process() {
-        synchronized (entityMap) {
+        lock.readLock().lock();
+        try {
             for (Int2ObjectMap.Entry<TrackedEntity> value : entityMap.int2ObjectEntrySet()) {
-                var tracker = value.getValue();
+                TrackedEntity tracker = value.getValue();
                 tracker.updateTracking(tracker.getPlayersInTrackingRange());
             }
 
             for (Int2ObjectMap.Entry<TrackedEntity> value : entityMap.int2ObjectEntrySet()) {
                 value.getValue().entity.sendChanges();
             }
+        } finally {
+            lock.readLock().unlock();
         }
     }
 
@@ -99,6 +114,9 @@ public class EntityTracker implements PacketEntityTracker {
             double dz = player.getZ() - this.entity.getLocation().getZ();
             double d1 = dx * dx + dz * dz;
             boolean flag = d1 <= entity.getViewDistanceSquared();
+            if (!player.getLevel().uuid.equals(this.entity.level.uuid)) {
+                flag = false;
+            }
 
             if (flag) {
                 if (this.seenBy.add(player.connection)) {

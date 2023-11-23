@@ -53,7 +53,7 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     public void injectPlayer(Player player) {
         var serverPlayer = ((CraftPlayer) player).getHandle();
 
-        var channel = serverPlayer.connection.connection.channel;
+        var channel = getChannel(serverPlayer.connection.connection);
 
         if (!channel.pipeline().names().contains(PACKET_HANDLER)) {
             return;
@@ -72,7 +72,7 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     public void uninjectPlayer(Player player) {
         var serverPlayer = ((CraftPlayer) player).getHandle();
 
-        var channel = serverPlayer.connection.connection.channel;
+        var channel = getChannel(serverPlayer.connection.connection);
 
         channel.eventLoop().submit(() -> {
             if (channel.pipeline().get(AXAPI_HANDLER) != null) {

@@ -264,8 +264,6 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     }
 
     public void addPairing(ServerPlayer player) {
-        List<Packet<ClientGamePacketListener>> list = new ArrayList<>();
-
         addPairingData(player.connection::send);
     }
 
