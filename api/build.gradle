@@ -1,2 +1,2 @@
-group = 'com.artillexstudios.axapi'
-version = '1.0-SNAPSHOT'
+group = 'com.artillexstudios.axapi.api'
+version = rootProject.version

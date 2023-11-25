@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.artillexstudios.axapi'
-version = '1.0-SNAPSHOT'
+version = '1.3.3'
 
 sourceCompatibility = 17
 targetCompatibility = 17
@@ -92,9 +92,21 @@ allprojects {
 
     publishing {
         afterEvaluate {
+            repositories {
+                maven {
+                    name = "Artillex-Studios"
+                    url = "https://repo.artillex-studios.com/releases"
+                    credentials {
+                        username = "${maven_username}"
+                        password = "${maven_password}"
+                    }
+                }
+            }
+
             publications {
                 shadow(MavenPublication) { publication ->
                     project.shadow.component(publication)
+                    artifactId = "axapi"
                 }   
             }
         }

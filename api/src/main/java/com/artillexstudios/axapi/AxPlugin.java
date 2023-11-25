@@ -8,6 +8,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,6 +41,11 @@ public abstract class AxPlugin extends JavaPlugin {
                 @EventHandler
                 public void onPlayerJoinEvent(@NotNull final PlayerJoinEvent event) {
                     NMSHandlers.getNmsHandler().injectPlayer(event.getPlayer());
+                }
+
+                @EventHandler
+                public void onPlayerChangedWorldEvent(@NotNull final PlayerChangedWorldEvent event) {
+                    tracker.untrackFor(event.getPlayer());
                 }
             }, this);
         }

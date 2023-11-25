@@ -8,6 +8,8 @@ import it.unimi.dsi.fastutil.objects.ReferenceSets;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerPlayerConnection;
+import org.bukkit.entity.Player;
+import org.bukkit.craftbukkit.v1_20_R2.entity.CraftPlayer;
 
 import java.util.List;
 import java.util.Set;
@@ -63,6 +65,19 @@ public class EntityTracker implements PacketEntityTracker {
     }
 
     @Override
+    public void untrackFor(Player player) {
+        lock.readLock().lock();
+        try {
+            for (Int2ObjectMap.Entry<TrackedEntity> value : entityMap.int2ObjectEntrySet()) {
+                TrackedEntity tracker = value.getValue();
+                tracker.untrack(player);
+            }
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    @Override
     public void process() {
         lock.readLock().lock();
         try {
@@ -114,9 +129,6 @@ public class EntityTracker implements PacketEntityTracker {
             double dz = player.getZ() - this.entity.getLocation().getZ();
             double d1 = dx * dx + dz * dz;
             boolean flag = d1 <= entity.getViewDistanceSquared();
-            if (!((net.minecraft.server.level.ServerLevel) player.level()).uuid.equals(this.entity.level.uuid)) {
-                flag = false;
-            }
 
             if (flag) {
                 if (this.seenBy.add(player.connection)) {
@@ -125,6 +137,14 @@ public class EntityTracker implements PacketEntityTracker {
             } else if (this.seenBy.remove(player.connection)) {
                 entity.removePairing(player);
             }
+        }
+
+        public void untrack(Player player) {
+            ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
+            if (!this.seenBy.remove(serverPlayer.connection))
+                return;
+
+            entity.removePairing(serverPlayer);
         }
 
         public List<ServerPlayer> getPlayersInTrackingRange() {
