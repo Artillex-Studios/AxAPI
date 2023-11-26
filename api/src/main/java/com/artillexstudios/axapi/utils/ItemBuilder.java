@@ -27,7 +27,12 @@ public class ItemBuilder {
     private final TagResolver[] resolvers;
 
     public ItemBuilder(@NotNull Section section) {
-        this.itemStack = new ItemStack(getMaterial(section.getString("type", "stone")));
+        String type = section.getString("type");
+        if (type == null) {
+            type = section.getString("material", "stone");
+        }
+        
+        this.itemStack = new ItemStack(getMaterial(type));
         resolvers = new TagResolver[]{TagResolver.resolver()};
         section.getOptionalString("texture").ifPresent(this::setTextureValue);
         section.getOptionalString("name").ifPresent(name -> this.setName(name, resolvers));
@@ -41,7 +46,12 @@ public class ItemBuilder {
     }
 
     public ItemBuilder(@NotNull Section section, TagResolver... resolvers) {
-        this.itemStack = new ItemStack(getMaterial(section.getString("type", "stone")));
+        String type = section.getString("type");
+        if (type == null) {
+            type = section.getString("material", "stone");
+        }
+
+        this.itemStack = new ItemStack(getMaterial(type));
         this.resolvers = resolvers;
         section.getOptionalString("texture").ifPresent(this::setTextureValue);
         section.getOptionalString("name").ifPresent(name -> this.setName(name, resolvers));
@@ -55,7 +65,12 @@ public class ItemBuilder {
     }
 
     public ItemBuilder(Map<Object, Object> map, TagResolver... resolvers) {
-        this.itemStack = new ItemStack(getMaterial((String) map.get("type")));
+        String type = (String) map.get("type");
+        if (type == null) {
+            type = (String) map.getOrDefault("material", "stone");
+        }
+
+        this.itemStack = new ItemStack(getMaterial(type));
         this.resolvers = resolvers;
         Optional.ofNullable(map.get("texture")).ifPresent(string -> this.setTextureValue((String) string));
         Optional.ofNullable(map.get("name")).ifPresent(name -> this.setName((String) name, resolvers));

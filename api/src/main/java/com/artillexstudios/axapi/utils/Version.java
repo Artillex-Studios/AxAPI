@@ -27,6 +27,7 @@ public enum Version {
     static {
         final String serverVersion = Bukkit.getServer().getBukkitVersion().split("-")[0];
 
+        System.out.println("ServerVersion: " + serverVersion);
         for (Version value : values()) {
             versionMap.put(value.protocolId, value);
 
