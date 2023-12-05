@@ -10,6 +10,7 @@ pluginManagement {
 rootProject.name = 'AxAPI'
 include 'api'
 include 'nms'
+include 'folia'
 include 'nms:v1_20_R1'
 findProject(':nms:v1_20_R1')?.name = 'v1_20_R1'
 include 'nms:v1_20_R2'

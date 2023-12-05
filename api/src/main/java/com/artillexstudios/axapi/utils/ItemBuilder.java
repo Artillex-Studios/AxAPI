@@ -126,7 +126,9 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setColor(String colorString) {
-        if (itemStack.getItemMeta() instanceof LeatherArmorMeta meta) {
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        if (itemMeta instanceof LeatherArmorMeta) {
+            LeatherArmorMeta meta = (LeatherArmorMeta) itemMeta;
             String[] rgb = colorString.replace(" ", "").split(",");
             meta.setColor(Color.fromRGB(Integer.parseInt(rgb[0]), Integer.parseInt(rgb[1]), Integer.parseInt(rgb[2])));
 

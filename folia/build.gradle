@@ -1,0 +1,15 @@
+group = 'com.artillexstudios.axapi.folia'
+version = rootProject.version
+
+dependencies {
+    compileOnly("dev.folia:folia-api:1.19.4-R0.1-SNAPSHOT")
+    compileOnly(project(":api")) {
+        exclude group: 'com.destroystokyo.paper', module: 'paper-api'
+    }
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}

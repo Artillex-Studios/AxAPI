@@ -50,11 +50,17 @@ public abstract class AbstractHologram implements Hologram {
     public <T> void setLine(int line, @NotNull T content) {
         HologramLine<?> hologramLine = lines.get(line);
 
-        if (hologramLine instanceof ComponentHologramLine holoLine && content instanceof Component component) {
+        if (hologramLine instanceof ComponentHologramLine && content instanceof Component) {
+            ComponentHologramLine holoLine = (ComponentHologramLine) hologramLine;
+            Component component = (Component) content;
             holoLine.set(component);
-        } else if (hologramLine instanceof ItemStackHologramLine holoLine && content instanceof ItemStack itemStack) {
+        } else if (hologramLine instanceof ItemStackHologramLine && content instanceof ItemStack) {
+            ItemStackHologramLine holoLine = (ItemStackHologramLine) hologramLine;
+            ItemStack itemStack = (ItemStack) content;
             holoLine.set(itemStack);
-        } else if (hologramLine instanceof SkullHologramLine holoLine && content instanceof Skull skull) {
+        } else if (hologramLine instanceof SkullHologramLine && content instanceof Skull) {
+            SkullHologramLine holoLine = (SkullHologramLine) hologramLine;
+            Skull skull = (Skull) content;
             holoLine.set(skull);
         }
     }

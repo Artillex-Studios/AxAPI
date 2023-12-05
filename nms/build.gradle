@@ -6,6 +6,12 @@ group = "com.artillexstudios.axapi.nms"
 version = rootProject.version
 
 subprojects {
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
     dependencies {
         compileOnly project(":api")
     }

@@ -68,10 +68,10 @@ public class StringUtils {
     // Thanks! https://www.spigotmc.org/threads/hex-color-code-translate.449748/
     public static String legacyHexFormat(String message) {
         Matcher matcher = HEX_PATTERN.matcher(message);
-        var builder = new StringBuilder(message.length() + 4 * 8);
+        StringBuffer builder = new StringBuffer(message.length() + 4 * 8);
 
         while (matcher.find()) {
-            var group = matcher.group(1);
+            String group = matcher.group(1);
             matcher.appendReplacement(builder, ChatColor.COLOR_CHAR + "x"
                     + ChatColor.COLOR_CHAR + group.charAt(0) + ChatColor.COLOR_CHAR + group.charAt(1)
                     + ChatColor.COLOR_CHAR + group.charAt(2) + ChatColor.COLOR_CHAR + group.charAt(3)
