@@ -10,7 +10,7 @@ public class SchedulerHandler {
     public void init(JavaPlugin plugin) {
         if (ClassUtils.classExists("io.papermc.paper.threadedregions.RegionizedServer")) {
             try {
-                scheduler = (Scheduler) Class.forName("com.artillexstudios.axapi.folia.FoliaScheduler").getDeclaredConstructor(JavaPlugin.class).newInstance(plugin);
+                scheduler = (Scheduler) Class.forName("com.artillexstudios.axapi.scheduler.impl.FoliaScheduler").getDeclaredConstructor(JavaPlugin.class).newInstance(plugin);
             } catch (Exception exception) {
                 scheduler = new BukkitScheduler(plugin);
             }

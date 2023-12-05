@@ -1,6 +1,5 @@
 package com.artillexstudios.axapi.scheduler.impl;
 
-
 import com.artillexstudios.axapi.scheduler.ScheduledTask;
 import org.bukkit.plugin.Plugin;
 
