@@ -14,13 +14,11 @@ public class NMSHandlers {
 
     public static boolean initialise(JavaPlugin plugin) {
         Version version = Version.getServerVersion();
-        System.out.println("NMS version: " + version.nmsVersion);
 
         if (packetEntityFactory == null) {
             try {
                 packetEntityFactory = (PacketEntityFactory) Class.forName(String.format("com.artillexstudios.axapi.nms.%s.PacketEntityFactory", version.nmsVersion)).getConstructor().newInstance();
             } catch (Exception exception) {
-                exception.printStackTrace();
                 return false;
             }
         }
