@@ -29,7 +29,9 @@ public class MessageUtils {
     }
 
     public void sendLang(CommandSender commandSender, String message, TagResolver... resolvers) {
-        sendFormatted(commandSender, prefixConfig.getString(prefixRoute) + config.getString(message), resolvers);
+        String configString = config.getString(message);
+        if (configString.isEmpty()) return;
+        sendFormatted(commandSender, prefixConfig.getString(prefixRoute) + configString, resolvers);
     }
 
     public void sendFormatted(CommandSender sender, String message, Map<String, String> replacements) {
