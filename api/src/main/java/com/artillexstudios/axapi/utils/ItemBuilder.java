@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class ItemBuilder {
     private final ItemStack itemStack;
+    private final ItemMeta meta;
     private final TagResolver[] resolvers;
 
     public ItemBuilder(@NotNull Section section) {
@@ -33,7 +34,14 @@ public class ItemBuilder {
         }
         
         this.itemStack = new ItemStack(getMaterial(type));
+        if (!itemStack.getType().isAir()) {
+            this.meta = itemStack.getItemMeta();
+        } else {
+            this.meta = null;
+        }
         resolvers = new TagResolver[]{TagResolver.resolver()};
+
+        if (meta == null) return;
         section.getOptionalString("texture").ifPresent(this::setTextureValue);
         section.getOptionalString("name").ifPresent(name -> this.setName(name, resolvers));
         section.getOptionalString("color").ifPresent(this::setColor);
@@ -52,11 +60,18 @@ public class ItemBuilder {
         }
 
         this.itemStack = new ItemStack(getMaterial(type));
+        if (!itemStack.getType().isAir()) {
+            this.meta = itemStack.getItemMeta();
+        } else {
+            this.meta = null;
+        }
         this.resolvers = resolvers;
+
+        if (this.meta == null) return;
         section.getOptionalString("texture").ifPresent(this::setTextureValue);
         section.getOptionalString("name").ifPresent(name -> this.setName(name, resolvers));
         section.getOptionalString("color").ifPresent(this::setColor);
-        section.getOptionalInt("custom-model-data").ifPresent(this::setCustomModelData);
+        section.getOptionalInt("custom-model-data").ifPresent(this::setCustomModelData);            
         section.getOptionalInt("amount").ifPresent(this::amount);
         section.getOptionalBoolean("glow").ifPresent(this::glow);
         section.getOptionalStringList("lore").ifPresent(lore -> this.setLore(lore, resolvers));
@@ -71,7 +86,15 @@ public class ItemBuilder {
         }
 
         this.itemStack = new ItemStack(getMaterial(type));
+        if (!itemStack.getType().isAir()) {
+            this.meta = itemStack.getItemMeta();
+        } else {
+            this.meta = null;
+        }
+
         this.resolvers = resolvers;
+
+        if (meta == null) return;
         Optional.ofNullable(map.get("texture")).ifPresent(string -> this.setTextureValue((String) string));
         Optional.ofNullable(map.get("name")).ifPresent(name -> this.setName((String) name, resolvers));
         Optional.ofNullable(map.get("color")).ifPresent(color -> this.setColor((String) color));
@@ -90,11 +113,21 @@ public class ItemBuilder {
 
     public ItemBuilder(@NotNull Material material) {
         this.itemStack = new ItemStack(material);
+        if (!itemStack.getType().isAir()) {
+            this.meta = itemStack.getItemMeta();
+        } else {
+            this.meta = null;
+        }
         resolvers = new TagResolver[]{TagResolver.resolver()};
     }
 
     public ItemBuilder(@NotNull ItemStack item) {
         this.itemStack = item;
+        if (!itemStack.getType().isAir()) {
+            this.meta = itemStack.getItemMeta();
+        } else {
+            this.meta = null;
+        }
         resolvers = new TagResolver[]{TagResolver.resolver()};
     }
 
@@ -112,52 +145,39 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setName(String name, TagResolver... resolvers) {
-        ItemMeta meta = this.itemStack.getItemMeta();
         meta.setDisplayName(StringUtils.formatToString(name, resolvers));
-        itemStack.setItemMeta(meta);
         return this;
     }
 
     public <T, Z> ItemBuilder storePersistentData(NamespacedKey key, PersistentDataType<T,Z> type, Z value) {
-        ItemMeta meta = this.itemStack.getItemMeta();
         meta.getPersistentDataContainer().set(key, type, value);
-        itemStack.setItemMeta(meta);
         return this;
     }
 
     public ItemBuilder setColor(String colorString) {
-        ItemMeta itemMeta = itemStack.getItemMeta();
-        if (itemMeta instanceof LeatherArmorMeta) {
-            LeatherArmorMeta meta = (LeatherArmorMeta) itemMeta;
+        if (meta instanceof LeatherArmorMeta) {
+            LeatherArmorMeta itemMeta = (LeatherArmorMeta) meta;
             String[] rgb = colorString.replace(" ", "").split(",");
-            meta.setColor(Color.fromRGB(Integer.parseInt(rgb[0]), Integer.parseInt(rgb[1]), Integer.parseInt(rgb[2])));
-
-            itemStack.setItemMeta(meta);
+            itemMeta.setColor(Color.fromRGB(Integer.parseInt(rgb[0]), Integer.parseInt(rgb[1]), Integer.parseInt(rgb[2])));
         }
         return this;
     }
 
     public ItemBuilder glow(boolean glow) {
         if (glow) {
-            ItemMeta meta = this.itemStack.getItemMeta();
             meta.addEnchant(Enchantment.ARROW_FIRE, 1, true);
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-            itemStack.setItemMeta(meta);
         }
         return this;
     }
 
     public ItemBuilder addEnchantment(Enchantment enchantment, int level) {
-        ItemMeta meta = this.itemStack.getItemMeta();
         meta.addEnchant(enchantment, level, true);
-        itemStack.setItemMeta(meta);
         return this;
     }
 
     public ItemBuilder setCustomModelData(Integer modelData) {
-        ItemMeta meta = this.itemStack.getItemMeta();
         meta.setCustomModelData(modelData);
-        itemStack.setItemMeta(meta);
         return this;
     }
 
@@ -179,9 +199,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setLore(List<String> lore, TagResolver... resolvers) {
-        ItemMeta meta = this.itemStack.getItemMeta();
         meta.setLore(StringUtils.formatListToString(lore, resolvers));
-        itemStack.setItemMeta(meta);
         return this;
     }
 
@@ -222,12 +240,10 @@ public class ItemBuilder {
     }
 
     public ItemBuilder applyItemFlags(@NotNull List<ItemFlag> flags) {
-        ItemMeta itemMeta = this.itemStack.getItemMeta();
         for (ItemFlag flag : flags) {
-            itemMeta.addItemFlags(flag);
+            meta.addItemFlags(flag);
         }
 
-        this.itemStack.setItemMeta(itemMeta);
         return this;
     }
 
@@ -249,10 +265,11 @@ public class ItemBuilder {
     }
 
     public ItemStack get() {
+        itemStack.setItemMeta(meta);
         return itemStack;
     }
 
     public ItemStack clonedGet() {
-        return itemStack.clone();
+        return get().clone();
     }
 }

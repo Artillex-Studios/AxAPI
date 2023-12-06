@@ -12,7 +12,8 @@ public class NMSHandlers {
     private static NMSHandler nmsHandler;
     private static String version;
 
-    public static boolean initialise(JavaPlugin plugin) {
+    // Do not mix with innit, bruv!
+    private static boolean init(JavaPlugin plugin) {
         Version version = Version.getServerVersion();
 
         if (packetEntityFactory == null) {
@@ -65,5 +66,19 @@ public class NMSHandlers {
         }
 
         return nmsHandler;
+    }
+
+    public static class British {
+
+        public static boolean initialise(JavaPlugin plugin) {
+            return init(plugin);
+        }
+    }
+
+    public static class American {
+
+        public static boolean initialize(JavaPlugin plugin) {
+            return init(plugin);
+        }
     }
 }

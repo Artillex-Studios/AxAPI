@@ -59,7 +59,7 @@ public abstract class AxPlugin extends JavaPlugin {
 
     @Override
     public void onLoad() {
-        hasNMSHandler = NMSHandlers.initialise(this);
+        hasNMSHandler = NMSHandlers.British.initialise(this);
 
         load();
         if (hasNMSHandler) {
