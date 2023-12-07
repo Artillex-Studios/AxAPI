@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.artillexstudios.axapi'
-version = '1.4.4'
+version = '1.4.5'
 
 java {
     toolchain {
@@ -16,6 +16,7 @@ java {
 dependencies {
     implementation project(path: ":api")
     implementation project(path: ":folia")
+    implementation project(path: ":nms:v1_20_R3", configuration: "reobf")
     implementation project(path: ":nms:v1_20_R2", configuration: "reobf")
     implementation project(path: ":nms:v1_20_R1", configuration: "reobf")
     implementation project(path: ":nms:v1_19_R3", configuration: "reobf")

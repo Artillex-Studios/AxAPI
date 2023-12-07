@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import java.util.List;
 
 public enum Version {
+    v1_20_3(765, "v1_20_R3", Arrays.asList("1.20.3", "1.20.4")),
     v1_20_2(764, "v1_20_R2", Arrays.asList("1.20.2")),
     v1_20_1(763, "v1_20_R1", Arrays.asList("1.20.1", "1.20")),
     v1_19_3(762, "v1_19_R3", Arrays.asList("1.19.4")),
