@@ -36,6 +36,10 @@ public enum Version {
                 Version.serverVersion = value;
             }
         }
+
+        if (Version.serverVersion == null) {
+            Version.serverVersion = UNKNOWN;
+        }
     }
 
     public final List<String> versions;
