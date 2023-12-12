@@ -13,6 +13,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class PaperUtils {
     private static final ServerImplementation IMPLEMENTATION;
+    private static final boolean FOLIA;
 
     static {
         if (ClassUtils.classExists("io.papermc.paper.configuration.Configuration") || ClassUtils.classExists("com.destroystokyo.paper.PaperConfig")) {
@@ -20,6 +21,8 @@ public class PaperUtils {
         } else {
             IMPLEMENTATION = new ServerImplementationSpigot();
         }
+
+        FOLIA = ClassUtils.classExists("io.papermc.paper.threadedregions.RegionizedServer");
     }
 
     public static CompletableFuture<Boolean> teleportAsync(Entity entity, Location location) {
@@ -60,5 +63,9 @@ public class PaperUtils {
 
     public static boolean isChunkGenerated(World world, int x, int z) {
         return IMPLEMENTATION.isChunkGenerated(world, x, z);
+    }
+
+    public static boolean isFolia() {
+        return FOLIA;
     }
 }
