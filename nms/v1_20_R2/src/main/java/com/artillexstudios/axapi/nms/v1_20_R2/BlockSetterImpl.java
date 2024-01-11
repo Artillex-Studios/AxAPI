@@ -1,4 +1,4 @@
-package com.artillexstudios.axapi.nms.v1_20_R1;
+package com.artillexstudios.axapi.nms.v1_20_R2;
 
 import com.artillexstudios.axapi.selection.BlockSetter;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
@@ -14,18 +14,21 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_20_R1.block.data.CraftBlockData;
+import org.bukkit.craftbukkit.v1_20_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_20_R2.block.data.CraftBlockData;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
 
 public class BlockSetterImpl implements BlockSetter {
+    private static final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final ServerLevel level;
     private final World world;
-    private final HashSet<ChunkPos> chunks = new LinkedHashSet<>();
+    private final ArrayList<ChunkPos> chunks = new ArrayList<>();
     private LevelChunk chunk = null;
     private int sectionIndex = -10000;
     private LevelChunkSection section = null;
@@ -44,6 +47,7 @@ public class BlockSetterImpl implements BlockSetter {
             levelChunk = this.chunk;
         } else {
             this.chunk = levelChunk = level.getChunk(chunkX, chunkZ);
+            chunks.add(levelChunk.getPos());
         }
        
         var state = ((CraftBlockData) data).getState();
@@ -65,7 +69,6 @@ public class BlockSetterImpl implements BlockSetter {
         int j = x & 15;
         int k = i & 15;
         int l = z & 15;
-        chunks.add(levelChunk.getPos());
         section.setBlockState(j, k, l, state, false);
 
         updateHeightMap(levelChunk, j, y, l, state);
@@ -90,9 +93,10 @@ public class BlockSetterImpl implements BlockSetter {
     }
 
     private void relight() {
+        var set = new HashSet(chunks);
         MinecraftServer.getServer().executeBlocking(() -> {
             var lightEngine = level.chunkSource.getLightEngine();
-            lightEngine.relight(chunks, c -> {
+            lightEngine.relight(set, c -> {
             }, c -> {
             });
         });
@@ -103,11 +107,13 @@ public class BlockSetterImpl implements BlockSetter {
         if (playerChunk == null) return;
         List<ServerPlayer> playersInRange = playerChunk.playerProvider.getPlayers(playerChunk.getPos(), false);
 
-        ClientboundLevelChunkWithLightPacket lightPacket = new ClientboundLevelChunkWithLightPacket(chunk, level.getLightEngine(), null, null, false);
-        int size = playersInRange.size();
-        for (int i = 0; i < size; i++) {
-            ServerPlayer player = playersInRange.get(i);
-            player.connection.send(lightPacket);
-        }
+        executor.execute(() -> {
+            ClientboundLevelChunkWithLightPacket lightPacket = new ClientboundLevelChunkWithLightPacket(chunk, level.getLightEngine(), null, null, false);
+            int size = playersInRange.size();
+            for (int i = 0; i < size; i++) {
+                ServerPlayer player = playersInRange.get(i);
+                player.connection.send(lightPacket);
+            }
+        });
     }
 }

@@ -5,6 +5,7 @@ import com.artillexstudios.axapi.selection.BlockSetter;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public interface NMSHandler {
 
@@ -18,7 +19,7 @@ public interface NMSHandler {
 
     int getProtocolVersionId(Player player);
 
-    void setItemStackTexture(ItemStack item, String texture);
+    void setItemStackTexture(ItemMeta meta, String texture);
 
     PacketEntityTracker newTracker();
 

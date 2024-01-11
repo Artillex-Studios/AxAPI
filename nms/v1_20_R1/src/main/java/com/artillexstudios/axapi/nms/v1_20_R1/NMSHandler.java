@@ -17,6 +17,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -93,8 +94,8 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     }
 
     @Override
-    public void setItemStackTexture(ItemStack item, String texture) {
-        if (item.getItemMeta() instanceof SkullMeta skullMeta) {
+    public void setItemStackTexture(ItemMeta meta, String texture) {
+        if (meta instanceof SkullMeta skullMeta) {
             if (skullMetaMethod == null) {
                 try {
                     skullMetaMethod = skullMeta.getClass().getDeclaredMethod("setProfile", GameProfile.class);
@@ -112,8 +113,6 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
-
-            item.setItemMeta(skullMeta);
         }
     }
 

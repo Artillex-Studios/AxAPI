@@ -11,6 +11,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import net.byteflux.libby.Library;
+import net.byteflux.libby.BukkitLibraryManager;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -59,6 +61,18 @@ public abstract class AxPlugin extends JavaPlugin {
 
     @Override
     public void onLoad() {
+        BukkitLibraryManager libraryManager = new BukkitLibraryManager(this);
+        libraryManager.addMavenCentral();
+
+        Library commonsMath = Library.builder()
+            .groupId("org{}apache{}commons")
+            .artifactId("commons-math3")
+            .version("3.6.1")
+            .build();
+
+        libraryManager.loadLibrary(commonsMath);
+        
+
         hasNMSHandler = NMSHandlers.British.initialise(this);
 
         load();

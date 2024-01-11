@@ -42,10 +42,12 @@ public class ItemBuilder {
         resolvers = new TagResolver[]{TagResolver.resolver()};
 
         if (meta == null) return;
-        section.getOptionalString("texture").ifPresent(this::setTextureValue);
         section.getOptionalString("name").ifPresent(name -> this.setName(name, resolvers));
         section.getOptionalString("color").ifPresent(this::setColor);
-        section.getOptionalInt("custom-model-data").ifPresent(this::setCustomModelData);
+        if (Version.getServerVersion().isNewerThan(Version.UNKNOWN)) {
+            section.getOptionalString("texture").ifPresent(this::setTextureValue);
+            section.getOptionalInt("custom-model-data").ifPresent(this::setCustomModelData);
+        }
         section.getOptionalInt("amount").ifPresent(this::amount);
         section.getOptionalBoolean("glow").ifPresent(this::glow);
         section.getOptionalStringList("lore").ifPresent(lore -> this.setLore(lore, resolvers));
@@ -68,10 +70,12 @@ public class ItemBuilder {
         this.resolvers = resolvers;
 
         if (this.meta == null) return;
-        section.getOptionalString("texture").ifPresent(this::setTextureValue);
         section.getOptionalString("name").ifPresent(name -> this.setName(name, resolvers));
         section.getOptionalString("color").ifPresent(this::setColor);
-        section.getOptionalInt("custom-model-data").ifPresent(this::setCustomModelData);            
+        if (Version.getServerVersion().isNewerThan(Version.UNKNOWN)) {
+            section.getOptionalString("texture").ifPresent(this::setTextureValue);
+            section.getOptionalInt("custom-model-data").ifPresent(this::setCustomModelData);     
+        }       
         section.getOptionalInt("amount").ifPresent(this::amount);
         section.getOptionalBoolean("glow").ifPresent(this::glow);
         section.getOptionalStringList("lore").ifPresent(lore -> this.setLore(lore, resolvers));
@@ -95,10 +99,12 @@ public class ItemBuilder {
         this.resolvers = resolvers;
 
         if (meta == null) return;
-        Optional.ofNullable(map.get("texture")).ifPresent(string -> this.setTextureValue((String) string));
         Optional.ofNullable(map.get("name")).ifPresent(name -> this.setName((String) name, resolvers));
         Optional.ofNullable(map.get("color")).ifPresent(color -> this.setColor((String) color));
-        Optional.ofNullable(map.get("custom-model-data")).ifPresent(number -> this.setCustomModelData((int) number));
+        if (Version.getServerVersion().isNewerThan(Version.UNKNOWN)) {
+            Optional.ofNullable(map.get("texture")).ifPresent(string -> this.setTextureValue((String) string));
+            Optional.ofNullable(map.get("custom-model-data")).ifPresent(number -> this.setCustomModelData((int) number));
+        }
         Optional.ofNullable(map.get("amount")).ifPresent(amount -> itemStack.setAmount((int) amount));
         Optional.ofNullable(map.get("glow")).ifPresent(glow -> this.glow((boolean) glow));
         Optional.ofNullable(map.get("lore")).ifPresent(lore -> this.setLore((List<String>) lore, resolvers));
@@ -204,7 +210,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setTextureValue(String texture) {
-        NMSHandlers.getNmsHandler().setItemStackTexture(this.itemStack, texture);
+        NMSHandlers.getNmsHandler().setItemStackTexture(this.meta, texture);
         return this;
     }
 

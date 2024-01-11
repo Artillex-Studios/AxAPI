@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.selection;
 
 import org.bukkit.World;
+import org.bukkit.Location;
 
 public class Cuboid {
     private final int maxX;
@@ -47,5 +48,11 @@ public class Cuboid {
 
     public World getWorld() {
         return world;
+    }
+
+    public boolean contains(Location location) {
+        return location.getBlockX() <= getMaxX() && location.getBlockX() >= getMinX()
+                && location.getBlockY() <= getMaxY() && location.getBlockY() >= getMinY()
+                && location.getBlockZ() <= getMaxZ() && location.getBlockZ() >= getMinZ();
     }
 }

@@ -18,7 +18,6 @@ import java.util.regex.Pattern;
 
 public class StringUtils {
     public static LegacyComponentSerializer LEGACY_COMPONENT_SERIALIZER;
-
     public static MiniMessage MINI_MESSAGE;
     private static Pattern HEX_PATTERN = Pattern.compile("&#([0-9a-fA-F]{6})");
 
@@ -40,6 +39,7 @@ public class StringUtils {
 
             LEGACY_COMPONENT_SERIALIZER = LegacyComponentSerializer.builder()
                     .character('\u00a7')
+                    .hexColors()
                     .useUnusualXRepeatedCharacterHexFormat()
                     .build();
         }
