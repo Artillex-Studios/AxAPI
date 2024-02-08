@@ -88,6 +88,27 @@ allprojects {
         relocate('dev.dejvokep', 'com.artillexstudios.axapi.libs.boostedyaml')
         relocate('net.byteflux.libby', 'com.artillexstudios.axapi.libs.libby')
     }
+
+    publishing {
+        publications {
+            shadow(MavenPublication) { publication ->
+                project.shadow.component(publication)
+                groupId 'com.artillexstudios.axapi'
+                artifactId 'axapi'
+                version '1.4.22'
+            }
+        }
+        repositories {
+            mavenLocal()
+        }
+    }
+
+    publishToMavenLocal {
+        dependsOn {
+            build
+            shadowJar
+        }
+    }
 }
 
 allprojects.forEach { it.afterEvaluate {
