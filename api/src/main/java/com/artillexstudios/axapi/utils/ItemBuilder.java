@@ -11,6 +11,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
@@ -112,6 +113,63 @@ public class ItemBuilder {
         Optional.ofNullable(map.get("item-flags")).ifPresent(flags -> applyItemFlags(getItemFlags((List<String>) flags)));
     }
 
+    public ItemBuilder(@NotNull Section section, Map<String, String> replacements) {
+        String type = section.getString("type");
+        if (type == null) {
+            type = section.getString("material", "stone");
+        }
+
+        this.itemStack = new ItemStack(getMaterial(type));
+        if (!itemStack.getType().isAir()) {
+            this.meta = itemStack.getItemMeta();
+        } else {
+            this.meta = null;
+        }
+        this.resolvers = new TagResolver[]{TagResolver.resolver()};
+
+        if (this.meta == null) return;
+        section.getOptionalString("name").ifPresent(name -> this.setName(name, replacements));
+        section.getOptionalString("color").ifPresent(this::setColor);
+        if (Version.getServerVersion().isNewerThan(Version.UNKNOWN)) {
+            section.getOptionalString("texture").ifPresent(this::setTextureValue);
+            section.getOptionalInt("custom-model-data").ifPresent(this::setCustomModelData);     
+        }       
+        section.getOptionalInt("amount").ifPresent(this::amount);
+        section.getOptionalBoolean("glow").ifPresent(this::glow);
+        section.getOptionalStringList("lore").ifPresent(lore -> this.setLore(lore, replacements));
+        section.getOptionalStringList("enchants").ifPresent(enchants -> addEnchants(createEnchantmentsMap(enchants)));
+        section.getOptionalStringList("item-flags").ifPresent(flags -> applyItemFlags(getItemFlags(flags)));
+    }
+
+    public ItemBuilder(Map<Object, Object> map, Map<String, String> replacements) {
+        String type = (String) map.get("type");
+        if (type == null) {
+            type = (String) map.getOrDefault("material", "stone");
+        }
+
+        this.itemStack = new ItemStack(getMaterial(type));
+        if (!itemStack.getType().isAir()) {
+            this.meta = itemStack.getItemMeta();
+        } else {
+            this.meta = null;
+        }
+
+        this.resolvers = new TagResolver[]{TagResolver.resolver()};;
+
+        if (meta == null) return;
+        Optional.ofNullable(map.get("name")).ifPresent(name -> this.setName((String) name, replacements));
+        Optional.ofNullable(map.get("color")).ifPresent(color -> this.setColor((String) color));
+        if (Version.getServerVersion().isNewerThan(Version.UNKNOWN)) {
+            Optional.ofNullable(map.get("texture")).ifPresent(string -> this.setTextureValue((String) string));
+            Optional.ofNullable(map.get("custom-model-data")).ifPresent(number -> this.setCustomModelData((int) number));
+        }
+        Optional.ofNullable(map.get("amount")).ifPresent(amount -> itemStack.setAmount((int) amount));
+        Optional.ofNullable(map.get("glow")).ifPresent(glow -> this.glow((boolean) glow));
+        Optional.ofNullable(map.get("lore")).ifPresent(lore -> this.setLore((List<String>) lore, replacements));
+        Optional.ofNullable(map.get("enchants")).ifPresent(enchants -> addEnchants(createEnchantmentsMap((List<String>) enchants)));
+        Optional.ofNullable(map.get("item-flags")).ifPresent(flags -> applyItemFlags(getItemFlags((List<String>) flags)));
+    }
+
     private static Material getMaterial(String name) {
         Material material = Material.matchMaterial(name.toUpperCase(Locale.ENGLISH));
         return material != null ? material : Material.BEDROCK;
@@ -161,10 +219,15 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setColor(String colorString) {
+        String[] rgb = colorString.replace(" ", "").split(",");
+        Color color = Color.fromRGB(Integer.parseInt(rgb[0]), Integer.parseInt(rgb[1]), Integer.parseInt(rgb[2]));
+        
         if (meta instanceof LeatherArmorMeta) {
             LeatherArmorMeta itemMeta = (LeatherArmorMeta) meta;
-            String[] rgb = colorString.replace(" ", "").split(",");
-            itemMeta.setColor(Color.fromRGB(Integer.parseInt(rgb[0]), Integer.parseInt(rgb[1]), Integer.parseInt(rgb[2])));
+            itemMeta.setColor(color);
+        } else if (meta instanceof PotionMeta) {
+            PotionMeta itemMeta = (PotionMeta) meta;
+            itemMeta.setColor(color);
         }
         return this;
     }

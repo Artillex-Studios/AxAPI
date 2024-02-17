@@ -43,7 +43,7 @@ public class BlockSetterImpl implements BlockSetter {
         int chunkX = x >> 4;
         int chunkZ = z >> 4;
         LevelChunk levelChunk;
-        if (chunk != null && chunkX == chunk.getPos().x && chunkZ == chunk.getPos().z) {
+        if (this.chunk != null && chunkX == this.chunk.getPos().x && chunkZ == this.chunk.getPos().z) {
             levelChunk = this.chunk;
         } else {
             this.chunk = levelChunk = level.getChunk(chunkX, chunkZ);
@@ -52,14 +52,8 @@ public class BlockSetterImpl implements BlockSetter {
        
         var state = ((CraftBlockData) data).getState();
         
-        LevelChunkSection section;
         int sectionIndex = levelChunk.getSectionIndex(y);
-        if (this.section != null && this.sectionIndex == sectionIndex) {
-            section = this.section;
-        } else {
-            this.section = section = levelChunk.getSection(sectionIndex);
-            this.sectionIndex = sectionIndex;
-        }
+        LevelChunkSection section = levelChunk.getSection(sectionIndex);
 
         int i = y;
         if (section.hasOnlyAir() && state.isAir()) {

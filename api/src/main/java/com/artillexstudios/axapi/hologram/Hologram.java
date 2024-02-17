@@ -33,4 +33,6 @@ public interface Hologram {
     void remove();
 
     void removeLine(int line);
+
+    <T> void setLines(List<T> content);
 }

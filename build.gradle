@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.artillexstudios.axapi'
-version = '1.4.23'
+version = '1.4.39'
 
 java {
     toolchain {
@@ -81,6 +81,7 @@ allprojects {
         implementation("net.kyori:adventure-text-serializer-plain:4.14.0")
         compileOnly("it.unimi.dsi:fastutil-core:8.5.12")
         compileOnly("org.apache.commons:commons-math3:3.6.1")
+        compileOnly("com.github.ben-manes.caffeine:caffeine:2.9.2")
 
         implementation("com.github.Revxrsal.Lamp:common:3.1.9") {
             exclude group: 'net.kyori', module: 'adventure'

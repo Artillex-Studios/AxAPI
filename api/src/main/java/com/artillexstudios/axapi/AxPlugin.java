@@ -70,7 +70,14 @@ public abstract class AxPlugin extends JavaPlugin {
             .version("3.6.1")
             .build();
 
+        Library caffeine = Library.builder()
+            .groupId("com{}github{}ben-manes{}caffeine")
+            .artifactId("caffeine")
+            .version("2.9.2")
+            .build();
+
         libraryManager.loadLibrary(commonsMath);
+        libraryManager.loadLibrary(caffeine);
         
 
         hasNMSHandler = NMSHandlers.British.initialise(this);

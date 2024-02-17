@@ -123,7 +123,7 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
 
     @Override
     public BlockSetter newSetter(World world) {
-        return null;
+        return new BlockSetterImpl(world);
     }
 
     private Channel getChannel(Connection connection) {

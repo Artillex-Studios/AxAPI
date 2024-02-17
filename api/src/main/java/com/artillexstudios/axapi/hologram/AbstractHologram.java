@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.UUID;
 
 public abstract class AbstractHologram implements Hologram {
@@ -105,6 +106,8 @@ public abstract class AbstractHologram implements Hologram {
         for (HologramLine<?> line : lines) {
             line.remove();
         }
+
+        lines.clear();
     }
 
     @Override
@@ -117,6 +120,15 @@ public abstract class AbstractHologram implements Hologram {
     @Override
     public ObjectArrayList<HologramLine<?>> getLines() {
         return lines;
+    }
+
+    @Override
+    public <T> void setLines(List<T> content) {
+        remove();
+
+        for (T element : content) {
+            addLine(element);
+        }
     }
 
     protected abstract <T> HologramLine<T> addLine(Location location, T content);

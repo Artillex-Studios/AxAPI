@@ -1,4 +1,4 @@
-package com.artillexstudios.axapi.nms.v1_20_R1;
+package com.artillexstudios.axapi.nms.v1_20_R3;
 
 import com.artillexstudios.axapi.selection.BlockSetter;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
@@ -14,8 +14,8 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_20_R1.block.data.CraftBlockData;
+import org.bukkit.craftbukkit.v1_20_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_20_R3.block.data.CraftBlockData;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -30,8 +30,6 @@ public class BlockSetterImpl implements BlockSetter {
     private final World world;
     private final ArrayList<ChunkPos> chunks = new ArrayList<>();
     private LevelChunk chunk = null;
-    private int sectionIndex = -10000;
-    private LevelChunkSection section = null;
 
     public BlockSetterImpl(World world) {
         this.world = world;

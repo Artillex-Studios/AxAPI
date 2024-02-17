@@ -3,6 +3,9 @@ package com.artillexstudios.axapi.nms.v1_18_R2.entity;
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
+import com.github.benmanes.caffeine.cache.Scheduler;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import io.netty.buffer.Unpooled;
@@ -43,10 +46,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.lang.reflect.Field;
+import java.time.Duration;
 
 public class PacketEntity implements com.artillexstudios.axapi.entity.impl.PacketEntity {
+    private static AtomicInteger ENTITY_COUNTER;
+    private static final Cache<Component, Optional<net.minecraft.network.chat.Component>> CACHE = Caffeine.newBuilder().maximumSize(600).scheduler(Scheduler.systemScheduler()).expireAfterAccess(Duration.ofSeconds(60)).build();
     public final int entityId;
     private final net.minecraft.world.entity.EntityType<?> entityType;
     private final List<Consumer<PacketEntityInteractEvent>> eventConsumers = new ArrayList<>();
@@ -65,8 +73,18 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     private boolean shouldTeleport = false;
     public ServerLevel level;
 
+    static {
+        try {
+            Field entityIdField = Entity.class.getDeclaredField("c");
+            entityIdField.setAccessible(true);
+            ENTITY_COUNTER = (AtomicInteger) entityIdField.get(null);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
+
     public PacketEntity(EntityType entityType, Location location) {
-        entityId = Entity.nextEntityId();
+        entityId = ENTITY_COUNTER.incrementAndGet();
         this.location = location;
         this.level = ((CraftWorld) location.getWorld()).getHandle();
         this.entityType = net.minecraft.world.entity.EntityType.byString(entityType.getName()).orElse(net.minecraft.world.entity.EntityType.ARMOR_STAND);
@@ -147,7 +165,10 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
             this.name = name;
 
             data.set(EntityData.CUSTOM_NAME_VISIBLE, true);
-            data.set(EntityData.CUSTOM_NAME, Optional.ofNullable(net.minecraft.network.chat.Component.Serializer.fromJson(GsonComponentSerializer.gson().serializer().toJsonTree(name))));
+            Optional<net.minecraft.network.chat.Component> component = CACHE.get(name, key -> {
+                return Optional.ofNullable(net.minecraft.network.chat.Component.Serializer.fromJson(GsonComponentSerializer.gson().serializer().toJsonTree(key)));
+            });
+            data.set(EntityData.CUSTOM_NAME, component);
         }
     }
 
