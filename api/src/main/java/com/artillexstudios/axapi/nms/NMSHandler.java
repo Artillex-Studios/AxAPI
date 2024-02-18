@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.nms;
 
 import com.artillexstudios.axapi.entity.PacketEntityTracker;
+import com.artillexstudios.axapi.selection.ParallelBlockSetter;
 import com.artillexstudios.axapi.selection.BlockSetter;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -24,4 +25,8 @@ public interface NMSHandler {
     PacketEntityTracker newTracker();
 
     BlockSetter newSetter(World world);
+
+    default ParallelBlockSetter newParallelSetter(World world) {
+        return null;
+    }
 }

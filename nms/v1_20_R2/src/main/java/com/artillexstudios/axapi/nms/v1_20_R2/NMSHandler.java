@@ -18,6 +18,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.inventory.meta.ItemMeta;
+import com.artillexstudios.axapi.selection.ParallelBlockSetter;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -124,6 +125,12 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     @Override
     public BlockSetter newSetter(World world) {
         return new BlockSetterImpl(world);
+    }
+
+    
+    @Override
+    public ParallelBlockSetter newParallelSetter(World world) {
+        return new ParallelBlockSetterImpl(world);
     }
 
     private Channel getChannel(Connection connection) {
