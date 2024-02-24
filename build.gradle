@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.artillexstudios.axapi'
-version = '1.4.56'
+version = '1.4.60'
 
 java {
     toolchain {

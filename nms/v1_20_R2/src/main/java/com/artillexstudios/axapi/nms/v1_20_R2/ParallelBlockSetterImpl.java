@@ -36,6 +36,10 @@ import net.minecraft.world.level.chunk.Palette;
 import net.minecraft.util.BitStorage;
 import net.minecraft.world.level.material.FluidState;
 import com.destroystokyo.paper.util.maplist.IBlockDataList;
+import java.util.concurrent.CompletableFuture;
+import com.google.common.collect.Sets;
+import java.util.function.IntConsumer;
+import com.artillexstudios.axapi.utils.FastFieldAccessor;
 
 public class ParallelBlockSetterImpl implements ParallelBlockSetter {
     private static final ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -43,16 +47,16 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
     private final ServerLevel level;
     private final ArrayList<ChunkPos> chunks = new ArrayList<>();
     private static Unsafe unsafe;
-    private static FieldAccessor nonEmptyBlockCount;
-    private static FieldAccessor tickingBlockCount;
-    private static FieldAccessor tickingFluidCount;
-    private static FieldAccessor states;
-    private static FieldAccessor biomes;
-    private static FieldAccessor tickingList;
-    private static FieldAccessor specialCollidingBlocks;
-    private static FieldAccessor fluidStateCount;
-    private static FieldAccessor paletteStrategy;
-    private static FieldAccessor paletteData;
+    private static FastFieldAccessor nonEmptyBlockCount;
+    private static FastFieldAccessor tickingBlockCount;
+    private static FastFieldAccessor tickingFluidCount;
+    private static FastFieldAccessor states;
+    private static FastFieldAccessor biomes;
+    private static FastFieldAccessor tickingList;
+    private static FastFieldAccessor specialCollidingBlocks;
+    private static FastFieldAccessor fluidStateCount;
+    private static FastFieldAccessor paletteStrategy;
+    private static FastFieldAccessor paletteData;
     private static Field palette;
     private static Field storage;
 
@@ -89,16 +93,16 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
             palette.setAccessible(true);
             storage.setAccessible(true);
 
-            ParallelBlockSetterImpl.nonEmptyBlockCount = new FieldAccessor(nonEmptyBlockCount);
-            ParallelBlockSetterImpl.tickingBlockCount = new FieldAccessor(tickingBlockCount);
-            ParallelBlockSetterImpl.tickingFluidCount = new FieldAccessor(tickingFluidCount);
-            ParallelBlockSetterImpl.states = new FieldAccessor(states);
-            ParallelBlockSetterImpl.biomes = new FieldAccessor(biomes);
-            ParallelBlockSetterImpl.tickingList = new FieldAccessor(tickingList);
-            ParallelBlockSetterImpl.specialCollidingBlocks = new FieldAccessor(specialCollidingBlocks);
-            ParallelBlockSetterImpl.fluidStateCount = new FieldAccessor(fluidStateCount);
-            ParallelBlockSetterImpl.paletteData = new FieldAccessor(paletteData);
-            ParallelBlockSetterImpl.paletteStrategy = new FieldAccessor(paletteStrategy);
+            ParallelBlockSetterImpl.nonEmptyBlockCount = new FastFieldAccessor(nonEmptyBlockCount);
+            ParallelBlockSetterImpl.tickingBlockCount = new FastFieldAccessor(tickingBlockCount);
+            ParallelBlockSetterImpl.tickingFluidCount = new FastFieldAccessor(tickingFluidCount);
+            ParallelBlockSetterImpl.states = new FastFieldAccessor(states);
+            ParallelBlockSetterImpl.biomes = new FastFieldAccessor(biomes);
+            ParallelBlockSetterImpl.tickingList = new FastFieldAccessor(tickingList);
+            ParallelBlockSetterImpl.specialCollidingBlocks = new FastFieldAccessor(specialCollidingBlocks);
+            ParallelBlockSetterImpl.fluidStateCount = new FastFieldAccessor(fluidStateCount);
+            ParallelBlockSetterImpl.paletteData = new FastFieldAccessor(paletteData);
+            ParallelBlockSetterImpl.paletteStrategy = new FastFieldAccessor(paletteStrategy);
         } catch (Exception exception) {
             exception.printStackTrace();
         }
@@ -157,76 +161,6 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
         return palette.valueFor(j);
     }
 
-    static class FieldAccessor {
-        private static Unsafe unsafe;
-
-        static {
-            try {
-                Field f = Unsafe.class.getDeclaredField("theUnsafe");
-                f.setAccessible(true);
-                unsafe = (Unsafe) f.get(null);
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
-        }
-
-        private final Field field;
-        private final long fieldOffset;
-
-        public FieldAccessor(Field field) {
-            this.field = field;
-            this.fieldOffset = unsafe.objectFieldOffset(field);
-        }
-
-        public <T> void set(Object object, T value) {
-            unsafe.putObject(object, fieldOffset, value);
-        }
-
-        public void setInt(Object object, int value) {
-            unsafe.putInt(object, fieldOffset, value);
-        }
-
-        public void setLong(Object object, long value) {
-            unsafe.putLong(object, fieldOffset, value);
-        }
-
-        public void setShort(Object object, short value) {
-            unsafe.putShort(object, fieldOffset, value);
-        }
-
-        public void setDouble(Object object, double value) {
-            unsafe.putDouble(object, fieldOffset, value);
-        }
-
-        public void setFloat(Object object, float value) {
-            unsafe.putFloat(object, fieldOffset, value);
-        }
-
-        public <T> T get(Object object) {
-            return (T) unsafe.getObject(object, fieldOffset);
-        }
-
-        public int getInt(Object object) {
-            return unsafe.getInt(object, fieldOffset);
-        }
-
-        public short getShort(Object object) {
-            return unsafe.getShort(object, fieldOffset);
-        }
-
-        public long getLong(Object object) {
-            return unsafe.getLong(object, fieldOffset);
-        }
-
-        public double getDouble(Object object) {
-            return unsafe.getDouble(object, fieldOffset);
-        }
-
-        public float getFloat(Object object) {
-            return unsafe.getFloat(object, fieldOffset);
-        }
-    }
-
     public LevelChunkSection copy(LevelChunkSection section) {
         try {
             LevelChunkSection newSection = (LevelChunkSection) unsafe.allocateInstance(LevelChunkSection.class);
@@ -259,7 +193,7 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
         this.level = ((CraftWorld) world).getHandle();
     }
 
-    public int fill(Cuboid selection, EnumeratedDistribution<BlockData> distribution) {
+    public void fill(Cuboid selection, EnumeratedDistribution<BlockData> distribution, IntConsumer consumer) {
         AtomicInteger blockCount = new AtomicInteger();
         int chunkMinX = selection.getMinX() >> 4;
         int chunkMaxX = selection.getMaxX() >> 4;
@@ -267,7 +201,7 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
         int chunkMaxZ = selection.getMaxZ() >> 4;
         ArrayList<LevelChunk> chunks = new ArrayList<>();
 
-        java.util.ArrayDeque<java.util.concurrent.Future<?>> tasks = new java.util.ArrayDeque<>();
+        List<CompletableFuture<?>> chunkTasks = new ArrayList<>();
         for (int chunkX = chunkMinX; chunkX <= chunkMaxX; chunkX++) {
             int minX = Math.max(selection.getMinX(), chunkX << 4);
             int maxX = Math.min(selection.getMaxX(), (chunkX << 4) + 15);
@@ -277,25 +211,15 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
                 int maxZ = Math.min(selection.getMaxZ(), (chunkZ << 4) + 15);
                 LevelChunk levelChunk = level.getChunk(chunkX, chunkZ);
                 chunks.add(levelChunk);
+                List<CompletableFuture<?>> chunkFutures = new ArrayList<>();
 
                 for (int y = selection.getMinY(); y <= selection.getMaxY(); y++) {
                     int sectionIndex = levelChunk.getSectionIndex(y);
                     LevelChunkSection section = levelChunk.getSection(sectionIndex);
 
                     int finalY = y;
-                    tasks.add(parallelExecutor.submit(() -> {
+                    CompletableFuture<?> future = CompletableFuture.runAsync(() -> {
                         LevelChunkSection newSection = copy(section);
-                        //PalettedContainer<?> container = ParallelBlockSetterImpl.states.get(newSection);
-                        //PalettedContainer.Strategy strategy = ParallelBlockSetterImpl.paletteStrategy.get(container);
-                        //Object paletteData = ParallelBlockSetterImpl.paletteData.get(container);
-                        //Palette<BlockState> palette;
-                        //BitStorage storage;
-                        //try {
-                            //palette = (Palette<BlockState>) ParallelBlockSetterImpl.palette.get(paletteData);
-                            //storage = (BitStorage) ParallelBlockSetterImpl.storage.get(paletteData);
-                        //} catch (Exception exception) {
-                            //throw new RuntimeException(exception);
-                        //}
 
                         for (int x = minX; x <= maxX; x++) {
                             for (int z = minZ; z <= maxZ; z++) {
@@ -307,7 +231,6 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
 
                                 var state = type.getState();
                                 blockCount.incrementAndGet();
-                                //setBlockState(strategy, palette, storage, section, j, k, l, state, false);
                                 newSection.setBlockState(j, k, l, state, true);
                                 updateHeightMap(levelChunk, j, finalY, l, state);
                             }
@@ -316,34 +239,32 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
                         synchronized (levelChunk) {
                             levelChunk.getSections()[sectionIndex] = newSection;
                         }
-                    }));
+                    }, parallelExecutor);
+
+                    chunkFutures.add(future);
                 }
+
+                int finalChunkX = chunkX;
+                int finalChunkZ = chunkZ;
+                CompletableFuture<?> thisChunk = CompletableFuture.allOf(chunkFutures.toArray(new CompletableFuture[0]));
+                
+                thisChunk.thenAccept((done) -> {
+                    MinecraftServer.getServer().executeBlocking(() -> {
+                        var lightEngine = level.chunkSource.getLightEngine();
+                        lightEngine.relight(Sets.newHashSet(levelChunk.getPos()),c -> {
+                        }, c -> {
+                        });
+
+                        sendUpdatePacket(levelChunk);
+                    });
+                });
+
+                chunkTasks.add(thisChunk);
             }
         }
 
-        while (!tasks.isEmpty()) {
-            try {
-                tasks.poll().get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-                throw new RuntimeException(e);
-            }
-        }
-        relight();
-        for (final LevelChunk chunk : chunks) {
-            sendUpdatePacket(chunk);
-        }
-
-        return blockCount.get();
-    }
-
-    private void relight() {
-        var set = new HashSet(chunks);
-        MinecraftServer.getServer().executeBlocking(() -> {
-            var lightEngine = level.chunkSource.getLightEngine();
-            lightEngine.relight(set, c -> {
-            }, c -> {
-            });
+        CompletableFuture.allOf(chunkTasks.toArray(new CompletableFuture[0])).thenAccept(() -> {
+            consumer.accept(blockCount.get());
         });
     }
 

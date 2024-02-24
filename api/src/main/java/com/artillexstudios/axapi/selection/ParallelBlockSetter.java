@@ -2,8 +2,9 @@ package com.artillexstudios.axapi.selection;
 
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
 import org.bukkit.block.data.BlockData;
+import java.util.function.IntConsumer;
 
 public interface ParallelBlockSetter {
 
-    int fill(Cuboid cuboid, EnumeratedDistribution<BlockData> distribution);
+    void fill(Cuboid cuboid, EnumeratedDistribution<BlockData> distribution, IntConsumer consumer);
 }
