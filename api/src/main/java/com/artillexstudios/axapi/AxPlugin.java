@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi;
 
 import com.artillexstudios.axapi.entity.PacketEntityTracker;
+import com.artillexstudios.axapi.hologram.Holograms;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.scheduler.Scheduler;
 import com.artillexstudios.axapi.utils.FeatureFlags;
@@ -68,6 +69,14 @@ public abstract class AxPlugin extends JavaPlugin {
                     tracker.untrackFor(event.getPlayer());
                 }
             }, this);
+
+            if (FeatureFlags.HOLOGRAM_UPDATE_TICKS.get() > 0) {
+                Scheduler.get().runAsyncTimer(scheduledTask -> {
+                    Holograms.getMap().forEach((id, line) -> {
+                        line.getEntity().sendMetaUpdate();
+                    });
+                }, 0L, FeatureFlags.HOLOGRAM_UPDATE_TICKS.get());
+            }
         }
 
         enable();

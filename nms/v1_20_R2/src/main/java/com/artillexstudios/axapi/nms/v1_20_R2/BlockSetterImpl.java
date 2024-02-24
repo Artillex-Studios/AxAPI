@@ -27,14 +27,10 @@ import java.util.concurrent.ExecutorService;
 public class BlockSetterImpl implements BlockSetter {
     private static final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final ServerLevel level;
-    private final World world;
     private final ArrayList<ChunkPos> chunks = new ArrayList<>();
     private LevelChunk chunk = null;
-    private int sectionIndex = -10000;
-    private LevelChunkSection section = null;
 
     public BlockSetterImpl(World world) {
-        this.world = world;
         this.level = ((CraftWorld) world).getHandle();
     }
 
@@ -87,7 +83,7 @@ public class BlockSetterImpl implements BlockSetter {
     }
 
     private void relight() {
-        var set = new HashSet(chunks);
+        var set = new HashSet<>(chunks);
         MinecraftServer.getServer().executeBlocking(() -> {
             var lightEngine = level.chunkSource.getLightEngine();
             lightEngine.relight(set, c -> {

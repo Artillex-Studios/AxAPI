@@ -1,10 +1,13 @@
 package com.artillexstudios.axapi.utils;
 
+import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class FastFieldAccessor {
     private static final Logger log = LoggerFactory.getLogger(FastFieldAccessor.class);
@@ -26,6 +29,40 @@ public class FastFieldAccessor {
     public FastFieldAccessor(Field field) {
         this.field = field;
         this.fieldOffset = unsafe.objectFieldOffset(field);
+    }
+
+    public static FastFieldAccessor[] forClass(Class<?> clazz) {
+        Preconditions.checkNotNull(clazz, "Can't get FieldAccessor for null class!");
+        Field[] declared = clazz.getDeclaredFields();
+        FastFieldAccessor[] fieldAccessors = new FastFieldAccessor[declared.length];
+
+        for (int i = 0; i < declared.length; i++) {
+            Field field = declared[i];
+            field.setAccessible(true);
+            fieldAccessors[i] = forField(field);
+        }
+
+        return fieldAccessors;
+    }
+
+    public static FastFieldAccessor forField(Field field) {
+        Preconditions.checkNotNull(field, "Can't get FieldAccessor for null field!");
+        return new FastFieldAccessor(field);
+    }
+
+    public static FastFieldAccessor forClassField(Class<?> clazz, String field) {
+        Preconditions.checkNotNull(clazz, "Can't get FieldAccessor for null class!");
+        Preconditions.checkNotNull(field, "Can't get FieldAccessor for null field!");
+        Preconditions.checkArgument(!field.isEmpty(), "Can't get FieldAccessor for empty field!");
+
+        try {
+            Field f = clazz.getDeclaredField(field);
+            f.setAccessible(true);
+            return new FastFieldAccessor(f);
+        } catch (NoSuchFieldException e) {
+            log.error("An error occurred while creating new FastFieldAccessor for field {} of class {}! Fields of class: {}!", field, clazz.getName(), Arrays.stream(clazz.getDeclaredFields()).map(f -> f.getName() + "-" + f.getType()).collect(Collectors.joining(", ")));
+            throw new RuntimeException(e);
+        }
     }
 
     public <T> void set(Object object, T value) {
@@ -74,5 +111,9 @@ public class FastFieldAccessor {
 
     public float getFloat(Object object) {
         return unsafe.getFloat(object, fieldOffset);
+    }
+
+    public Field getField() {
+        return field;
     }
 }

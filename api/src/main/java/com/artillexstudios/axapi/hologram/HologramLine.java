@@ -1,5 +1,7 @@
 package com.artillexstudios.axapi.hologram;
 
+import com.artillexstudios.axapi.entity.impl.PacketEntity;
+import com.artillexstudios.axapi.utils.placeholder.Placeholder;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -11,13 +13,8 @@ public interface HologramLine<T> {
 
     void set(@NotNull T content);
 
-    void set(@NotNull T content, @NotNull Player player);
-
     @NotNull
     T get();
-
-    @NotNull
-    T get(@NotNull Player player);
 
     void hide(@NotNull Player player);
 
@@ -28,4 +25,10 @@ public interface HologramLine<T> {
     void remove();
 
     Set<Player> getViewers();
+
+    void addPlaceholder(Placeholder placeholder);
+
+    List<Placeholder> getPlaceholders();
+
+    PacketEntity getEntity();
 }

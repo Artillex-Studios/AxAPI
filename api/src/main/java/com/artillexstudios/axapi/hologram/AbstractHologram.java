@@ -3,7 +3,10 @@ package com.artillexstudios.axapi.hologram;
 import com.artillexstudios.axapi.hologram.impl.ComponentHologramLine;
 import com.artillexstudios.axapi.hologram.impl.ItemStackHologramLine;
 import com.artillexstudios.axapi.hologram.impl.SkullHologramLine;
+import com.artillexstudios.axapi.utils.ClassUtils;
+import com.artillexstudios.axapi.utils.placeholder.Placeholder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.block.Skull;
@@ -42,8 +45,12 @@ public abstract class AbstractHologram implements Hologram {
     public <T> void addLine(@NotNull T content) {
         Location location = getLocationRel(lines.size());
         HologramLine<T> line = addLine(location, content);
-        line.set(content);
+        if (line instanceof ComponentHologramLine && ClassUtils.classExists("me.clip.placeholderapi.PlaceholderAPI")) {
+            line.addPlaceholder(new Placeholder(PlaceholderAPI::setPlaceholders));
+        }
 
+        Holograms.put(line.getEntity().getEntityId(), line);
+        line.set(content);
         lines.add(line);
     }
 

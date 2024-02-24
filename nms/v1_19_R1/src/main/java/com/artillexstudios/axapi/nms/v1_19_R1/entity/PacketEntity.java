@@ -48,6 +48,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.lang.reflect.Field;
 import java.time.Duration;
@@ -83,7 +84,7 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
         }
     }
 
-    public PacketEntity(EntityType entityType, Location location) {
+    public PacketEntity(EntityType entityType, Location location, Consumer<com.artillexstudios.axapi.entity.impl.PacketEntity> consumer) {
         entityId = ENTITY_COUNTER.incrementAndGet();
         this.location = location;
         this.level = ((CraftWorld) location.getWorld()).getHandle();
@@ -94,6 +95,10 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
 
         handSlots = NonNullList.withSize(2, net.minecraft.world.item.ItemStack.EMPTY);
         armorSlots = NonNullList.withSize(4, net.minecraft.world.item.ItemStack.EMPTY);
+
+        if (consumer != null) {
+            consumer.accept(this);
+        }
 
         AxPlugin.tracker.addEntity(this);
     }
@@ -249,6 +254,11 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     }
 
     @Override
+    public void shouldSee(Predicate<Player> predicate) {
+
+    }
+
+    @Override
     public void onClick(Consumer<PacketEntityInteractEvent> event) {
         eventConsumers.add(event);
     }
@@ -256,6 +266,17 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     @Override
     public void removeClickListener(Consumer<PacketEntityInteractEvent> eventConsumer) {
         eventConsumers.remove(eventConsumer);
+    }
+
+    @Override
+    public void sendMetaUpdate() {
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        buf.writeVarInt(entityId);
+        SynchedEntityData.pack(data.packForNameUpdate(), buf);
+
+        ClientboundSetEntityDataPacket clientboundSetEntityDataPacket = new ClientboundSetEntityDataPacket(buf);
+        buf.release();
+        this.tracker.broadcast(clientboundSetEntityDataPacket);
     }
 
     public void acceptEventConsumers(PacketEntityInteractEvent event) {

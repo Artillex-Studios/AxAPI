@@ -41,6 +41,8 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,11 +51,13 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.lang.reflect.Field;
 import java.time.Duration;
 
 public class PacketEntity implements com.artillexstudios.axapi.entity.impl.PacketEntity {
+    private static final Logger log = LoggerFactory.getLogger(PacketEntity.class);
     private static AtomicInteger ENTITY_COUNTER;
     private static final Cache<Component, Optional<net.minecraft.network.chat.Component>> CACHE = Caffeine.newBuilder().maximumSize(600).scheduler(Scheduler.systemScheduler()).expireAfterAccess(Duration.ofSeconds(60)).build();
     public final int entityId;
@@ -80,11 +84,11 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
             entityIdField.setAccessible(true);
             ENTITY_COUNTER = (AtomicInteger) entityIdField.get(null);
         } catch (Exception exception) {
-            exception.printStackTrace();
+            log.error("An exception occurred while initializing PacketEntity!", exception);
         }
     }
 
-    public PacketEntity(EntityType entityType, Location location) {    
+    public PacketEntity(EntityType entityType, Location location, Consumer<com.artillexstudios.axapi.entity.impl.PacketEntity> consumer) {
         entityId = ENTITY_COUNTER.incrementAndGet();
         this.location = location;
         this.level = ((CraftWorld) location.getWorld()).getHandle();
@@ -95,6 +99,10 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
 
         handSlots = NonNullList.withSize(2, net.minecraft.world.item.ItemStack.EMPTY);
         armorSlots = NonNullList.withSize(4, net.minecraft.world.item.ItemStack.EMPTY);
+
+        if (consumer != null) {
+            consumer.accept(this);
+        }
 
         AxPlugin.tracker.addEntity(this);
     }
@@ -250,6 +258,11 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     }
 
     @Override
+    public void shouldSee(Predicate<Player> predicate) {
+        // TODO
+    }
+
+    @Override
     public void onClick(Consumer<PacketEntityInteractEvent> event) {
         eventConsumers.add(event);
     }
@@ -257,6 +270,11 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     @Override
     public void removeClickListener(Consumer<PacketEntityInteractEvent> eventConsumer) {
         eventConsumers.remove(eventConsumer);
+    }
+
+    @Override
+    public void sendMetaUpdate() {
+        this.tracker.broadcast(new ClientboundSetEntityDataPacket(entityId, data.packForNameUpdate()));
     }
 
     public void acceptEventConsumers(PacketEntityInteractEvent event) {

@@ -5,11 +5,13 @@ import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.function.Consumer;
+
 public class PacketItem extends PacketEntity implements com.artillexstudios.axapi.entity.impl.PacketItem {
     private ItemStack itemStack;
 
-    public PacketItem(Location location) {
-        super(EntityType.DROPPED_ITEM, location);
+    public PacketItem(Location location, Consumer<com.artillexstudios.axapi.entity.impl.PacketEntity> consumer) {
+        super(EntityType.DROPPED_ITEM, location, consumer);
     }
 
     @Override

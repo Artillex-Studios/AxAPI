@@ -1,8 +1,9 @@
-package com.artillexstudios.axapi.nms.v1_20_R2;
+package com.artillexstudios.axapi.nms.v1_20_R3;
 
 import com.artillexstudios.axapi.selection.Cuboid;
 import com.artillexstudios.axapi.selection.ParallelBlockSetter;
 import com.artillexstudios.axapi.utils.FastFieldAccessor;
+import com.destroystokyo.paper.util.maplist.IBlockDataList;
 import com.google.common.collect.Sets;
 import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
@@ -20,8 +21,8 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.craftbukkit.v1_20_R2.CraftWorld;
-import org.bukkit.craftbukkit.v1_20_R2.block.data.CraftBlockData;
+import org.bukkit.craftbukkit.v1_20_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_20_R3.block.data.CraftBlockData;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,7 +78,7 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
             short fluidStateCount = ParallelBlockSetterImpl.fluidStateCount.getShort(section);
             PalettedContainer<BlockState> statesContainer = states.get(section);
             PalettedContainer<Holder<Biome>> biomesContainer = biomes.get(section);
-            com.destroystokyo.paper.util.maplist.IBlockDataList tickingList = ParallelBlockSetterImpl.tickingList.get(section);
+            IBlockDataList tickingList = ParallelBlockSetterImpl.tickingList.get(section);
             int specialColliding = specialCollidingBlocks.getInt(section);
 
             nonEmptyBlockCount.setShort(newSection, nonEmpty);

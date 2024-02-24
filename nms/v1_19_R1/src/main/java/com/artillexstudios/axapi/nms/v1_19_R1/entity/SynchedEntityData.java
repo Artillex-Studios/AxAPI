@@ -66,6 +66,17 @@ public class SynchedEntityData {
         return list;
     }
 
+    public List<net.minecraft.network.syncher.SynchedEntityData.DataItem<?>> packForNameUpdate() {
+        List<net.minecraft.network.syncher.SynchedEntityData.DataItem<?>> list = new ArrayList<>();
+        for (net.minecraft.network.syncher.SynchedEntityData.DataItem<?> next : this.items.values()) {
+            if (next.getAccessor().getId() == EntityData.CUSTOM_NAME.getId() || next.getAccessor().getId() == EntityData.CUSTOM_NAME_VISIBLE.getId()) {
+                list.add(next.copy());
+            }
+        }
+
+        return list;
+    }
+
     public List<net.minecraft.network.syncher.SynchedEntityData.DataItem<?>> packDirty() {
         List<net.minecraft.network.syncher.SynchedEntityData.DataItem<?>> list = null;
 

@@ -6,6 +6,8 @@ import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.util.EulerAngle;
 
+import java.util.function.Consumer;
+
 public class PacketArmorStand extends PacketEntity implements com.artillexstudios.axapi.entity.impl.PacketArmorStand {
     private static final Rotations DEFAULT_HEAD_POSE = new Rotations(0.0F, 0.0F, 0.0F);
     private static final Rotations DEFAULT_BODY_POSE = new Rotations(0.0F, 0.0F, 0.0F);
@@ -18,8 +20,8 @@ public class PacketArmorStand extends PacketEntity implements com.artillexstudio
     private boolean hasArms = false;
     private boolean hasBasePlate = true;
 
-    public PacketArmorStand(Location location) {
-        super(EntityType.ARMOR_STAND, location);
+    public PacketArmorStand(Location location, Consumer<com.artillexstudios.axapi.entity.impl.PacketEntity> consumer) {
+        super(EntityType.ARMOR_STAND, location, consumer);
     }
 
     private static Rotations toRotations(EulerAngle eulerAngle) {

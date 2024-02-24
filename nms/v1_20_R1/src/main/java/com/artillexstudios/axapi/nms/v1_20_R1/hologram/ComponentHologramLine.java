@@ -2,6 +2,9 @@ package com.artillexstudios.axapi.nms.v1_20_R1.hologram;
 
 import com.artillexstudios.axapi.entity.PacketEntityFactory;
 import com.artillexstudios.axapi.entity.impl.PacketArmorStand;
+import com.artillexstudios.axapi.entity.impl.PacketEntity;
+import com.artillexstudios.axapi.hologram.Holograms;
+import com.artillexstudios.axapi.utils.placeholder.Placeholder;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Location;
@@ -9,15 +12,19 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 public class ComponentHologramLine extends com.artillexstudios.axapi.hologram.impl.ComponentHologramLine {
     private final PacketArmorStand packetArmorStand;
+    private final List<Placeholder> placeholders = new ArrayList<>();
 
     public ComponentHologramLine(Location location) {
-        packetArmorStand = (PacketArmorStand) PacketEntityFactory.get().spawnEntity(location, EntityType.ARMOR_STAND);
-        packetArmorStand.setInvisible(true);
-        packetArmorStand.setMarker(true);
+        packetArmorStand = (PacketArmorStand) PacketEntityFactory.get().spawnEntity(location, EntityType.ARMOR_STAND, (entity) -> {
+            entity.setInvisible(true);
+            ((PacketArmorStand) entity).setMarker(true);
+        });
     }
 
     @Override
@@ -29,20 +36,9 @@ public class ComponentHologramLine extends com.artillexstudios.axapi.hologram.im
         }
     }
 
-    @Override
-    public void set(@NotNull Component content, @NotNull Player player) {
-        packetArmorStand.setName(content);
-    }
-
     @NotNull
     @Override
     public Component get() {
-        return packetArmorStand.getName();
-    }
-
-    @NotNull
-    @Override
-    public Component get(@NotNull Player player) {
         return packetArmorStand.getName();
     }
 
@@ -64,10 +60,26 @@ public class ComponentHologramLine extends com.artillexstudios.axapi.hologram.im
     @Override
     public void remove() {
         packetArmorStand.remove();
+        Holograms.remove(packetArmorStand.getEntityId());
     }
 
     @Override
     public Set<Player> getViewers() {
         return this.packetArmorStand.getViewers();
+    }
+
+    @Override
+    public void addPlaceholder(Placeholder placeholder) {
+        placeholders.add(placeholder);
+    }
+
+    @Override
+    public List<Placeholder> getPlaceholders() {
+        return placeholders;
+    }
+
+    @Override
+    public PacketEntity getEntity() {
+        return packetArmorStand;
     }
 }

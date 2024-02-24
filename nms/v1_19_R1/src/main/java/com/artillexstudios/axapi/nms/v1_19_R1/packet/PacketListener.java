@@ -4,17 +4,29 @@ import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.entity.PacketEntityTracker;
 import com.artillexstudios.axapi.entity.impl.PacketEntity;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
+import com.artillexstudios.axapi.hologram.HologramLine;
+import com.artillexstudios.axapi.hologram.Holograms;
+import com.artillexstudios.axapi.hologram.impl.ComponentHologramLine;
+import com.artillexstudios.axapi.nms.v1_19_R1.entity.EntityData;
+import com.artillexstudios.axapi.utils.placeholder.Placeholder;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.InteractionHand;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
 
 public class PacketListener extends ChannelDuplexHandler {
     private final Player player;
@@ -63,8 +75,43 @@ public class PacketListener extends ChannelDuplexHandler {
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
-        }
+        } else if (msg instanceof ClientboundSetEntityDataPacket dataPacket) {
+            HologramLine<?> line = Holograms.byId(dataPacket.getId());
 
-        super.channelRead(ctx, msg);
+            if (!(line instanceof ComponentHologramLine)) {
+                // The entity is not a packet entity, skip!
+                super.channelRead(ctx, msg);
+                return;
+            }
+
+            List<SynchedEntityData.DataItem<?>> dataValues = dataPacket.getUnpackedData();
+            Iterator<SynchedEntityData.DataItem<?>> valueIterator = dataValues.iterator();
+
+            SynchedEntityData.DataItem<?> value = null;
+            while (valueIterator.hasNext()) {
+                SynchedEntityData.DataItem<?> next = valueIterator.next();
+                if (next.getAccessor().getId() != EntityData.CUSTOM_NAME.getId()) continue;
+                Optional<Component> content = (Optional<Component>) next.getValue();
+                if (content.isEmpty()) return;
+
+                String legacy = net.minecraft.network.chat.Component.Serializer.toJson(content.get());
+
+                for (Placeholder placeholder : line.getPlaceholders()) {
+                    legacy = placeholder.parse(player, legacy);
+                }
+
+                value = new SynchedEntityData.DataItem<>(EntityData.CUSTOM_NAME, Optional.ofNullable(net.minecraft.network.chat.Component.Serializer.fromJson(legacy)));
+                valueIterator.remove();
+                break;
+            }
+
+            if (value != null) {
+                dataValues.add(value);
+            }
+
+            super.channelRead(ctx, dataPacket);
+        } else {
+            super.channelRead(ctx, msg);
+        }
     }
 }

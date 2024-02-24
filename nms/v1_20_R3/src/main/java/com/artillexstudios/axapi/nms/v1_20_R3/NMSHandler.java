@@ -10,7 +10,6 @@ import io.netty.channel.Channel;
 import net.minecraft.network.Connection;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;
-import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
@@ -18,6 +17,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -25,6 +26,7 @@ import java.util.Locale;
 import java.util.UUID;
 
 public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
+    private static final Logger log = LoggerFactory.getLogger(NMSHandler.class);
     private final ItemStackSerializer serializer = new ItemStackSerializer();
     private static final String PACKET_HANDLER = "packet_handler";
     private final String AXAPI_HANDLER;
@@ -41,7 +43,7 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
             channelField = Class.forName("net.minecraft.network.NetworkManager").getDeclaredField("n");
             channelField.setAccessible(true);
         } catch (Exception exception) {
-            exception.printStackTrace();
+            log.error("An exception occurred while initializing NMSHandler!", exception);
         }
     }
 

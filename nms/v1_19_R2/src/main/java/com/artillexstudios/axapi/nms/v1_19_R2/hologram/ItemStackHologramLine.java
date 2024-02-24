@@ -1,13 +1,16 @@
 package com.artillexstudios.axapi.nms.v1_19_R2.hologram;
 
 import com.artillexstudios.axapi.entity.PacketEntityFactory;
+import com.artillexstudios.axapi.entity.impl.PacketEntity;
 import com.artillexstudios.axapi.entity.impl.PacketItem;
+import com.artillexstudios.axapi.utils.placeholder.Placeholder;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Set;
 
 public class ItemStackHologramLine extends com.artillexstudios.axapi.hologram.impl.ItemStackHologramLine {
@@ -22,20 +25,9 @@ public class ItemStackHologramLine extends com.artillexstudios.axapi.hologram.im
         this.packetItem.setItemStack(content);
     }
 
-    @Override
-    public void set(@NotNull ItemStack content, @NotNull Player player) {
-        this.packetItem.setItemStack(content);
-    }
-
     @NotNull
     @Override
     public ItemStack get() {
-        return this.packetItem.getItemStack();
-    }
-
-    @NotNull
-    @Override
-    public ItemStack get(@NotNull Player player) {
         return this.packetItem.getItemStack();
     }
 
@@ -62,5 +54,20 @@ public class ItemStackHologramLine extends com.artillexstudios.axapi.hologram.im
     @Override
     public Set<Player> getViewers() {
         return this.packetItem.getViewers();
+    }
+
+    @Override
+    public void addPlaceholder(Placeholder placeholder) {
+
+    }
+
+    @Override
+    public List<Placeholder> getPlaceholders() {
+        return List.of();
+    }
+
+    @Override
+    public PacketEntity getEntity() {
+        return packetItem;
     }
 }
