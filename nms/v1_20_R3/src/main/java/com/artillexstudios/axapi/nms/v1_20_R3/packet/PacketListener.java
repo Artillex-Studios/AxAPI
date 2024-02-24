@@ -11,6 +11,7 @@ import com.artillexstudios.axapi.utils.placeholder.Placeholder;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPromise;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
@@ -74,13 +75,19 @@ public class PacketListener extends ChannelDuplexHandler {
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
-            super.channelRead(ctx, msg);
-        } else if (msg instanceof ClientboundSetEntityDataPacket dataPacket) {
+        }
+
+        super.channelRead(ctx, msg);
+    }
+
+    @Override
+    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+        if (msg instanceof ClientboundSetEntityDataPacket dataPacket) {
             HologramLine<?> line = Holograms.byId(dataPacket.id());
 
             if (!(line instanceof ComponentHologramLine)) {
                 // The entity is not a packet entity, skip!
-                super.channelRead(ctx, msg);
+                super.write(ctx, msg, promise);
                 return;
             }
 
@@ -109,9 +116,9 @@ public class PacketListener extends ChannelDuplexHandler {
                 dataValues.add(value);
             }
 
-            super.channelRead(ctx, dataPacket);
+            super.write(ctx, dataPacket, promise);
         } else {
-            super.channelRead(ctx, msg);
+            super.write(ctx, msg, promise);
         }
     }
 }
