@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BlockPlacer {
-    private final boolean killed = false;
     private final Cuboid selection;
     private final EnumeratedDistribution<BlockData> distribution;
 

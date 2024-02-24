@@ -5,7 +5,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 
 public class BukkitScheduledTask implements ScheduledTask {
-    private BukkitTask task;
+    private final BukkitTask task;
 
     public BukkitScheduledTask(BukkitTask task) {
         this.task = task;

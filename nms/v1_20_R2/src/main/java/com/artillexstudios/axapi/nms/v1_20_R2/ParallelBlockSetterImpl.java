@@ -26,6 +26,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
 import com.artillexstudios.axapi.selection.Cuboid;
 import com.artillexstudios.axapi.selection.ParallelBlockSetter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sun.misc.Unsafe;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -44,6 +46,7 @@ import com.artillexstudios.axapi.utils.FastFieldAccessor;
 public class ParallelBlockSetterImpl implements ParallelBlockSetter {
     private static final ExecutorService executor = Executors.newSingleThreadExecutor();
     private static final ExecutorService parallelExecutor = Executors.newFixedThreadPool(8);
+    private static final Logger log = LoggerFactory.getLogger(ParallelBlockSetterImpl.class);
     private final ServerLevel level;
     private final ArrayList<ChunkPos> chunks = new ArrayList<>();
     private static Unsafe unsafe;
@@ -183,9 +186,9 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
             specialCollidingBlocks.setInt(newSection, specialColliding);
 
             return newSection;
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+        } catch (Exception exception) {
+            log.error("An unexpected issue occurred while initializing ParallelBlockSetter. Is your version supported?", exception);
+            throw new RuntimeException(exception);
         }
     }
 
@@ -199,7 +202,6 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
         int chunkMaxX = selection.getMaxX() >> 4;
         int chunkMinZ = selection.getMinZ() >> 4;
         int chunkMaxZ = selection.getMaxZ() >> 4;
-        ArrayList<LevelChunk> chunks = new ArrayList<>();
 
         List<CompletableFuture<?>> chunkTasks = new ArrayList<>();
         for (int chunkX = chunkMinX; chunkX <= chunkMaxX; chunkX++) {
@@ -210,7 +212,6 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
                 int minZ = Math.max(selection.getMinZ(), chunkZ << 4);
                 int maxZ = Math.min(selection.getMaxZ(), (chunkZ << 4) + 15);
                 LevelChunk levelChunk = level.getChunk(chunkX, chunkZ);
-                chunks.add(levelChunk);
                 List<CompletableFuture<?>> chunkFutures = new ArrayList<>();
 
                 for (int y = selection.getMinY(); y <= selection.getMaxY(); y++) {
@@ -244,11 +245,9 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
                     chunkFutures.add(future);
                 }
 
-                int finalChunkX = chunkX;
-                int finalChunkZ = chunkZ;
                 CompletableFuture<?> thisChunk = CompletableFuture.allOf(chunkFutures.toArray(new CompletableFuture[0]));
                 
-                thisChunk.thenAccept((done) -> {
+                thisChunk.thenAccept((ignored) -> {
                     MinecraftServer.getServer().executeBlocking(() -> {
                         var lightEngine = level.chunkSource.getLightEngine();
                         lightEngine.relight(Sets.newHashSet(levelChunk.getPos()),c -> {
@@ -263,7 +262,8 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
             }
         }
 
-        CompletableFuture.allOf(chunkTasks.toArray(new CompletableFuture[0])).thenAccept(() -> {
+        CompletableFuture<?> future = CompletableFuture.allOf(chunkTasks.toArray(new CompletableFuture[0]));
+        future.thenAccept((ignored) -> {
             consumer.accept(blockCount.get());
         });
     }

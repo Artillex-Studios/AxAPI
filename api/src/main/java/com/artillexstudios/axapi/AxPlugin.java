@@ -3,36 +3,54 @@ package com.artillexstudios.axapi;
 import com.artillexstudios.axapi.entity.PacketEntityTracker;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.scheduler.Scheduler;
+import com.artillexstudios.axapi.utils.FeatureFlags;
+import net.byteflux.libby.BukkitLibraryManager;
+import net.byteflux.libby.Library;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-import net.byteflux.libby.Library;
-import net.byteflux.libby.BukkitLibraryManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public abstract class AxPlugin extends JavaPlugin {
+    private static final Logger log = LoggerFactory.getLogger(AxPlugin.class);
     public static PacketEntityTracker tracker;
     private static boolean hasNMSHandler;
+
+    public AxPlugin() {
+        updateFlags();
+    }
+
+    public void updateFlags() {
+
+    }
 
     @Override
     public void onEnable() {
         Scheduler.scheduler.init(this);
 
         if (hasNMSHandler) {
-            Executors.newScheduledThreadPool(3).scheduleAtFixedRate(() -> {
-                try {
-                    tracker.process();
-                } catch (Exception exception) {
-                    exception.printStackTrace();
-                }
-            }, 0, 50, TimeUnit.MILLISECONDS);
+            if (tracker != null) {
+                Executors.newScheduledThreadPool(FeatureFlags.PACKET_ENTITY_TRACKER_THREADS.get()).scheduleAtFixedRate(() -> {
+                    try {
+                        tracker.process();
+                    } catch (Exception exception) {
+                        log.error("An unexpected error occurred while processing packet entities via the tracker!", exception);
+                    }
+                }, 0, 50, TimeUnit.MILLISECONDS);
+            } else {
+                log.error("Packet entity tracker was not initialized! Please, add the PACKET_ENTITIES flag to the flags!");
+                Bukkit.getPluginManager().disablePlugin(this);
+                return;
+            }
 
             Bukkit.getPluginManager().registerEvents(new Listener() {
                 @EventHandler
@@ -65,25 +83,24 @@ public abstract class AxPlugin extends JavaPlugin {
         libraryManager.addMavenCentral();
 
         Library commonsMath = Library.builder()
-            .groupId("org{}apache{}commons")
-            .artifactId("commons-math3")
-            .version("3.6.1")
-            .build();
+                .groupId("org{}apache{}commons")
+                .artifactId("commons-math3")
+                .version("3.6.1")
+                .build();
 
         Library caffeine = Library.builder()
-            .groupId("com{}github{}ben-manes{}caffeine")
-            .artifactId("caffeine")
-            .version("2.9.2")
-            .build();
+                .groupId("com{}github{}ben-manes{}caffeine")
+                .artifactId("caffeine")
+                .version("2.9.2")
+                .build();
 
         libraryManager.loadLibrary(commonsMath);
         libraryManager.loadLibrary(caffeine);
-        
 
         hasNMSHandler = NMSHandlers.British.initialise(this);
 
         load();
-        if (hasNMSHandler) {
+        if (hasNMSHandler && FeatureFlags.PACKET_ENTITY_TRACKER_ENABLED.get()) {
             tracker = NMSHandlers.getNmsHandler().newTracker();
         }
     }

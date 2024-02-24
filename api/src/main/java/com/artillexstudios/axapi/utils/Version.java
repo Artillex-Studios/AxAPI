@@ -6,22 +6,23 @@ import org.bukkit.Bukkit;
 import java.util.Arrays;
 import org.bukkit.entity.Player;
 
+import java.util.Collections;
 import java.util.List;
 
 public enum Version {
     v1_20_3(765, "v1_20_R3", Arrays.asList("1.20.3", "1.20.4")),
-    v1_20_2(764, "v1_20_R2", Arrays.asList("1.20.2")),
+    v1_20_2(764, "v1_20_R2", Collections.singletonList("1.20.2")),
     v1_20_1(763, "v1_20_R1", Arrays.asList("1.20.1", "1.20")),
-    v1_19_3(762, "v1_19_R3", Arrays.asList("1.19.4")),
-    v1_19_2(761, "v1_19_R2", Arrays.asList("1.19.3")),
+    v1_19_3(762, "v1_19_R3", Collections.singletonList("1.19.4")),
+    v1_19_2(761, "v1_19_R2", Collections.singletonList("1.19.3")),
     v1_19_1(760, "v1_19_R1", Arrays.asList("1.19.1", "1.19.2")),
-    v1_19(759, "v1_19_R1", Arrays.asList("1.19")),
-    v1_18_2(758, "v1_18_R2", Arrays.asList("1.18.2")),
+    v1_19(759, "v1_19_R1", Collections.singletonList("1.19")),
+    v1_18_2(758, "v1_18_R2", Collections.singletonList("1.18.2")),
     v1_18(757, "v1_18_R1", Arrays.asList("1.18.1", "1.18")),
-    v1_17_1(756, "v1_17_R2", Arrays.asList("1.17.1")),
-    v1_17(755, "v1_17_R1", Arrays.asList("1.17")),
-    v1_16_5(754, "v1_16_R3", Arrays.asList("1.16.5")),
-    UNKNOWN(-1, "UNKNOWN", Arrays.asList("UNKNOWN"));
+    v1_17_1(756, "v1_17_R2", Collections.singletonList("1.17.1")),
+    v1_17(755, "v1_17_R1", Collections.singletonList("1.17")),
+    v1_16_5(754, "v1_16_R3", Collections.singletonList("1.16.5")),
+    UNKNOWN(-1, "UNKNOWN", Collections.singletonList("UNKNOWN"));
 
     private static final Int2ObjectArrayMap<Version> versionMap = new Int2ObjectArrayMap<>();
     private static Version serverVersion;

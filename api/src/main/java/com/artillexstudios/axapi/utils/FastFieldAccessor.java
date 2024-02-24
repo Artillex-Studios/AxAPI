@@ -1,10 +1,13 @@
 package com.artillexstudios.axapi.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
 
 public class FastFieldAccessor {
+    private static final Logger log = LoggerFactory.getLogger(FastFieldAccessor.class);
     private static Unsafe unsafe;
 
     static {
@@ -13,7 +16,7 @@ public class FastFieldAccessor {
             f.setAccessible(true);
             unsafe = (Unsafe) f.get(null);
         } catch (Exception exception) {
-            exception.printStackTrace();
+            log.error("An error occurred while initializing FastFieldAccessor!", exception);
         }
     }
 

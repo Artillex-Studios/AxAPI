@@ -1,8 +1,8 @@
 package com.artillexstudios.axapi.utils;
 
-import com.github.benmanes.caffeine.cache.Scheduler;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.Scheduler;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -18,13 +18,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.time.Duration;
 
 public class StringUtils {
     private static final Cache<String, String> CACHE = Caffeine.newBuilder().maximumSize(200).scheduler(Scheduler.systemScheduler()).expireAfterAccess(Duration.ofSeconds(2)).build();
+    private static final Pattern HEX_PATTERN = Pattern.compile("&#([0-9a-fA-F]{6})");
     public static LegacyComponentSerializer LEGACY_COMPONENT_SERIALIZER;
     public static MiniMessage MINI_MESSAGE;
-    private static Pattern HEX_PATTERN = Pattern.compile("&#([0-9a-fA-F]{6})");
 
     static {
         if (Version.getServerVersion().protocolId >= Version.v1_16_5.protocolId) {
