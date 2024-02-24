@@ -19,6 +19,7 @@ import java.util.UUID;
 
 public abstract class AbstractHologram implements Hologram {
     private final ObjectArrayList<HologramLine<?>> lines = new ObjectArrayList<>(20);
+    private final ObjectArrayList<Placeholder> placeholders = new ObjectArrayList<>(5);
     private final double lineHeight;
     private final String id;
     private final UUID uuid;
@@ -45,8 +46,14 @@ public abstract class AbstractHologram implements Hologram {
     public <T> void addLine(@NotNull T content) {
         Location location = getLocationRel(lines.size());
         HologramLine<T> line = addLine(location, content);
-        if (line instanceof ComponentHologramLine && ClassUtils.classExists("me.clip.placeholderapi.PlaceholderAPI")) {
-            line.addPlaceholder(new Placeholder(PlaceholderAPI::setPlaceholders));
+        if (line instanceof ComponentHologramLine) {
+            for (Placeholder placeholder : placeholders) {
+                line.addPlaceholder(placeholder);
+            }
+
+            if (ClassUtils.classExists("me.clip.placeholderapi.PlaceholderAPI")) {
+                line.addPlaceholder(new Placeholder(PlaceholderAPI::setPlaceholders));
+            }
         }
 
         Holograms.put(line.getEntity().getEntityId(), line);
@@ -135,6 +142,16 @@ public abstract class AbstractHologram implements Hologram {
 
         for (T element : content) {
             addLine(element);
+        }
+    }
+
+    @Override
+    public void addPlaceholder(Placeholder placeholder) {
+        placeholders.add(placeholder);
+
+        for (HologramLine<?> line : lines) {
+            if (!(line instanceof ComponentHologramLine)) continue;
+            line.addPlaceholder(placeholder);
         }
     }
 

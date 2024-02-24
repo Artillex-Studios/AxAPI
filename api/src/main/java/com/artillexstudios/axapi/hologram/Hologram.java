@@ -1,4 +1,5 @@
 package com.artillexstudios.axapi.hologram;
+import com.artillexstudios.axapi.utils.placeholder.Placeholder;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -35,4 +36,6 @@ public interface Hologram {
     void removeLine(int line);
 
     <T> void setLines(List<T> content);
+
+    void addPlaceholder(Placeholder placeholder);
 }
