@@ -10,6 +10,7 @@ import com.artillexstudios.axapi.nms.v1_20_R3.entity.EntityData;
 import com.artillexstudios.axapi.utils.placeholder.Placeholder;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.Scheduler;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -25,21 +26,27 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
 public class PacketListener extends ChannelDuplexHandler {
     private static final Cache<Component, String> legacyCache = Caffeine.newBuilder()
             .maximumSize(200)
-            .expireAfterAccess(Duration.ofSeconds(2))
+            .expireAfterAccess(Duration.ofSeconds(20))
+            .scheduler(Scheduler.systemScheduler())
             .build();
     private static final Cache<String, Component> componentCache = Caffeine.newBuilder()
             .maximumSize(200)
-            .expireAfterAccess(Duration.ofSeconds(2))
+            .expireAfterAccess(Duration.ofSeconds(20))
+            .scheduler(Scheduler.systemScheduler())
             .build();
+    private static final Logger log = LoggerFactory.getLogger(PacketListener.class);
 
     private final Player player;
 
@@ -50,42 +57,38 @@ public class PacketListener extends ChannelDuplexHandler {
     @Override
     public void channelRead(@NotNull ChannelHandlerContext ctx, @NotNull Object msg) throws Exception {
         if (msg instanceof ServerboundInteractPacket packet) {
-            try {
-                FriendlyByteBuf byteBuf = new FriendlyByteBuf(Unpooled.buffer());
-                packet.write(byteBuf);
-                int entityId = byteBuf.readVarInt();
-                int actionType = byteBuf.readVarInt();
-                InteractionHand hand = null;
-                Vector vector = null;
-                boolean attack = false;
-                if (actionType == 0) {
-                    // Interact
-                    int interactionHand = byteBuf.readVarInt();
-                    hand = interactionHand == 0 ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
-                } else if (actionType == 1) {
-                    // Attack
-                    attack = true;
-                } else {
-                    // Interact at
-                    float x = byteBuf.readFloat();
-                    float y = byteBuf.readFloat();
-                    float z = byteBuf.readFloat();
-                    vector = new Vector(x, y, z);
-                    int interactionHand = byteBuf.readVarInt();
-                    hand = interactionHand == 0 ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
-                }
+            FriendlyByteBuf byteBuf = new FriendlyByteBuf(Unpooled.buffer());
+            packet.write(byteBuf);
+            int entityId = byteBuf.readVarInt();
+            int actionType = byteBuf.readVarInt();
+            InteractionHand hand = null;
+            Vector vector = null;
+            boolean attack = false;
+            if (actionType == 0) {
+                // Interact
+                int interactionHand = byteBuf.readVarInt();
+                hand = interactionHand == 0 ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+            } else if (actionType == 1) {
+                // Attack
+                attack = true;
+            } else {
+                // Interact at
+                float x = byteBuf.readFloat();
+                float y = byteBuf.readFloat();
+                float z = byteBuf.readFloat();
+                vector = new Vector(x, y, z);
+                int interactionHand = byteBuf.readVarInt();
+                hand = interactionHand == 0 ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+            }
 
-                byteBuf.release();
+            byteBuf.release();
 
-                PacketEntity entity = AxPlugin.tracker.getById(entityId);
-                if (entity != null) {
-                    PacketEntityInteractEvent event = new PacketEntityInteractEvent(player, entity, attack, vector, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
-                    com.artillexstudios.axapi.nms.v1_20_R3.entity.PacketEntity packetEntity = (com.artillexstudios.axapi.nms.v1_20_R3.entity.PacketEntity) entity;
-                    packetEntity.acceptEventConsumers(event);
-                    Bukkit.getPluginManager().callEvent(event);
-                }
-            } catch (Exception exception) {
-                exception.printStackTrace();
+            PacketEntity entity = AxPlugin.tracker.getById(entityId);
+            if (entity != null) {
+                PacketEntityInteractEvent event = new PacketEntityInteractEvent(player, entity, attack, vector, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
+                com.artillexstudios.axapi.nms.v1_20_R3.entity.PacketEntity packetEntity = (com.artillexstudios.axapi.nms.v1_20_R3.entity.PacketEntity) entity;
+                packetEntity.acceptEventConsumers(event);
+                Bukkit.getPluginManager().callEvent(event);
             }
         }
 
@@ -103,40 +106,51 @@ public class PacketListener extends ChannelDuplexHandler {
                 return;
             }
 
-            List<SynchedEntityData.DataValue<?>> dataValues = dataPacket.packedItems();
-            List<SynchedEntityData.DataValue<?>> newList = new ArrayList<>(dataValues.size());
+            List<SynchedEntityData.DataValue<?>> dataValues = new ArrayList<>(dataPacket.packedItems());
+            Iterator<SynchedEntityData.DataValue<?>> iterator = dataValues.iterator();
 
-            for (SynchedEntityData.DataValue<?> next : dataValues) {
-                if (next.id() != EntityData.CUSTOM_NAME.getId()) {
-                    newList.add(next);
-                } else {
-                    Optional<Component> content = (Optional<Component>) next.value();
-                    if (content.isEmpty()) {
-                        super.write(ctx, msg, promise);
-                        return;
-                    }
+            SynchedEntityData.DataValue<?> value = null;
+            while (iterator.hasNext()) {
+                SynchedEntityData.DataValue<?> next = iterator.next();
+                if (next.id() != EntityData.CUSTOM_NAME.getId()) continue;
 
-                    String legacy = legacyCache.get(content.get(), Component.Serializer::toJson);
-                    if (legacy == null) {
-                        super.write(ctx, msg, promise);
-                        return;
-                    }
-
-                    for (Placeholder placeholder : line.getPlaceholders()) {
-                        legacy = placeholder.parse(player, legacy);
-                    }
-
-                    SynchedEntityData.DataValue<?> value = new SynchedEntityData.DataValue<>(next.id(), EntityData.CUSTOM_NAME.getSerializer(), Optional.ofNullable(componentCache.get(legacy, Component.Serializer::fromJson)));
-                    newList.add(value);
+                Optional<Component> content = (Optional<Component>) next.value();
+                if (content.isEmpty()) {
+                    super.write(ctx, msg, promise);
+                    return;
                 }
+
+                String legacy = legacyCache.get(content.get(), Component.Serializer::toJson);
+                if (legacy == null) {
+                    super.write(ctx, msg, promise);
+                    return;
+                }
+
+                for (Placeholder placeholder : line.getPlaceholders()) {
+                    legacy = placeholder.parse(player, legacy);
+                }
+
+                value = new SynchedEntityData.DataValue<>(next.id(), EntityData.CUSTOM_NAME.getSerializer(), Optional.ofNullable(componentCache.get(legacy, Component.Serializer::fromJson)));
+                iterator.remove();
+                break;
             }
 
-            dataValues.clear();
-            dataValues.addAll(newList);
+            if (value != null) {
+                dataValues.add(value);
+            }
 
-            super.write(ctx, dataPacket, promise);
+            ClientboundSetEntityDataPacket packet = new ClientboundSetEntityDataPacket(dataPacket.id(), dataValues);
+
+            super.write(ctx, packet, promise);
         } else {
             super.write(ctx, msg, promise);
         }
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        log.error("An unhandled exception occurred on ctx {}!", ctx, cause);
+
+        super.exceptionCaught(ctx, cause);
     }
 }

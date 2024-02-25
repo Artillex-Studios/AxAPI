@@ -7,6 +7,7 @@ import com.artillexstudios.axapi.scheduler.Scheduler;
 import com.artillexstudios.axapi.utils.FeatureFlags;
 import net.byteflux.libby.BukkitLibraryManager;
 import net.byteflux.libby.Library;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -20,6 +21,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public abstract class AxPlugin extends JavaPlugin {
     private static final Logger log = LoggerFactory.getLogger(AxPlugin.class);
@@ -74,6 +77,8 @@ public abstract class AxPlugin extends JavaPlugin {
                 Scheduler.get().runAsyncTimer(scheduledTask -> {
                     Holograms.getMap(map -> {
                         map.forEach((id, line) -> {
+                            if (!line.containsPlaceholders()) return;
+
                             line.getEntity().sendMetaUpdate();
                         });
                     });

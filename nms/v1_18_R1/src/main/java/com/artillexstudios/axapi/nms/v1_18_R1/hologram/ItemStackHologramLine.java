@@ -70,4 +70,9 @@ public class ItemStackHologramLine extends com.artillexstudios.axapi.hologram.im
     public PacketEntity getEntity() {
         return packetItem;
     }
+
+    @Override
+    public boolean containsPlaceholders() {
+        return false;
+    }
 }

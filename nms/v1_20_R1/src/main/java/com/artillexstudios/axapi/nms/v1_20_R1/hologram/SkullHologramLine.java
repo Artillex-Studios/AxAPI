@@ -67,4 +67,9 @@ public class SkullHologramLine extends com.artillexstudios.axapi.hologram.impl.S
     public PacketEntity getEntity() {
         return null;
     }
+
+    @Override
+    public boolean containsPlaceholders() {
+        return false;
+    }
 }

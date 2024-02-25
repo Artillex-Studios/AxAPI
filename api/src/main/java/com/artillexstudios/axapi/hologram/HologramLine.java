@@ -31,4 +31,6 @@ public interface HologramLine<T> {
     List<Placeholder> getPlaceholders();
 
     PacketEntity getEntity();
+
+    boolean containsPlaceholders();
 }
