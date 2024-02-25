@@ -5,10 +5,10 @@ import com.artillexstudios.axapi.entity.impl.PacketArmorStand;
 import com.artillexstudios.axapi.entity.impl.PacketEntity;
 import com.artillexstudios.axapi.hologram.Holograms;
 import com.artillexstudios.axapi.utils.FeatureFlags;
+import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axapi.utils.placeholder.Placeholder;
 import com.artillexstudios.axapi.utils.placeholder.StaticPlaceholder;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
@@ -37,14 +37,14 @@ public class ComponentHologramLine extends com.artillexstudios.axapi.hologram.im
     public void set(@NotNull Component content) {
         String stringContent = PlainTextComponentSerializer.plainText().serialize(content);
         if (!stringContent.isBlank()) {
-            String legacy = LegacyComponentSerializer.legacyAmpersand().serialize(content);
+            String legacy = StringUtils.LEGACY_COMPONENT_SERIALIZER.serialize(content);
             for (Placeholder placeholder : getPlaceholders()) {
                 if (placeholder instanceof StaticPlaceholder) {
                     legacy = placeholder.parse(null, legacy);
                 }
             }
 
-            packetArmorStand.setName(LegacyComponentSerializer.legacyAmpersand().deserialize(legacy));
+            packetArmorStand.setName(StringUtils.LEGACY_COMPONENT_SERIALIZER.deserialize(legacy));
 
             for (Pattern pattern : FeatureFlags.PLACEHOLDER_PATTERNS.get()) {
                 Matcher matcher = pattern.matcher(legacy);

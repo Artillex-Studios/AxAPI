@@ -8,6 +8,7 @@ import com.artillexstudios.axapi.hologram.Holograms;
 import com.artillexstudios.axapi.hologram.impl.ComponentHologramLine;
 import com.artillexstudios.axapi.nms.v1_19_R1.entity.EntityData;
 import com.artillexstudios.axapi.utils.placeholder.Placeholder;
+import com.artillexstudios.axapi.utils.placeholder.StaticPlaceholder;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.Scheduler;
@@ -127,6 +128,7 @@ public class PacketListener extends ChannelDuplexHandler {
                 }
 
                 for (Placeholder placeholder : line.getPlaceholders()) {
+                    if (placeholder instanceof StaticPlaceholder) continue;
                     legacy = placeholder.parse(player, legacy);
                 }
 
