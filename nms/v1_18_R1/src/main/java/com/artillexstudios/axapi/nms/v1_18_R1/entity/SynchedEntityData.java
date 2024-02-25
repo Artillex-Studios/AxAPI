@@ -69,8 +69,9 @@ public class SynchedEntityData {
     public List<net.minecraft.network.syncher.SynchedEntityData.DataItem<?>> packForNameUpdate() {
         List<net.minecraft.network.syncher.SynchedEntityData.DataItem<?>> list = new ArrayList<>();
         for (net.minecraft.network.syncher.SynchedEntityData.DataItem<?> next : this.items.values()) {
-            if (next.getAccessor().getId() == EntityData.CUSTOM_NAME.getId() || next.getAccessor().getId() == EntityData.CUSTOM_NAME_VISIBLE.getId()) {
+            if (next.getAccessor().getId() == EntityData.CUSTOM_NAME.getId()) {
                 list.add(next.copy());
+                break;
             }
         }
 
