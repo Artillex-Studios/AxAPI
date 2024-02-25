@@ -1,7 +1,6 @@
 package com.artillexstudios.axapi.nms.v1_20_R1.packet;
 
 import com.artillexstudios.axapi.AxPlugin;
-import com.artillexstudios.axapi.entity.PacketEntityTracker;
 import com.artillexstudios.axapi.entity.impl.PacketEntity;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.hologram.HologramLine;
@@ -25,7 +24,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -93,29 +92,28 @@ public class PacketListener extends ChannelDuplexHandler {
             }
 
             List<SynchedEntityData.DataValue<?>> dataValues = dataPacket.packedItems();
-            Iterator<SynchedEntityData.DataValue<?>> valueIterator = dataValues.iterator();
+            List<SynchedEntityData.DataValue<?>> newList = new ArrayList<>(dataValues.size());
 
-            SynchedEntityData.DataValue<?> value = null;
-            while (valueIterator.hasNext()) {
-                SynchedEntityData.DataValue<?> next = valueIterator.next();
-                if (next.id() != EntityData.CUSTOM_NAME.getId()) continue;
-                Optional<Component> content = (Optional<Component>) next.value();
-                if (content.isEmpty()) return;
+            for (SynchedEntityData.DataValue<?> next : dataValues) {
+                if (next.id() != EntityData.CUSTOM_NAME.getId()) {
+                    newList.add(next);
+                } else {
+                    Optional<Component> content = (Optional<Component>) next.value();
+                    if (content.isEmpty()) return;
 
-                String legacy = net.minecraft.network.chat.Component.Serializer.toJson(content.get());
+                    String legacy = net.minecraft.network.chat.Component.Serializer.toJson(content.get());
 
-                for (Placeholder placeholder : line.getPlaceholders()) {
-                    legacy = placeholder.parse(player, legacy);
+                    for (Placeholder placeholder : line.getPlaceholders()) {
+                        legacy = placeholder.parse(player, legacy);
+                    }
+
+                    SynchedEntityData.DataValue<?> value = new SynchedEntityData.DataValue<>(next.id(), EntityData.CUSTOM_NAME.getSerializer(), Optional.ofNullable(net.minecraft.network.chat.Component.Serializer.fromJson(legacy)));
+                    newList.add(value);
                 }
-
-                value = new SynchedEntityData.DataValue<>(next.id(), EntityData.CUSTOM_NAME.getSerializer(), Optional.ofNullable(net.minecraft.network.chat.Component.Serializer.fromJson(legacy)));
-                valueIterator.remove();
-                break;
             }
 
-            if (value != null) {
-                dataValues.add(value);
-            }
+            dataPacket.packedItems().clear();
+            dataPacket.packedItems().addAll(newList);
 
             super.write(ctx, dataPacket, promise);
         } else {

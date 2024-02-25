@@ -72,8 +72,10 @@ public abstract class AxPlugin extends JavaPlugin {
 
             if (FeatureFlags.HOLOGRAM_UPDATE_TICKS.get() > 0) {
                 Scheduler.get().runAsyncTimer(scheduledTask -> {
-                    Holograms.getMap().forEach((id, line) -> {
-                        line.getEntity().sendMetaUpdate();
+                    Holograms.getMap(map -> {
+                        map.forEach((id, line) -> {
+                            line.getEntity().sendMetaUpdate();
+                        });
                     });
                 }, 0L, FeatureFlags.HOLOGRAM_UPDATE_TICKS.get());
             }
