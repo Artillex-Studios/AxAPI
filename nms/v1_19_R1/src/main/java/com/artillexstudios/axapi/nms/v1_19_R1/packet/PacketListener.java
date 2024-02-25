@@ -7,6 +7,7 @@ import com.artillexstudios.axapi.hologram.HologramLine;
 import com.artillexstudios.axapi.hologram.Holograms;
 import com.artillexstudios.axapi.hologram.impl.ComponentHologramLine;
 import com.artillexstudios.axapi.nms.v1_19_R1.entity.EntityData;
+import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axapi.utils.placeholder.Placeholder;
 import com.artillexstudios.axapi.utils.placeholder.StaticPlaceholder;
 import com.github.benmanes.caffeine.cache.Cache;
@@ -16,6 +17,8 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
@@ -46,6 +49,11 @@ public class PacketListener extends ChannelDuplexHandler {
             .maximumSize(200)
             .expireAfterAccess(Duration.ofSeconds(20))
             .scheduler(Scheduler.systemScheduler())
+            .build();
+    private static final LegacyComponentSerializer LEGACY_COMPONENT_SERIALIZER = LegacyComponentSerializer.builder()
+            .character('&')
+            .hexColors()
+            .useUnusualXRepeatedCharacterHexFormat()
             .build();
     private static final Logger log = LoggerFactory.getLogger(PacketListener.class);
 
@@ -121,7 +129,12 @@ public class PacketListener extends ChannelDuplexHandler {
                     return;
                 }
 
-                String legacy = legacyCache.get(content.get(), Component.Serializer::toJson);
+                String legacy = legacyCache.get(content.get(), (minecraftComponent) -> {
+                    String gsonText = Component.Serializer.toJson(minecraftComponent);
+                    net.kyori.adventure.text.Component gsonComponent = GsonComponentSerializer.gson().deserialize(gsonText);
+                    return LEGACY_COMPONENT_SERIALIZER.serialize(gsonComponent);
+                });
+
                 if (legacy == null) {
                     super.write(ctx, msg, promise);
                     return;
@@ -132,7 +145,13 @@ public class PacketListener extends ChannelDuplexHandler {
                     legacy = placeholder.parse(player, legacy);
                 }
 
-                value = new SynchedEntityData.DataItem<>(EntityData.CUSTOM_NAME, Optional.ofNullable(componentCache.get(legacy, Component.Serializer::fromJson)));
+                Component component = componentCache.get(legacy, (legacyText) -> {
+                    net.kyori.adventure.text.Component formatted = StringUtils.format(legacyText);
+                    String gson = GsonComponentSerializer.gson().serialize(formatted);
+                    return Component.Serializer.fromJson(gson);
+                });
+
+                value = new SynchedEntityData.DataItem<>(EntityData.CUSTOM_NAME, Optional.ofNullable(component));
                 iterator.remove();
                 break;
             }
