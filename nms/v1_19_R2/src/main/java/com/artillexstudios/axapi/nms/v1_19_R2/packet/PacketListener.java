@@ -170,7 +170,9 @@ public class PacketListener extends ChannelDuplexHandler {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        log.error("An unhandled exception occurred on ctx {}!", ctx, cause);
+        if (com.artillexstudios.axapi.utils.FeatureFlags.DEBUG.get()) {
+            log.error("An unhandled exception occurred on ctx {}!", ctx, cause);
+        }
 
         super.exceptionCaught(ctx, cause);
     }

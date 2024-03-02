@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.misc.Unsafe;
+import java.lang.reflect.Field;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +40,7 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
     private static final ExecutorService executor = Executors.newSingleThreadExecutor();
     private static final ExecutorService parallelExecutor = Executors.newFixedThreadPool(8);
     private static final Logger log = LoggerFactory.getLogger(ParallelBlockSetterImpl.class);
-    private static final Unsafe unsafe;
+    private static Unsafe unsafe = null;
     private static FastFieldAccessor nonEmptyBlockCount;
     private static FastFieldAccessor tickingBlockCount;
     private static FastFieldAccessor tickingFluidCount;
@@ -50,7 +51,13 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
     private static FastFieldAccessor fluidStateCount;
 
     static {
-        unsafe = FastFieldAccessor.forClassField(Unsafe.class, "theUnsafe").get(null);
+        try {
+            Field f = Unsafe.class.getDeclaredField("theUnsafe");
+            f.setAccessible(true);
+            unsafe = (Unsafe) f.get(null);
+        } catch (Exception exception) {
+            log.error("An error occurred while initializing FastFieldAccessor!", exception);
+        }
 
         ParallelBlockSetterImpl.nonEmptyBlockCount = FastFieldAccessor.forClassField(LevelChunkSection.class, "e");
         ParallelBlockSetterImpl.tickingBlockCount = FastFieldAccessor.forClassField(LevelChunkSection.class, "f");
