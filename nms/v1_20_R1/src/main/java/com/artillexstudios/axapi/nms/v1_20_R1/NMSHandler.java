@@ -4,6 +4,7 @@ import com.artillexstudios.axapi.entity.PacketEntityTracker;
 import com.artillexstudios.axapi.nms.v1_20_R1.entity.EntityTracker;
 import com.artillexstudios.axapi.nms.v1_20_R1.packet.PacketListener;
 import com.artillexstudios.axapi.selection.BlockSetter;
+import com.artillexstudios.axapi.selection.ParallelBlockSetter;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import io.netty.channel.Channel;
@@ -124,6 +125,11 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     @Override
     public BlockSetter newSetter(World world) {
         return new BlockSetterImpl(world);
+    }
+
+    @Override
+    public ParallelBlockSetter newParallelSetter(World world) {
+        return new ParallelBlockSetterImpl(world);
     }
 
     private Channel getChannel(Connection connection) {

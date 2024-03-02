@@ -89,6 +89,18 @@ public class FastFieldAccessor {
         unsafe.putFloat(object, fieldOffset, value);
     }
 
+    public void setBoolean(Object object, boolean value) {
+        unsafe.putBoolean(object, fieldOffset, value);
+    }
+
+    public void setChar(Object object, char value) {
+        unsafe.putChar(object, fieldOffset, value);
+    }
+
+    public void setByte(Object object, byte value) {
+        unsafe.putByte(object, fieldOffset, value);
+    }
+
     public <T> T get(Object object) {
         return (T) unsafe.getObject(object, fieldOffset);
     }
@@ -111,6 +123,18 @@ public class FastFieldAccessor {
 
     public float getFloat(Object object) {
         return unsafe.getFloat(object, fieldOffset);
+    }
+
+    public boolean getBoolean(Object object) {
+        return unsafe.getBoolean(object, fieldOffset);
+    }
+
+    public char getChar(Object object) {
+        return unsafe.getChar(object, fieldOffset);
+    }
+
+    public byte getByte(Object object) {
+        return unsafe.getByte(object, fieldOffset);
     }
 
     public Field getField() {
