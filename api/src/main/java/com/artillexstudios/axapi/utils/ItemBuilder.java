@@ -2,6 +2,7 @@ package com.artillexstudios.axapi.utils;
 
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -13,6 +14,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.potion.PotionData;
+import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -33,8 +36,14 @@ public class ItemBuilder {
         if (type == null) {
             type = section.getString("material", "stone");
         }
-        
-        this.itemStack = new ItemStack(getMaterial(type));
+
+        String snbt;
+        if ((snbt = section.getString("snbt")) != null) {
+            itemStack = fromSNBT(snbt);
+        } else {
+            this.itemStack = new ItemStack(getMaterial(type));
+        }
+
         if (!itemStack.getType().isAir()) {
             this.meta = itemStack.getItemMeta();
         } else {
@@ -54,6 +63,7 @@ public class ItemBuilder {
         section.getOptionalStringList("lore").ifPresent(lore -> this.setLore(lore, resolvers));
         section.getOptionalStringList("enchants").ifPresent(enchants -> addEnchants(createEnchantmentsMap(enchants)));
         section.getOptionalStringList("item-flags").ifPresent(flags -> applyItemFlags(getItemFlags(flags)));
+        section.getOptionalString("potion").ifPresent(this::setPotion);
     }
 
     public ItemBuilder(@NotNull Section section, TagResolver... resolvers) {
@@ -62,7 +72,13 @@ public class ItemBuilder {
             type = section.getString("material", "stone");
         }
 
-        this.itemStack = new ItemStack(getMaterial(type));
+        String snbt;
+        if ((snbt = section.getString("snbt")) != null) {
+            itemStack = fromSNBT(snbt);
+        } else {
+            this.itemStack = new ItemStack(getMaterial(type));
+        }
+
         if (!itemStack.getType().isAir()) {
             this.meta = itemStack.getItemMeta();
         } else {
@@ -75,13 +91,14 @@ public class ItemBuilder {
         section.getOptionalString("color").ifPresent(this::setColor);
         if (Version.getServerVersion().isNewerThan(Version.UNKNOWN)) {
             section.getOptionalString("texture").ifPresent(this::setTextureValue);
-            section.getOptionalInt("custom-model-data").ifPresent(this::setCustomModelData);     
-        }       
+            section.getOptionalInt("custom-model-data").ifPresent(this::setCustomModelData);
+        }
         section.getOptionalInt("amount").ifPresent(this::amount);
         section.getOptionalBoolean("glow").ifPresent(this::glow);
         section.getOptionalStringList("lore").ifPresent(lore -> this.setLore(lore, resolvers));
         section.getOptionalStringList("enchants").ifPresent(enchants -> addEnchants(createEnchantmentsMap(enchants)));
         section.getOptionalStringList("item-flags").ifPresent(flags -> applyItemFlags(getItemFlags(flags)));
+        section.getOptionalString("potion").ifPresent(this::setPotion);
     }
 
     public ItemBuilder(Map<Object, Object> map, TagResolver... resolvers) {
@@ -90,7 +107,13 @@ public class ItemBuilder {
             type = (String) map.getOrDefault("material", "stone");
         }
 
-        this.itemStack = new ItemStack(getMaterial(type));
+        String snbt;
+        if ((snbt = (String) map.get("snbt")) != null) {
+            itemStack = fromSNBT(snbt);
+        } else {
+            this.itemStack = new ItemStack(getMaterial(type));
+        }
+
         if (!itemStack.getType().isAir()) {
             this.meta = itemStack.getItemMeta();
         } else {
@@ -111,6 +134,7 @@ public class ItemBuilder {
         Optional.ofNullable(map.get("lore")).ifPresent(lore -> this.setLore((List<String>) lore, resolvers));
         Optional.ofNullable(map.get("enchants")).ifPresent(enchants -> addEnchants(createEnchantmentsMap((List<String>) enchants)));
         Optional.ofNullable(map.get("item-flags")).ifPresent(flags -> applyItemFlags(getItemFlags((List<String>) flags)));
+        Optional.ofNullable(map.get("potion")).ifPresent(potion -> setPotion((String) potion));
     }
 
     public ItemBuilder(@NotNull Section section, Map<String, String> replacements) {
@@ -119,7 +143,13 @@ public class ItemBuilder {
             type = section.getString("material", "stone");
         }
 
-        this.itemStack = new ItemStack(getMaterial(type));
+        String snbt;
+        if ((snbt = section.getString("snbt")) != null) {
+            itemStack = fromSNBT(snbt);
+        } else {
+            this.itemStack = new ItemStack(getMaterial(type));
+        }
+
         if (!itemStack.getType().isAir()) {
             this.meta = itemStack.getItemMeta();
         } else {
@@ -132,13 +162,14 @@ public class ItemBuilder {
         section.getOptionalString("color").ifPresent(this::setColor);
         if (Version.getServerVersion().isNewerThan(Version.UNKNOWN)) {
             section.getOptionalString("texture").ifPresent(this::setTextureValue);
-            section.getOptionalInt("custom-model-data").ifPresent(this::setCustomModelData);     
-        }       
+            section.getOptionalInt("custom-model-data").ifPresent(this::setCustomModelData);
+        }
         section.getOptionalInt("amount").ifPresent(this::amount);
         section.getOptionalBoolean("glow").ifPresent(this::glow);
         section.getOptionalStringList("lore").ifPresent(lore -> this.setLore(lore, replacements));
         section.getOptionalStringList("enchants").ifPresent(enchants -> addEnchants(createEnchantmentsMap(enchants)));
         section.getOptionalStringList("item-flags").ifPresent(flags -> applyItemFlags(getItemFlags(flags)));
+        section.getOptionalString("potion").ifPresent(this::setPotion);
     }
 
     public ItemBuilder(Map<Object, Object> map, Map<String, String> replacements) {
@@ -147,14 +178,20 @@ public class ItemBuilder {
             type = (String) map.getOrDefault("material", "stone");
         }
 
-        this.itemStack = new ItemStack(getMaterial(type));
+        String snbt;
+        if ((snbt = (String) map.get("snbt")) != null) {
+            itemStack = fromSNBT(snbt);
+        } else {
+            this.itemStack = new ItemStack(getMaterial(type));
+        }
         if (!itemStack.getType().isAir()) {
             this.meta = itemStack.getItemMeta();
         } else {
             this.meta = null;
         }
 
-        this.resolvers = new TagResolver[]{TagResolver.resolver()};;
+        this.resolvers = new TagResolver[]{TagResolver.resolver()};
+        ;
 
         if (meta == null) return;
         Optional.ofNullable(map.get("name")).ifPresent(name -> this.setName((String) name, replacements));
@@ -168,11 +205,7 @@ public class ItemBuilder {
         Optional.ofNullable(map.get("lore")).ifPresent(lore -> this.setLore((List<String>) lore, replacements));
         Optional.ofNullable(map.get("enchants")).ifPresent(enchants -> addEnchants(createEnchantmentsMap((List<String>) enchants)));
         Optional.ofNullable(map.get("item-flags")).ifPresent(flags -> applyItemFlags(getItemFlags((List<String>) flags)));
-    }
-
-    private static Material getMaterial(String name) {
-        Material material = Material.matchMaterial(name.toUpperCase(Locale.ENGLISH));
-        return material != null ? material : Material.BEDROCK;
+        Optional.ofNullable(map.get("potion")).ifPresent(potion -> setPotion((String) potion));
     }
 
     public ItemBuilder(@NotNull Material material) {
@@ -195,6 +228,62 @@ public class ItemBuilder {
         resolvers = new TagResolver[]{TagResolver.resolver()};
     }
 
+    private static Material getMaterial(String name) {
+        Material material = Material.matchMaterial(name.toUpperCase(Locale.ENGLISH));
+        return material != null ? material : Material.BEDROCK;
+    }
+
+    @NotNull
+    private static Map<Enchantment, Integer> createEnchantmentsMap(@NotNull List<String> enchantments) {
+        final Map<Enchantment, Integer> enchantsMap = new HashMap<>(enchantments.size());
+
+        for (String enchantment : enchantments) {
+            String[] enchant = enchantment.split(":");
+            Enchantment ench = Enchantment.getByKey(NamespacedKey.minecraft(enchant[0]));
+            if (ench == null) continue;
+            int level;
+            try {
+                level = Integer.parseInt(enchant[1]);
+            } catch (Exception exception) {
+                continue;
+            }
+
+            enchantsMap.put(ench, level);
+        }
+
+        return enchantsMap;
+    }
+
+    @NotNull
+    private static List<ItemFlag> getItemFlags(@NotNull List<String> flags) {
+        final List<ItemFlag> flagList = new ArrayList<>(flags.size());
+        for (String flag : flags) {
+            ItemFlag itemFlag;
+            try {
+                itemFlag = ItemFlag.valueOf(flag.toUpperCase(Locale.ENGLISH));
+            } catch (Exception exception) {
+                continue;
+            }
+
+            flagList.add(itemFlag);
+        }
+
+        return flagList;
+    }
+
+    public static ItemStack fromSNBT(String snbt) {
+        return NMSHandlers.getNmsHandler().fromSNBT(snbt);
+    }
+
+    public ItemBuilder setPotion(String potion) {
+        if (meta instanceof PotionMeta) {
+            PotionMeta potionMeta = (PotionMeta) meta;
+            potionMeta.setBasePotionData(new PotionData(PotionType.valueOf(potion.toUpperCase(Locale.ENGLISH))));
+        }
+
+        return this;
+    }
+
     public ItemBuilder setName(String name) {
         setName(name, TagResolver.resolver());
         return this;
@@ -213,7 +302,7 @@ public class ItemBuilder {
         return this;
     }
 
-    public <T, Z> ItemBuilder storePersistentData(NamespacedKey key, PersistentDataType<T,Z> type, Z value) {
+    public <T, Z> ItemBuilder storePersistentData(NamespacedKey key, PersistentDataType<T, Z> type, Z value) {
         meta.getPersistentDataContainer().set(key, type, value);
         return this;
     }
@@ -221,7 +310,7 @@ public class ItemBuilder {
     public ItemBuilder setColor(String colorString) {
         String[] rgb = colorString.replace(" ", "").split(",");
         Color color = Color.fromRGB(Integer.parseInt(rgb[0]), Integer.parseInt(rgb[1]), Integer.parseInt(rgb[2]));
-        
+
         if (meta instanceof LeatherArmorMeta) {
             LeatherArmorMeta itemMeta = (LeatherArmorMeta) meta;
             itemMeta.setColor(color);
@@ -287,27 +376,6 @@ public class ItemBuilder {
         return this;
     }
 
-    @NotNull
-    private static Map<Enchantment, Integer> createEnchantmentsMap(@NotNull List<String> enchantments) {
-        final Map<Enchantment, Integer> enchantsMap = new HashMap<>(enchantments.size());
-
-        for (String enchantment : enchantments) {
-            String[] enchant = enchantment.split(":");
-            Enchantment ench = Enchantment.getByKey(NamespacedKey.minecraft(enchant[0]));
-            if (ench == null) continue;
-            int level;
-            try {
-                level = Integer.parseInt(enchant[1]);
-            } catch (Exception exception) {
-                continue;
-            }
-
-            enchantsMap.put(ench, level);
-        }
-
-        return enchantsMap;
-    }
-
     public ItemBuilder applyItemFlags(@NotNull List<ItemFlag> flags) {
         for (ItemFlag flag : flags) {
             meta.addItemFlags(flag);
@@ -316,21 +384,25 @@ public class ItemBuilder {
         return this;
     }
 
-    @NotNull
-    private static List<ItemFlag> getItemFlags(@NotNull List<String> flags) {
-        final List<ItemFlag> flagList = new ArrayList<>(flags.size());
-        for (String flag : flags) {
-            ItemFlag itemFlag;
-            try {
-                itemFlag = ItemFlag.valueOf(flag.toUpperCase(Locale.ENGLISH));
-            } catch (Exception exception) {
-                continue;
-            }
+    public String toSNBT() {
+        return NMSHandlers.getNmsHandler().toSNBT(get());
+    }
 
-            flagList.add(itemFlag);
+    public Map<Object, Object> toMap() {
+        HashMap<Object, Object> map = new HashMap<>();
+        map.put("type", itemStack.getType().name());
+        map.put("name", meta.getDisplayName());
+        map.put("lore", meta.getLore());
+        map.put("snbt", toSNBT());
+        map.put("amount", itemStack.getAmount());
+        map.put("custom-model-data", meta.getCustomModelData());
+
+        String texture;
+        if ((texture = NMSHandlers.getNmsHandler().getTextureValue(meta)) != null) {
+            map.put("texture", texture);
         }
 
-        return flagList;
+        return map;
     }
 
     public ItemStack get() {

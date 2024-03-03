@@ -58,11 +58,13 @@ public class StringUtils {
     public static String formatToString(@NotNull String input, TagResolver... resolvers) {
         if (resolvers.length == 0) {
             return CACHE.get(input, key -> {
-                return ChatColor.translateAlternateColorCodes('&', legacyHexFormat(LEGACY_COMPONENT_SERIALIZER.serialize(MINI_MESSAGE.deserialize(input, resolvers))));
+                String changed = input.replace("§", "&");
+                return ChatColor.translateAlternateColorCodes('&', legacyHexFormat(LEGACY_COMPONENT_SERIALIZER.serialize(MINI_MESSAGE.deserialize(changed, resolvers))));
             });
         }
 
-        return ChatColor.translateAlternateColorCodes('&', legacyHexFormat(LEGACY_COMPONENT_SERIALIZER.serialize(MINI_MESSAGE.deserialize(input, resolvers))));
+        String changed = input.replace("§", "&");
+        return ChatColor.translateAlternateColorCodes('&', legacyHexFormat(LEGACY_COMPONENT_SERIALIZER.serialize(MINI_MESSAGE.deserialize(changed, resolvers))));
     }
 
     @NotNull

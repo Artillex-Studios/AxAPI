@@ -22,9 +22,15 @@ public interface NMSHandler {
 
     void setItemStackTexture(ItemMeta meta, String texture);
 
+    String getTextureValue(ItemMeta meta);
+
     PacketEntityTracker newTracker();
 
     BlockSetter newSetter(World world);
+
+    String toSNBT(ItemStack itemStack);
+
+    ItemStack fromSNBT(String snbt);
 
     default ParallelBlockSetter newParallelSetter(World world) {
         return null;

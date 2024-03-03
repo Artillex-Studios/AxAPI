@@ -5,14 +5,21 @@ import com.artillexstudios.axapi.nms.v1_20_R3.entity.EntityTracker;
 import com.artillexstudios.axapi.nms.v1_20_R3.packet.PacketListener;
 import com.artillexstudios.axapi.selection.BlockSetter;
 import com.artillexstudios.axapi.selection.ParallelBlockSetter;
+import com.artillexstudios.axapi.utils.FastFieldAccessor;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.netty.channel.Channel;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.SnbtPrinterTagVisitor;
+import net.minecraft.nbt.TagParser;
 import net.minecraft.network.Connection;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -120,6 +127,26 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     }
 
     @Override
+    public String getTextureValue(ItemMeta meta) {
+        if (!(meta instanceof SkullMeta skullMeta)) return null;
+
+        try {
+            FastFieldAccessor accessor = FastFieldAccessor.forClassField(Class.forName(Bukkit.getServer().getClass().getPackage().getName() + ".inventory.CraftMetaSkull"), "profile");
+            GameProfile profile = accessor.get(skullMeta);
+
+            for (Property textures : profile.getProperties().get("textures")) {
+                if (textures.name().equals("textures")) {
+                    return textures.value();
+                }
+            }
+            return null;
+        } catch (ClassNotFoundException exception) {
+            log.error("An error occurred while getting skull texture!", exception);
+            return null;
+        }
+    }
+
+    @Override
     public PacketEntityTracker newTracker() {
         return new EntityTracker();
     }
@@ -127,6 +154,23 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     @Override
     public BlockSetter newSetter(World world) {
         return new BlockSetterImpl(world);
+    }
+
+    @Override
+    public String toSNBT(ItemStack itemStack) {
+        return new SnbtPrinterTagVisitor().visit(CraftItemStack.asNMSCopy(itemStack).save(new CompoundTag()));
+    }
+
+    @Override
+    public ItemStack fromSNBT(String snbt) {
+        try {
+            CompoundTag tag = TagParser.parseTag(snbt);
+            net.minecraft.world.item.ItemStack item = net.minecraft.world.item.ItemStack.of(tag);
+            return CraftItemStack.asBukkitCopy(item);
+        } catch (CommandSyntaxException exception) {
+            log.error("An error occurred while parsing item from SNBT!", exception);
+            return null;
+        }
     }
 
     @Override
