@@ -33,7 +33,7 @@ public class ItemBuilder {
         if (type == null) {
             type = section.getString("material", "stone");
         }
-        
+
         this.itemStack = new ItemStack(getMaterial(type));
         if (!itemStack.getType().isAir()) {
             this.meta = itemStack.getItemMeta();
@@ -75,8 +75,8 @@ public class ItemBuilder {
         section.getOptionalString("color").ifPresent(this::setColor);
         if (Version.getServerVersion().isNewerThan(Version.UNKNOWN)) {
             section.getOptionalString("texture").ifPresent(this::setTextureValue);
-            section.getOptionalInt("custom-model-data").ifPresent(this::setCustomModelData);     
-        }       
+            section.getOptionalInt("custom-model-data").ifPresent(this::setCustomModelData);
+        }
         section.getOptionalInt("amount").ifPresent(this::amount);
         section.getOptionalBoolean("glow").ifPresent(this::glow);
         section.getOptionalStringList("lore").ifPresent(lore -> this.setLore(lore, resolvers));
@@ -132,8 +132,8 @@ public class ItemBuilder {
         section.getOptionalString("color").ifPresent(this::setColor);
         if (Version.getServerVersion().isNewerThan(Version.UNKNOWN)) {
             section.getOptionalString("texture").ifPresent(this::setTextureValue);
-            section.getOptionalInt("custom-model-data").ifPresent(this::setCustomModelData);     
-        }       
+            section.getOptionalInt("custom-model-data").ifPresent(this::setCustomModelData);
+        }
         section.getOptionalInt("amount").ifPresent(this::amount);
         section.getOptionalBoolean("glow").ifPresent(this::glow);
         section.getOptionalStringList("lore").ifPresent(lore -> this.setLore(lore, replacements));
@@ -154,7 +154,8 @@ public class ItemBuilder {
             this.meta = null;
         }
 
-        this.resolvers = new TagResolver[]{TagResolver.resolver()};;
+        this.resolvers = new TagResolver[]{TagResolver.resolver()};
+        ;
 
         if (meta == null) return;
         Optional.ofNullable(map.get("name")).ifPresent(name -> this.setName((String) name, replacements));
@@ -168,11 +169,6 @@ public class ItemBuilder {
         Optional.ofNullable(map.get("lore")).ifPresent(lore -> this.setLore((List<String>) lore, replacements));
         Optional.ofNullable(map.get("enchants")).ifPresent(enchants -> addEnchants(createEnchantmentsMap((List<String>) enchants)));
         Optional.ofNullable(map.get("item-flags")).ifPresent(flags -> applyItemFlags(getItemFlags((List<String>) flags)));
-    }
-
-    private static Material getMaterial(String name) {
-        Material material = Material.matchMaterial(name.toUpperCase(Locale.ENGLISH));
-        return material != null ? material : Material.BEDROCK;
     }
 
     public ItemBuilder(@NotNull Material material) {
@@ -195,6 +191,49 @@ public class ItemBuilder {
         resolvers = new TagResolver[]{TagResolver.resolver()};
     }
 
+    private static Material getMaterial(String name) {
+        Material material = Material.matchMaterial(name.toUpperCase(Locale.ENGLISH));
+        return material != null ? material : Material.BEDROCK;
+    }
+
+    @NotNull
+    private static Map<Enchantment, Integer> createEnchantmentsMap(@NotNull List<String> enchantments) {
+        final Map<Enchantment, Integer> enchantsMap = new HashMap<>(enchantments.size());
+
+        for (String enchantment : enchantments) {
+            String[] enchant = enchantment.split(":");
+            Enchantment ench = Enchantment.getByKey(NamespacedKey.minecraft(enchant[0]));
+            if (ench == null) continue;
+            int level;
+            try {
+                level = Integer.parseInt(enchant[1]);
+            } catch (Exception exception) {
+                continue;
+            }
+
+            enchantsMap.put(ench, level);
+        }
+
+        return enchantsMap;
+    }
+
+    @NotNull
+    private static List<ItemFlag> getItemFlags(@NotNull List<String> flags) {
+        final List<ItemFlag> flagList = new ArrayList<>(flags.size());
+        for (String flag : flags) {
+            ItemFlag itemFlag;
+            try {
+                itemFlag = ItemFlag.valueOf(flag.toUpperCase(Locale.ENGLISH));
+            } catch (Exception exception) {
+                continue;
+            }
+
+            flagList.add(itemFlag);
+        }
+
+        return flagList;
+    }
+
     public ItemBuilder setName(String name) {
         setName(name, TagResolver.resolver());
         return this;
@@ -213,7 +252,7 @@ public class ItemBuilder {
         return this;
     }
 
-    public <T, Z> ItemBuilder storePersistentData(NamespacedKey key, PersistentDataType<T,Z> type, Z value) {
+    public <T, Z> ItemBuilder storePersistentData(NamespacedKey key, PersistentDataType<T, Z> type, Z value) {
         meta.getPersistentDataContainer().set(key, type, value);
         return this;
     }
@@ -221,7 +260,7 @@ public class ItemBuilder {
     public ItemBuilder setColor(String colorString) {
         String[] rgb = colorString.replace(" ", "").split(",");
         Color color = Color.fromRGB(Integer.parseInt(rgb[0]), Integer.parseInt(rgb[1]), Integer.parseInt(rgb[2]));
-        
+
         if (meta instanceof LeatherArmorMeta) {
             LeatherArmorMeta itemMeta = (LeatherArmorMeta) meta;
             itemMeta.setColor(color);
@@ -287,50 +326,12 @@ public class ItemBuilder {
         return this;
     }
 
-    @NotNull
-    private static Map<Enchantment, Integer> createEnchantmentsMap(@NotNull List<String> enchantments) {
-        final Map<Enchantment, Integer> enchantsMap = new HashMap<>(enchantments.size());
-
-        for (String enchantment : enchantments) {
-            String[] enchant = enchantment.split(":");
-            Enchantment ench = Enchantment.getByKey(NamespacedKey.minecraft(enchant[0]));
-            if (ench == null) continue;
-            int level;
-            try {
-                level = Integer.parseInt(enchant[1]);
-            } catch (Exception exception) {
-                continue;
-            }
-
-            enchantsMap.put(ench, level);
-        }
-
-        return enchantsMap;
-    }
-
     public ItemBuilder applyItemFlags(@NotNull List<ItemFlag> flags) {
         for (ItemFlag flag : flags) {
             meta.addItemFlags(flag);
         }
 
         return this;
-    }
-
-    @NotNull
-    private static List<ItemFlag> getItemFlags(@NotNull List<String> flags) {
-        final List<ItemFlag> flagList = new ArrayList<>(flags.size());
-        for (String flag : flags) {
-            ItemFlag itemFlag;
-            try {
-                itemFlag = ItemFlag.valueOf(flag.toUpperCase(Locale.ENGLISH));
-            } catch (Exception exception) {
-                continue;
-            }
-
-            flagList.add(itemFlag);
-        }
-
-        return flagList;
     }
 
     public ItemStack get() {

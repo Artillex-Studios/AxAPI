@@ -3,8 +3,11 @@ package com.artillexstudios.axapi.entity.impl;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Pose;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -90,6 +93,26 @@ public interface PacketEntity {
     void onClick(Consumer<PacketEntityInteractEvent> event);
 
     void removeClickListener(Consumer<PacketEntityInteractEvent> eventConsumer);
+
+    void setOnFire(boolean onFire);
+
+    void setCrouching(boolean crouching);
+
+    void setSprinting(boolean sprinting);
+
+    void setSwimming(boolean swimming);
+
+    void setGlowing(boolean glowing);
+
+    void setElytraFlying(boolean flying);
+
+    void setGlowColor(NamedTextColor color);
+
+    void setPose(Pose pose);
+
+    void lookAtNearby(boolean lookAt);
+
+    boolean shouldLookAtNearby();
 
     void sendMetaUpdate();
 }

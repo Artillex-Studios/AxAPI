@@ -1,16 +1,20 @@
 package com.artillexstudios.axapi.nms.v1_20_R3.entity;
 
 import com.artillexstudios.axapi.AxPlugin;
+import com.artillexstudios.axapi.entity.impl.PacketPlayer;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
-import com.github.benmanes.caffeine.cache.Scheduler;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.Scheduler;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import io.netty.buffer.Unpooled;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -32,6 +36,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.scores.Team;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_20_R3.CraftWorld;
@@ -39,11 +44,14 @@ import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Pose;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Field;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -53,30 +61,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.lang.reflect.Field;
-import java.time.Duration;
 
 public class PacketEntity implements com.artillexstudios.axapi.entity.impl.PacketEntity {
     private static final Logger log = LoggerFactory.getLogger(PacketEntity.class);
-    private static AtomicInteger ENTITY_COUNTER;
     private static final Cache<Component, Optional<net.minecraft.network.chat.Component>> CACHE = Caffeine.newBuilder().maximumSize(600).scheduler(Scheduler.systemScheduler()).expireAfterAccess(Duration.ofSeconds(60)).build();
-    public final int entityId;
-    private final net.minecraft.world.entity.EntityType<?> entityType;
-    private final List<Consumer<PacketEntityInteractEvent>> eventConsumers = new ArrayList<>();
-    private final NonNullList<net.minecraft.world.item.ItemStack> handSlots;
-    private final NonNullList<net.minecraft.world.item.ItemStack> armorSlots;
-    public boolean invisible = false;
-    public boolean silent = false;
-    public com.artillexstudios.axapi.nms.v1_20_R3.entity.SynchedEntityData data;
-    public EntityTracker.TrackedEntity tracker;
-    private List<SynchedEntityData.DataValue<?>> trackedValues;
-    private Location location;
-    private Component name = Component.empty();
-    private int viewDistance = 32;
-    private int viewDistanceSquared = 32 * 32;
-    private boolean itemDirty = false;
-    private boolean shouldTeleport = false;
-    public ServerLevel level;
+    private static AtomicInteger ENTITY_COUNTER;
 
     static {
         try {
@@ -87,6 +76,24 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
             log.error("An exception occurred while initializing PacketEntity!", exception);
         }
     }
+
+    public final int entityId;
+    private final net.minecraft.world.entity.EntityType<?> entityType;
+    private final List<Consumer<PacketEntityInteractEvent>> eventConsumers = new ArrayList<>();
+    private final NonNullList<net.minecraft.world.item.ItemStack> handSlots;
+    private final NonNullList<net.minecraft.world.item.ItemStack> armorSlots;
+    private final UUID uuid = UUID.randomUUID();
+    public com.artillexstudios.axapi.nms.v1_20_R3.entity.SynchedEntityData data;
+    public EntityTracker.TrackedEntity tracker;
+    public ServerLevel level;
+    private List<SynchedEntityData.DataValue<?>> trackedValues;
+    private Location location;
+    private Component name = Component.empty();
+    private int viewDistance = 32;
+    private int viewDistanceSquared = 32 * 32;
+    private boolean itemDirty = false;
+    private boolean shouldTeleport = false;
+    private NamedTextColor color = NamedTextColor.WHITE;
 
     public PacketEntity(EntityType entityType, Location location, Consumer<com.artillexstudios.axapi.entity.impl.PacketEntity> consumer) {
         entityId = ENTITY_COUNTER.incrementAndGet();
@@ -190,13 +197,11 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
 
     @Override
     public void setInvisible(boolean invisible) {
-        this.invisible = invisible;
-        data.set(EntityData.BYTE_DATA, invisible ? (byte) 0x20 : (byte) 0);
+        setSharedFlag(5, invisible);
     }
 
     @Override
     public void setSilent(boolean silent) {
-        this.silent = silent;
         data.set(EntityData.SILENT, silent);
     }
 
@@ -273,6 +278,75 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     }
 
     @Override
+    public void setOnFire(boolean onFire) {
+        setSharedFlag(0, onFire);
+    }
+
+    public boolean getSharedFlag(int index) {
+        return (this.data.get(EntityData.BYTE_DATA) & 1 << index) != 0;
+    }
+
+    public void setSharedFlag(int index, boolean value) {
+        byte b0 = this.data.get(EntityData.BYTE_DATA);
+        if (value) {
+            this.data.set(EntityData.BYTE_DATA, (byte) (b0 | 1 << index));
+        } else {
+            this.data.set(EntityData.BYTE_DATA, (byte) (b0 & ~(1 << index)));
+        }
+    }
+
+    @Override
+    public void setCrouching(boolean crouching) {
+        this.setSharedFlag(1, crouching);
+    }
+
+    @Override
+    public void setSprinting(boolean sprinting) {
+        this.setSharedFlag(3, sprinting);
+    }
+
+    @Override
+    public void setSwimming(boolean swimming) {
+        this.setSharedFlag(4, swimming);
+    }
+
+    @Override
+    public void setGlowing(boolean glowing) {
+        this.setSharedFlag(6, glowing);
+    }
+
+    @Override
+    public void setElytraFlying(boolean flying) {
+        this.setSharedFlag(7, flying);
+    }
+
+    @Override
+    public void setGlowColor(NamedTextColor color) {
+        if (color == null) {
+            setGlowing(false);
+            return;
+        }
+
+        this.color = color;
+        setGlowing(true);
+    }
+
+    @Override
+    public void setPose(Pose pose) {
+        data.set(EntityData.POSE, net.minecraft.world.entity.Pose.valueOf(pose.name()));
+    }
+
+    @Override
+    public void lookAtNearby(boolean lookAt) {
+
+    }
+
+    @Override
+    public boolean shouldLookAtNearby() {
+        return false;
+    }
+
+    @Override
     public void sendMetaUpdate() {
         this.tracker.broadcast(new ClientboundSetEntityDataPacket(entityId, data.packForNameUpdate()));
     }
@@ -319,6 +393,20 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
             consumer.accept(new ClientboundSetEntityDataPacket(this.entityId, this.trackedValues));
         }
 
+        if (getSharedFlag(6)) {
+            FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+            buf.writeUtf(uuid.toString());
+            buf.writeByte(0);
+            buf.writeComponent(Component.empty());
+            buf.writeByte(0);
+            buf.writeUtf(Team.Visibility.NEVER.name);
+            buf.writeUtf(Team.CollisionRule.NEVER.name);
+            buf.writeEnum(ChatFormatting.getByHexValue(color.value()));
+            buf.writeComponent(Component.empty());
+            buf.writeComponent(Component.empty());
+            buf.writeCollection(List.of(this instanceof PacketPlayer ? PlainTextComponentSerializer.plainText().serialize(name) : this.uuid.toString()), FriendlyByteBuf::writeUtf);
+        }
+
         List<Pair<net.minecraft.world.entity.EquipmentSlot, net.minecraft.world.item.ItemStack>> equipments = Lists.newArrayList();
         for (net.minecraft.world.entity.EquipmentSlot slot : net.minecraft.world.entity.EquipmentSlot.values()) {
             var item = getItemBySlot(slot);
@@ -339,7 +427,7 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     }
 
     private ClientboundAddEntityPacket getAddEntityPacket() {
-        return new ClientboundAddEntityPacket(entityId, UUID.randomUUID(), location.getX(), location.getY(), location.getZ(), location.getPitch(), location.getYaw(), this.entityType, 1, Vec3.ZERO, 0);
+        return new ClientboundAddEntityPacket(entityId, uuid, location.getX(), location.getY(), location.getZ(), location.getPitch(), location.getYaw(), this.entityType, 1, Vec3.ZERO, 0);
     }
 
     public void sendChanges() {
@@ -402,5 +490,6 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
         data.define(EntityData.CUSTOM_NAME_VISIBLE, false);
         data.define(EntityData.CUSTOM_NAME, Optional.empty());
         data.define(EntityData.SILENT, false);
+        data.define(EntityData.POSE, net.minecraft.world.entity.Pose.STANDING);
     }
 }
