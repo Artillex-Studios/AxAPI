@@ -15,7 +15,9 @@ import org.jetbrains.annotations.NotNull;
 import java.text.DecimalFormat;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,6 +57,14 @@ public class StringUtils {
     }
 
     @NotNull
+    public static Component format(@NotNull String input, HashMap<String, String> replacements) {
+        AtomicReference<String> string = new AtomicReference<>(input);
+        replacements.forEach((from, to) -> string.set(string.get().replace(from, to)));
+
+        return format(string.get());
+    }
+
+    @NotNull
     public static String formatToString(@NotNull String input, TagResolver... resolvers) {
         if (resolvers.length == 0) {
             return CACHE.get(input, key -> {
@@ -65,6 +75,14 @@ public class StringUtils {
 
         String changed = input.replace("§", "&");
         return ChatColor.translateAlternateColorCodes('&', legacyHexFormat(LEGACY_COMPONENT_SERIALIZER.serialize(MINI_MESSAGE.deserialize(changed, resolvers))));
+    }
+
+    @NotNull
+    public static String formatToString(@NotNull String input, HashMap<String, String> replacements) {
+        AtomicReference<String> string = new AtomicReference<>(input);
+        replacements.forEach((from, to) -> string.set(string.get().replace(from, to)));
+
+        return formatToString(string.get());
     }
 
     @NotNull

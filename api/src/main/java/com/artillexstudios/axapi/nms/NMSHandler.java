@@ -3,6 +3,10 @@ package com.artillexstudios.axapi.nms;
 import com.artillexstudios.axapi.entity.PacketEntityTracker;
 import com.artillexstudios.axapi.selection.ParallelBlockSetter;
 import com.artillexstudios.axapi.selection.BlockSetter;
+import com.artillexstudios.axapi.utils.ActionBar;
+import com.artillexstudios.axapi.utils.BossBar;
+import com.artillexstudios.axapi.utils.Title;
+import net.kyori.adventure.text.Component;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -31,6 +35,12 @@ public interface NMSHandler {
     String toSNBT(ItemStack itemStack);
 
     ItemStack fromSNBT(String snbt);
+
+    ActionBar newActionBar(Component content);
+
+    Title newTitle(Component title, Component subtitle, int fadeIn, int stay, int fadeOut);
+
+    BossBar newBossBar(Component title, float progress, BossBar.Color color, BossBar.Style style, BossBar.Flag... flags);
 
     default ParallelBlockSetter newParallelSetter(World world) {
         return null;

@@ -4,11 +4,15 @@ import com.artillexstudios.axapi.entity.PacketEntityTracker;
 import com.artillexstudios.axapi.nms.v1_20_R2.entity.EntityTracker;
 import com.artillexstudios.axapi.nms.v1_20_R2.packet.PacketListener;
 import com.artillexstudios.axapi.selection.BlockSetter;
+import com.artillexstudios.axapi.utils.ActionBar;
+import com.artillexstudios.axapi.utils.BossBar;
 import com.artillexstudios.axapi.utils.FastFieldAccessor;
+import com.artillexstudios.axapi.utils.Title;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.netty.channel.Channel;
+import net.kyori.adventure.text.Component;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.SnbtPrinterTagVisitor;
 import net.minecraft.nbt.TagParser;
@@ -153,6 +157,22 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
             return null;
         }
     }
+
+    @Override
+    public ActionBar newActionBar(Component content) {
+        return new com.artillexstudios.axapi.nms.v1_20_R2.utils.ActionBar(content);
+    }
+
+    @Override
+    public Title newTitle(Component title, Component subtitle, int fadeIn, int stay, int fadeOut) {
+        return new com.artillexstudios.axapi.nms.v1_20_R2.utils.Title(title, subtitle, fadeIn, stay, fadeOut);
+    }
+
+    @Override
+    public BossBar newBossBar(Component title, float progress, BossBar.Color color, BossBar.Style style, BossBar.Flag... flags) {
+        return new com.artillexstudios.axapi.nms.v1_20_R2.utils.BossBar(title, progress, color, style, flags);
+    }
+
 
     @Override
     public String getTextureValue(ItemMeta meta) {

@@ -61,7 +61,9 @@ public class ItemBuilder {
         section.getOptionalInt("amount").ifPresent(this::amount);
         section.getOptionalBoolean("glow").ifPresent(this::glow);
         section.getOptionalStringList("lore").ifPresent(lore -> this.setLore(lore, resolvers));
-        section.getOptionalStringList("enchants").ifPresent(enchants -> addEnchants(createEnchantmentsMap(enchants)));
+        Optional.ofNullable(section.get("enchants")).ifPresent((enchants) -> {
+            addEnchants(createEnchantmentsMap((List<String>) enchants));
+        });
         section.getOptionalStringList("item-flags").ifPresent(flags -> applyItemFlags(getItemFlags(flags)));
         section.getOptionalString("potion").ifPresent(this::setPotion);
     }
@@ -96,7 +98,9 @@ public class ItemBuilder {
         section.getOptionalInt("amount").ifPresent(this::amount);
         section.getOptionalBoolean("glow").ifPresent(this::glow);
         section.getOptionalStringList("lore").ifPresent(lore -> this.setLore(lore, resolvers));
-        section.getOptionalStringList("enchants").ifPresent(enchants -> addEnchants(createEnchantmentsMap(enchants)));
+        Optional.ofNullable(section.get("enchants")).ifPresent((enchants) -> {
+            addEnchants(createEnchantmentsMap((List<String>) enchants));
+        });
         section.getOptionalStringList("item-flags").ifPresent(flags -> applyItemFlags(getItemFlags(flags)));
         section.getOptionalString("potion").ifPresent(this::setPotion);
     }
@@ -167,7 +171,9 @@ public class ItemBuilder {
         section.getOptionalInt("amount").ifPresent(this::amount);
         section.getOptionalBoolean("glow").ifPresent(this::glow);
         section.getOptionalStringList("lore").ifPresent(lore -> this.setLore(lore, replacements));
-        section.getOptionalStringList("enchants").ifPresent(enchants -> addEnchants(createEnchantmentsMap(enchants)));
+        Optional.ofNullable(section.get("enchants")).ifPresent((enchants) -> {
+            addEnchants(createEnchantmentsMap((List<String>) enchants));
+        });
         section.getOptionalStringList("item-flags").ifPresent(flags -> applyItemFlags(getItemFlags(flags)));
         section.getOptionalString("potion").ifPresent(this::setPotion);
     }
@@ -240,7 +246,11 @@ public class ItemBuilder {
         for (String enchantment : enchantments) {
             String[] enchant = enchantment.split(":");
             Enchantment ench = Enchantment.getByKey(NamespacedKey.minecraft(enchant[0]));
-            if (ench == null) continue;
+
+
+            if (ench == null) {
+                continue;
+            }
             int level;
             try {
                 level = Integer.parseInt(enchant[1]);
@@ -372,7 +382,9 @@ public class ItemBuilder {
     }
 
     public ItemBuilder addEnchants(Map<Enchantment, Integer> enchantments) {
-        this.itemStack.addEnchantments(enchantments);
+        enchantments.forEach((enchant, level) -> {
+            meta.addEnchant(enchant, level, true);
+        });
         return this;
     }
 
@@ -388,18 +400,24 @@ public class ItemBuilder {
         return NMSHandlers.getNmsHandler().toSNBT(get());
     }
 
-    public Map<Object, Object> toMap() {
+    public Map<Object, Object> toMap(boolean snbt) {
         HashMap<Object, Object> map = new HashMap<>();
-        map.put("type", itemStack.getType().name());
-        map.put("name", meta.getDisplayName());
-        map.put("lore", meta.getLore());
-        map.put("snbt", toSNBT());
-        map.put("amount", itemStack.getAmount());
-        map.put("custom-model-data", meta.getCustomModelData());
+        if (snbt) {
+            map.put("snbt", toSNBT());
+        } else {
+            map.put("type", itemStack.getType().name());
+            map.put("name", meta.getDisplayName());
+            map.put("lore", meta.getLore());
 
-        String texture;
-        if ((texture = NMSHandlers.getNmsHandler().getTextureValue(meta)) != null) {
-            map.put("texture", texture);
+            map.put("amount", itemStack.getAmount());
+            if (meta.hasCustomModelData()) {
+                map.put("custom-model-data", meta.getCustomModelData());
+            }
+
+            String texture;
+            if ((texture = NMSHandlers.getNmsHandler().getTextureValue(meta)) != null) {
+                map.put("texture", texture);
+            }
         }
 
         return map;

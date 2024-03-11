@@ -32,6 +32,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -145,8 +146,12 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
                             }
                         }
 
-                        synchronized (levelChunk) {
-                            levelChunk.getSections()[sectionIndex] = newSection;
+                        try {
+                            MinecraftServer.getServer().submit(() -> {
+                                levelChunk.getSections()[sectionIndex] = newSection;
+                            }).get();
+                        } catch (InterruptedException | ExecutionException e) {
+                            throw new RuntimeException(e);
                         }
                     }, parallelExecutor);
 
