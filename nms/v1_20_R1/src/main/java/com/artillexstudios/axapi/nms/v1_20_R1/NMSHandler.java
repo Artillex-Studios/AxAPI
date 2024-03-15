@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.nms.v1_20_R1;
 
 import com.artillexstudios.axapi.entity.PacketEntityTracker;
+import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.nms.v1_20_R1.entity.EntityTracker;
 import com.artillexstudios.axapi.nms.v1_20_R1.packet.PacketListener;
 import com.artillexstudios.axapi.selection.BlockSetter;
@@ -171,6 +172,16 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     @Override
     public BossBar newBossBar(Component title, float progress, BossBar.Color color, BossBar.Style style, BossBar.Flag... flags) {
         return new com.artillexstudios.axapi.nms.v1_20_R1.utils.BossBar(title, progress, color, style, flags);
+    }
+
+    @Override
+    public com.artillexstudios.axapi.items.nbt.CompoundTag newTag() {
+        return new com.artillexstudios.axapi.nms.v1_20_R1.items.nbt.CompoundTag(new CompoundTag());
+    }
+
+    @Override
+    public WrappedItemStack wrapItem(ItemStack itemStack) {
+        return new com.artillexstudios.axapi.nms.v1_20_R1.items.WrappedItemStack(itemStack);
     }
 
     @Override

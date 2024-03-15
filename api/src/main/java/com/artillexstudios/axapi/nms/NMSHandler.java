@@ -1,6 +1,8 @@
 package com.artillexstudios.axapi.nms;
 
 import com.artillexstudios.axapi.entity.PacketEntityTracker;
+import com.artillexstudios.axapi.items.WrappedItemStack;
+import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.selection.ParallelBlockSetter;
 import com.artillexstudios.axapi.selection.BlockSetter;
 import com.artillexstudios.axapi.utils.ActionBar;
@@ -41,6 +43,10 @@ public interface NMSHandler {
     Title newTitle(Component title, Component subtitle, int fadeIn, int stay, int fadeOut);
 
     BossBar newBossBar(Component title, float progress, BossBar.Color color, BossBar.Style style, BossBar.Flag... flags);
+
+    CompoundTag newTag();
+
+    WrappedItemStack wrapItem(ItemStack itemStack);
 
     default ParallelBlockSetter newParallelSetter(World world) {
         return null;

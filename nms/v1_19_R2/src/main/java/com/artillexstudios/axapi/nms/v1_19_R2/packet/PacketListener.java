@@ -6,13 +6,16 @@ import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.hologram.HologramLine;
 import com.artillexstudios.axapi.hologram.Holograms;
 import com.artillexstudios.axapi.hologram.impl.ComponentHologramLine;
+import com.artillexstudios.axapi.items.PacketItemModifier;
 import com.artillexstudios.axapi.nms.v1_19_R2.entity.EntityData;
+import com.artillexstudios.axapi.nms.v1_19_R2.items.WrappedItemStack;
 import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axapi.utils.placeholder.Placeholder;
 import com.artillexstudios.axapi.utils.placeholder.StaticPlaceholder;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.Scheduler;
+import com.mojang.datafixers.util.Pair;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -21,10 +24,14 @@ import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
+import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
@@ -161,6 +168,35 @@ public class PacketListener extends ChannelDuplexHandler {
             }
 
             ClientboundSetEntityDataPacket packet = new ClientboundSetEntityDataPacket(dataPacket.id(), dataValues);
+
+            super.write(ctx, packet, promise);
+        } else if (msg instanceof ClientboundContainerSetSlotPacket packet) {
+            if (PacketItemModifier.isListening()) {
+                PacketItemModifier.callModify(new WrappedItemStack(packet.getItem()), player);
+            }
+
+            super.write(ctx, packet, promise);
+        } else if (msg instanceof ClientboundContainerSetContentPacket packet) {
+            if (PacketItemModifier.isListening()) {
+                PacketItemModifier.callModify(new WrappedItemStack(packet.getCarriedItem()), player);
+
+                for (ItemStack item : packet.getItems()) {
+                    PacketItemModifier.callModify(new WrappedItemStack(item), player);
+                }
+            }
+
+            super.write(ctx, packet, promise);
+        } else if (msg instanceof ClientboundSetEquipmentPacket packet) {
+            if (PacketItemModifier.isListening()) {
+                List<Pair<net.minecraft.world.entity.EquipmentSlot, ItemStack>> items = new ArrayList<>(packet.getSlots());
+                packet.getSlots().clear();
+
+                for (Pair<net.minecraft.world.entity.EquipmentSlot, ItemStack> slot : items) {
+                    ItemStack itemStack = slot.getSecond().copy();
+                    PacketItemModifier.callModify(new WrappedItemStack(itemStack), player);
+                    packet.getSlots().add(Pair.of(slot.getFirst(), itemStack));
+                }
+            }
 
             super.write(ctx, packet, promise);
         } else {
