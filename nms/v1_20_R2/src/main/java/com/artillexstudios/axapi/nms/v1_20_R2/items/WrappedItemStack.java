@@ -29,13 +29,19 @@ import java.util.Set;
 public class WrappedItemStack implements com.artillexstudios.axapi.items.WrappedItemStack {
     private static final String DISPLAY_TAG = "display";
     private final ItemStack parent;
+    private final org.bukkit.inventory.ItemStack bukkitStack;
+    private CompoundTag tag;
 
     public WrappedItemStack(org.bukkit.inventory.ItemStack itemStack) {
         this.parent = CraftItemStack.asNMSCopy(itemStack);
+        bukkitStack = itemStack;
+        tag = parent.getOrCreateTag();
     }
 
     public WrappedItemStack(ItemStack itemStack) {
         this.parent = itemStack;
+        this.bukkitStack = parent.getBukkitStack();
+        tag = parent.getOrCreateTag();
     }
 
     private static void setDisplayTag(CompoundTag compoundTag, String key, @Nullable Tag value) {
@@ -90,7 +96,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
         CompoundTag display = tag.getCompound(DISPLAY_TAG);
         if (display.contains("Name")) {
-            return GsonComponentSerializer.gson().deserialize(display.getString("Name"));
+            return net.kyori.adventure.text.serializer.gson.GsonComponentSerializer.gson().deserialize(display.getString("Name"));
         }
 
         return Component.empty();
@@ -98,12 +104,12 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
     @Override
     public void setName(Component name) {
-        setDisplayTag(parent.getOrCreateTag(), "Name", StringTag.valueOf(GsonComponentSerializer.gson().serialize(name)));
+        setDisplayTag(this.tag, "Name", StringTag.valueOf(GsonComponentSerializer.gson().serialize(name)));
     }
 
     @Override
     public List<Component> getLore() {
-        CompoundTag parentTag = parent.getOrCreateTag();
+        CompoundTag parentTag = this.tag;
 
         if (parentTag.contains(DISPLAY_TAG)) {
             CompoundTag display = parentTag.getCompound(DISPLAY_TAG);
@@ -131,7 +137,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
             tag.add(StringTag.valueOf(jsonLore.get(i)));
         }
 
-        setDisplayTag(parent.getOrCreateTag(), "Lore", tag);
+        setDisplayTag(this.tag, "Lore", tag);
     }
 
     @Override
@@ -211,7 +217,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
             flag |= (byte) (itemFlag.ordinal() << 1);
         }
 
-        this.parent.getOrCreateTag().putInt("HideFlags", flag);
+        tag.putInt("HideFlags", flag);
     }
 
     @Override
@@ -221,7 +227,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
             flag &= (byte) ~(byte) (1 << itemFlag.ordinal());
         }
 
-        this.parent.getOrCreateTag().putInt("HideFlags", flag);
+        tag.putInt("HideFlags", flag);
     }
 
     @Override
@@ -238,19 +244,32 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
     @Override
     public boolean hasItemFlag(ItemFlag itemFlag) {
-        byte flag = parent.getTag() != null ? parent.getTag().contains("HideFlags", 99) ? (byte) this.parent.getTag().getInt("HideFlags") : 0 : 0;
+        byte flag = tag != null ? tag.contains("HideFlags", 99) ? (byte) tag.getInt("HideFlags") : 0 : 0;
         int bitModifier = (byte) (1 << itemFlag.ordinal());
         return (flag & bitModifier) == bitModifier;
     }
 
     @Override
     public com.artillexstudios.axapi.items.nbt.CompoundTag getCompoundTag() {
-        return new com.artillexstudios.axapi.nms.v1_20_R2.items.nbt.CompoundTag(parent.getOrCreateTag());
+        return new com.artillexstudios.axapi.nms.v1_20_R2.items.nbt.CompoundTag(tag);
     }
 
     @Override
     public org.bukkit.inventory.ItemStack toBukkit() {
         return parent.asBukkitMirror();
+    }
+
+    @Override
+    public void finishEdit() {
+        if (CraftItemStack.class.isAssignableFrom(bukkitStack.getClass())) {
+            CraftItemStack craftItemStack = (CraftItemStack) bukkitStack;
+            ItemStack handle = craftItemStack.handle;
+            handle.setTag(tag);
+        } else {
+            parent.setTag(tag);
+            org.bukkit.inventory.ItemStack bukkitItem = parent.asBukkitMirror();
+            bukkitStack.setItemMeta(bukkitItem.getItemMeta());
+        }
     }
 
     @Override

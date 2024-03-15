@@ -11,11 +11,21 @@ import org.bukkit.inventory.ItemStack;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
-public interface WrappedItemStack {
+public interface
+
+WrappedItemStack {
 
     static WrappedItemStack wrap(ItemStack itemStack) {
         return NMSHandlers.getNmsHandler().wrapItem(itemStack);
+    }
+
+    static <T> T edit(ItemStack itemStack, Function<WrappedItemStack, T> function) {
+        WrappedItemStack wrapped = wrap(itemStack);
+        T result = function.apply(wrapped);
+        wrapped.finishEdit();
+        return result;
     }
 
     void setName(Component name);
@@ -51,6 +61,8 @@ public interface WrappedItemStack {
     CompoundTag getCompoundTag();
 
     ItemStack toBukkit();
+
+    void finishEdit();
 
     Object getParent();
 }
