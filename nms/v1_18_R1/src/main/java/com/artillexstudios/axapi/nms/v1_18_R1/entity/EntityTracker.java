@@ -133,6 +133,10 @@ public class EntityTracker implements PacketEntityTracker {
                 flag = false;
             }
 
+            if (entity.predicate != null && !entity.predicate.test(player.getBukkitEntity())) {
+                return;
+            }
+
             if (flag) {
                 if (this.seenBy.add(player.connection)) {
                     entity.addPairing(player);

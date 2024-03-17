@@ -4,6 +4,7 @@ import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -90,6 +91,12 @@ public interface PacketEntity {
     void onClick(Consumer<PacketEntityInteractEvent> event);
 
     void removeClickListener(Consumer<PacketEntityInteractEvent> eventConsumer);
+
+    void ride(Entity entity);
+
+    void ride(PacketEntity entity);
+
+    void unRide();
 
     void sendMetaUpdate();
 }

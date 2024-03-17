@@ -22,6 +22,7 @@ import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEntityLinkPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -77,6 +78,8 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     private boolean itemDirty = false;
     private boolean shouldTeleport = false;
     public ServerLevel level;
+    private int ridingEntity = 0;
+    public Predicate<Player> predicate;
 
     static {
         try {
@@ -259,7 +262,7 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
 
     @Override
     public void shouldSee(Predicate<Player> predicate) {
-        // TODO
+        this.predicate = predicate;
     }
 
     @Override
@@ -270,6 +273,36 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     @Override
     public void removeClickListener(Consumer<PacketEntityInteractEvent> eventConsumer) {
         eventConsumers.remove(eventConsumer);
+    }
+
+    @Override
+    public void ride(org.bukkit.entity.Entity entity) {
+        ridingEntity = entity.getEntityId();
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        buf.writeInt(entityId);
+        buf.writeInt(entity.getEntityId());
+        this.tracker.broadcast(new ClientboundSetEntityLinkPacket(buf));
+        buf.release();
+    }
+
+    @Override
+    public void ride(com.artillexstudios.axapi.entity.impl.PacketEntity entity) {
+        ridingEntity = entity.getEntityId();
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        buf.writeInt(entityId);
+        buf.writeInt(entity.getEntityId());
+        this.tracker.broadcast(new ClientboundSetEntityLinkPacket(buf));
+        buf.release();
+    }
+
+    @Override
+    public void unRide() {
+        ridingEntity = 0;
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        buf.writeInt(entityId);
+        buf.writeInt(0);
+        this.tracker.broadcast(new ClientboundSetEntityLinkPacket(buf));
+        buf.release();
     }
 
     @Override
@@ -327,6 +360,14 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
                 var sanitised = LivingEntity.sanitizeItemStack(item.copy(), false);
                 equipments.add(Pair.of(slot, stripMeta(sanitised, false)));
             }
+        }
+
+        if (ridingEntity != 0) {
+            FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+            buf.writeInt(entityId);
+            buf.writeInt(0);
+            consumer.accept(new ClientboundSetEntityLinkPacket(buf));
+            buf.release();
         }
 
         if (!equipments.isEmpty()) {
