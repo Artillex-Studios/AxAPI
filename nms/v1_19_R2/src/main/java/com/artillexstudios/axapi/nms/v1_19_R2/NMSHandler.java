@@ -38,6 +38,7 @@ import java.util.Locale;
 import java.util.UUID;
 
 public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
+    private static final UUID NIL_UUID = new UUID(0, 0);
     private static final Logger log = LoggerFactory.getLogger(NMSHandler.class);
     private final ItemStackSerializer serializer = new ItemStackSerializer();
     private static final String PACKET_HANDLER = "packet_handler";
@@ -116,7 +117,7 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
                 }
             }
 
-            GameProfile profile = new GameProfile(UUID.randomUUID(), "skull");
+            GameProfile profile = new GameProfile(NIL_UUID, "skull");
             profile.getProperties().put("textures", new Property("textures", texture));
 
             try {
