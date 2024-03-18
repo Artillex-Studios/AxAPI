@@ -35,15 +35,20 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
     public WrappedItemStack(org.bukkit.inventory.ItemStack itemStack) {
         this.parent = CraftItemStack.asNMSCopy(itemStack);
         bukkitStack = itemStack;
-        tag = parent.getOrCreateTag();
+        tag = parent.getTag();
+        if (tag == null) {
+            tag = new CompoundTag();
+        }
     }
 
     public WrappedItemStack(ItemStack itemStack) {
         this.parent = itemStack;
         this.bukkitStack = parent.getBukkitStack();
-        tag = parent.getOrCreateTag();
+        tag = parent.getTag();
+        if (tag == null) {
+            tag = new CompoundTag();
+        }
     }
-
     private static void setDisplayTag(CompoundTag compoundTag, String key, @Nullable Tag value) {
         final CompoundTag display = compoundTag.getCompound(DISPLAY_TAG);
 
@@ -261,6 +266,19 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
     @Override
     public void finishEdit() {
+        if (tag.isEmpty()) {
+            if (CraftItemStack.class.isAssignableFrom(bukkitStack.getClass())) {
+                CraftItemStack craftItemStack = (CraftItemStack) bukkitStack;
+                ItemStack handle = craftItemStack.handle;
+                handle.setTag(null);
+            } else {
+                parent.setTag(null);
+                org.bukkit.inventory.ItemStack bukkitItem = parent.asBukkitMirror();
+                bukkitStack.setItemMeta(bukkitItem.getItemMeta());
+            }
+            return;
+        }
+
         if (CraftItemStack.class.isAssignableFrom(bukkitStack.getClass())) {
             CraftItemStack craftItemStack = (CraftItemStack) bukkitStack;
             ItemStack handle = craftItemStack.handle;
