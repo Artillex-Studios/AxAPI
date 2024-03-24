@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.nms.v1_20_R2;
 
 import com.artillexstudios.axapi.entity.PacketEntityTracker;
+import com.artillexstudios.axapi.gui.SignInput;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.nms.v1_20_R2.entity.EntityTracker;
 import com.artillexstudios.axapi.nms.v1_20_R2.packet.PacketListener;
@@ -12,18 +13,32 @@ import com.artillexstudios.axapi.utils.Title;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.SnbtPrinterTagVisitor;
+import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.Connection;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
+import net.minecraft.network.protocol.game.ClientboundOpenSignEditorPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.craftbukkit.v1_20_R2.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_20_R2.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_20_R2.util.CraftLocation;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -182,6 +197,49 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     @Override
     public WrappedItemStack wrapItem(ItemStack itemStack) {
         return new com.artillexstudios.axapi.nms.v1_20_R2.items.WrappedItemStack(itemStack);
+    }
+
+    @Override
+    public void openSignInput(SignInput signInput) {
+        ServerPlayer player = ((CraftPlayer) signInput.getPlayer()).getHandle();
+        BlockPos pos = CraftLocation.toBlockPosition(signInput.getLocation());
+        player.connection.send(new ClientboundBlockUpdatePacket(pos, ((CraftBlockData) Material.OAK_SIGN.createBlockData()).getState()));
+
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        buf.writeBlockPos(pos);
+        buf.writeId(BuiltInRegistries.BLOCK_ENTITY_TYPE, BlockEntityType.SIGN);
+        CompoundTag tag = new CompoundTag();
+        tag.putInt("x", pos.getX());
+        tag.putInt("y", pos.getY());
+        tag.putInt("z", pos.getZ());
+        tag.putString("id", "minecraft:oak_sign");
+
+
+        for (int i = 0; i < 4; i++) {
+            String gson = toGson(i > signInput.getLines().length ? Component.empty() : signInput.getLines()[i]);
+            if (!tag.contains("front_text")) {
+                tag.put("front_text", new CompoundTag());
+            }
+
+            CompoundTag sideTag = tag.getCompound("front_text");
+            if (!tag.contains("messages")) {
+                sideTag.put("messages", new ListTag());
+            }
+
+            ListTag messagesNbt = sideTag.getList("messages", Tag.TAG_STRING);
+            messagesNbt.set(i, net.minecraft.nbt.StringTag.valueOf(gson));
+        }
+
+        buf.writeNbt(tag);
+
+        ClientboundBlockEntityDataPacket clientboundBlockEntityDataPacket = new ClientboundBlockEntityDataPacket(buf);
+        ClientboundOpenSignEditorPacket openSignEditorPacket = new ClientboundOpenSignEditorPacket(pos, true);
+        player.connection.send(clientboundBlockEntityDataPacket);
+        player.connection.send(openSignEditorPacket);
+    }
+
+    public String toGson(Component component) {
+        return GsonComponentSerializer.gson().serialize(component);
     }
 
     @Override

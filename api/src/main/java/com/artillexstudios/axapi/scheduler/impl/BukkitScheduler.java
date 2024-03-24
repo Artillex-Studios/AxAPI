@@ -90,4 +90,9 @@ public class BukkitScheduler implements Scheduler {
     public void runLater(Entity entity, Consumer<ScheduledTask> task, Runnable retired, long delayTicks) {
         Bukkit.getScheduler().runTaskLater(this.plugin, (a) -> task.accept(new BukkitScheduledTask(a)), delayTicks);
     }
+
+    @Override
+    public void cancelAll() {
+        Bukkit.getScheduler().cancelTasks(this.plugin);
+    }
 }

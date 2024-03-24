@@ -128,6 +128,7 @@ public abstract class AxPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         disable();
+        Scheduler.get().cancelAll();
     }
 
     public void disable() {

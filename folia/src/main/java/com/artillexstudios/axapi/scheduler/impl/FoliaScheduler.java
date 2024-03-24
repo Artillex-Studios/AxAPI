@@ -2,6 +2,7 @@ package com.artillexstudios.axapi.scheduler.impl;
 
 import com.artillexstudios.axapi.scheduler.ScheduledTask;
 import com.artillexstudios.axapi.scheduler.Scheduler;
+import io.papermc.paper.threadedregions.scheduler.AsyncScheduler;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
@@ -90,5 +91,11 @@ public class FoliaScheduler implements Scheduler {
     @Override
     public void runLater(Entity entity, Consumer<ScheduledTask> task, Runnable retired, long delayTicks) {
         entity.getScheduler().runDelayed(this.plugin, (a) -> task.accept(new FoliaScheduledTask(a)), retired, delayTicks);
+    }
+
+    @Override
+    public void cancelAll() {
+        Bukkit.getAsyncScheduler().cancelTasks(this.plugin);
+        Bukkit.getGlobalRegionScheduler().cancelTasks(this.plugin);
     }
 }

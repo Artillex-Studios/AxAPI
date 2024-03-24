@@ -42,4 +42,6 @@ public interface Scheduler {
     void runTaskTimer(Entity entity, Consumer<ScheduledTask> task, Runnable retired, long initialDelayTicks, long periodTicks);
 
     void runLater(Entity entity, Consumer<ScheduledTask> task, Runnable retired, long delayTicks);
+
+    void cancelAll();
 }

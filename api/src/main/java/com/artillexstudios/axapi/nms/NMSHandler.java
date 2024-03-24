@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.nms;
 
 import com.artillexstudios.axapi.entity.PacketEntityTracker;
+import com.artillexstudios.axapi.gui.SignInput;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.selection.ParallelBlockSetter;
@@ -10,6 +11,7 @@ import com.artillexstudios.axapi.utils.BossBar;
 import com.artillexstudios.axapi.utils.Title;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -48,6 +50,8 @@ public interface NMSHandler {
     CompoundTag newTag();
 
     WrappedItemStack wrapItem(ItemStack itemStack);
+
+    void openSignInput(SignInput signInput);
 
     default ParallelBlockSetter newParallelSetter(World world) {
         return null;

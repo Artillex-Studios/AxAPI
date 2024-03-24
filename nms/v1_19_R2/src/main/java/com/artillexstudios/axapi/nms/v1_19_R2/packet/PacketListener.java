@@ -3,6 +3,7 @@ package com.artillexstudios.axapi.nms.v1_19_R2.packet;
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.entity.impl.PacketEntity;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
+import com.artillexstudios.axapi.gui.SignInput;
 import com.artillexstudios.axapi.hologram.HologramLine;
 import com.artillexstudios.axapi.hologram.Holograms;
 import com.artillexstudios.axapi.hologram.impl.ComponentHologramLine;
@@ -22,17 +23,23 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
+import net.minecraft.network.protocol.game.ServerboundSignUpdatePacket;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.v1_19_R2.block.data.CraftBlockData;
+import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.util.Vector;
@@ -42,6 +49,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -111,6 +119,22 @@ public class PacketListener extends ChannelDuplexHandler {
                 packetEntity.acceptEventConsumers(event);
                 Bukkit.getPluginManager().callEvent(event);
             }
+        } else if (msg instanceof ServerboundSignUpdatePacket updatePacket) {
+            SignInput signInput = SignInput.remove(player);
+            if (signInput == null) {
+                super.channelRead(ctx, msg);
+                return;
+            }
+
+
+            signInput.getListener().accept(player, WrappedItemStack.asAdventureFromJson(Arrays.asList(updatePacket.getLines())).toArray(new net.kyori.adventure.text.Component[0]));
+            com.artillexstudios.axapi.scheduler.Scheduler.get().run(task -> {
+                CraftBlockData data = (CraftBlockData) signInput.getLocation().getBlock().getType().createBlockData();
+                BlockPos pos = new BlockPos(signInput.getLocation().getBlockX(), signInput.getLocation().getBlockY(), signInput.getLocation().getBlockZ());
+                ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
+                serverPlayer.connection.send(new ClientboundBlockUpdatePacket(pos, data.getState()));
+            });
+            return;
         }
 
         super.channelRead(ctx, msg);
