@@ -1,15 +1,23 @@
 package com.artillexstudios.axapi.nms.v1_20_R2.utils;
 
 import com.artillexstudios.axapi.scheduler.Scheduler;
+import io.papermc.paper.adventure.PaperAdventure;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
+import net.minecraft.advancements.Criterion;
+import net.minecraft.advancements.CriterionProgress;
+import net.minecraft.advancements.CriterionTrigger;
+import net.minecraft.advancements.CriterionTriggerInstance;
 import net.minecraft.advancements.DisplayInfo;
 import net.minecraft.advancements.FrameType;
+import net.minecraft.advancements.critereon.BeeNestDestroyedTrigger;
+import net.minecraft.advancements.critereon.DistanceTrigger;
 import net.minecraft.network.protocol.game.ClientboundUpdateAdvancementsPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -83,6 +91,7 @@ public class AdvancementToast implements com.artillexstudios.axapi.utils.Advance
     @Override
     public void send(Player player) {
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
+        serverPlayer.sendSystemMessage(PaperAdventure.asVanilla(MiniMessage.miniMessage().deserialize("SENDING SHOW PACKET!")));
         serverPlayer.connection.send(showPacket);
 
         Scheduler.get().runLater(task -> {
@@ -95,8 +104,8 @@ public class AdvancementToast implements com.artillexstudios.axapi.utils.Advance
     }
 
     private void updatePacket() {
-        DisplayInfo displayInfo = new DisplayInfo(itemStack == null ? net.minecraft.world.item.ItemStack.EMPTY : itemStack, content, description, null, FrameType.valueOf(type.name().toUpperCase(Locale.ENGLISH)), true, announceChat, true);
-        Advancement advancement = new Advancement(Optional.empty(), Optional.of(displayInfo), AdvancementRewards.EMPTY, Map.of(), AdvancementRequirements.EMPTY, false);
+        DisplayInfo displayInfo = new DisplayInfo(itemStack == null ? net.minecraft.world.item.ItemStack.EMPTY : itemStack, content, description, null, FrameType.valueOf(type.name().toUpperCase(Locale.ENGLISH)), true, announceChat, false);
+        Advancement advancement = new Advancement(Optional.empty(), Optional.of(displayInfo), AdvancementRewards.EMPTY, Map.of("distance", new DistanceTrigger().createCriterion(new DistanceTrigger.TriggerInstance(Optional.empty(), Optional.empty(), Optional.empty()))), AdvancementRequirements.EMPTY, false);
         AdvancementHolder holder = new AdvancementHolder(resourceLocation, advancement);
 
         showPacket = new ClientboundUpdateAdvancementsPacket(false, List.of(holder), Set.of(), Map.of());
