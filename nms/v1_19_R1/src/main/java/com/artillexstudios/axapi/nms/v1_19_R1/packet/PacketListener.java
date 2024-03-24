@@ -193,17 +193,19 @@ public class PacketListener extends ChannelDuplexHandler {
             super.write(ctx, packet, promise);
         } else if (msg instanceof ClientboundSetEquipmentPacket packet) {
             if (PacketItemModifier.isListening()) {
-                List<Pair<net.minecraft.world.entity.EquipmentSlot, ItemStack>> items = new ArrayList<>(packet.getSlots());
-                packet.getSlots().clear();
+                List<Pair<net.minecraft.world.entity.EquipmentSlot, ItemStack>> items = new ArrayList<>();
 
-                for (Pair<net.minecraft.world.entity.EquipmentSlot, ItemStack> slot : items) {
+                for (Pair<net.minecraft.world.entity.EquipmentSlot, ItemStack> slot : packet.getSlots()) {
                     ItemStack itemStack = slot.getSecond().copy();
                     PacketItemModifier.callModify(new WrappedItemStack(itemStack), player);
-                    packet.getSlots().add(Pair.of(slot.getFirst(), itemStack));
+                    items.add(Pair.of(slot.getFirst(), itemStack));
                 }
-            }
 
-            super.write(ctx, packet, promise);
+                ClientboundSetEquipmentPacket newEquipmentPacket = new ClientboundSetEquipmentPacket(packet.getEntity(), items);
+                super.write(ctx, newEquipmentPacket, promise);
+            } else {
+                super.write(ctx, msg, promise);
+            }
         } else {
             super.write(ctx, msg, promise);
         }

@@ -26,9 +26,9 @@ import org.bukkit.craftbukkit.v1_18_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,8 +40,8 @@ import java.util.UUID;
 public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     private static final UUID NIL_UUID = new UUID(0, 0);
     private static final Logger log = LoggerFactory.getLogger(NMSHandler.class);
-    private final ItemStackSerializer serializer = new ItemStackSerializer();
     private static final String PACKET_HANDLER = "packet_handler";
+    private final ItemStackSerializer serializer = new ItemStackSerializer();
     private final String AXAPI_HANDLER;
     private Method skullMetaMethod;
     private Field channelField;

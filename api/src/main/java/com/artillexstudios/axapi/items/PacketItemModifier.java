@@ -27,7 +27,7 @@ public class PacketItemModifier {
 
     public static void callModify(WrappedItemStack itemStack, Player player) {
         for (PacketItemModifierListener listener : listeners) {
-            listener.modifyItemStack(itemStack);
+            listener.modifyItemStack(player, itemStack);
         }
     }
 }

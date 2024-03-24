@@ -6,8 +6,10 @@ import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.selection.ParallelBlockSetter;
 import com.artillexstudios.axapi.selection.BlockSetter;
 import com.artillexstudios.axapi.utils.ActionBar;
+import com.artillexstudios.axapi.utils.AdvancementToast;
 import com.artillexstudios.axapi.utils.BossBar;
 import com.artillexstudios.axapi.utils.Title;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -47,6 +49,10 @@ public interface NMSHandler {
     CompoundTag newTag();
 
     WrappedItemStack wrapItem(ItemStack itemStack);
+
+    default AdvancementToast newToast(Key namespace, ItemStack itemStack, boolean announceChat, Component content, Component description, AdvancementToast.ToastType type) {
+        return null;
+    }
 
     default ParallelBlockSetter newParallelSetter(World world) {
         return null;

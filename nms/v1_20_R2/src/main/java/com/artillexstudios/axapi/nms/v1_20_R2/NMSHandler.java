@@ -6,6 +6,7 @@ import com.artillexstudios.axapi.nms.v1_20_R2.entity.EntityTracker;
 import com.artillexstudios.axapi.nms.v1_20_R2.packet.PacketListener;
 import com.artillexstudios.axapi.selection.BlockSetter;
 import com.artillexstudios.axapi.utils.ActionBar;
+import com.artillexstudios.axapi.utils.AdvancementToast;
 import com.artillexstudios.axapi.utils.BossBar;
 import com.artillexstudios.axapi.utils.FastFieldAccessor;
 import com.artillexstudios.axapi.utils.Title;
@@ -13,6 +14,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.netty.channel.Channel;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.SnbtPrinterTagVisitor;
@@ -131,6 +133,11 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
                 exception.printStackTrace();
             }
         }
+    }
+
+    @Override
+    public AdvancementToast newToast(Key namespace, ItemStack itemStack, boolean announceChat, Component content, Component description, AdvancementToast.ToastType type) {
+        return new com.artillexstudios.axapi.nms.v1_20_R2.utils.AdvancementToast(namespace, itemStack, announceChat, content, description, type);
     }
 
     @Override
