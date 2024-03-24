@@ -50,10 +50,6 @@ public abstract class AxPlugin extends JavaPlugin {
                         log.error("An unexpected error occurred while processing packet entities via the tracker!", exception);
                     }
                 }, 0, 50, TimeUnit.MILLISECONDS);
-            } else {
-                log.error("Packet entity tracker was not initialized! Please, add the PACKET_ENTITIES flag to the flags!");
-                Bukkit.getPluginManager().disablePlugin(this);
-                return;
             }
 
             Bukkit.getPluginManager().registerEvents(new Listener() {
@@ -69,6 +65,10 @@ public abstract class AxPlugin extends JavaPlugin {
 
                 @EventHandler
                 public void onPlayerChangedWorldEvent(@NotNull final PlayerChangedWorldEvent event) {
+                    if (tracker == null) {
+                        return;
+                    }
+
                     tracker.untrackFor(event.getPlayer());
                 }
             }, this);

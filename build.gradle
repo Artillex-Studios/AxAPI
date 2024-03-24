@@ -97,12 +97,6 @@ allprojects {
         }
     }
 
-    shadowJar {
-        relocate('me.neznamy.yamlassist', 'com.artillexstudios.axapi.libs.yamlassist')
-        relocate('dev.dejvokep', 'com.artillexstudios.axapi.libs.boostedyaml')
-        relocate('net.byteflux.libby', 'com.artillexstudios.axapi.libs.libby')
-    }
-
     publishing {
         afterEvaluate {
             repositories {
@@ -128,9 +122,16 @@ allprojects {
     publishToMavenLocal {
         dependsOn {
             build
-            shadowJar
         }
     }
+}
+
+tasks.build.dependsOn(shadowJar)
+
+shadowJar {
+    relocate('me.neznamy.yamlassist', 'com.artillexstudios.axapi.libs.yamlassist')
+    relocate('dev.dejvokep', 'com.artillexstudios.axapi.libs.boostedyaml')
+    relocate('net.byteflux.libby', 'com.artillexstudios.axapi.libs.libby')
 }
 
 allprojects.forEach { it.afterEvaluate {

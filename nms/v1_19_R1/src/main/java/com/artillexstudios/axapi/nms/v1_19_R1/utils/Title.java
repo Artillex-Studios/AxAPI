@@ -117,7 +117,7 @@ public class Title implements com.artillexstudios.axapi.utils.Title {
         if (subTitle == null || subTitle == Component.empty()) {
             subtitleTextPacket = null;
         } else {
-            subtitleTextPacket = new ClientboundSetSubtitleTextPacket(net.minecraft.network.chat.Component.Serializer.fromJson(GsonComponentSerializer.gson().serializer().toJsonTree(title)));
+            subtitleTextPacket = new ClientboundSetSubtitleTextPacket(net.minecraft.network.chat.Component.Serializer.fromJson(GsonComponentSerializer.gson().serializer().toJsonTree(subTitle)));
         }
 
         animationPacket = new ClientboundSetTitlesAnimationPacket(fadeInTime, stayTime, fadeOutTime);
