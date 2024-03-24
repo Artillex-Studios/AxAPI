@@ -73,6 +73,11 @@ public class PacketListener extends ChannelDuplexHandler {
     @Override
     public void channelRead(@NotNull ChannelHandlerContext ctx, @NotNull Object msg) throws Exception {
         if (msg instanceof ServerboundInteractPacket packet) {
+            if (AxPlugin.tracker == null) {
+                super.channelRead(ctx, msg);
+                return;
+            }
+
             FriendlyByteBuf byteBuf = new FriendlyByteBuf(Unpooled.buffer());
             packet.write(byteBuf);
             int entityId = byteBuf.readVarInt();
