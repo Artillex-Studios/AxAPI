@@ -9,31 +9,31 @@ import org.bukkit.inventory.ItemStack;
 
 public interface AdvancementToast {
 
-    default void send(Player player, Component content) {
+    static void send(Player player, Component content) {
         NMSHandlers.getNmsHandler().newToast(Key.key("axapi", RandomStringGenerator.lowercase().generate(8)), new ItemStack(Material.AIR), false, content, Component.empty(), ToastType.TASK).send(player);
     }
 
-    default void send(Player player, Component content, ItemStack display) {
+    static void send(Player player, Component content, ItemStack display) {
         NMSHandlers.getNmsHandler().newToast(Key.key("axapi", RandomStringGenerator.lowercase().generate(8)), display, false, content, Component.empty(), ToastType.TASK).send(player);
     }
 
-    default void send(Player player, Component content, ItemStack display, ToastType type) {
+    static void send(Player player, Component content, ItemStack display, ToastType type) {
         NMSHandlers.getNmsHandler().newToast(Key.key("axapi", RandomStringGenerator.lowercase().generate(8)), display, false, content, Component.empty(), type).send(player);
     }
 
-    default void send(Player player, Component content, ItemStack display, ToastType type, Component description) {
+    static void send(Player player, Component content, ItemStack display, ToastType type, Component description) {
         NMSHandlers.getNmsHandler().newToast(Key.key("axapi", RandomStringGenerator.lowercase().generate(8)), display, false, content, description, type).send(player);
     }
 
-    default AdvancementToast create() {
+    static AdvancementToast create() {
         return NMSHandlers.getNmsHandler().newToast(Key.key("axapi", RandomStringGenerator.lowercase().generate(8)), new ItemStack(Material.AIR), false, Component.empty(), Component.empty(), ToastType.TASK);
     }
 
-    default AdvancementToast create(Component content, ItemStack display, ToastType type) {
+    static AdvancementToast create(Component content, ItemStack display, ToastType type) {
         return NMSHandlers.getNmsHandler().newToast(Key.key("axapi", RandomStringGenerator.lowercase().generate(8)), display, false, content, Component.empty(), type);
     }
 
-    default AdvancementToast create(Component content, ItemStack display, ToastType type, Component description) {
+    static AdvancementToast create(Component content, ItemStack display, ToastType type, Component description) {
         return NMSHandlers.getNmsHandler().newToast(Key.key("axapi", RandomStringGenerator.lowercase().generate(8)), display, false, content, description, type);
     }
 
