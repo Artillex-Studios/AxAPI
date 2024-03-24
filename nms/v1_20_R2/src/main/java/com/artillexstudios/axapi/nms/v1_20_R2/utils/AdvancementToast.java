@@ -18,6 +18,8 @@ import net.minecraft.advancements.DisplayInfo;
 import net.minecraft.advancements.FrameType;
 import net.minecraft.advancements.critereon.BeeNestDestroyedTrigger;
 import net.minecraft.advancements.critereon.DistanceTrigger;
+import net.minecraft.advancements.critereon.ImpossibleTrigger;
+import net.minecraft.advancements.critereon.ItemUsedOnLocationTrigger;
 import net.minecraft.network.protocol.game.ClientboundUpdateAdvancementsPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -91,7 +93,6 @@ public class AdvancementToast implements com.artillexstudios.axapi.utils.Advance
     @Override
     public void send(Player player) {
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
-        serverPlayer.sendSystemMessage(PaperAdventure.asVanilla(MiniMessage.miniMessage().deserialize("SENDING SHOW PACKET!")));
         serverPlayer.connection.send(showPacket);
 
         Scheduler.get().runLater(task -> {
@@ -105,7 +106,7 @@ public class AdvancementToast implements com.artillexstudios.axapi.utils.Advance
 
     private void updatePacket() {
         DisplayInfo displayInfo = new DisplayInfo(itemStack == null ? net.minecraft.world.item.ItemStack.EMPTY : itemStack, content, description, null, FrameType.valueOf(type.name().toUpperCase(Locale.ENGLISH)), true, announceChat, false);
-        Advancement advancement = new Advancement(Optional.empty(), Optional.of(displayInfo), AdvancementRewards.EMPTY, Map.of("distance", new DistanceTrigger().createCriterion(new DistanceTrigger.TriggerInstance(Optional.empty(), Optional.empty(), Optional.empty()))), AdvancementRequirements.EMPTY, false);
+        Advancement advancement = new Advancement(Optional.empty(), Optional.of(displayInfo), AdvancementRewards.EMPTY, Map.of("distance", new Criterion<>(new ImpossibleTrigger(), new ImpossibleTrigger.TriggerInstance())), AdvancementRequirements.EMPTY, false);
         AdvancementHolder holder = new AdvancementHolder(resourceLocation, advancement);
 
         showPacket = new ClientboundUpdateAdvancementsPacket(false, List.of(holder), Set.of(), Map.of());
