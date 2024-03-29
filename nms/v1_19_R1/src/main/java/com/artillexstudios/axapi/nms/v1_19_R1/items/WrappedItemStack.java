@@ -263,7 +263,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
     @Override
     public org.bukkit.inventory.ItemStack toBukkit() {
-        return parent.asBukkitMirror();
+        return CraftItemStack.asCraftMirror(parent);
     }
 
     @Override
@@ -275,7 +275,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
                 handle.setTag(null);
             } else {
                 parent.setTag(null);
-                org.bukkit.inventory.ItemStack bukkitItem = parent.asBukkitMirror();
+                org.bukkit.inventory.ItemStack bukkitItem = CraftItemStack.asCraftMirror(parent);
                 bukkitStack.setItemMeta(bukkitItem.getItemMeta());
             }
             return;
@@ -287,7 +287,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
             handle.setTag(tag);
         } else {
             parent.setTag(tag);
-            org.bukkit.inventory.ItemStack bukkitItem = parent.asBukkitMirror();
+            org.bukkit.inventory.ItemStack bukkitItem = CraftItemStack.asCraftMirror(parent);
             bukkitStack.setItemMeta(bukkitItem.getItemMeta());
         }
     }
