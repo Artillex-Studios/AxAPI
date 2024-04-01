@@ -24,6 +24,7 @@ import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityLinkPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
+import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -277,9 +278,10 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     public void ride(org.bukkit.entity.Entity entity) {
         ridingEntity = entity.getEntityId();
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-        buf.writeInt(entityId);
-        buf.writeInt(entity.getEntityId());
-        this.tracker.broadcast(new ClientboundSetEntityLinkPacket(buf));
+        buf.writeVarInt(entityId);
+        int[] passengers = new int[]{ridingEntity};
+        buf.writeVarIntArray(passengers);
+        this.tracker.broadcast(new ClientboundSetPassengersPacket(buf));
         buf.release();
     }
 
@@ -287,9 +289,10 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     public void ride(com.artillexstudios.axapi.entity.impl.PacketEntity entity) {
         ridingEntity = entity.getEntityId();
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-        buf.writeInt(entityId);
-        buf.writeInt(entity.getEntityId());
-        this.tracker.broadcast(new ClientboundSetEntityLinkPacket(buf));
+        buf.writeVarInt(entityId);
+        int[] passengers = new int[]{ridingEntity};
+        buf.writeVarIntArray(passengers);
+        this.tracker.broadcast(new ClientboundSetPassengersPacket(buf));
         buf.release();
     }
 
@@ -298,8 +301,9 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
         ridingEntity = 0;
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         buf.writeInt(entityId);
-        buf.writeInt(0);
-        this.tracker.broadcast(new ClientboundSetEntityLinkPacket(buf));
+        int[] passengers = new int[0];
+        buf.writeVarIntArray(passengers);
+        this.tracker.broadcast(new ClientboundSetPassengersPacket(buf));
         buf.release();
     }
 
@@ -362,9 +366,10 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
 
         if (ridingEntity != 0) {
             FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-            buf.writeInt(entityId);
-            buf.writeInt(0);
-            consumer.accept(new ClientboundSetEntityLinkPacket(buf));
+            buf.writeVarInt(entityId);
+            int[] passengers = new int[]{ridingEntity};
+            buf.writeVarIntArray(passengers);
+            consumer.accept(new ClientboundSetPassengersPacket(buf));
             buf.release();
         }
 
