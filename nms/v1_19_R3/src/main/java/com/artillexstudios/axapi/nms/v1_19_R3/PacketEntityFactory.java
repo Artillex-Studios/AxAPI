@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.nms.v1_19_R3;
 
 import com.artillexstudios.axapi.entity.impl.PacketEntity;
+import com.artillexstudios.axapi.nms.v1_19_R3.entity.PacketAreaEffectCloud;
 import com.artillexstudios.axapi.nms.v1_19_R3.entity.PacketArmorStand;
 import com.artillexstudios.axapi.nms.v1_19_R3.entity.PacketItem;
 import org.bukkit.Location;
@@ -17,6 +18,8 @@ public class PacketEntityFactory implements com.artillexstudios.axapi.entity.Pac
             entity = new PacketArmorStand(location, consumer);
         } else if (entityType == EntityType.DROPPED_ITEM) {
             entity = new PacketItem(location, consumer);
+        } else if (entityType == EntityType.AREA_EFFECT_CLOUD) {
+            entity = new PacketAreaEffectCloud(location, consumer);
         } else {
             entity = new com.artillexstudios.axapi.nms.v1_19_R3.entity.PacketEntity(entityType, location, consumer);
         }

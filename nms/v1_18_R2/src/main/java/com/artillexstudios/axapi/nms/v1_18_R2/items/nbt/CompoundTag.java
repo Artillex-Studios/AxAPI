@@ -42,6 +42,10 @@ public class CompoundTag implements com.artillexstudios.axapi.items.nbt.Compound
 
     @Override
     public UUID getUUID(String key) {
+        if (!containsUUID(key)) {
+            return null;
+        }
+
         return parent.getUUID(key);
     }
 

@@ -278,8 +278,8 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     public void ride(org.bukkit.entity.Entity entity) {
         ridingEntity = entity.getEntityId();
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-        buf.writeVarInt(entityId);
-        int[] passengers = new int[]{ridingEntity};
+        buf.writeVarInt(ridingEntity);
+        int[] passengers = new int[]{entityId};
         buf.writeVarIntArray(passengers);
         this.tracker.broadcast(new ClientboundSetPassengersPacket(buf));
         buf.release();
@@ -289,8 +289,8 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     public void ride(com.artillexstudios.axapi.entity.impl.PacketEntity entity) {
         ridingEntity = entity.getEntityId();
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-        buf.writeVarInt(entityId);
-        int[] passengers = new int[]{ridingEntity};
+        buf.writeVarInt(ridingEntity);
+        int[] passengers = new int[]{entityId};
         buf.writeVarIntArray(passengers);
         this.tracker.broadcast(new ClientboundSetPassengersPacket(buf));
         buf.release();
@@ -298,9 +298,9 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
 
     @Override
     public void unRide() {
-        ridingEntity = 0;
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-        buf.writeInt(entityId);
+        buf.writeInt(ridingEntity);
+        ridingEntity = 0;
         int[] passengers = new int[0];
         buf.writeVarIntArray(passengers);
         this.tracker.broadcast(new ClientboundSetPassengersPacket(buf));
@@ -366,10 +366,10 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
 
         if (ridingEntity != 0) {
             FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-            buf.writeVarInt(entityId);
-            int[] passengers = new int[]{ridingEntity};
+            buf.writeVarInt(ridingEntity);
+            int[] passengers = new int[]{entityId};
             buf.writeVarIntArray(passengers);
-            consumer.accept(new ClientboundSetPassengersPacket(buf));
+            this.tracker.broadcast(new ClientboundSetPassengersPacket(buf));
             buf.release();
         }
 
