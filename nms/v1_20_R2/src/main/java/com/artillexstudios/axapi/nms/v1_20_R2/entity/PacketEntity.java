@@ -359,7 +359,7 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
             var item = getItemBySlot(slot);
 
             if (!item.isEmpty()) {
-                var sanitised = LivingEntity.sanitizeItemStack(item.copy(), false);
+                var sanitised = stripMeta(item.copy(), false);
                 equipments.add(Pair.of(slot, stripMeta(sanitised, false)));
             }
         }
@@ -402,7 +402,7 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
                 var item = getItemBySlot(slot);
 
                 if (!item.isEmpty()) {
-                    var sanitised = LivingEntity.sanitizeItemStack(item.copy(), false);
+                    var sanitised = stripMeta(item.copy(), false);
                     equipments.add(Pair.of(slot, stripMeta(sanitised, false)));
                 } else {
                     equipments.add(Pair.of(slot, item));

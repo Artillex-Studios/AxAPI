@@ -3,9 +3,9 @@ package com.artillexstudios.axapi.utils;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import org.bukkit.Bukkit;
-import java.util.Arrays;
 import org.bukkit.entity.Player;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -47,18 +47,6 @@ public enum Version {
     public final int protocolId;
     public final String nmsVersion;
 
-    public boolean isNewerThan(Version version) {
-        return protocolId > version.protocolId;
-    }
-
-    public boolean isNewerThanOrEqualTo(Version version) {
-        return protocolId >= version.protocolId;
-    }
-
-    public boolean isOlderThan(Version version) {
-        return protocolId < version.protocolId;
-    }
-
     Version(int protocolId, String nmsVersion, List<String> versions) {
         this.protocolId = protocolId;
         this.versions = versions;
@@ -71,5 +59,17 @@ public enum Version {
 
     public static Version getServerVersion() {
         return serverVersion;
+    }
+
+    public boolean isNewerThan(Version version) {
+        return protocolId > version.protocolId;
+    }
+
+    public boolean isNewerThanOrEqualTo(Version version) {
+        return protocolId >= version.protocolId;
+    }
+
+    public boolean isOlderThan(Version version) {
+        return protocolId < version.protocolId;
     }
 }

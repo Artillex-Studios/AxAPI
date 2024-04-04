@@ -3,9 +3,9 @@ package com.artillexstudios.axapi.nms.v1_20_R3.entity;
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
-import com.github.benmanes.caffeine.cache.Scheduler;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.Scheduler;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import io.netty.buffer.Unpooled;
@@ -22,7 +22,6 @@ import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
-import net.minecraft.network.protocol.game.ClientboundSetEntityLinkPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
@@ -30,7 +29,6 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.phys.Vec3;
@@ -46,6 +44,8 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Field;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -55,32 +55,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.lang.reflect.Field;
-import java.time.Duration;
 
 public class PacketEntity implements com.artillexstudios.axapi.entity.impl.PacketEntity {
     private static final Logger log = LoggerFactory.getLogger(PacketEntity.class);
-    private static AtomicInteger ENTITY_COUNTER;
     private static final Cache<Component, Optional<net.minecraft.network.chat.Component>> CACHE = Caffeine.newBuilder().maximumSize(600).scheduler(Scheduler.systemScheduler()).expireAfterAccess(Duration.ofSeconds(60)).build();
-    public final int entityId;
-    private final net.minecraft.world.entity.EntityType<?> entityType;
-    private final List<Consumer<PacketEntityInteractEvent>> eventConsumers = new ArrayList<>();
-    private final NonNullList<net.minecraft.world.item.ItemStack> handSlots;
-    private final NonNullList<net.minecraft.world.item.ItemStack> armorSlots;
-    public boolean invisible = false;
-    public boolean silent = false;
-    public com.artillexstudios.axapi.nms.v1_20_R3.entity.SynchedEntityData data;
-    public EntityTracker.TrackedEntity tracker;
-    private List<SynchedEntityData.DataValue<?>> trackedValues;
-    private Location location;
-    private Component name = Component.empty();
-    private int viewDistance = 32;
-    private int viewDistanceSquared = 32 * 32;
-    private boolean itemDirty = false;
-    private boolean shouldTeleport = false;
-    public ServerLevel level;
-    private int ridingEntity = 0;
-    public Predicate<Player> predicate;
+    private static AtomicInteger ENTITY_COUNTER;
 
     static {
         try {
@@ -91,6 +70,26 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
             log.error("An exception occurred while initializing PacketEntity!", exception);
         }
     }
+
+    public final int entityId;
+    private final net.minecraft.world.entity.EntityType<?> entityType;
+    private final List<Consumer<PacketEntityInteractEvent>> eventConsumers = new ArrayList<>();
+    private final NonNullList<net.minecraft.world.item.ItemStack> handSlots;
+    private final NonNullList<net.minecraft.world.item.ItemStack> armorSlots;
+    public boolean invisible = false;
+    public boolean silent = false;
+    public com.artillexstudios.axapi.nms.v1_20_R3.entity.SynchedEntityData data;
+    public EntityTracker.TrackedEntity tracker;
+    public ServerLevel level;
+    public Predicate<Player> predicate;
+    private List<SynchedEntityData.DataValue<?>> trackedValues;
+    private Location location;
+    private Component name = Component.empty();
+    private int viewDistance = 32;
+    private int viewDistanceSquared = 32 * 32;
+    private boolean itemDirty = false;
+    private boolean shouldTeleport = false;
+    private int ridingEntity = 0;
 
     public PacketEntity(EntityType entityType, Location location, Consumer<com.artillexstudios.axapi.entity.impl.PacketEntity> consumer) {
         entityId = ENTITY_COUNTER.incrementAndGet();
@@ -361,7 +360,7 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
             var item = getItemBySlot(slot);
 
             if (!item.isEmpty()) {
-                var sanitised = LivingEntity.sanitizeItemStack(item.copy(), false);
+                var sanitised = stripMeta(item.copy(), false);
                 equipments.add(Pair.of(slot, stripMeta(sanitised, false)));
             }
         }
@@ -404,7 +403,7 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
                 var item = getItemBySlot(slot);
 
                 if (!item.isEmpty()) {
-                    var sanitised = LivingEntity.sanitizeItemStack(item.copy(), false);
+                    var sanitised = stripMeta(item.copy(), false);
                     equipments.add(Pair.of(slot, stripMeta(sanitised, false)));
                 } else {
                     equipments.add(Pair.of(slot, item));
