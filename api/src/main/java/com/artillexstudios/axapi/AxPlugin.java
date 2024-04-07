@@ -82,7 +82,7 @@ public abstract class AxPlugin extends JavaPlugin {
             }, this);
 
             if (FeatureFlags.HOLOGRAM_UPDATE_TICKS.get() > 0) {
-                Scheduler.get().runAsyncTimer(scheduledTask -> {
+                Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
                     Holograms.getMap(map -> {
                         map.forEach((id, line) -> {
                             if (!line.containsPlaceholders()) return;
@@ -90,7 +90,7 @@ public abstract class AxPlugin extends JavaPlugin {
                             line.getEntity().sendMetaUpdate();
                         });
                     });
-                }, 0L, FeatureFlags.HOLOGRAM_UPDATE_TICKS.get());
+                }, 0, FeatureFlags.HOLOGRAM_UPDATE_TICKS.get() * 50, TimeUnit.MILLISECONDS);
             }
         }
 
