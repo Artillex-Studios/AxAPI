@@ -10,7 +10,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-
 import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_19_R1.util.CraftMagicNumbers;
 import org.bukkit.craftbukkit.v1_19_R1.util.CraftNamespacedKey;
@@ -37,18 +36,12 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
         this.parent = CraftItemStack.asNMSCopy(itemStack);
         bukkitStack = itemStack;
         tag = parent.getTag();
-        if (tag == null) {
-            tag = new CompoundTag();
-        }
     }
 
     public WrappedItemStack(ItemStack itemStack) {
         this.parent = itemStack;
         this.bukkitStack = parent.getBukkitStack();
         tag = parent.getTag();
-        if (tag == null) {
-            tag = new CompoundTag();
-        }
     }
 
     private static void setDisplayTag(CompoundTag compoundTag, String key, @Nullable Tag value) {
@@ -91,8 +84,6 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
     @Override
     public Component getName() {
-        CompoundTag tag = parent.getTag();
-
         if (tag == null) {
             return Component.empty();
         }
@@ -111,11 +102,19 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
     @Override
     public void setName(Component name) {
+        if (tag == null) {
+            tag = new CompoundTag();
+        }
+
         setDisplayTag(this.tag, "Name", StringTag.valueOf(GsonComponentSerializer.gson().serialize(name)));
     }
 
     @Override
     public List<Component> getLore() {
+        if (tag == null) {
+            tag = new CompoundTag();
+        }
+
         CompoundTag parentTag = this.tag;
 
         if (parentTag.contains(DISPLAY_TAG)) {
@@ -137,6 +136,10 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
     @Override
     public void setLore(List<Component> lore) {
+        if (tag == null) {
+            tag = new CompoundTag();
+        }
+
         ListTag tag = new ListTag();
         List<String> jsonLore = asJson(lore);
 
@@ -159,17 +162,19 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
     @Override
     public int getCustomModelData() {
-        return parent.getOrCreateTag().getInt("CustomModelData");
+        return tag != null ? tag.getInt("CustomModelData") : 0;
     }
 
     @Override
     public void setCustomModelData(int customModelData) {
-        CompoundTag parentTag = parent.getOrCreateTag();
+        if (tag == null) {
+            tag = new CompoundTag();
+        }
 
         if (customModelData == -1) {
-            parentTag.remove("CustomModelData");
+            tag.remove("CustomModelData");
         } else {
-            parentTag.putInt("CustomModelData", customModelData);
+            tag.putInt("CustomModelData", customModelData);
         }
     }
 
@@ -219,6 +224,10 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
     @Override
     public void addItemFlags(ItemFlag... itemFlags) {
+        if (tag == null) {
+            tag = new CompoundTag();
+        }
+
         byte flag = parent.getTag() != null ? parent.getTag().contains("HideFlags", 99) ? (byte) this.parent.getTag().getInt("HideFlags") : 0 : 0;
         for (ItemFlag itemFlag : itemFlags) {
             flag |= (byte) (itemFlag.ordinal() << 1);
@@ -229,6 +238,10 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
     @Override
     public void removeItemFlags(ItemFlag... itemFlags) {
+        if (tag == null) {
+            tag = new CompoundTag();
+        }
+
         byte flag = parent.getTag() != null ? parent.getTag().contains("HideFlags", 99) ? (byte) this.parent.getTag().getInt("HideFlags") : 0 : 0;
         for (ItemFlag itemFlag : itemFlags) {
             flag &= (byte) ~(byte) (1 << itemFlag.ordinal());
@@ -251,13 +264,17 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
     @Override
     public boolean hasItemFlag(ItemFlag itemFlag) {
-        byte flag = tag != null ? tag.contains("HideFlags", 99) ? (byte) tag.getInt("HideFlags") : 0 : 0;
+        byte flag = parent.getTag() != null ? tag.contains("HideFlags", 99) ? (byte) tag.getInt("HideFlags") : 0 : 0;
         int bitModifier = (byte) (1 << itemFlag.ordinal());
         return (flag & bitModifier) == bitModifier;
     }
 
     @Override
     public com.artillexstudios.axapi.items.nbt.CompoundTag getCompoundTag() {
+        if (tag == null) {
+            tag = new CompoundTag();
+        }
+
         return new com.artillexstudios.axapi.nms.v1_19_R1.items.nbt.CompoundTag(tag);
     }
 
@@ -267,8 +284,33 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
     }
 
     @Override
+    public void setTexture(String texture) {
+        if (tag == null) {
+            tag = new CompoundTag();
+        }
+
+        CompoundTag skullOwner = new CompoundTag();
+        skullOwner.putString("Name", "skull");
+        CompoundTag properties = new CompoundTag();
+
+        ListTag textures = new ListTag();
+        CompoundTag value = new CompoundTag();
+        value.putString("Value", texture);
+        textures.add(value);
+        properties.put("textures", textures);
+
+        skullOwner.put("Properties", properties);
+        tag.put("SkullOwner", skullOwner);
+    }
+
+    @Override
+    public boolean hasTag() {
+        return tag != null;
+    }
+
+    @Override
     public void finishEdit() {
-        if (tag.isEmpty()) {
+        if (tag == null || tag.isEmpty()) {
             if (CraftItemStack.class.isAssignableFrom(bukkitStack.getClass())) {
                 CraftItemStack craftItemStack = (CraftItemStack) bukkitStack;
                 ItemStack handle = craftItemStack.handle;

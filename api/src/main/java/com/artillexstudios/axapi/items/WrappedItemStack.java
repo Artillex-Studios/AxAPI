@@ -62,6 +62,10 @@ WrappedItemStack {
 
     ItemStack toBukkit();
 
+    void setTexture(String texture);
+
+    boolean hasTag();
+
     void finishEdit();
 
     Object getParent();
