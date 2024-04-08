@@ -33,6 +33,7 @@ import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
 import net.minecraft.network.protocol.game.ServerboundSignUpdatePacket;
+import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -150,6 +151,16 @@ public class PacketListener extends ChannelDuplexHandler {
                 // The entity is not a packet entity, skip!
                 super.write(ctx, msg, promise);
                 return;
+            } else if (PacketItemModifier.isListening()) {
+                for (SynchedEntityData.DataValue<?> packedItem : dataPacket.packedItems()) {
+                    if (packedItem.serializer().equals(EntityDataSerializers.ITEM_STACK)) {
+                        ItemStack value = (ItemStack) packedItem.value();
+                        PacketItemModifier.callModify(new WrappedItemStack(value), player);
+
+                        super.write(ctx, msg, promise);
+                        return;
+                    }
+                }
             }
 
             List<SynchedEntityData.DataValue<?>> dataValues = new ArrayList<>(dataPacket.packedItems());
