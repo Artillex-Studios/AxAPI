@@ -2,7 +2,6 @@ package com.artillexstudios.axapi.utils;
 
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -10,6 +9,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.PotionMeta;
@@ -197,7 +197,6 @@ public class ItemBuilder {
         }
 
         this.resolvers = new TagResolver[]{TagResolver.resolver()};
-        ;
 
         if (meta == null) return;
         Optional.ofNullable(map.get("name")).ifPresent(name -> this.setName((String) name, replacements));
@@ -340,7 +339,12 @@ public class ItemBuilder {
     }
 
     public ItemBuilder addEnchantment(Enchantment enchantment, int level) {
-        meta.addEnchant(enchantment, level, true);
+        if (meta instanceof EnchantmentStorageMeta) {
+            EnchantmentStorageMeta storageMeta = (EnchantmentStorageMeta) meta;
+            storageMeta.addStoredEnchant(enchantment, level, true);
+        } else {
+            meta.addEnchant(enchantment, level, true);
+        }
         return this;
     }
 
@@ -382,9 +386,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder addEnchants(Map<Enchantment, Integer> enchantments) {
-        enchantments.forEach((enchant, level) -> {
-            meta.addEnchant(enchant, level, true);
-        });
+        enchantments.forEach(this::addEnchantment);
         return this;
     }
 
