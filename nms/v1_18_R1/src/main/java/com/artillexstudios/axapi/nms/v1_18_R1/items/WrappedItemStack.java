@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.nms.v1_18_R1.items;
 
+import com.artillexstudios.axapi.utils.FastFieldAccessor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.core.Registry;
@@ -27,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class WrappedItemStack implements com.artillexstudios.axapi.items.WrappedItemStack {
+    private static final FastFieldAccessor HANDLE_ACCESSOR = FastFieldAccessor.forClassField(CraftItemStack.class, "handle");
     private static final String DISPLAY_TAG = "display";
     private final ItemStack parent;
     private final org.bukkit.inventory.ItemStack bukkitStack;
@@ -313,7 +315,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
         if (tag == null || tag.isEmpty()) {
             if (CraftItemStack.class.isAssignableFrom(bukkitStack.getClass())) {
                 CraftItemStack craftItemStack = (CraftItemStack) bukkitStack;
-                ItemStack handle = craftItemStack.handle;
+                ItemStack handle = HANDLE_ACCESSOR.get(craftItemStack);
                 handle.setTag(null);
             } else {
                 parent.setTag(null);
@@ -325,7 +327,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
         if (CraftItemStack.class.isAssignableFrom(bukkitStack.getClass())) {
             CraftItemStack craftItemStack = (CraftItemStack) bukkitStack;
-            ItemStack handle = craftItemStack.handle;
+            ItemStack handle = HANDLE_ACCESSOR.get(craftItemStack);
             handle.setTag(tag);
         } else {
             parent.setTag(tag);
