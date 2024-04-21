@@ -26,7 +26,9 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
+import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
@@ -153,9 +155,7 @@ public class PacketListener extends ChannelDuplexHandler {
                 return;
             } else if (PacketItemModifier.isListening()) {
                 for (SynchedEntityData.DataValue<?> packedItem : dataPacket.packedItems()) {
-                    System.out.println(packedItem.serializer() + " " + packedItem.id() + " " + packedItem.value());
                     if (packedItem.serializer().equals(EntityDataSerializers.ITEM_STACK)) {
-                        System.out.println("ITEM!");
                         ItemStack value = (ItemStack) packedItem.value();
                         PacketItemModifier.callModify(new WrappedItemStack(value), player);
 
@@ -244,6 +244,22 @@ public class PacketListener extends ChannelDuplexHandler {
             } else {
                 super.write(ctx, msg, promise);
             }
+        } else if (msg instanceof ClientboundBundlePacket bundlePacket && PacketItemModifier.isListening()) {
+            for (Packet<?> packet : bundlePacket.subPackets()) {
+                if (packet instanceof ClientboundSetEntityDataPacket dataPacket) {
+                    for (SynchedEntityData.DataValue<?> packedItem : dataPacket.packedItems()) {
+                        if (packedItem.serializer().equals(EntityDataSerializers.ITEM_STACK)) {
+                            ItemStack value = (ItemStack) packedItem.value();
+                            PacketItemModifier.callModify(new WrappedItemStack(value), player);
+
+                            super.write(ctx, msg, promise);
+                            return;
+                        }
+                    }
+                }
+            }
+
+            super.write(ctx, msg, promise);
         } else {
             super.write(ctx, msg, promise);
         }
