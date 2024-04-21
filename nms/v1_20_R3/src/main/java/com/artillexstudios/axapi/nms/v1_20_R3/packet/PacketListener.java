@@ -153,7 +153,9 @@ public class PacketListener extends ChannelDuplexHandler {
                 return;
             } else if (PacketItemModifier.isListening()) {
                 for (SynchedEntityData.DataValue<?> packedItem : dataPacket.packedItems()) {
+                    System.out.println(packedItem.serializer() + " " + packedItem.id() + " " + packedItem.value());
                     if (packedItem.serializer().equals(EntityDataSerializers.ITEM_STACK)) {
+                        System.out.println("ITEM!");
                         ItemStack value = (ItemStack) packedItem.value();
                         PacketItemModifier.callModify(new WrappedItemStack(value), player);
 

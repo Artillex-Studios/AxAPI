@@ -8,6 +8,7 @@ import com.artillexstudios.axapi.utils.FeatureFlags;
 import net.byteflux.libby.BukkitLibraryManager;
 import net.byteflux.libby.Library;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
@@ -94,6 +95,10 @@ public abstract class AxPlugin extends JavaPlugin {
             }
         }
 
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            NMSHandlers.getNmsHandler().injectPlayer(player);
+        }
+
         enable();
     }
 
@@ -137,6 +142,10 @@ public abstract class AxPlugin extends JavaPlugin {
     public void onDisable() {
         disable();
         Scheduler.get().cancelAll();
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            NMSHandlers.getNmsHandler().uninjectPlayer(player);
+        }
     }
 
     public void disable() {

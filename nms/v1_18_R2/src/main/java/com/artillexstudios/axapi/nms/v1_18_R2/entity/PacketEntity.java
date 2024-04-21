@@ -284,6 +284,11 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     }
 
     @Override
+    public void setGravity(boolean gravity) {
+        data.set(EntityData.GRAVITY, !gravity);
+    }
+
+    @Override
     public void ride(com.artillexstudios.axapi.entity.impl.PacketEntity entity) {
         ridingEntity = entity.getEntityId();
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
@@ -454,5 +459,6 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
         data.define(EntityData.CUSTOM_NAME_VISIBLE, false);
         data.define(EntityData.CUSTOM_NAME, Optional.empty());
         data.define(EntityData.SILENT, false);
+        data.define(EntityData.GRAVITY, false);
     }
 }

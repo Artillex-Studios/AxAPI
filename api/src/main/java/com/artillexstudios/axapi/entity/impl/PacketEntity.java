@@ -94,6 +94,8 @@ public interface PacketEntity {
 
     void ride(Entity entity);
 
+    void setGravity(boolean gravity);
+
     void ride(PacketEntity entity);
 
     void unRide();

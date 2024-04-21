@@ -14,6 +14,7 @@ public class EntityData {
     public static final EntityDataAccessor<Optional<Component>> CUSTOM_NAME = EntityDataSerializers.OPTIONAL_COMPONENT.createAccessor(2);
     public static final EntityDataAccessor<Boolean> CUSTOM_NAME_VISIBLE = EntityDataSerializers.BOOLEAN.createAccessor(3);
     public static final EntityDataAccessor<Boolean> SILENT = EntityDataSerializers.BOOLEAN.createAccessor(4);
+    public static final EntityDataAccessor<Boolean> GRAVITY = EntityDataSerializers.BOOLEAN.createAccessor(5);
     public static final EntityDataAccessor<Float> AREA_EFFECT_CLOUD_RADIUS = EntityDataSerializers.FLOAT.createAccessor(8);
     public static final EntityDataAccessor<ItemStack> ITEM_ITEM_STACK = EntityDataSerializers.ITEM_STACK.createAccessor(8);
     public static final EntityDataAccessor<Integer> AREA_EFFECT_CLOUD_COLOR = EntityDataSerializers.INT.createAccessor(9);

@@ -17,7 +17,9 @@ public class ItemStackHologramLine extends com.artillexstudios.axapi.hologram.im
     private final PacketItem packetItem;
 
     public ItemStackHologramLine(Location location) {
-        this.packetItem = (PacketItem) PacketEntityFactory.get().spawnEntity(location, EntityType.DROPPED_ITEM);
+        this.packetItem = (PacketItem) PacketEntityFactory.get().spawnEntity(location, EntityType.DROPPED_ITEM, item -> {
+            item.setGravity(false);
+        });
     }
 
     @Override
