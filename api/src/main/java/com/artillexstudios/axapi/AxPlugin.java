@@ -7,6 +7,7 @@ import com.artillexstudios.axapi.scheduler.Scheduler;
 import com.artillexstudios.axapi.utils.FeatureFlags;
 import net.byteflux.libby.BukkitLibraryManager;
 import net.byteflux.libby.Library;
+import net.byteflux.libby.logging.LogLevel;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -123,6 +124,7 @@ public abstract class AxPlugin extends JavaPlugin {
                 .version("2.9.2")
                 .build();
 
+        libraryManager.setLogLevel(LogLevel.DEBUG);
         libraryManager.loadLibrary(commonsMath);
         libraryManager.loadLibrary(caffeine);
 
