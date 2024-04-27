@@ -6,8 +6,10 @@ import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.selection.ParallelBlockSetter;
 import com.artillexstudios.axapi.selection.BlockSetter;
+import com.artillexstudios.axapi.serializers.Serializer;
 import com.artillexstudios.axapi.utils.ActionBar;
 import com.artillexstudios.axapi.utils.BossBar;
+import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.Title;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
@@ -16,12 +18,13 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public interface NMSHandler {
+    Logger log = LoggerFactory.getLogger(NMSHandler.class);
 
-    byte[] serializeItemStack(ItemStack itemStack);
-
-    ItemStack deserializeItemStack(byte[] bytes);
+    Serializer<Object, Component> componentSerializer();
 
     void injectPlayer(Player player);
 
@@ -29,17 +32,9 @@ public interface NMSHandler {
 
     int getProtocolVersionId(Player player);
 
-    void setItemStackTexture(ItemMeta meta, String texture);
-
-    String getTextureValue(ItemMeta meta);
-
     PacketEntityTracker newTracker();
 
     BlockSetter newSetter(World world);
-
-    String toSNBT(ItemStack itemStack);
-
-    ItemStack fromSNBT(String snbt);
 
     ActionBar newActionBar(Component content);
 
@@ -50,6 +45,8 @@ public interface NMSHandler {
     CompoundTag newTag();
 
     WrappedItemStack wrapItem(ItemStack itemStack);
+
+    WrappedItemStack wrapItem(byte[] bytes);
 
     void openSignInput(SignInput signInput);
 

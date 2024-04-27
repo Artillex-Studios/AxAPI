@@ -77,15 +77,6 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
         }
     }
 
-    @Override
-    public byte[] serializeItemStack(ItemStack itemStack) {
-        return serializer.serializeAsBytes(itemStack);
-    }
-
-    @Override
-    public ItemStack deserializeItemStack(byte[] bytes) {
-        return serializer.deserializeFromBytes(bytes);
-    }
 
     @Override
     public void injectPlayer(Player player) {

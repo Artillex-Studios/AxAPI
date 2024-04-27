@@ -399,7 +399,7 @@ public class ItemBuilder {
     }
 
     public String toSNBT() {
-        return NMSHandlers.getNmsHandler().toSNBT(get());
+        return /*NMSHandlers.getNmsHandler().toSNBT(get());*/ null;
     }
 
     public Map<Object, Object> toMap(boolean snbt) {

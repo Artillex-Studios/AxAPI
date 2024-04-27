@@ -7,9 +7,10 @@ import org.bukkit.inventory.ItemStack;
 import java.util.HashMap;
 import java.util.List;
 
-public class ContainerUtils {
+public enum ContainerUtils {
+    INSTANCE;
 
-    public static void addOrDrop(Inventory inventory, List<ItemStack> items, Location location) {
+    public void addOrDrop(Inventory inventory, List<ItemStack> items, Location location) {
         for (ItemStack key : items) {
             HashMap<Integer, ItemStack> remaining = inventory.addItem(key);
             remaining.forEach((k, v) -> location.getWorld().dropItem(location, v));

@@ -6,23 +6,13 @@ import org.slf4j.LoggerFactory;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public class FastFieldAccessor {
     private static final Logger log = LoggerFactory.getLogger(FastFieldAccessor.class);
-    private static Unsafe unsafe;
-
-    static {
-        try {
-            Field f = Unsafe.class.getDeclaredField("theUnsafe");
-            f.setAccessible(true);
-            unsafe = (Unsafe) f.get(null);
-        } catch (Exception exception) {
-            log.error("An error occurred while initializing FastFieldAccessor!", exception);
-        }
-    }
-
+    private static final Unsafe unsafe = UnsafeUtils.INSTANCE.unsafe();
     private final Field field;
     private final long fieldOffset;
 
@@ -38,6 +28,10 @@ public class FastFieldAccessor {
 
         for (int i = 0; i < declared.length; i++) {
             Field field = declared[i];
+            if (Modifier.isStatic(field.getModifiers())) {
+                continue;
+            }
+
             field.setAccessible(true);
             fieldAccessors[i] = forField(field);
         }

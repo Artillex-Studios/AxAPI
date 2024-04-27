@@ -7,7 +7,7 @@ import org.bukkit.Location;
 import static java.lang.Double.parseDouble;
 import static java.lang.Float.parseFloat;
 
-public class LocationSerializer implements Serializer<Location> {
+public class LocationSerializer implements Serializer<Location, String> {
 
     @Override
     public String serialize(Location object) {

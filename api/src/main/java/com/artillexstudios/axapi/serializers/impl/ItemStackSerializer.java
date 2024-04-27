@@ -5,7 +5,7 @@ import com.artillexstudios.axapi.serializers.Serializer;
 import org.bukkit.inventory.ItemStack;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
-public class ItemStackSerializer implements Serializer<ItemStack> {
+public class ItemStackSerializer implements Serializer<ItemStack, String> {
 
     @Override
     public String serialize(ItemStack object) {

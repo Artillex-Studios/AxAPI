@@ -11,7 +11,7 @@ import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import java.io.ByteArrayOutputStream;
 
-public class ItemArraySerializer implements Serializer<ItemStack[]> {
+public class ItemArraySerializer implements Serializer<ItemStack[], String> {
     private static final ItemStack AIR = new ItemStack(Material.AIR);
 
     @Override

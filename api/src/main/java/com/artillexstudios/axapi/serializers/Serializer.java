@@ -1,8 +1,8 @@
 package com.artillexstudios.axapi.serializers;
 
-public interface Serializer<T> {
+public interface Serializer<T, Z> {
 
-    String serialize(T object);
+    Z serialize(T object);
 
-    T deserialize(String value);
+    T deserialize(Z value);
 }
