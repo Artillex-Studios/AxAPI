@@ -2,34 +2,34 @@ package com.artillexstudios.axapi.nms.v1_20_R3.items;
 
 import com.artillexstudios.axapi.items.component.DataComponent;
 import com.artillexstudios.axapi.items.component.DyedColor;
+import com.artillexstudios.axapi.items.component.ItemEnchantments;
 import com.artillexstudios.axapi.items.component.ItemLore;
 import com.artillexstudios.axapi.items.component.ProfileProperties;
-import com.artillexstudios.axapi.items.component.Unbreakable;
-import com.artillexstudios.axapi.utils.ComponentSerializer;
+import com.artillexstudios.axapi.nms.v1_20_R3.ItemStackSerializer;
 import com.artillexstudios.axapi.utils.FastFieldAccessor;
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
-import io.papermc.paper.adventure.PaperAdventure;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.SnbtPrinterTagVisitor;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.util.Unit;
+import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_20_R3.enchantments.CraftEnchantment;
 import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_20_R3.potion.CraftPotionType;
 import org.bukkit.craftbukkit.v1_20_R3.util.CraftMagicNumbers;
 import org.bukkit.craftbukkit.v1_20_R3.util.CraftNamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.Nullable;
 
@@ -99,35 +99,6 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
         return adventures;
     }
 
-    @Override
-    public Component getName() {
-        if (tag == null) {
-            return Component.empty();
-        }
-
-        if (!tag.contains(DISPLAY_TAG)) {
-            return Component.empty();
-        }
-
-        CompoundTag display = tag.getCompound(DISPLAY_TAG);
-        if (display.contains("Name")) {
-            return net.kyori.adventure.text.serializer.gson.GsonComponentSerializer.gson().deserialize(display.getString("Name"));
-        }
-
-        return Component.empty();
-    }
-
-    @Override
-    public void setName(Component name) {
-        PaperAdventure
-        if (tag == null) {
-            tag = new CompoundTag();
-        }
-
-        setDisplayTag(this.tag, "Name", StringTag.valueOf(GsonComponentSerializer.gson().serialize(name)));
-    }
-
-    @Override
     public List<Component> getLore() {
         if (tag == null) {
             tag = new CompoundTag();
@@ -152,60 +123,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
         return Collections.emptyList();
     }
 
-    @Override
-    public void setLore(List<Component> lore) {
-        if (tag == null) {
-            tag = new CompoundTag();
-        }
 
-        ListTag tag = new ListTag();
-        List<String> jsonLore = asJson(lore);
-
-        for (int i = 0; i < jsonLore.size(); i++) {
-            tag.add(StringTag.valueOf(jsonLore.get(i)));
-        }
-
-        setDisplayTag(this.tag, "Lore", tag);
-    }
-
-    @Override
-    public int getAmount() {
-        return parent.getCount();
-    }
-
-    @Override
-    public void setAmount(int amount) {
-        parent.setCount(amount);
-    }
-
-    @Override
-    public int getCustomModelData() {
-        return tag != null ? tag.getInt("CustomModelData") : 0;
-    }
-
-    @Override
-    public void setCustomModelData(int customModelData) {
-        if (tag == null) {
-            tag = new CompoundTag();
-        }
-
-        if (customModelData == -1) {
-            tag.remove("CustomModelData");
-        } else {
-            tag.putInt("CustomModelData", customModelData);
-        }
-    }
-
-    @Override
-    public void setMaterial(Material material) {
-        if (material == Material.AIR) {
-            this.parent.setTag(null);
-        }
-
-        this.parent.setItem(BuiltInRegistries.ITEM.getOptional(CraftNamespacedKey.toMinecraft(material.getKey())).orElseThrow());
-    }
-
-    @Override
     public Map<Enchantment, Integer> getEnchantments() {
         ListTag tags = this.parent.getEnchantmentTags();
         HashMap<Enchantment, Integer> foundEnchants = new HashMap<>(tags.size());
@@ -223,7 +141,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
         return foundEnchants;
     }
 
-    @Override
+
     public int getEnchantmentLevel(Enchantment enchantment) {
         ListTag tags = this.parent.getEnchantmentTags();
         String enchantKey = enchantment.getKey().toString();
@@ -237,10 +155,10 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
             return 0xffff & compound.getShort("lvl");
         }
+
         return 0;
     }
 
-    @Override
     public void addItemFlags(ItemFlag... itemFlags) {
         if (tag == null) {
             tag = new CompoundTag();
@@ -254,7 +172,6 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
         tag.putInt("HideFlags", flag);
     }
 
-    @Override
     public void removeItemFlags(ItemFlag... itemFlags) {
         if (tag == null) {
             tag = new CompoundTag();
@@ -268,7 +185,6 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
         tag.putInt("HideFlags", flag);
     }
 
-    @Override
     public Set<ItemFlag> getItemFlags() {
         Set<ItemFlag> flags = new HashSet<>(ItemFlag.values().length);
 
@@ -280,14 +196,12 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
         return flags;
     }
 
-    @Override
     public boolean hasItemFlag(ItemFlag itemFlag) {
         byte flag = parent.getTag() != null ? tag.contains("HideFlags", 99) ? (byte) tag.getInt("HideFlags") : 0 : 0;
         int bitModifier = (byte) (1 << itemFlag.ordinal());
         return (flag & bitModifier) == bitModifier;
     }
 
-    @Override
     public com.artillexstudios.axapi.items.nbt.CompoundTag getCompoundTag() {
         if (tag == null) {
             tag = new CompoundTag();
@@ -303,7 +217,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
                 return;
             }
 
-            // TODO
+            this.tag = ((com.artillexstudios.axapi.nms.v1_20_R3.items.nbt.CompoundTag) value).getParent();
         } else if (component == DataComponent.MAX_STACK_SIZE) {
             return;
         } else if (component == DataComponent.MAX_DAMAGE) {
@@ -341,7 +255,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
             setDisplayTag(this.tag, "Name", StringTag.valueOf(GsonComponentSerializer.gson().serialize((Component) value)));
         } else if (component == DataComponent.LORE) {
             if (this.tag == null) {
-                (this.tag = new CompoundTag();
+                this.tag = new CompoundTag();
             }
 
             if (value == null) {
@@ -360,73 +274,74 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
         } else if (component == DataComponent.RARITY) {
 
         } else if (component == DataComponent.ENCHANTMENTS) {
+            if (tag == null) {
+                tag = new CompoundTag();
+            }
+
             if (value == null) {
-                parent.getEnchantmentTags().clear();
+                tag.remove("Enchantments");
                 return;
             }
 
-            var itemEnchantments = (com.artillexstudios.axapi.items.component.ItemEnchantments) value;
-            var vanilla = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
-            vanilla.showInTooltip = itemEnchantments.showInTooltip();
-
-            for (Object2IntMap.Entry<Enchantment> e : itemEnchantments.entrySet()) {
-                vanilla.set(CraftEnchantment.bukkitToMinecraft(e.getKey()), e.getIntValue());
+            var enchants = (ItemEnchantments) value;
+            HashMap<net.minecraft.world.item.enchantment.Enchantment, Integer> enchantments = new HashMap<>();
+            for (Object2IntMap.Entry<Enchantment> entry : enchants.entrySet()) {
+                enchantments.put(CraftEnchantment.bukkitToMinecraft(entry.getKey()), entry.getIntValue());
             }
 
-            itemStack.set(DataComponents.ENCHANTMENTS, vanilla.toImmutable());
+            EnchantmentHelper.setEnchantments(enchantments, parent);
         } else if (component == DataComponent.CUSTOM_MODEL_DATA) {
-            if (value == null) {
-                itemStack.remove(DataComponents.CUSTOM_MODEL_DATA);
-                return;
+            if (tag == null) {
+                tag = new CompoundTag();
             }
 
-            itemStack.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData((Integer) value));
+            if (value == null) {
+                tag.remove("CustomModelData");
+            } else {
+                tag.putInt("CustomModelData", (Integer) value);
+            }
         } else if (component == DataComponent.HIDE_ADDITIONAL_TOOLTIP) {
             if (value == null) {
-                itemStack.remove(DataComponents.HIDE_ADDITIONAL_TOOLTIP);
+                removeItemFlags(ItemFlag.HIDE_ITEM_SPECIFICS);
                 return;
             }
 
-            itemStack.set(DataComponents.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE);
+            addItemFlags(ItemFlag.HIDE_ITEM_SPECIFICS);
         } else if (component == DataComponent.HIDE_TOOLTIP) {
             if (value == null) {
-                itemStack.remove(DataComponents.HIDE_TOOLTIP);
+                removeItemFlags(ItemFlag.HIDE_ENCHANTS);
                 return;
             }
 
-            itemStack.set(DataComponents.HIDE_TOOLTIP, Unit.INSTANCE);
+            addItemFlags(ItemFlag.HIDE_ENCHANTS);
         } else if (component == DataComponent.REPAIR_COST) {
             parent.setRepairCost((Integer) value);
         } else if (component == DataComponent.CREATIVE_SLOT_LOCK) {
 
         } else if (component == DataComponent.ENCHANTMENT_GLINT_OVERRIDE) {
-
+            set(DataComponent.ENCHANTMENTS, get(DataComponent.ENCHANTMENTS).add(Enchantment.LOYALTY, 1));
+            addItemFlags(ItemFlag.HIDE_ENCHANTS);
         } else if (component == DataComponent.INTANGIBLE_PROJECTILE) {
-            if (value == null) {
-                itemStack.remove(DataComponents.INTANGIBLE_PROJECTILE);
-                return;
-            }
 
-            itemStack.set(DataComponents.INTANGIBLE_PROJECTILE, Unit.INSTANCE);
         } else if (component == DataComponent.STORED_ENCHANTMENTS) {
+            if (tag == null) {
+                tag = new CompoundTag();
+            }
+
             if (value == null) {
-                itemStack.remove(DataComponents.STORED_ENCHANTMENTS);
+                tag.remove("StoredEnchantments");
                 return;
             }
 
-            var itemEnchantments = (com.artillexstudios.axapi.items.component.ItemEnchantments) value;
-            var vanilla = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
-            vanilla.showInTooltip = itemEnchantments.showInTooltip();
-
-            for (Object2IntMap.Entry<Enchantment> e : itemEnchantments.entrySet()) {
-                vanilla.set(CraftEnchantment.bukkitToMinecraft(e.getKey()), e.getIntValue());
+            var enchants = (ItemEnchantments) value;
+            for (Object2IntMap.Entry<Enchantment> entry : enchants.entrySet()) {
+                EnchantedBookItem.addEnchantment(parent, new EnchantmentInstance(CraftEnchantment.bukkitToMinecraft(entry.getKey()), entry.getIntValue()));
             }
-
-            itemStack.set(DataComponents.STORED_ENCHANTMENTS, vanilla.toImmutable());
         } else if (component == DataComponent.PROFILE) {
             if (tag == null) {
                 tag = new CompoundTag();
             }
+
             ProfileProperties profileProperties = (ProfileProperties) value;
 
             CompoundTag skullOwner = new CompoundTag();
@@ -442,22 +357,35 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
             skullOwner.put("Properties", properties);
             tag.put("SkullOwner", skullOwner);
         } else if (component == DataComponent.MATERIAL) {
-            // TODO
+            var material = (Material) value;
+            if (material == Material.AIR) {
+                this.parent.setTag(null);
+            }
+
+            this.parent.setItem(BuiltInRegistries.ITEM.getOptional(CraftNamespacedKey.toMinecraft(material.getKey())).orElseThrow());
         } else if (component == DataComponent.DYED_COLOR) {
-            if (value == null) {
-                itemStack.remove(DataComponents.DYED_COLOR);
-                return;
+            if (tag == null) {
+                tag = new CompoundTag();
             }
 
+            if (value == null) {
+                tag.remove("Color");
+                return;
+            }
             var color = (DyedColor) value;
-            itemStack.set(DataComponents.DYED_COLOR, new DyedItemColor(color.rgb(), color.showInTooltip()));
+
+            setDisplayTag(this.tag, "Color", IntTag.valueOf(color.rgb()));
         } else if (component == DataComponent.POTION_CONTENTS) {
+            if (tag == null) {
+                tag = new CompoundTag();
+            }
+
             if (value == null) {
-                itemStack.remove(DataComponents.POTION_CONTENTS);
+                tag.remove("Potion");
                 return;
             }
 
-            itemStack.set(DataComponents.POTION_CONTENTS, new PotionContents(CraftPotionType.bukkitToMinecraftHolder((PotionType) value)));
+            tag.putString("Potion", CraftPotionType.bukkitToString((PotionType) value));
         }
     }
 
@@ -467,18 +395,28 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
     }
 
     @Override
+    public void setAmount(int amount) {
+        this.parent.setCount(amount);
+    }
+
+    @Override
+    public int getAmount() {
+        return parent.getCount();
+    }
+
+    @Override
     public org.bukkit.inventory.ItemStack toBukkit() {
         return CraftItemStack.asCraftMirror(parent);
     }
 
     @Override
     public String toSNBT() {
-        return "";
+        return new SnbtPrinterTagVisitor().visit(parent.save(new CompoundTag()));
     }
 
     @Override
     public byte[] serialize() {
-        return new byte[0];
+        return ItemStackSerializer.INSTANCE.serializeAsBytes(CraftItemStack.asBukkitCopy(parent));
     }
 
     @Override

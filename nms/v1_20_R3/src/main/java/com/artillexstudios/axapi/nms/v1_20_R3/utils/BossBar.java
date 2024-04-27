@@ -1,9 +1,8 @@
 package com.artillexstudios.axapi.nms.v1_20_R3.utils;
 
+import com.artillexstudios.axapi.utils.ComponentSerializer;
 import io.netty.buffer.Unpooled;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundBossEventPacket;
 import net.minecraft.server.level.ServerPlayer;
@@ -160,7 +159,7 @@ public class BossBar implements com.artillexstudios.axapi.utils.BossBar {
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         buf.writeUUID(uuid);
         buf.writeVarInt(3);
-        buf.writeComponent(net.minecraft.network.chat.Component.Serializer.fromJson(GsonComponentSerializer.gson().serializer().toJsonTree(title)));
+        buf.writeComponent((Component) ComponentSerializer.INSTANCE.toVanilla(title));
 
         ClientboundBossEventPacket titlePacket = new ClientboundBossEventPacket(buf);
         buf.release();
@@ -221,7 +220,7 @@ public class BossBar implements com.artillexstudios.axapi.utils.BossBar {
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         buf.writeUUID(uuid);
         buf.writeVarInt(0);
-        buf.writeComponent(net.minecraft.network.chat.Component.Serializer.fromJson(GsonComponentSerializer.gson().serializer().toJsonTree(title)));
+        buf.writeComponent((Component) ComponentSerializer.INSTANCE.toVanilla(title));
         buf.writeFloat(progress);
         buf.writeEnum(BossEvent.BossBarColor.byName(color.getInternalName()));
         buf.writeEnum(BossEvent.BossBarOverlay.byName(style.getInternalName()));

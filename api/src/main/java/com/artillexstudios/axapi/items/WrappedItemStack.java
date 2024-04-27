@@ -23,6 +23,10 @@ public interface WrappedItemStack {
 
     <T> T get(DataComponent<T> component);
 
+    void setAmount(int amount);
+
+    int getAmount();
+
     ItemStack toBukkit();
 
     String toSNBT();

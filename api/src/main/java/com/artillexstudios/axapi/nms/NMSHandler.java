@@ -46,6 +46,8 @@ public interface NMSHandler {
 
     WrappedItemStack wrapItem(ItemStack itemStack);
 
+    WrappedItemStack wrapItem(String snbt);
+
     WrappedItemStack wrapItem(byte[] bytes);
 
     void openSignInput(SignInput signInput);

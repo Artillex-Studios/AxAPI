@@ -1,7 +1,7 @@
 package com.artillexstudios.axapi.nms.v1_20_R3.utils;
 
+import com.artillexstudios.axapi.utils.ComponentSerializer;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.network.protocol.game.ClientboundSetActionBarTextPacket;
 import net.minecraft.server.level.ServerPlayer;
 import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
@@ -29,6 +29,6 @@ public class ActionBar implements com.artillexstudios.axapi.utils.ActionBar {
     }
 
     private void updatePacket() {
-        actionBarTextPacket = new ClientboundSetActionBarTextPacket(net.minecraft.network.chat.Component.Serializer.fromJson(GsonComponentSerializer.gson().serializer().toJsonTree(content)));
+        actionBarTextPacket = new ClientboundSetActionBarTextPacket(ComponentSerializer.INSTANCE.<net.minecraft.network.chat.Component>toVanilla(content));
     }
 }

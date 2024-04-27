@@ -61,7 +61,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
                 return;
             }
 
-           itemStack.set(DataComponents.CUSTOM_DATA, CustomData.of(((CompoundTag) value).getParent()));
+            itemStack.set(DataComponents.CUSTOM_DATA, CustomData.of(((CompoundTag) value).getParent()));
         } else if (component == DataComponent.MAX_STACK_SIZE) {
             if (value == null) {
                 itemStack.remove(DataComponents.MAX_STACK_SIZE);
@@ -334,6 +334,16 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
         }
 
         throw new RuntimeException("Unknown datacomponent!");
+    }
+
+    @Override
+    public int getAmount() {
+        return itemStack.getCount();
+    }
+
+    @Override
+    public void setAmount(int amount) {
+        itemStack.setCount(amount);
     }
 
     @Override

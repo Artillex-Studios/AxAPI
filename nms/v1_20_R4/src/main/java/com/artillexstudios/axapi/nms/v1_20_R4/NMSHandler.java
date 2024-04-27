@@ -12,9 +12,11 @@ import com.artillexstudios.axapi.serializers.Serializer;
 import com.artillexstudios.axapi.utils.ActionBar;
 import com.artillexstudios.axapi.utils.BossBar;
 import com.artillexstudios.axapi.utils.Title;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.netty.channel.Channel;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.minecraft.nbt.TagParser;
 import net.minecraft.network.Connection;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -138,6 +140,18 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     @Override
     public WrappedItemStack wrapItem(ItemStack itemStack) {
         return new com.artillexstudios.axapi.nms.v1_20_R4.items.WrappedItemStack(itemStack);
+    }
+
+    @Override
+    public WrappedItemStack wrapItem(String snbt) {
+        try {
+            net.minecraft.nbt.CompoundTag tag = TagParser.parseTag(snbt);
+            net.minecraft.world.item.ItemStack item = net.minecraft.world.item.ItemStack.parse(MinecraftServer.getServer().registryAccess(), tag).orElseThrow();
+            return new com.artillexstudios.axapi.nms.v1_20_R4.items.WrappedItemStack(item);
+        } catch (CommandSyntaxException exception) {
+            log.error("An error occurred while parsing item from SNBT!", exception);
+            return null;
+        }
     }
 
     @Override

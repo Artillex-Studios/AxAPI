@@ -1,7 +1,7 @@
 package com.artillexstudios.axapi.nms.v1_20_R3.utils;
 
+import com.artillexstudios.axapi.utils.ComponentSerializer;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.network.protocol.game.ClientboundClearTitlesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
@@ -111,13 +111,13 @@ public class Title implements com.artillexstudios.axapi.utils.Title {
         if (title == null || title == Component.empty()) {
             titleTextPacket = null;
         } else {
-            titleTextPacket = new ClientboundSetTitleTextPacket(net.minecraft.network.chat.Component.Serializer.fromJson(GsonComponentSerializer.gson().serializer().toJsonTree(title)));
+            titleTextPacket = new ClientboundSetTitleTextPacket((net.minecraft.network.chat.Component) ComponentSerializer.INSTANCE.toVanilla(title));
         }
 
         if (subTitle == null || subTitle == Component.empty()) {
             subtitleTextPacket = null;
         } else {
-            subtitleTextPacket = new ClientboundSetSubtitleTextPacket(net.minecraft.network.chat.Component.Serializer.fromJson(GsonComponentSerializer.gson().serializer().toJsonTree(subTitle)));
+            subtitleTextPacket = new ClientboundSetSubtitleTextPacket((net.minecraft.network.chat.Component) ComponentSerializer.INSTANCE.toVanilla(subTitle));
         }
 
         animationPacket = new ClientboundSetTitlesAnimationPacket(fadeInTime, stayTime, fadeOutTime);
