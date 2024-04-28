@@ -2,9 +2,16 @@ package com.artillexstudios.axapi.utils;
 
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.component.DataComponent;
+import com.artillexstudios.axapi.items.component.DyedColor;
 import com.artillexstudios.axapi.items.component.ItemEnchantments;
 import com.artillexstudios.axapi.items.component.ItemLore;
 import com.artillexstudios.axapi.items.component.ProfileProperties;
+import com.artillexstudios.axapi.items.component.Unbreakable;
+import com.artillexstudios.axapi.nms.NMSHandlers;
+import com.google.common.collect.Lists;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -20,219 +27,108 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ItemBuilder {
     private static final UUID NIL_UUID = new UUID(0, 0);
-    private final WrappedItemStack stack = null;
-    private final TagResolver[] resolvers = null;
+    private final List<ItemFlag> flags = new ArrayList<>(4);
+    private final WrappedItemStack stack;
+    private final TagResolver[] resolvers;
 
-//    public ItemBuilder(@NotNull Section section) {
-//        String type = section.getString("type");
-//        if (type == null) {
-//            type = section.getString("material", "stone");
-//        }
-//
-//        String snbt;
-//        if ((snbt = section.getString("snbt")) != null) {
-//            stack = NMSHandlers.getNmsHandler().wrapItem(snbt);
-//        } else {
-//            this.stack = new ItemStack(getMaterial(type));
-//        }
-//
-//        if (!itemStack.getType().isAir()) {
-//            this.meta = itemStack.getItemMeta();
-//        } else {
-//            this.meta = null;
-//        }
-//        resolvers = new TagResolver[]{TagResolver.resolver()};
-//
-//        if (meta == null) return;
-//        section.getOptionalString("name").ifPresent(name -> this.setName(name, resolvers));
-//        section.getOptionalString("color").ifPresent(this::setColor);
-//        if (Version.getServerVersion().isNewerThan(Version.UNKNOWN)) {
-//            section.getOptionalString("texture").ifPresent(this::setTextureValue);
-//            section.getOptionalInt("custom-model-data").ifPresent(this::setCustomModelData);
-//        }
-//        section.getOptionalInt("amount").ifPresent(this::amount);
-//        section.getOptionalBoolean("glow").ifPresent(this::glow);
-//        section.getOptionalStringList("lore").ifPresent(lore -> this.setLore(lore, resolvers));
-//        Optional.ofNullable(section.get("enchants")).ifPresent((enchants) -> {
-//            addEnchants(createEnchantmentsMap((List<String>) enchants));
-//        });
-//        section.getOptionalStringList("item-flags").ifPresent(flags -> applyItemFlags(getItemFlags(flags)));
-//        section.getOptionalString("potion").ifPresent(this::setPotion);
-//    }
-//
-//    public ItemBuilder(@NotNull Section section, TagResolver... resolvers) {
-//        String type = section.getString("type");
-//        if (type == null) {
-//            type = section.getString("material", "stone");
-//        }
-//
-//        String snbt;
-//        if ((snbt = section.getString("snbt")) != null) {
-//            itemStack = fromSNBT(snbt);
-//        } else {
-//            this.itemStack = new ItemStack(getMaterial(type));
-//        }
-//
-//        if (!itemStack.getType().isAir()) {
-//            this.meta = itemStack.getItemMeta();
-//        } else {
-//            this.meta = null;
-//        }
-//        this.resolvers = resolvers;
-//
-//        if (this.meta == null) return;
-//        section.getOptionalString("name").ifPresent(name -> this.setName(name, resolvers));
-//        section.getOptionalString("color").ifPresent(this::setColor);
-//        if (Version.getServerVersion().isNewerThan(Version.UNKNOWN)) {
-//            section.getOptionalString("texture").ifPresent(this::setTextureValue);
-//            section.getOptionalInt("custom-model-data").ifPresent(this::setCustomModelData);
-//        }
-//        section.getOptionalInt("amount").ifPresent(this::amount);
-//        section.getOptionalBoolean("glow").ifPresent(this::glow);
-//        section.getOptionalStringList("lore").ifPresent(lore -> this.setLore(lore, resolvers));
-//        Optional.ofNullable(section.get("enchants")).ifPresent((enchants) -> {
-//            addEnchants(createEnchantmentsMap((List<String>) enchants));
-//        });
-//        section.getOptionalStringList("item-flags").ifPresent(flags -> applyItemFlags(getItemFlags(flags)));
-//        section.getOptionalString("potion").ifPresent(this::setPotion);
-//    }
-//
-//    public ItemBuilder(Map<Object, Object> map, TagResolver... resolvers) {
-//        String type = (String) map.get("type");
-//        if (type == null) {
-//            type = (String) map.getOrDefault("material", "stone");
-//        }
-//
-//        String snbt;
-//        if ((snbt = (String) map.get("snbt")) != null) {
-//            stack = NMSHandlers.getNmsHandler().wrapItem(snbt);
-//        } else {
-//            this.stack = WrappedItemStack.wrap(new ItemStack(getMaterial(type)));
-//        }
-//
-//        if (!itemStack.getType().isAir()) {
-//            this.meta = itemStack.getItemMeta();
-//        } else {
-//            this.meta = null;
-//        }
-//
-//        this.resolvers = resolvers;
-//
-//        if (meta == null) return;
-//        Optional.ofNullable(map.get("name")).ifPresent(name -> this.setName((String) name, resolvers));
-//        Optional.ofNullable(map.get("color")).ifPresent(color -> this.setColor((String) color));
-//        if (Version.getServerVersion().isNewerThan(Version.UNKNOWN)) {
-//            Optional.ofNullable(map.get("texture")).ifPresent(string -> this.setTextureValue((String) string));
-//            Optional.ofNullable(map.get("custom-model-data")).ifPresent(number -> this.setCustomModelData((int) number));
-//        }
-//        Optional.ofNullable(map.get("amount")).ifPresent(amount -> itemStack.setAmount((int) amount));
-//        Optional.ofNullable(map.get("glow")).ifPresent(glow -> this.glow((boolean) glow));
-//        Optional.ofNullable(map.get("lore")).ifPresent(lore -> this.setLore((List<String>) lore, resolvers));
-//        Optional.ofNullable(map.get("enchants")).ifPresent(enchants -> addEnchants(createEnchantmentsMap((List<String>) enchants)));
-//        Optional.ofNullable(map.get("item-flags")).ifPresent(flags -> applyItemFlags(getItemFlags((List<String>) flags)));
-//        Optional.ofNullable(map.get("potion")).ifPresent(potion -> setPotion((String) potion));
-//    }
-//
-//    public ItemBuilder(@NotNull Section section, Map<String, String> replacements) {
-//        String type = section.getString("type");
-//        if (type == null) {
-//            type = section.getString("material", "stone");
-//        }
-//
-//        String snbt;
-//        if ((snbt = section.getString("snbt")) != null) {
-//            itemStack = fromSNBT(snbt);
-//        } else {
-//            this.itemStack = new ItemStack(getMaterial(type));
-//        }
-//
-//        if (!itemStack.getType().isAir()) {
-//            this.meta = itemStack.getItemMeta();
-//        } else {
-//            this.meta = null;
-//        }
-//        this.resolvers = new TagResolver[]{TagResolver.resolver()};
-//
-//        if (this.meta == null) return;
-//        section.getOptionalString("name").ifPresent(name -> this.setName(name, replacements));
-//        section.getOptionalString("color").ifPresent(this::setColor);
-//        if (Version.getServerVersion().isNewerThan(Version.UNKNOWN)) {
-//            section.getOptionalString("texture").ifPresent(this::setTextureValue);
-//            section.getOptionalInt("custom-model-data").ifPresent(this::setCustomModelData);
-//        }
-//        section.getOptionalInt("amount").ifPresent(this::amount);
-//        section.getOptionalBoolean("glow").ifPresent(this::glow);
-//        section.getOptionalStringList("lore").ifPresent(lore -> this.setLore(lore, replacements));
-//        Optional.ofNullable(section.get("enchants")).ifPresent((enchants) -> {
-//            addEnchants(createEnchantmentsMap((List<String>) enchants));
-//        });
-//        section.getOptionalStringList("item-flags").ifPresent(flags -> applyItemFlags(getItemFlags(flags)));
-//        section.getOptionalString("potion").ifPresent(this::setPotion);
-//    }
+    public ItemBuilder(Map<Object, Object> map, TagResolver... resolvers) {
+        this.resolvers = resolvers;
 
-//    public ItemBuilder(Map<Object, Object> map, Map<String, String> replacements) {
-//        String type = (String) map.get("type");
-//        if (type == null) {
-//            type = (String) map.getOrDefault("material", "stone");
-//        }
-//
-//        String snbt;
-//        if ((snbt = (String) map.get("snbt")) != null) {
-//            itemStack = fromSNBT(snbt);
-//        } else {
-//            this.itemStack = new ItemStack(getMaterial(type));
-//        }
-//        if (!itemStack.getType().isAir()) {
-//            this.meta = itemStack.getItemMeta();
-//        } else {
-//            this.meta = null;
-//        }
-//
-//        this.resolvers = new TagResolver[]{TagResolver.resolver()};
-//
-//        if (meta == null) return;
-//        Optional.ofNullable(map.get("name")).ifPresent(name -> this.setName((String) name, replacements));
-//        Optional.ofNullable(map.get("color")).ifPresent(color -> this.setColor((String) color));
-//        if (Version.getServerVersion().isNewerThan(Version.UNKNOWN)) {
-//            Optional.ofNullable(map.get("texture")).ifPresent(string -> this.setTextureValue((String) string));
-//            Optional.ofNullable(map.get("custom-model-data")).ifPresent(number -> this.setCustomModelData((int) number));
-//        }
-//        Optional.ofNullable(map.get("amount")).ifPresent(amount -> itemStack.setAmount((int) amount));
-//        Optional.ofNullable(map.get("glow")).ifPresent(glow -> this.glow((boolean) glow));
-//        Optional.ofNullable(map.get("lore")).ifPresent(lore -> this.setLore((List<String>) lore, replacements));
-//        Optional.ofNullable(map.get("enchants")).ifPresent(enchants -> addEnchants(createEnchantmentsMap((List<String>) enchants)));
-//        Optional.ofNullable(map.get("item-flags")).ifPresent(flags -> applyItemFlags(getItemFlags((List<String>) flags)));
-//        Optional.ofNullable(map.get("potion")).ifPresent(potion -> setPotion((String) potion));
-//    }
-//
-//    public ItemBuilder(@NotNull Material material) {
-//        this.itemStack = new ItemStack(material);
-//        if (!itemStack.getType().isAir()) {
-//            this.meta = itemStack.getItemMeta();
-//        } else {
-//            this.meta = null;
-//        }
-//        resolvers = new TagResolver[]{TagResolver.resolver()};
-//    }
-//
-//    public ItemBuilder(@NotNull ItemStack item) {
-//        this.itemStack = item;
-//        if (!itemStack.getType().isAir()) {
-//            this.meta = itemStack.getItemMeta();
-//        } else {
-//            this.meta = null;
-//        }
-//        resolvers = new TagResolver[]{TagResolver.resolver()};
-//    }
+        String type = (String) map.get("type");
+        if (type == null) {
+            type = (String) map.getOrDefault("material", "stone");
+        }
+
+        String snbt;
+        if ((snbt = (String) map.get("snbt")) != null) {
+            stack = NMSHandlers.getNmsHandler().wrapItem(snbt);
+        } else {
+            stack = WrappedItemStack.wrap(new ItemStack(getMaterial(type)));
+        }
+        Optional.ofNullable(map.get("item-flags")).ifPresent(flags -> this.flags.addAll(getItemFlags((List<String>) flags)));
+
+        Optional.ofNullable(map.get("name")).ifPresent(name -> this.setName((String) name, resolvers));
+        Optional.ofNullable(map.get("color")).ifPresent(color -> this.setColor((String) color));
+        Optional.ofNullable(map.get("texture")).ifPresent(string -> this.setTextureValue((String) string));
+        Optional.ofNullable(map.get("custom-model-data")).ifPresent(number -> this.setCustomModelData((int) number));
+        Optional.ofNullable(map.get("amount")).ifPresent(amount -> stack.setAmount((int) amount));
+        Optional.ofNullable(map.get("glow")).ifPresent(glow -> this.glow((boolean) glow));
+        Optional.ofNullable(map.get("lore")).ifPresent(lore -> this.setLore((List<String>) lore, resolvers));
+        Optional.ofNullable(map.get("enchants")).ifPresent(enchants -> addEnchants(createEnchantmentsMap((List<String>) enchants)));
+        Optional.ofNullable(map.get("potion")).ifPresent(potion -> setPotion((String) potion));
+        Optional.ofNullable(map.get("unbreakable")).ifPresent(unbreakable -> stack.set(DataComponent.UNBREAKABLE, new Unbreakable(!flags.contains(ItemFlag.HIDE_UNBREAKABLE))));
+    }
+
+    public ItemBuilder(Map<Object, Object> map, Map<String, String> replacements) {
+        this(map, mapResolvers(replacements));
+    }
+
+    public ItemBuilder(Map<Object, Object> map) {
+        this(map, TagResolver.resolver());
+    }
+
+    public ItemBuilder(Section section) {
+        this(mapSection(section), TagResolver.resolver());
+    }
+
+    public ItemBuilder(Section section, TagResolver... resolvers) {
+        this(mapSection(section), resolvers);
+    }
+
+    public ItemBuilder(Section section, Map<String, String> replacements) {
+        this(mapSection(section), mapResolvers(replacements));
+    }
+
+    public ItemBuilder(ItemStack itemStack, TagResolver... resolvers) {
+        this.resolvers = resolvers;
+        this.stack = WrappedItemStack.wrap(itemStack);
+    }
+
+    public ItemBuilder(ItemStack itemStack) {
+        this.resolvers = new TagResolver[]{TagResolver.resolver()};
+        this.stack = WrappedItemStack.wrap(itemStack);
+    }
+
+    public ItemBuilder(Material material, TagResolver... resolvers) {
+        this.resolvers = resolvers;
+        this.stack = WrappedItemStack.wrap(new ItemStack(material));
+    }
+
+    public ItemBuilder(Material material) {
+        this.resolvers = new TagResolver[]{TagResolver.resolver()};
+        this.stack = WrappedItemStack.wrap(new ItemStack(material));
+    }
 
     private static Material getMaterial(String name) {
         Material material = Material.matchMaterial(name.toUpperCase(Locale.ENGLISH));
         return material != null ? material : Material.BEDROCK;
+    }
+
+    public static TagResolver[] mapResolvers(Map<String, String> replacements) {
+        TagResolver[] resolvers = new TagResolver[replacements.size()];
+
+        int i = 0;
+        for (Map.Entry<String, String> entry : replacements.entrySet()) {
+            resolvers[i] = Placeholder.parsed(entry.getKey(), entry.getValue());
+            i++;
+        }
+
+        return resolvers;
+    }
+
+    public static Map<Object, Object> mapSection(Section section) {
+        Map<Object, Object> map = new HashMap<>();
+        for (Object key : section.getKeys()) {
+            map.put(key.toString(), section.get(key.toString()));
+        }
+
+        return map;
     }
 
     @NotNull
@@ -284,7 +180,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setName(String name) {
-        setName(name, TagResolver.resolver());
+        setName(name, resolvers);
         return this;
     }
 
@@ -310,14 +206,8 @@ public class ItemBuilder {
         String[] rgb = colorString.replace(" ", "").split(",");
         Color color = Color.fromRGB(Integer.parseInt(rgb[0]), Integer.parseInt(rgb[1]), Integer.parseInt(rgb[2]));
 
-        // TODO: Handle potion colors
-//        if (meta instanceof LeatherArmorMeta) {
-//            LeatherArmorMeta itemMeta = (LeatherArmorMeta) meta;
-//            itemMeta.setColor(color);
-//        } else if (meta instanceof PotionMeta) {
-//            PotionMeta itemMeta = (PotionMeta) meta;
-//            itemMeta.setColor(color);
-//        }
+        stack.set(DataComponent.DYED_COLOR, new DyedColor(color, this.flags.contains(ItemFlag.HIDE_DYE)));
+
         return this;
     }
 
@@ -328,7 +218,11 @@ public class ItemBuilder {
 
     public ItemBuilder addEnchantment(Enchantment enchantment, int level) {
         ItemEnchantments enchants = stack.get(DataComponent.ENCHANTMENTS);
-        enchants.add(enchantment, level);
+        enchants = enchants.add(enchantment, level);
+        if (this.flags.contains(ItemFlag.HIDE_ENCHANTS)) {
+            enchants = enchants.withTooltip(false);
+        }
+
         stack.set(DataComponent.ENCHANTMENTS, enchants);
         return this;
     }
@@ -339,7 +233,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setLore(List<String> lore) {
-        setLore(lore, TagResolver.resolver());
+        setLore(lore, resolvers);
         return this;
     }
 
@@ -367,48 +261,27 @@ public class ItemBuilder {
         return this;
     }
 
-    // TODO
-//    public ItemBuilder amount(int amount) {
-//        this.itemStack.setAmount(amount);
-//        return this;
-//    }
+    public ItemBuilder amount(int amount) {
+        this.stack.setAmount(amount);
+        return this;
+    }
 
     public ItemBuilder addEnchants(Map<Enchantment, Integer> enchantments) {
         enchantments.forEach(this::addEnchantment);
         return this;
     }
 
-    // TODO How do we want to do this?
-//    public ItemBuilder applyItemFlags(@NotNull List<ItemFlag> flags) {
-//        for (ItemFlag flag : flags) {
-//            meta.addItemFlags(flag);
-//        }
-//
-//        return this;
-//    }
-
-    public String toSNBT() {
-        return /*NMSHandlers.getNmsHandler().toSNBT(get());*/ null;
-    }
-
-    public Map<Object, Object> toMap(boolean snbt) {
+    public Map<Object, Object> serialize(boolean snbt) {
         HashMap<Object, Object> map = new HashMap<>();
         if (snbt) {
-            map.put("snbt", toSNBT());
+            map.put("snbt", stack.toSNBT());
         } else {
-//            map.put("type", itemStack.getType().name());
-//            map.put("name", meta.getDisplayName());
-//            map.put("lore", meta.getLore());
-//
-//            map.put("amount", itemStack.getAmount());
-//            if (meta.hasCustomModelData()) {
-//                map.put("custom-model-data", meta.getCustomModelData());
-//            }
-//
-//            String texture;
-//            if ((texture = NMSHandlers.getNmsHandler().getTextureValue(meta)) != null) {
-//                map.put("texture", texture);
-//            }
+            map.put("type", stack.get(DataComponent.MATERIAL).name());
+            map.put("name", MiniMessage.miniMessage().serialize(stack.get(DataComponent.ITEM_NAME)));
+            map.put("lore", Lists.transform(stack.get(DataComponent.LORE).lines(), a -> MiniMessage.miniMessage().serialize(a)));
+            map.put("amount", stack.getAmount());
+            map.put("custom-model-data", stack.get(DataComponent.CUSTOM_MODEL_DATA));
+            map.put("texture", stack.get(DataComponent.PROFILE).properties().get("textures").stream().findFirst().orElse(new ProfileProperties.Property("", "", null)).value());
         }
 
         return map;

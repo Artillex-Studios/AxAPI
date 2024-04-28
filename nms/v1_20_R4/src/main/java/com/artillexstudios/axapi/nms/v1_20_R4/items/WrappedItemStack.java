@@ -44,23 +44,18 @@ import java.util.UUID;
 
 @SuppressWarnings("unchecked")
 public class WrappedItemStack implements com.artillexstudios.axapi.items.WrappedItemStack {
-    private static final FastFieldAccessor HANDLE_ACCESSOR = FastFieldAccessor.forClassField(CraftItemStack.class, "handle");
-    private ItemStack bukkitStack;
     private net.minecraft.world.item.ItemStack itemStack;
 
     public WrappedItemStack(ItemStack itemStack) {
-        this(CraftItemStack.asNMSCopy(itemStack));
-        bukkitStack = itemStack;
+        this(itemStack instanceof CraftItemStack cr ? cr.handle : CraftItemStack.asNMSCopy(itemStack));
     }
 
     public WrappedItemStack(net.minecraft.world.item.ItemStack itemStack) {
         this.itemStack = itemStack;
-        bukkitStack = itemStack.getBukkitStack();
     }
 
     @Override
     public <T> void set(DataComponent<T> component, T value) {
-        System.out.println("Set called!");
         if (component == DataComponent.CUSTOM_DATA) {
             if (value == null) {
                 itemStack.remove(DataComponents.CUSTOM_DATA);
@@ -281,7 +276,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
             var vanilla = itemStack.get(DataComponents.ENCHANTMENTS);
             Object2IntAVLTreeMap<Enchantment> enchants = new Object2IntAVLTreeMap<>();
             if (vanilla == null) {
-                return (T) new com.artillexstudios.axapi.items.component.ItemEnchantments(enchants, false);
+                return (T) new com.artillexstudios.axapi.items.component.ItemEnchantments(enchants, true);
             }
 
             vanilla.entrySet().forEach(e -> {
@@ -339,7 +334,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
             return (T) CraftPotionType.minecraftHolderToBukkit(pot.potion().get());
         }
 
-        throw new RuntimeException("Unknown datacomponent!");
+        throw new RuntimeException("Unhandled DataComponent " + component.getClass() + " !");
     }
 
     @Override
@@ -369,12 +364,11 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
     @Override
     public void finishEdit() {
-        if (CraftItemStack.class.isAssignableFrom(bukkitStack.getClass())) {
-            CraftItemStack craftItemStack = (CraftItemStack) bukkitStack;
-            HANDLE_ACCESSOR.set(craftItemStack, itemStack);
-        } else {
-            org.bukkit.inventory.ItemStack bukkitItem = CraftItemStack.asCraftMirror(itemStack);
-            bukkitStack.setItemMeta(bukkitItem.getItemMeta());
+        var patch = itemStack.getComponentsPatch();
+        itemStack.restorePatch(patch);
+
+        if (itemStack.getItem() != null && itemStack.getMaxDamage() > 0) {
+            itemStack.setDamageValue(itemStack.getDamageValue());
         }
     }
 }
