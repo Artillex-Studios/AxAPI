@@ -363,6 +363,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
     @Override
     public void finishEdit() {
-
+        var patch = itemStack.getComponentsPatch();
+        itemStack.applyComponents(patch);
     }
 }

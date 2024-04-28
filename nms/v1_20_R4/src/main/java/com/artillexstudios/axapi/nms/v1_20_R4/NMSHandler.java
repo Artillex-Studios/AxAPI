@@ -40,7 +40,7 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
         axApiHandler = "axapi_handler_" + plugin.getName().toLowerCase(Locale.ENGLISH);
 
         try {
-            connectionField = Class.forName("net.minecraft.server.network.ServerCommonPacketListenerImpl").getDeclaredField("c");
+            connectionField = Class.forName("net.minecraft.server.network.ServerCommonPacketListenerImpl").getDeclaredField("e");
             connectionField.setAccessible(true);
             channelField = Class.forName("net.minecraft.network.NetworkManager").getDeclaredField("n");
             channelField.setAccessible(true);
