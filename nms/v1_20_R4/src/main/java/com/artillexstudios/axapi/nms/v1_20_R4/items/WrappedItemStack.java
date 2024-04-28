@@ -6,6 +6,7 @@ import com.artillexstudios.axapi.items.component.ProfileProperties;
 import com.artillexstudios.axapi.nms.v1_20_R4.ItemStackSerializer;
 import com.artillexstudios.axapi.nms.v1_20_R4.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
+import com.artillexstudios.axapi.utils.FastFieldAccessor;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import it.unimi.dsi.fastutil.objects.Object2IntAVLTreeMap;
@@ -43,18 +44,23 @@ import java.util.UUID;
 
 @SuppressWarnings("unchecked")
 public class WrappedItemStack implements com.artillexstudios.axapi.items.WrappedItemStack {
+    private static final FastFieldAccessor HANDLE_ACCESSOR = FastFieldAccessor.forClassField(CraftItemStack.class, "handle");
+    private ItemStack bukkitStack;
     private net.minecraft.world.item.ItemStack itemStack;
 
     public WrappedItemStack(ItemStack itemStack) {
         this(CraftItemStack.asNMSCopy(itemStack));
+        bukkitStack = itemStack;
     }
 
     public WrappedItemStack(net.minecraft.world.item.ItemStack itemStack) {
         this.itemStack = itemStack;
+        bukkitStack = itemStack.getBukkitStack();
     }
 
     @Override
     public <T> void set(DataComponent<T> component, T value) {
+        System.out.println("Set called!");
         if (component == DataComponent.CUSTOM_DATA) {
             if (value == null) {
                 itemStack.remove(DataComponents.CUSTOM_DATA);
@@ -363,7 +369,12 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
     @Override
     public void finishEdit() {
-        var patch = itemStack.getComponentsPatch();
-        itemStack.applyComponents(patch);
+        if (CraftItemStack.class.isAssignableFrom(bukkitStack.getClass())) {
+            CraftItemStack craftItemStack = (CraftItemStack) bukkitStack;
+            HANDLE_ACCESSOR.set(craftItemStack, itemStack);
+        } else {
+            org.bukkit.inventory.ItemStack bukkitItem = CraftItemStack.asCraftMirror(itemStack);
+            bukkitStack.setItemMeta(bukkitItem.getItemMeta());
+        }
     }
 }
