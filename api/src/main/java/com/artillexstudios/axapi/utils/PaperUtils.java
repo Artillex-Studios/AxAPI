@@ -16,13 +16,13 @@ public class PaperUtils {
     private static final boolean FOLIA;
 
     static {
-        if (ClassUtils.classExists("io.papermc.paper.configuration.Configuration") || ClassUtils.classExists("com.destroystokyo.paper.PaperConfig")) {
+        if (ClassUtils.INSTANCE.classExists("io.papermc.paper.configuration.Configuration") || ClassUtils.INSTANCE.classExists("com.destroystokyo.paper.PaperConfig")) {
             IMPLEMENTATION = new ServerImplementationPaper();
         } else {
             IMPLEMENTATION = new ServerImplementationSpigot();
         }
 
-        FOLIA = ClassUtils.classExists("io.papermc.paper.threadedregions.RegionizedServer");
+        FOLIA = ClassUtils.INSTANCE.classExists("io.papermc.paper.threadedregions.RegionizedServer");
     }
 
     public static CompletableFuture<Boolean> teleportAsync(Entity entity, Location location) {

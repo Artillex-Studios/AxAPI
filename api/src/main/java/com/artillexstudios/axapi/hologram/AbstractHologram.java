@@ -51,7 +51,7 @@ public abstract class AbstractHologram implements Hologram {
                 line.addPlaceholder(placeholder);
             }
 
-            if (ClassUtils.classExists("me.clip.placeholderapi.PlaceholderAPI")) {
+            if (ClassUtils.INSTANCE.classExists("me.clip.placeholderapi.PlaceholderAPI")) {
                 line.addPlaceholder(new Placeholder(PlaceholderAPI::setPlaceholders));
             }
         }

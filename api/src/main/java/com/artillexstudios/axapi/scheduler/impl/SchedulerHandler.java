@@ -8,7 +8,7 @@ public class SchedulerHandler {
     private Scheduler scheduler;
 
     public void init(JavaPlugin plugin) {
-        if (ClassUtils.classExists("io.papermc.paper.threadedregions.RegionizedServer")) {
+        if (ClassUtils.INSTANCE.classExists("io.papermc.paper.threadedregions.RegionizedServer")) {
             try {
                 scheduler = (Scheduler) Class.forName("com.artillexstudios.axapi.scheduler.impl.FoliaScheduler").getDeclaredConstructor(JavaPlugin.class).newInstance(plugin);
             } catch (Exception exception) {

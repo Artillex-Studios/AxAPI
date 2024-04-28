@@ -9,11 +9,11 @@ public class ItemStackSerializer implements Serializer<ItemStack, String> {
 
     @Override
     public String serialize(ItemStack object) {
-        return Base64Coder.encodeLines(NMSHandlers.getNmsHandler().serializeItemStack(object));
+        return Base64Coder.encodeLines(NMSHandlers.getNmsHandler().wrapItem(object).serialize());
     }
 
     @Override
     public ItemStack deserialize(String value) {
-        return NMSHandlers.getNmsHandler().deserializeItemStack(Base64Coder.decodeLines(value));
+        return NMSHandlers.getNmsHandler().wrapItem(Base64Coder.decodeLines(value)).toBukkit();
     }
 }

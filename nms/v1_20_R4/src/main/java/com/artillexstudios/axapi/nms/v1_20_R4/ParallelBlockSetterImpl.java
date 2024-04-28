@@ -2,6 +2,7 @@ package com.artillexstudios.axapi.nms.v1_20_R4;
 
 import com.artillexstudios.axapi.selection.Cuboid;
 import com.artillexstudios.axapi.selection.ParallelBlockSetter;
+import com.artillexstudios.axapi.utils.ClassUtils;
 import com.artillexstudios.axapi.utils.FastFieldAccessor;
 import com.google.common.collect.Sets;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
@@ -22,7 +23,6 @@ import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -40,17 +40,8 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
     private static final ExecutorService parallelExecutor = Executors.newFixedThreadPool(8);
     private static final Logger log = LoggerFactory.getLogger(ParallelBlockSetterImpl.class);
     private static final ArrayList<FastFieldAccessor> accessors = new ArrayList<>();
-    private static Unsafe unsafe = null;
 
     static {
-        try {
-            Field f = Unsafe.class.getDeclaredField("theUnsafe");
-            f.setAccessible(true);
-            unsafe = (Unsafe) f.get(null);
-        } catch (Exception exception) {
-            log.error("An error occurred while initializing FastFieldAccessor!", exception);
-        }
-
         for (Field field : LevelChunkSection.class.getDeclaredFields()) {
             if (Modifier.isStatic(field.getModifiers())) continue;
             field.setAccessible(true);
@@ -92,7 +83,7 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
 
     public LevelChunkSection copy(LevelChunkSection section) {
         try {
-            LevelChunkSection newSection = (LevelChunkSection) unsafe.allocateInstance(LevelChunkSection.class);
+            LevelChunkSection newSection = ClassUtils.INSTANCE.newInstance(LevelChunkSection.class);
             copyFields(section, newSection);
 
             return newSection;
@@ -157,25 +148,21 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
 
                 CompletableFuture<?> thisChunk = CompletableFuture.allOf(chunkFutures.toArray(new CompletableFuture[0]));
 
-                thisChunk.thenAccept((ignored) -> {
-                    MinecraftServer.getServer().executeBlocking(() -> {
-                        var lightEngine = level.chunkSource.getLightEngine();
-                        lightEngine.relight(Sets.newHashSet(levelChunk.getPos()), c -> {
-                        }, c -> {
-                        });
-
-                        sendUpdatePacket(levelChunk);
+                thisChunk.thenAccept((ignored) -> MinecraftServer.getServer().executeBlocking(() -> {
+                    var lightEngine = level.chunkSource.getLightEngine();
+                    lightEngine.relight(Sets.newHashSet(levelChunk.getPos()), c -> {
+                    }, c -> {
                     });
-                });
+
+                    sendUpdatePacket(levelChunk);
+                }));
 
                 chunkTasks.add(thisChunk);
             }
         }
 
         CompletableFuture<?> future = CompletableFuture.allOf(chunkTasks.toArray(new CompletableFuture[0]));
-        future.thenAccept((ignored) -> {
-            consumer.accept(blockCount.get());
-        });
+        future.thenAccept((ignored) -> consumer.accept(blockCount.get()));
     }
 
     private void sendUpdatePacket(@NotNull LevelChunk chunk) {

@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.gui;
 
+import com.artillexstudios.axapi.nms.NMSHandlers;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -21,13 +22,12 @@ public class SignInput {
         this.listener = listener;
 
         Location location = player.getLocation().clone();
-        this.location = location.clone().set(location.getX(), 255 - location.getBlockY(), location.getZ());
+        this.location = location.clone().set(location.getX(), location.getBlockY() + 4, location.getZ());
     }
 
     public void open() {
-
-
-
+        NMSHandlers.getNmsHandler().openSignInput(this);
+        inputs.add(this);
     }
 
     public Location getLocation() {
