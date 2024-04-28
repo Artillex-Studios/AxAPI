@@ -6,7 +6,6 @@ import com.artillexstudios.axapi.items.component.ProfileProperties;
 import com.artillexstudios.axapi.nms.v1_20_R4.ItemStackSerializer;
 import com.artillexstudios.axapi.nms.v1_20_R4.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
-import com.artillexstudios.axapi.utils.FastFieldAccessor;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import it.unimi.dsi.fastutil.objects.Object2IntAVLTreeMap;
@@ -15,6 +14,7 @@ import net.kyori.adventure.text.Component;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.SnbtPrinterTagVisitor;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Unit;
 import net.minecraft.world.item.Rarity;
@@ -354,7 +354,9 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
     @Override
     public String toSNBT() {
-        return new SnbtPrinterTagVisitor().visit(itemStack.save(MinecraftServer.getServer().registryAccess()));
+        CompoundTag compoundTag = (CompoundTag) itemStack.save(MinecraftServer.getServer().registryAccess());
+        compoundTag.putInt("DataVersion", CraftMagicNumbers.INSTANCE.getDataVersion());
+        return new SnbtPrinterTagVisitor().visit((Tag) compoundTag);
     }
 
     @Override
