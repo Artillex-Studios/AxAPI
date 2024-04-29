@@ -239,7 +239,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
     @Override
     public <T> T get(DataComponent<T> component) {
         if (component == DataComponent.CUSTOM_DATA) {
-            return (T) new CompoundTag(itemStack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag());
+            return (T) new CompoundTag(itemStack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.of(new net.minecraft.nbt.CompoundTag())).getUnsafe());
         } else if (component == DataComponent.MAX_STACK_SIZE) {
             return (T) itemStack.getOrDefault(DataComponents.MAX_STACK_SIZE, 0);
         } else if (component == DataComponent.MAX_DAMAGE) {

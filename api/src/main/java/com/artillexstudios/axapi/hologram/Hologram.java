@@ -1,13 +1,14 @@
 package com.artillexstudios.axapi.hologram;
 
 import com.artillexstudios.axapi.collections.ThreadSafeList;
+import com.artillexstudios.axapi.utils.ClassUtils;
 import com.artillexstudios.axapi.utils.Pair;
 import com.artillexstudios.axapi.utils.placeholder.Placeholder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.WeakHashMap;
 
@@ -27,6 +28,10 @@ public class Hologram {
         this.lineSpace = lineSpace;
         this.location = location;
         this.id = id;
+
+        if (ClassUtils.INSTANCE.classExists("me.clip.placeholderapi.PlaceholderAPI")) {
+            addPlaceholder(new Placeholder(PlaceholderAPI::setPlaceholders));
+        }
     }
 
     public void teleport(Location location) {
