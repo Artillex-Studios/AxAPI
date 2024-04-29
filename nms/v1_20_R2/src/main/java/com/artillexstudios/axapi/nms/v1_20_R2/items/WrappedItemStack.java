@@ -200,6 +200,10 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
             getCompoundTag().putBoolean("Unbreakable", true);
         } else if (component == DataComponent.CUSTOM_NAME) {
+            if (this.tag == null) {
+                this.tag = new CompoundTag();
+            }
+
             if (value == null) {
                 setDisplayTag(this.tag, "Name", null);
                 return;
@@ -207,6 +211,10 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
             setDisplayTag(this.tag, "Name", StringTag.valueOf(GsonComponentSerializer.gson().serialize((Component) value)));
         } else if (component == DataComponent.ITEM_NAME) {
+            if (this.tag == null) {
+                this.tag = new CompoundTag();
+            }
+
             if (value == null) {
                 setDisplayTag(this.tag, "Name", null);
                 return;

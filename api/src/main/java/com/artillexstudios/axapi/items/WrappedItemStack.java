@@ -12,6 +12,14 @@ public interface WrappedItemStack {
         return NMSHandlers.getNmsHandler().wrapItem(itemStack);
     }
 
+    static WrappedItemStack wrap(byte[] bytes) {
+        return NMSHandlers.getNmsHandler().wrapItem(bytes);
+    }
+
+    static WrappedItemStack wrap(String snbt) {
+        return NMSHandlers.getNmsHandler().wrapItem(snbt);
+    }
+
     static <T> T edit(ItemStack itemStack, Function<WrappedItemStack, T> function) {
         WrappedItemStack wrapped = wrap(itemStack);
         T result = function.apply(wrapped);
