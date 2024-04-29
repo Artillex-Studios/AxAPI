@@ -87,9 +87,9 @@ public abstract class AxPlugin extends JavaPlugin {
                 Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
                     Holograms.getMap(map -> {
                         map.forEach((id, line) -> {
-                            if (!line.containsPlaceholders()) return;
+                            if (!line.hasPlaceholders()) return;
 
-                            line.getEntity().sendMetaUpdate();
+                            line.update();
                         });
                     });
                 }, 0, FeatureFlags.HOLOGRAM_UPDATE_TICKS.get() * 50, TimeUnit.MILLISECONDS);

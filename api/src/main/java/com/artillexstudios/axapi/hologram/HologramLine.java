@@ -202,6 +202,10 @@ public class HologramLine {
         return type;
     }
 
+    public void update() {
+        packetEntity.sendMetaUpdate();
+    }
+
     public ThreadSafeList<Placeholder> placeholders() {
         return placeholders;
     }
