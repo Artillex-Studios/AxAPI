@@ -130,8 +130,8 @@ public class EntityTracker implements PacketEntityTracker {
             double d1 = dx * dx + dz * dz;
             boolean flag = d1 <= entity.getViewDistanceSquared();
 
-            if (entity.predicate != null && !entity.predicate.test(player.getBukkitEntity())) {
-                return;
+            if (!entity.canSee(player.getBukkitEntity())) {
+                flag = false;
             }
 
             if (flag) {

@@ -45,10 +45,12 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -64,6 +66,8 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     private final List<Consumer<PacketEntityInteractEvent>> eventConsumers = new ArrayList<>();
     private final NonNullList<net.minecraft.world.item.ItemStack> handSlots;
     private final NonNullList<net.minecraft.world.item.ItemStack> armorSlots;
+    private final Set<Player> invertedVisibilityEntities = Collections.newSetFromMap(new WeakHashMap<>());
+    private boolean visibleByDefault = true;
     public boolean invisible = false;
     public boolean silent = false;
     public com.artillexstudios.axapi.nms.v1_18_R1.entity.SynchedEntityData data;
@@ -219,12 +223,20 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
 
     @Override
     public void show(Player player) {
-
+        if (this.visibleByDefault) {
+            this.invertedVisibilityEntities.remove(player);
+        } else {
+            this.invertedVisibilityEntities.add(player);
+        }
     }
 
     @Override
     public void hide(Player player) {
-
+        if (this.visibleByDefault) {
+            this.invertedVisibilityEntities.add(player);
+        } else {
+            this.invertedVisibilityEntities.remove(player);
+        }
     }
 
     @Override
@@ -287,6 +299,19 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     @Override
     public void setGravity(boolean gravity) {
         data.set(EntityData.GRAVITY, !gravity);
+    }
+
+    @Override
+    public void setVisibleByDefault(boolean invisibleByDefault) {
+        this.visibleByDefault = invisibleByDefault;
+    }
+
+    public boolean canSee(Player player) {
+        if (predicate != null && predicate.test(player)) {
+            return visibleByDefault ^ invertedVisibilityEntities.contains(player);
+        }
+
+        return visibleByDefault ^ invertedVisibilityEntities.contains(player);
     }
 
     @Override

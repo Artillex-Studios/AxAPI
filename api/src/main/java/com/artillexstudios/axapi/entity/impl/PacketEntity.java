@@ -96,6 +96,8 @@ public interface PacketEntity {
 
     void setGravity(boolean gravity);
 
+    void setVisibleByDefault(boolean visibleByDefault);
+
     void ride(PacketEntity entity);
 
     void unRide();

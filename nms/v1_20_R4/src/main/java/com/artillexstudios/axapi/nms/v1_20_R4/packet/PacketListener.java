@@ -1,12 +1,12 @@
 package com.artillexstudios.axapi.nms.v1_20_R4.packet;
 
 import com.artillexstudios.axapi.AxPlugin;
+import com.artillexstudios.axapi.collections.ThreadSafeList;
 import com.artillexstudios.axapi.entity.impl.PacketEntity;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.gui.SignInput;
 import com.artillexstudios.axapi.hologram.HologramLine;
 import com.artillexstudios.axapi.hologram.Holograms;
-import com.artillexstudios.axapi.hologram.impl.ComponentHologramLine;
 import com.artillexstudios.axapi.items.PacketItemModifier;
 import com.artillexstudios.axapi.nms.v1_20_R4.entity.EntityData;
 import com.artillexstudios.axapi.nms.v1_20_R4.items.WrappedItemStack;
@@ -151,9 +151,9 @@ public class PacketListener extends ChannelDuplexHandler {
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
         if (msg instanceof ClientboundSetEntityDataPacket dataPacket) {
-            HologramLine<?> line = Holograms.byId(dataPacket.id());
+            HologramLine line = Holograms.byId(dataPacket.id());
 
-            if (!(line instanceof ComponentHologramLine)) {
+            if (line == null || (line.type() != HologramLine.Type.TEXT || !line.hasPlaceholders())) {
                 // The entity is not a packet entity, skip!
                 super.write(ctx, msg, promise);
                 return;
@@ -194,7 +194,9 @@ public class PacketListener extends ChannelDuplexHandler {
                     return;
                 }
 
-                for (Placeholder placeholder : line.getPlaceholders()) {
+                ThreadSafeList<Placeholder> placeholders = line.placeholders();
+                for (int i = 0; i < placeholders.size(); i++) {
+                    Placeholder placeholder = placeholders.get(i);
                     if (placeholder instanceof StaticPlaceholder) continue;
                     legacy = placeholder.parse(player, legacy);
                 }

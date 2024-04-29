@@ -35,13 +35,12 @@ import java.lang.reflect.Field;
 import java.util.Locale;
 
 public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
-    private static final String PACKET_HANDLER = "packet_handler";
-    private final String axApiHandler;
+    private final String AXAPI_HANDLER;
     private Field channelField;
     private Field connectionField;
 
     public NMSHandler(JavaPlugin plugin) {
-        axApiHandler = "axapi_handler_" + plugin.getName().toLowerCase(Locale.ENGLISH);
+        AXAPI_HANDLER = "axapi_handler_" + plugin.getName().toLowerCase(Locale.ENGLISH);
 
         try {
             connectionField = Class.forName("net.minecraft.server.network.ServerCommonPacketListenerImpl").getDeclaredField("e");
@@ -79,16 +78,16 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
 
         var channel = getChannel(getConnection(serverPlayer.connection));
 
-        if (!channel.pipeline().names().contains(axApiHandler)) {
+        if (!channel.pipeline().names().contains(PACKET_HANDLER)) {
             return;
         }
 
-        if (channel.pipeline().names().contains(axApiHandler)) {
+        if (channel.pipeline().names().contains(AXAPI_HANDLER)) {
             return;
         }
 
         channel.eventLoop().submit(() -> {
-            channel.pipeline().addBefore(PACKET_HANDLER, axApiHandler, new PacketListener(player));
+            channel.pipeline().addBefore(PACKET_HANDLER, AXAPI_HANDLER, new PacketListener(player));
         });
     }
 
@@ -99,8 +98,8 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
         var channel = getChannel(getConnection(serverPlayer.connection));
 
         channel.eventLoop().submit(() -> {
-            if (channel.pipeline().get(axApiHandler) != null) {
-                channel.pipeline().remove(axApiHandler);
+            if (channel.pipeline().get(AXAPI_HANDLER) != null) {
+                channel.pipeline().remove(AXAPI_HANDLER);
             }
         });
     }

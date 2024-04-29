@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.util.function.Consumer;
 
 public interface PacketEntityFactory {
-    static final Logger log = LoggerFactory.getLogger(PacketEntityFactory.class);
+    Logger log = LoggerFactory.getLogger(PacketEntityFactory.class);
 
     static PacketEntityFactory get() {
         if (AxPlugin.tracker == null) {

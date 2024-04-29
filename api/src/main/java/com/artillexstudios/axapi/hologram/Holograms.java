@@ -6,10 +6,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 
 public class Holograms {
-    private static final Int2ObjectLinkedOpenHashMap<HologramLine<?>> linesMap = new Int2ObjectLinkedOpenHashMap<>();
+    private static final Int2ObjectLinkedOpenHashMap<HologramLine> linesMap = new Int2ObjectLinkedOpenHashMap<>();
     private static final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
-    public static void put(int entityId, HologramLine<?> line) {
+    public static void put(int entityId, HologramLine line) {
         lock.writeLock().lock();
         try {
             linesMap.put(entityId, line);
@@ -27,7 +27,7 @@ public class Holograms {
         }
     }
 
-    public static HologramLine<?> byId(int entityId) {
+    public static HologramLine byId(int entityId) {
         lock.readLock().lock();
         try {
             return linesMap.get(entityId);
@@ -36,7 +36,7 @@ public class Holograms {
         }
     }
 
-    public static void getMap(Consumer<Int2ObjectLinkedOpenHashMap<HologramLine<?>>> map) {
+    public static void getMap(Consumer<Int2ObjectLinkedOpenHashMap<HologramLine>> map) {
         lock.readLock().lock();
         try {
             map.accept(linesMap);

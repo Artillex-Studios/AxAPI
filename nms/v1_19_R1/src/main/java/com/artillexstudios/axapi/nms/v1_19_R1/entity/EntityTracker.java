@@ -133,8 +133,8 @@ public class EntityTracker implements PacketEntityTracker {
                 flag = false;
             }
 
-            if (entity.predicate != null && !entity.predicate.test(player.getBukkitEntity())) {
-                return;
+            if (!entity.canSee(player.getBukkitEntity())) {
+                flag = false;
             }
 
             if (flag) {

@@ -5,8 +5,11 @@ import com.artillexstudios.axapi.items.component.DyedColor;
 import com.artillexstudios.axapi.items.component.ItemEnchantments;
 import com.artillexstudios.axapi.items.component.ItemLore;
 import com.artillexstudios.axapi.items.component.ProfileProperties;
+import com.artillexstudios.axapi.items.component.Unbreakable;
+import com.artillexstudios.axapi.items.component.Unit;
 import com.artillexstudios.axapi.nms.v1_20_R3.ItemStackSerializer;
 import com.artillexstudios.axapi.utils.FastFieldAccessor;
+import it.unimi.dsi.fastutil.objects.Object2IntAVLTreeMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
@@ -17,13 +20,12 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.SnbtPrinterTagVisitor;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
+import org.bukkit.Color;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_20_R3.enchantments.CraftEnchantment;
 import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_20_R3.potion.CraftPotionType;
@@ -37,11 +39,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.UUID;
 
 public class WrappedItemStack implements com.artillexstudios.axapi.items.WrappedItemStack {
     private static final FastFieldAccessor HANDLE_ACCESSOR = FastFieldAccessor.forClassField(CraftItemStack.class, "handle");
@@ -124,42 +125,6 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
         return Collections.emptyList();
     }
 
-
-    public Map<Enchantment, Integer> getEnchantments() {
-        ListTag tags = this.parent.getEnchantmentTags();
-        HashMap<Enchantment, Integer> foundEnchants = new HashMap<>(tags.size());
-
-        for (int i = 0; i < tags.size(); i++) {
-            CompoundTag compound = (CompoundTag) tags.get(i);
-            String key = compound.getString("id");
-            int level = 0xffff & compound.getShort("lvl");
-            Enchantment found = Enchantment.getByKey(NamespacedKey.minecraft(key));
-            if (found != null) {
-                foundEnchants.put(found, level);
-            }
-        }
-
-        return foundEnchants;
-    }
-
-
-    public int getEnchantmentLevel(Enchantment enchantment) {
-        ListTag tags = this.parent.getEnchantmentTags();
-        String enchantKey = enchantment.getKey().toString();
-
-        for (int i = 0; i < tags.size(); i++) {
-            CompoundTag compound = (CompoundTag) tags.get(i);
-            String key = compound.getString("id");
-            if (!key.equals(enchantKey)) {
-                continue;
-            }
-
-            return 0xffff & compound.getShort("lvl");
-        }
-
-        return 0;
-    }
-
     public void addItemFlags(ItemFlag... itemFlags) {
         if (tag == null) {
             tag = new CompoundTag();
@@ -184,17 +149,6 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
         }
 
         tag.putInt("HideFlags", flag);
-    }
-
-    public Set<ItemFlag> getItemFlags() {
-        Set<ItemFlag> flags = new HashSet<>(ItemFlag.values().length);
-
-        for (ItemFlag flag : ItemFlag.values()) {
-            if (!hasItemFlag(flag)) continue;
-            flags.add(flag);
-        }
-
-        return flags;
     }
 
     public boolean hasItemFlag(ItemFlag itemFlag) {
@@ -392,17 +346,119 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
     @Override
     public <T> T get(DataComponent<T> component) {
+        if (component == DataComponent.CUSTOM_DATA) {
+            return (T) getCompoundTag();
+        } else if (component == DataComponent.MAX_STACK_SIZE) {
+            return (T) Integer.valueOf(0);
+        } else if (component == DataComponent.MAX_DAMAGE) {
+            return (T) Integer.valueOf(0);
+        } else if (component == DataComponent.DAMAGE) {
+            return (T) Integer.valueOf(parent.getDamageValue());
+        } else if (component == DataComponent.UNBREAKABLE) {
+            boolean contains = getCompoundTag().contains("Unbreakable");
+            return contains ? (T) new Unbreakable(!hasItemFlag(ItemFlag.HIDE_UNBREAKABLE)) : null;
+        } else if (component == DataComponent.CUSTOM_NAME) {
+            return (T) getName();
+        } else if (component == DataComponent.ITEM_NAME) {
+            return (T) getName();
+        } else if (component == DataComponent.LORE) {
+            return (T) new ItemLore(getLore());
+        } else if (component == DataComponent.RARITY) {
+            return null;
+        } else if (component == DataComponent.ENCHANTMENTS) {
+            var enchants = EnchantmentHelper.getEnchantments(parent);
+            Object2IntAVLTreeMap<Enchantment> enchantments = new Object2IntAVLTreeMap<>();
+            for (Map.Entry<net.minecraft.world.item.enchantment.Enchantment, Integer> entry : enchants.entrySet()) {
+                enchantments.put(CraftEnchantment.minecraftToBukkit(entry.getKey()), entry.getValue().intValue());
+            }
+
+            return (T) new ItemEnchantments(enchantments, !hasItemFlag(ItemFlag.HIDE_ENCHANTS));
+        } else if (component == DataComponent.CUSTOM_MODEL_DATA) {
+            return (T) Integer.valueOf(getCompoundTag().getInt("CustomModelData"));
+        } else if (component == DataComponent.HIDE_ADDITIONAL_TOOLTIP) {
+            return hasItemFlag(ItemFlag.HIDE_ITEM_SPECIFICS) ? (T) Unit.INSTANCE : null;
+        } else if (component == DataComponent.HIDE_TOOLTIP) {
+            return hasItemFlag(ItemFlag.HIDE_ENCHANTS) ? (T) Unit.INSTANCE : null;
+        } else if (component == DataComponent.REPAIR_COST) {
+            return (T) Integer.valueOf(parent.getBaseRepairCost());
+        } else if (component == DataComponent.CREATIVE_SLOT_LOCK) {
+            return null;
+        } else if (component == DataComponent.ENCHANTMENT_GLINT_OVERRIDE) {
+            set(DataComponent.ENCHANTMENTS, get(DataComponent.ENCHANTMENTS).add(Enchantment.LOYALTY, 1));
+            addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        } else if (component == DataComponent.INTANGIBLE_PROJECTILE) {
+            return null;
+        } else if (component == DataComponent.STORED_ENCHANTMENTS) {
+            var enchants = EnchantmentHelper.getEnchantments(parent);
+            Object2IntAVLTreeMap<Enchantment> enchantments = new Object2IntAVLTreeMap<>();
+            for (Map.Entry<net.minecraft.world.item.enchantment.Enchantment, Integer> entry : enchants.entrySet()) {
+                enchantments.put(CraftEnchantment.minecraftToBukkit(entry.getKey()), entry.getValue().intValue());
+            }
+
+            return (T) new ItemEnchantments(enchantments, !hasItemFlag(ItemFlag.HIDE_ENCHANTS));
+        } else if (component == DataComponent.PROFILE) {
+            if (tag == null) {
+                tag = new CompoundTag();
+            }
+
+            ProfileProperties profileProperties = new ProfileProperties(UUID.randomUUID(), "skull");
+            CompoundTag skullOwner = tag.getCompound("SkullOwner");
+            CompoundTag propertiesTag = skullOwner.getCompound("Properties");
+            ListTag tag = propertiesTag.getList("textures", 10);
+            String textures = "";
+            for (Tag tag1 : tag) {
+                CompoundTag compoundTag = (CompoundTag) tag1;
+                textures = compoundTag.getString("Value");
+                break;
+            }
+
+            profileProperties.put("textures", new ProfileProperties.Property("textures", textures, null));
+            return (T) profileProperties;
+        } else if (component == DataComponent.MATERIAL) {
+            return (T) CraftMagicNumbers.getMaterial(this.parent.getItem());
+        } else if (component == DataComponent.DYED_COLOR) {
+            if (tag == null) {
+                tag = new CompoundTag();
+            }
+
+
+            return (T) new DyedColor(Color.fromRGB(tag.getInt("Color")), hasItemFlag(ItemFlag.HIDE_DYE));
+        } else if (component == DataComponent.POTION_CONTENTS) {
+            if (tag == null) {
+                tag = new CompoundTag();
+            }
+
+            return (T) CraftPotionType.stringToBukkit(tag.getString("Potion"));
+        }
+
         return null;
     }
 
-    @Override
-    public void setAmount(int amount) {
-        this.parent.setCount(amount);
+    public Component getName() {
+        if (tag == null) {
+            return Component.empty();
+        }
+
+        if (!tag.contains(DISPLAY_TAG)) {
+            return Component.empty();
+        }
+
+        CompoundTag display = tag.getCompound(DISPLAY_TAG);
+        if (display.contains("Name")) {
+            return net.kyori.adventure.text.serializer.gson.GsonComponentSerializer.gson().deserialize(display.getString("Name"));
+        }
+
+        return Component.empty();
     }
 
     @Override
     public int getAmount() {
         return parent.getCount();
+    }
+
+    @Override
+    public void setAmount(int amount) {
+        this.parent.setCount(amount);
     }
 
     @Override

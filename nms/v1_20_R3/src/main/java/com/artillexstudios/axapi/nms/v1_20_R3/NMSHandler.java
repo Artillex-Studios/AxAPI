@@ -48,7 +48,6 @@ import java.lang.reflect.Field;
 import java.util.Locale;
 
 public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
-    private static final String PACKET_HANDLER = "packet_handler";
     private final String AXAPI_HANDLER;
     private Field channelField;
     private Field connectionField;
@@ -177,7 +176,7 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
 
     @Override
     public WrappedItemStack wrapItem(byte[] bytes) {
-        return null;
+        return wrapItem(ItemStackSerializer.INSTANCE.deserializeFromBytes(bytes));
     }
 
     @Override

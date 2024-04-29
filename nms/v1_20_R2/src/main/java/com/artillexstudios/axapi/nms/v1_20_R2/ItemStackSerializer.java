@@ -3,6 +3,7 @@ package com.artillexstudios.axapi.nms.v1_20_R2;
 import com.google.common.base.Preconditions;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.MinecraftServer;
@@ -15,7 +16,8 @@ import org.bukkit.inventory.ItemStack;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
-public class ItemStackSerializer {
+public enum ItemStackSerializer {
+    INSTANCE;
 
     public byte[] serializeAsBytes(ItemStack itemStack) {
         Preconditions.checkArgument(itemStack != null, "Can't serialise a null itemstack!");

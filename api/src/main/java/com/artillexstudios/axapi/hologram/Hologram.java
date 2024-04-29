@@ -1,41 +1,166 @@
 package com.artillexstudios.axapi.hologram;
+
+import com.artillexstudios.axapi.collections.ThreadSafeList;
+import com.artillexstudios.axapi.utils.Pair;
 import com.artillexstudios.axapi.utils.placeholder.Placeholder;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.WeakHashMap;
 
-public interface Hologram {
+public class Hologram {
+    private final WeakHashMap<Player, Integer> playerPages = new WeakHashMap<>();
+    private final ObjectArrayList<Placeholder> placeholders = new ObjectArrayList<>(5);
+    private final ThreadSafeList<HologramPage> pages = new ThreadSafeList<>();
+    private final double lineSpace;
+    private Location location;
+    private String id;
 
-    List<HologramLine<?>> getLines();
+    public Hologram(Location location, String id) {
+        this(location, id, 0.75);
+    }
 
-    @NotNull
-    UUID getID();
+    public Hologram(Location location, String id, double lineSpace) {
+        this.lineSpace = lineSpace;
+        this.location = location;
+        this.id = id;
+    }
 
-    <T> void addLine(@NotNull T content);
+    public void teleport(Location location) {
+        this.location = location;
 
-    <T> void setLine(int line, @NotNull T content);
+        for (int i = 0; i < pages.size(); i++) {
+            HologramPage page = pages.get(i);
+            page.realign();
+        }
+    }
 
-    @Nullable
-    HologramLine<?> getLine(int line);
+    public void addLine(String content, HologramLine.Type type) {
+        HologramPage page;
+        if (pages.isEmpty()) {
+            page = newPage();
+        } else {
+            page = pages.get(0);
+        }
 
-    @NotNull
-    Location getLocation();
+        page.addLine(content, type);
+    }
 
-    void teleport(@NotNull Location location);
+    public void addLines(List<Pair<String, HologramLine.Type>> lines) {
+        for (Pair<String, HologramLine.Type> line : lines) {
+            addLine(line.getFirst(), line.getSecond());
+        }
+    }
 
-    void show(@NotNull Player player);
+    public void remove() {
+        for (int i = 0; i < pages.size(); i++) {
+            HologramPage page = pages.get(i);
+            page.remove();
+        }
+    }
 
-    void hide(@NotNull Player player);
+    /**
+     * Set a line of a hologram
+     * @param pageIndex The page, starting at 0
+     * @param lineIndex The line, starting at 0
+     * @param content The content
+     */
+    public void setLine(int pageIndex, int lineIndex, String content) {
+        HologramPage page = pages.get(pageIndex);
+        HologramLine line = page.getLine(lineIndex);
+        line.setContent(content);
+    }
 
-    void remove();
+    public void addPlaceholder(Placeholder placeholder) {
+        this.placeholders.add(placeholder);
 
-    void removeLine(int line);
+        for (int i = 0; i < pages.size(); i++) {
+            HologramPage page = this.pages.get(i);
+            page.addPlaceholder(placeholder);
+        }
+    }
 
-    <T> void setLines(List<T> content);
+    public ObjectArrayList<Placeholder> placeholders() {
+        return placeholders;
+    }
 
-    void addPlaceholder(Placeholder placeholder);
+    public HologramPage newPage() {
+        HologramPage page = new HologramPage(this);
+        this.pages.add(page);
+        return page;
+    }
+
+    public void setLine(int lineIndex, String content) {
+        setLine(0, lineIndex, content);
+    }
+
+    public void addPage(HologramPage page) {
+        this.pages.add(page);
+
+        for (int i = 0; i < placeholders.size(); i++) {
+            Placeholder placeholder = this.placeholders.get(i);
+            page.addPlaceholder(placeholder);
+        }
+    }
+
+    public void removePage(HologramPage page) {
+        this.pages.remove(page);
+    }
+
+
+    public HologramPage page(int pageIndex) {
+        return this.pages.get(pageIndex);
+    }
+
+    public void changePage(Player player, PageChangeDirection direction) {
+        if (pages.isEmpty() || pages.size() == 1) {
+            // No other page
+            return;
+        }
+
+        Integer page = playerPages.get(player);
+
+        if (direction == PageChangeDirection.BACK) {
+            int current = page == null ? 0 : page;
+
+            if (current - 1 <= 0) {
+                // Already on first page
+                return;
+            }
+
+            HologramPage previousPage = pages.get(current);
+            previousPage.hide(player);
+
+            HologramPage newPage = pages.get(current - 1);
+            newPage.show(player);
+            playerPages.put(player, current - 1);
+        } else {
+            HologramPage previousPage = pages.get(page == null ? 0 : page);
+            previousPage.hide(player);
+
+            HologramPage newPage = pages.get((page == null ? 0 : page) + 1);
+            newPage.show(player);
+            playerPages.put(player, (page == null ? 0 : page) + 1);
+        }
+    }
+
+    public double lineSpace() {
+        return lineSpace;
+    }
+
+    public Location location() {
+        return location;
+    }
+
+    public String id() {
+        return id;
+    }
+
+    public enum PageChangeDirection {
+        BACK,
+        FORWARD
+    }
 }

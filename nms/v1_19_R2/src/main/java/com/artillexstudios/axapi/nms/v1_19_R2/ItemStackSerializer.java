@@ -15,7 +15,8 @@ import org.bukkit.inventory.ItemStack;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
-public class ItemStackSerializer {
+public enum ItemStackSerializer {
+    INSTANCE;
 
     public byte[] serializeAsBytes(ItemStack itemStack) {
         Preconditions.checkArgument(itemStack != null, "Can't serialise a null itemstack!");

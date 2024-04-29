@@ -65,6 +65,10 @@ public class PaperUtils {
         return IMPLEMENTATION.isChunkGenerated(world, x, z);
     }
 
+    public static boolean isPaper() {
+        return IMPLEMENTATION instanceof ServerImplementationPaper;
+    }
+
     public static boolean isFolia() {
         return FOLIA;
     }

@@ -23,13 +23,14 @@ public abstract class FastMethodInvoker {
         try {
             return create(Class.forName(clazz).getDeclaredMethod(method, parameters));
         } catch (Exception exception) {
-            log.error("An unexpected error occurred while creating new FastMethodInvoker for class {}, method {}!", clazz, method);
+            log.error("An unexpected error occurred while creating new FastMethodInvoker for class {}, method {}!", clazz, method, exception);
             throw new RuntimeException(exception);
         }
     }
 
     public static FastMethodInvoker create(Method method) {
         FastMethodInvoker invoker = null;
+        method.setAccessible(true);
         if (method.getParameters().length == 0) {
             java.lang.Class<?> returnType = method.getReturnType();
             if (returnType == void.class) {
@@ -93,12 +94,14 @@ public abstract class FastMethodInvoker {
 
         private FastStaticRunnableInvoker(Method method) {
             try {
+                MethodHandle handle = MethodHandles.lookup().unreflect(method);
+
                 CallSite callSite = LambdaMetafactory.metafactory(MethodHandles.lookup(), "run",
-                        MethodType.methodType(Runnable.class),
+                        MethodType.methodType(Runnable.class, MethodHandle.class),
                         MethodType.methodType(void.class),
-                        MethodHandles.publicLookup().unreflect(method),
+                        MethodHandles.exactInvoker(handle.type()),
                         MethodType.methodType(void.class));
-                runnable = (Runnable) callSite.getTarget().invokeExact();
+                runnable = (Runnable) callSite.getTarget().invokeExact(handle);
             } catch (Throwable throwable) {
                 throw new RuntimeException(throwable);
             }
@@ -116,15 +119,16 @@ public abstract class FastMethodInvoker {
 
         private FastInstanceRunnableInvoker(Method method) {
             try {
-                java.lang.invoke.MethodHandle handle = MethodHandles.publicLookup().unreflect(method);
+                MethodHandle handle = MethodHandles.lookup().unreflect(method);
+
                 CallSite callSite = LambdaMetafactory.metafactory(MethodHandles.lookup(),
                         "accept",
-                        MethodType.methodType(Consumer.class),
+                        MethodType.methodType(Consumer.class, MethodHandle.class),
                         MethodType.methodType(void.class, Object.class),
-                        handle,
+                        MethodHandles.exactInvoker(handle.type()),
                         handle.type());
 
-                consumer = (Consumer<Object>) callSite.getTarget().invokeExact();
+                consumer = (Consumer<Object>) callSite.getTarget().invokeExact(handle);
             } catch (Throwable throwable) {
                 throw new RuntimeException(throwable);
             }
@@ -142,12 +146,14 @@ public abstract class FastMethodInvoker {
 
         private FastStaticSupplierInvoker(Method method) {
             try {
+                MethodHandle handle = MethodHandles.lookup().unreflect(method);
+
                 CallSite callSite = LambdaMetafactory.metafactory(MethodHandles.lookup(), "get",
-                        MethodType.methodType(Supplier.class),
+                        MethodType.methodType(Supplier.class, MethodHandle.class),
                         MethodType.methodType(Object.class),
-                        MethodHandles.publicLookup().unreflect(method),
-                        MethodType.methodType(Object.class));
-                supplier = (Supplier<?>) callSite.getTarget().invokeExact();
+                        MethodHandles.exactInvoker(handle.type()),
+                        handle.type());
+                supplier = (Supplier<?>) callSite.getTarget().invokeExact(handle);
             } catch (Throwable throwable) {
                 throw new RuntimeException(throwable);
             }
@@ -164,13 +170,14 @@ public abstract class FastMethodInvoker {
 
         private FastInstanceSupplierInvoker(Method method) {
             try {
-                java.lang.invoke.MethodHandle handle = MethodHandles.publicLookup().unreflect(method);
+                MethodHandle handle = MethodHandles.lookup().unreflect(method);
+
                 CallSite callSite = LambdaMetafactory.metafactory(MethodHandles.lookup(), "apply",
-                        MethodType.methodType(Function.class),
+                        MethodType.methodType(Function.class, MethodHandle.class),
                         MethodType.methodType(Object.class, Object.class),
-                        handle,
+                        MethodHandles.exactInvoker(handle.type()),
                         handle.type());
-                supplier = (Function<Object, Object>) callSite.getTarget().invokeExact();
+                supplier = (Function<Object, Object>) callSite.getTarget().invokeExact(handle);
             } catch (Throwable throwable) {
                 throw new RuntimeException(throwable);
             }
@@ -187,13 +194,14 @@ public abstract class FastMethodInvoker {
 
         private FastStaticBiSupplierInvoker(Method method) {
             try {
-                MethodHandle handle = MethodHandles.publicLookup().unreflect(method);
+                MethodHandle handle = MethodHandles.lookup().unreflect(method);
+
                 CallSite callSite = LambdaMetafactory.metafactory(MethodHandles.lookup(), "accept",
-                        MethodType.methodType(Consumer.class),
+                        MethodType.methodType(Consumer.class, MethodHandle.class),
                         MethodType.methodType(void.class, Object.class),
-                        handle,
+                        MethodHandles.exactInvoker(handle.type()),
                         handle.type());
-                supplier = (Consumer<Object>) callSite.getTarget().invokeExact();
+                supplier = (Consumer<Object>) callSite.getTarget().invokeExact(handle);
             } catch (Throwable throwable) {
                 throw new RuntimeException(throwable);
             }
@@ -211,13 +219,14 @@ public abstract class FastMethodInvoker {
 
         private FastInstanceBiSupplierInvoker(Method method) {
             try {
-                MethodHandle handle = MethodHandles.publicLookup().unreflect(method);
+                MethodHandle handle = MethodHandles.lookup().unreflect(method);
                 CallSite callSite = LambdaMetafactory.metafactory(MethodHandles.lookup(), "accept",
-                        MethodType.methodType(BiConsumer.class),
+                        MethodType.methodType(BiConsumer.class, MethodHandle.class),
                         MethodType.methodType(void.class, Object.class, Object.class),
-                        handle,
+                        MethodHandles.exactInvoker(handle.type()),
                         handle.type());
-                supplier = (BiConsumer<Object, Object>) callSite.getTarget().invokeExact();
+                supplier = (BiConsumer<Object, Object>) callSite.getTarget().invokeExact(handle);
+                ;
             } catch (Throwable throwable) {
                 throw new RuntimeException(throwable);
             }
@@ -236,13 +245,14 @@ public abstract class FastMethodInvoker {
         // 1 parameter, 1 return
         private FastStaticFunctionInvoker(Method method) {
             try {
-                java.lang.invoke.MethodHandle handle = MethodHandles.publicLookup().unreflect(method);
+                MethodHandle handle = MethodHandles.lookup().unreflect(method);
+
                 CallSite callSite = LambdaMetafactory.metafactory(MethodHandles.lookup(), "apply",
-                        MethodType.methodType(Function.class),
+                        MethodType.methodType(Function.class, MethodHandle.class),
                         MethodType.methodType(Object.class, Object.class),
-                        handle,
+                        MethodHandles.exactInvoker(handle.type()),
                         handle.type());
-                supplier = (Function<Object, Object>) callSite.getTarget().invokeExact();
+                supplier = (Function<Object, Object>) callSite.getTarget().invokeExact(handle);
             } catch (Throwable throwable) {
                 throw new RuntimeException(throwable);
             }
@@ -260,13 +270,14 @@ public abstract class FastMethodInvoker {
         // 1 parameter, 1 return
         private FastInstanceFunctionInvoker(Method method) {
             try {
-                java.lang.invoke.MethodHandle handle = MethodHandles.publicLookup().unreflect(method);
+                MethodHandle handle = MethodHandles.lookup().unreflect(method);
+
                 CallSite callSite = LambdaMetafactory.metafactory(MethodHandles.lookup(), "apply",
-                        MethodType.methodType(BiFunction.class),
+                        MethodType.methodType(BiFunction.class, MethodHandle.class),
                         MethodType.methodType(Object.class, Object.class, Object.class),
-                        handle,
+                        MethodHandles.exactInvoker(handle.type()),
                         handle.type());
-                supplier = (BiFunction<Object, Object, Object>) callSite.getTarget().invokeExact();
+                supplier = (BiFunction<Object, Object, Object>) callSite.getTarget().invokeExact(handle);
             } catch (Throwable throwable) {
                 throw new RuntimeException(throwable);
             }
@@ -284,13 +295,14 @@ public abstract class FastMethodInvoker {
         // 2 parameter, 1 return
         private FastStaticBiFunctionInvoker(Method method) {
             try {
-                java.lang.invoke.MethodHandle handle = MethodHandles.publicLookup().unreflect(method);
+                MethodHandle handle = MethodHandles.lookup().unreflect(method);
+
                 CallSite callSite = LambdaMetafactory.metafactory(MethodHandles.lookup(), "apply",
-                        MethodType.methodType(BiFunction.class),
+                        MethodType.methodType(BiFunction.class, MethodHandle.class),
                         MethodType.methodType(Object.class, Object.class, Object.class),
-                        handle,
+                        MethodHandles.exactInvoker(handle.type()),
                         handle.type());
-                supplier = (BiFunction<Object, Object, Object>) callSite.getTarget().invokeExact();
+                supplier = (BiFunction<Object, Object, Object>) callSite.getTarget().invokeExact(handle);
             } catch (Throwable throwable) {
                 throw new RuntimeException(throwable);
             }
@@ -308,13 +320,14 @@ public abstract class FastMethodInvoker {
         // 2 parameter, 1 return
         private FastInstanceBiFunctionInvoker(Method method) {
             try {
-                java.lang.invoke.MethodHandle handle = MethodHandles.publicLookup().unreflect(method);
+                MethodHandle handle = MethodHandles.lookup().unreflect(method);
+
                 CallSite callSite = LambdaMetafactory.metafactory(MethodHandles.lookup(), "apply",
-                        MethodType.methodType(TriFunction.class),
+                        MethodType.methodType(TriFunction.class, MethodHandle.class),
                         MethodType.methodType(Object.class, Object.class, Object.class, Object.class),
-                        handle,
+                        MethodHandles.exactInvoker(handle.type()),
                         handle.type());
-                supplier = (TriFunction<Object, Object, Object, Object>) callSite.getTarget().invokeExact();
+                supplier = (TriFunction<Object, Object, Object, Object>) callSite.getTarget().invokeExact(handle);
             } catch (Throwable throwable) {
                 throw new RuntimeException(throwable);
             }
@@ -327,11 +340,11 @@ public abstract class FastMethodInvoker {
     }
 
     private static final class MethodHandleFallbackInvoker extends FastMethodInvoker {
-        java.lang.invoke.MethodHandle handle;
+        MethodHandle handle;
 
         private MethodHandleFallbackInvoker(Method method) {
             try {
-                handle = MethodHandles.publicLookup().unreflect(method);
+                handle = MethodHandles.lookup().unreflect(method);
             } catch (Throwable throwable) {
                 throw new RuntimeException(throwable);
             }
