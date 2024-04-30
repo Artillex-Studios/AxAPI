@@ -196,35 +196,35 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
             getCompoundTag().putBoolean("Unbreakable", true);
         } else if (component == DataComponent.CUSTOM_NAME) {
-            if (this.tag == null) {
-                this.tag = new CompoundTag();
+            if (value == null) {
+                setDisplayTag(new CompoundTag(), "Name", null);
+                return;
             }
 
-            if (value == null) {
-                setDisplayTag(this.tag, "Name", null);
-                return;
+            if (this.tag == null) {
+                this.tag = parent.getOrCreateTag();
             }
 
             setDisplayTag(this.tag, "Name", StringTag.valueOf(GsonComponentSerializer.gson().serialize((Component) value)));
         } else if (component == DataComponent.ITEM_NAME) {
-            if (this.tag == null) {
-                this.tag = new CompoundTag();
+            if (value == null) {
+                setDisplayTag(new CompoundTag(), "Name", null);
+                return;
             }
 
-            if (value == null) {
-                setDisplayTag(this.tag, "Name", null);
-                return;
+            if (this.tag == null) {
+                this.tag = parent.getOrCreateTag();
             }
 
             setDisplayTag(this.tag, "Name", StringTag.valueOf(GsonComponentSerializer.gson().serialize((Component) value)));
         } else if (component == DataComponent.LORE) {
-            if (this.tag == null) {
-                this.tag = new CompoundTag();
+            if (value == null) {
+                setDisplayTag(new CompoundTag(), "Lore", null);
+                return;
             }
 
-            if (value == null) {
-                setDisplayTag(this.tag, "Lore", null);
-                return;
+            if (this.tag == null) {
+                this.tag = parent.getOrCreateTag();
             }
 
             ListTag tag = new ListTag();
