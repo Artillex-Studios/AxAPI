@@ -320,7 +320,7 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
         for (net.minecraft.world.entity.EquipmentSlot slot : net.minecraft.world.entity.EquipmentSlot.values()) {
             var item = getItemBySlot(slot);
 
-            if (!item.isEmpty()) {
+            if (item != null && !item.isEmpty()) {
                 var sanitised = item.copy();
                 equipments.add(Pair.of(slot, sanitised));
             }
@@ -359,7 +359,7 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
                 var slot = equipmentSlots[j];
                 var item = getItemBySlot(slot);
 
-                if (!item.isEmpty()) {
+                if (item != null && !item.isEmpty()) {
                     var sanitised = item.copy();
                     equipments.add(Pair.of(slot, sanitised));
                 } else {
