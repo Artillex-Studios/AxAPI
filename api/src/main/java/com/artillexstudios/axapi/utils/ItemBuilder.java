@@ -192,7 +192,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setName(String name, TagResolver... resolvers) {
-        stack.set(DataComponent.ITEM_NAME, StringUtils.format(toTagResolver(name), resolvers));
+        stack.set(DataComponent.CUSTOM_NAME, StringUtils.format(toTagResolver(name), resolvers));
         return this;
     }
 
@@ -236,28 +236,50 @@ public class ItemBuilder {
         return this;
     }
 
-    public static String toTagResolver(String string) {
+    public static String toTagResolver(String string, TagResolver... resolvers) {
         if (!string.contains("%")) {
             return string;
         }
 
         char[] chars = string.toCharArray();
 
-        boolean first = true;
+        int start = -1;
+
         for (int i = 0; i < chars.length; i++) {
             char ch = chars[i];
             if (ch != '%') continue;
 
-            if (first) {
-                chars[i] = '<';
-                first = false;
+            if (start == -1) {
+                start = i;
             } else {
-                chars[i] = '>';
-                first = true;
+                StringBuilder builder = new StringBuilder();
+                for (int j = start; j <= i; j++) {
+                    builder.append(chars[j]);
+                }
+
+                if (contains(builder.toString(), resolvers)) {
+                    chars[start] = '<';
+                    chars[i] = '>';
+                }
+
+                start = -1;
             }
         }
 
         return new String(chars);
+    }
+
+    public static boolean contains(String string, TagResolver... resolvers) {
+        for (TagResolver resolver : resolvers) {
+            if (resolver instanceof TagResolver.Single) {
+                TagResolver.Single s = (TagResolver.Single) resolver;
+                if (string.contains(s.key())) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public static List<String> toTagResolver(List<String> lore) {
@@ -309,7 +331,7 @@ public class ItemBuilder {
             map.put("snbt", stack.toSNBT());
         } else {
             map.put("type", stack.get(DataComponent.MATERIAL).name());
-            map.put("name", MiniMessage.miniMessage().serialize(stack.get(DataComponent.ITEM_NAME)));
+            map.put("name", MiniMessage.miniMessage().serialize(stack.get(DataComponent.CUSTOM_NAME)));
             map.put("lore", Lists.transform(stack.get(DataComponent.LORE).lines(), a -> MiniMessage.miniMessage().serialize(a)));
             map.put("amount", stack.getAmount());
             map.put("custom-model-data", stack.get(DataComponent.CUSTOM_MODEL_DATA));
