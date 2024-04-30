@@ -16,7 +16,6 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
 import java.util.Locale;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -104,47 +103,44 @@ public class HologramLine {
 
         switch (type) {
             case ITEM_STACK: {
-                packetEntity = PacketEntityFactory.get().spawnEntity(location, EntityType.DROPPED_ITEM, entity -> {
-                    PacketItem item = (PacketItem) entity;
-                    item.setItemStack(NMSHandlers.getNmsHandler().wrapItem(this.content).toBukkit());
-                    item.setGravity(false);
-                });
+                packetEntity = PacketEntityFactory.get().spawnEntity(location, EntityType.DROPPED_ITEM);
+                PacketItem item = (PacketItem) packetEntity;
+                item.setItemStack(NMSHandlers.getNmsHandler().wrapItem(this.content).toBukkit());
+                item.setGravity(false);
                 break;
             }
             case HEAD: {
-                packetEntity = PacketEntityFactory.get().spawnEntity(location, EntityType.ARMOR_STAND, entity -> {
-                    entity.setItem(EquipmentSlot.HELMET, NMSHandlers.getNmsHandler().wrapItem(this.content).toBukkit());
-                    entity.setInvisible(true);
-                });
+                packetEntity = PacketEntityFactory.get().spawnEntity(location, EntityType.ARMOR_STAND);
+                packetEntity.setItem(EquipmentSlot.HELMET, NMSHandlers.getNmsHandler().wrapItem(this.content).toBukkit());
+                packetEntity.setInvisible(true);
                 break;
             }
             case TEXT: {
-                AtomicReference<String> contentReference = new AtomicReference<>(this.content);
-                packetEntity = PacketEntityFactory.get().spawnEntity(location, EntityType.ARMOR_STAND, entity -> {
-                    if (!contentReference.get().isEmpty()) {
-                        for (int i = 0; i < placeholders.size(); i++) {
-                            Placeholder placeholder = placeholders.get(i);
-                            if (placeholder instanceof StaticPlaceholder) {
-                                contentReference.set(placeholder.parse(null, contentReference.get()));
-                            }
-                        }
+                packetEntity = PacketEntityFactory.get().spawnEntity(location, EntityType.ARMOR_STAND);
 
-                        for (Pattern pattern : FeatureFlags.PLACEHOLDER_PATTERNS.get()) {
-                            Matcher matcher = pattern.matcher(contentReference.get());
-                            if (matcher.find()) {
-                                hasPlaceholders = true;
-                                return;
-                            }
+                if (!this.content.isEmpty()) {
+                    for (int i = 0; i < placeholders.size(); i++) {
+                        Placeholder placeholder = placeholders.get(i);
+                        if (placeholder instanceof StaticPlaceholder) {
+                            content = placeholder.parse(null, content);
                         }
-
-                        entity.setName(StringUtils.format(contentReference.get()));
-                    } else {
-                        entity.setName(null);
-                        hasPlaceholders = false;
                     }
 
-                    entity.setInvisible(true);
-                });
+                    for (Pattern pattern : FeatureFlags.PLACEHOLDER_PATTERNS.get()) {
+                        Matcher matcher = pattern.matcher(content);
+                        if (matcher.find()) {
+                            hasPlaceholders = true;
+                            return;
+                        }
+                    }
+
+                    packetEntity.setName(StringUtils.format(content));
+                } else {
+                    packetEntity.setName(null);
+                    hasPlaceholders = false;
+                }
+
+                packetEntity.setInvisible(true);
                 break;
             }
             case ENTITY: {
@@ -152,12 +148,12 @@ public class HologramLine {
                 break;
             }
             case SMALL_HEAD: {
-                packetEntity = PacketEntityFactory.get().spawnEntity(location, EntityType.ARMOR_STAND, entity -> {
-                    PacketArmorStand armorStand = (PacketArmorStand) entity;
-                    armorStand.setItem(EquipmentSlot.HELMET, NMSHandlers.getNmsHandler().wrapItem(this.content).toBukkit());
-                    armorStand.setInvisible(true);
-                    armorStand.setSmall(true);
-                });
+                packetEntity = PacketEntityFactory.get().spawnEntity(location, EntityType.ARMOR_STAND);
+
+                PacketArmorStand armorStand = (PacketArmorStand) packetEntity;
+                armorStand.setItem(EquipmentSlot.HELMET, NMSHandlers.getNmsHandler().wrapItem(this.content).toBukkit());
+                armorStand.setInvisible(true);
+                armorStand.setSmall(true);
                 break;
             }
             case UNKNOWN: {

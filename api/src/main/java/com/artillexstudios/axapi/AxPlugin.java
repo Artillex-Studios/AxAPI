@@ -61,16 +61,6 @@ public abstract class AxPlugin extends JavaPlugin {
                         log.error("An unexpected error occurred while processing packet entities via the tracker!", exception);
                     }
                 }, 0, 50, TimeUnit.MILLISECONDS);
-
-                Scheduler.get().runAsyncTimer((t) -> {
-                    try {
-                        System.out.println("FUTUREGET 1");
-                        future.get();
-                        System.out.println("FUTUREGET 2");
-                    } catch (Exception exc) {
-                        exc.printStackTrace();
-                    }
-                }, 1, 20);
             }
 
             Bukkit.getPluginManager().registerEvents(new Listener() {
