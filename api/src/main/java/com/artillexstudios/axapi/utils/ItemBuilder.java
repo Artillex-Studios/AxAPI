@@ -175,7 +175,6 @@ public class ItemBuilder {
 
     public ItemBuilder setPotion(String potion) {
         stack.set(DataComponent.POTION_CONTENTS, PotionType.valueOf(potion.toUpperCase(Locale.ENGLISH)));
-
         return this;
     }
 
@@ -193,7 +192,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setName(String name, TagResolver... resolvers) {
-        stack.set(DataComponent.ITEM_NAME, StringUtils.format(name, resolvers));
+        stack.set(DataComponent.ITEM_NAME, StringUtils.format(toTagResolver(name), resolvers));
         return this;
     }
 
@@ -237,6 +236,39 @@ public class ItemBuilder {
         return this;
     }
 
+    public static String toTagResolver(String string) {
+        if (!string.contains("%")) {
+            return string;
+        }
+
+        char[] chars = string.toCharArray();
+
+        boolean first = true;
+        for (int i = 0; i < chars.length; i++) {
+            char ch = chars[i];
+            if (ch != '%') continue;
+
+            if (first) {
+                chars[i] = '<';
+                first = false;
+            } else {
+                chars[i] = '>';
+                first = true;
+            }
+        }
+
+        return new String(chars);
+    }
+
+    public static List<String> toTagResolver(List<String> lore) {
+        for (int i = 0; i < lore.size(); i++) {
+            String toFormat = lore.get(i);
+            lore.set(i, toTagResolver(toFormat));
+        }
+
+        return lore;
+    }
+
     public ItemBuilder setLore(List<String> lore, Map<String, String> replacements) {
         List<String> newList = new ArrayList<>(replacements.size());
         for (String line : lore) {
@@ -250,7 +282,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setLore(List<String> lore, TagResolver... resolvers) {
-        stack.set(DataComponent.LORE, new ItemLore(StringUtils.formatList(lore, resolvers)));
+        stack.set(DataComponent.LORE, new ItemLore(StringUtils.formatList(toTagResolver(lore), resolvers)));
         return this;
     }
 
