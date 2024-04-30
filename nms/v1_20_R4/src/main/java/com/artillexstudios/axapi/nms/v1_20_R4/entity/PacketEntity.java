@@ -2,6 +2,8 @@ package com.artillexstudios.axapi.nms.v1_20_R4.entity;
 
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
+import com.artillexstudios.axapi.nms.v1_20_R4.packet.ClientboundSetPassengersWrapper;
+import com.artillexstudios.axapi.nms.v1_20_R4.packet.ClientboundTeleportEntityWrapper;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
 import com.github.benmanes.caffeine.cache.Cache;
@@ -69,13 +71,13 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     private final NonNullList<net.minecraft.world.item.ItemStack> handSlots;
     private final NonNullList<net.minecraft.world.item.ItemStack> armorSlots;
     private final Set<Player> invertedVisibilityEntities = Collections.newSetFromMap(new WeakHashMap<>());
-    private boolean visibleByDefault = true;
     public boolean invisible = false;
     public boolean silent = false;
     public com.artillexstudios.axapi.nms.v1_20_R4.entity.SynchedEntityData data;
     public EntityTracker.TrackedEntity tracker;
     public ServerLevel level;
     public Predicate<Player> predicate;
+    private boolean visibleByDefault = true;
     private List<SynchedEntityData.DataValue<?>> trackedValues;
     private Location location;
     private Component name = Component.empty();
@@ -230,13 +232,9 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
 
     @Override
     public void ride(org.bukkit.entity.Entity entity) {
-//        ridingEntity = entity.getEntityId();
-//        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-//        buf.writeVarInt(ridingEntity);
-//        int[] passengers = new int[]{entityId};
-//        buf.writeVarIntArray(passengers);
-//        this.tracker.broadcast(new ClientboundSetPassengersPacket(buf));
-//        buf.release();
+        ridingEntity = entity.getEntityId();
+        int[] passengers = new int[]{entityId};
+        this.tracker.broadcast(ClientboundSetPassengersWrapper.createNew(ridingEntity, passengers));
     }
 
     @Override
@@ -259,24 +257,15 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
 
     @Override
     public void ride(com.artillexstudios.axapi.entity.impl.PacketEntity entity) {
-//        ridingEntity = entity.getEntityId();
-//        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-//        buf.writeVarInt(ridingEntity);
-//        int[] passengers = new int[]{entityId};
-//        buf.writeVarIntArray(passengers);
-//        this.tracker.broadcast(new ClientboundSetPassengersPacket(buf));
-//        buf.release();
+        ridingEntity = entity.getEntityId();
+        int[] passengers = new int[]{entityId};
+        this.tracker.broadcast(ClientboundSetPassengersWrapper.createNew(ridingEntity, passengers));
     }
 
     @Override
     public void unRide() {
-//        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-//        buf.writeInt(ridingEntity);
-//        ridingEntity = 0;
-//        int[] passengers = new int[0];
-//        buf.writeVarIntArray(passengers);
-//        this.tracker.broadcast(new ClientboundSetPassengersPacket(buf));
-//        buf.release();
+        this.tracker.broadcast(ClientboundSetPassengersWrapper.createNew(ridingEntity, new int[0]));
+        ridingEntity = 0;
     }
 
     @Override
@@ -337,14 +326,10 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
             }
         }
 
-//        if (ridingEntity != 0) {
-//            FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-//            buf.writeVarInt(ridingEntity);
-//            int[] passengers = new int[]{entityId};
-//            buf.writeVarIntArray(passengers);
-//            consumer.accept(new ClientboundSetPassengersPacket(buf));
-//            buf.release();
-//        }
+        if (ridingEntity != 0) {
+            int[] passengers = new int[]{entityId};
+            consumer.accept(ClientboundSetPassengersWrapper.createNew(ridingEntity, passengers));
+        }
 
         if (!equipments.isEmpty()) {
             consumer.accept(new ClientboundSetEquipmentPacket(entityId, equipments));
@@ -390,18 +375,7 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
         if (shouldTeleport) {
             shouldTeleport = false;
 
-//            FriendlyByteBuf byteBuf = new FriendlyByteBuf(Unpooled.buffer());
-//            byteBuf.writeVarInt(entityId);
-//            byteBuf.writeDouble(this.location.getX());
-//            byteBuf.writeDouble(this.location.getY());
-//            byteBuf.writeDouble(this.location.getZ());
-//            byteBuf.writeByte((byte) ((int) (location.getYaw() * 256.0F / 360.0F)));
-//            byteBuf.writeByte((byte) ((int) (location.getPitch() * 256.0F / 360.0F)));
-//            byteBuf.writeBoolean(true);
-//
-//            tracker.broadcast(new ClientboundTeleportEntityPacket(byteBuf));
-//
-//            byteBuf.release();
+            tracker.broadcast(ClientboundTeleportEntityWrapper.createNew(this, location));
         }
     }
 

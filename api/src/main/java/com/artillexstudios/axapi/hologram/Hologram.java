@@ -94,7 +94,7 @@ public class Hologram {
 
     public HologramPage newPage() {
         HologramPage page = new HologramPage(this);
-        this.pages.add(page);
+        addPage(page);
         return page;
     }
 

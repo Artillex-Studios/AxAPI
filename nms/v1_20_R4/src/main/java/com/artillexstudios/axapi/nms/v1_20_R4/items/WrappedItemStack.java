@@ -35,6 +35,7 @@ import org.bukkit.craftbukkit.potion.CraftPotionType;
 import org.bukkit.craftbukkit.util.CraftMagicNumbers;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionType;
 
 import java.util.ArrayList;
@@ -62,7 +63,13 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
                 return;
             }
 
-            itemStack.set(DataComponents.CUSTOM_DATA, CustomData.of(((CompoundTag) value).getParent()));
+            var tag = ((CompoundTag) value);
+            if (tag.getParent().isEmpty()) {
+                itemStack.set(DataComponents.CUSTOM_DATA, null);
+                return;
+            }
+
+            itemStack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag.getParent()));
         } else if (component == DataComponent.MAX_STACK_SIZE) {
             if (value == null) {
                 itemStack.remove(DataComponents.MAX_STACK_SIZE);
@@ -239,7 +246,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
     @Override
     public <T> T get(DataComponent<T> component) {
         if (component == DataComponent.CUSTOM_DATA) {
-            return (T) new CompoundTag(itemStack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.of(new net.minecraft.nbt.CompoundTag())).getUnsafe());
+            return (T) new CompoundTag(itemStack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.of(new net.minecraft.nbt.CompoundTag())).copyTag());
         } else if (component == DataComponent.MAX_STACK_SIZE) {
             return (T) itemStack.getOrDefault(DataComponents.MAX_STACK_SIZE, 0);
         } else if (component == DataComponent.MAX_DAMAGE) {
@@ -366,11 +373,13 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
     @Override
     public void finishEdit() {
-        var patch = itemStack.getComponentsPatch();
-        itemStack.restorePatch(patch);
-
-        if (itemStack.getItem() != null && itemStack.getMaxDamage() > 0) {
-            itemStack.setDamageValue(itemStack.getDamageValue());
-        }
+//        var patch = itemStack.getComponentsPatch();
+//        itemStack.restorePatch(patch);
+//
+//        if (itemStack.getItem() != null && itemStack.getMaxDamage() > 0) {
+//            itemStack.setDamageValue(itemStack.getDamageValue());
+//        }
+        ItemMeta meta = CraftItemStack.getItemMeta(itemStack);
+        CraftItemStack.setItemMeta(itemStack, meta);
     }
 }
