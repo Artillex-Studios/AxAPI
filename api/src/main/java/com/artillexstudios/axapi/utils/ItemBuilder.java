@@ -192,7 +192,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setName(String name, TagResolver... resolvers) {
-        stack.set(DataComponent.CUSTOM_NAME, StringUtils.format(toTagResolver(name), resolvers));
+        stack.set(DataComponent.CUSTOM_NAME, StringUtils.format(toTagResolver(name, resolvers), resolvers));
         return this;
     }
 
@@ -274,6 +274,7 @@ public class ItemBuilder {
             if (resolver instanceof TagResolver.Single) {
                 TagResolver.Single s = (TagResolver.Single) resolver;
                 if (string.contains(s.key())) {
+                    System.out.println("CONTAINS! s:" + s.key() + " String:" + string);
                     return true;
                 }
             }
@@ -282,10 +283,10 @@ public class ItemBuilder {
         return false;
     }
 
-    public static List<String> toTagResolver(List<String> lore) {
+    public static List<String> toTagResolver(List<String> lore, TagResolver... resolvers) {
         for (int i = 0; i < lore.size(); i++) {
             String toFormat = lore.get(i);
-            lore.set(i, toTagResolver(toFormat));
+            lore.set(i, toTagResolver(toFormat, resolvers));
         }
 
         return lore;
@@ -304,7 +305,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setLore(List<String> lore, TagResolver... resolvers) {
-        stack.set(DataComponent.LORE, new ItemLore(StringUtils.formatList(toTagResolver(lore), resolvers)));
+        stack.set(DataComponent.LORE, new ItemLore(StringUtils.formatList(toTagResolver(lore, resolvers), resolvers)));
         return this;
     }
 
