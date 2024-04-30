@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ConcurrentModificationException;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 public abstract class AxPlugin extends JavaPlugin {
@@ -43,7 +44,7 @@ public abstract class AxPlugin extends JavaPlugin {
 
         if (hasNMSHandler) {
             if (tracker != null) {
-                Executors.newScheduledThreadPool(FeatureFlags.PACKET_ENTITY_TRACKER_THREADS.get()).scheduleAtFixedRate(() -> {
+                Future<?> future =  Executors.newScheduledThreadPool(FeatureFlags.PACKET_ENTITY_TRACKER_THREADS.get()).scheduleAtFixedRate(() -> {
                     try {
                         tracker.process();
                     } catch (Exception exception) {
@@ -60,6 +61,16 @@ public abstract class AxPlugin extends JavaPlugin {
                         log.error("An unexpected error occurred while processing packet entities via the tracker!", exception);
                     }
                 }, 0, 50, TimeUnit.MILLISECONDS);
+
+                Scheduler.get().runAsyncTimer((t) -> {
+                    try {
+                        System.out.println("FUTUREGET 1");
+                        future.get();
+                        System.out.println("FUTUREGET 2");
+                    } catch (Exception exc) {
+                        exc.printStackTrace();
+                    }
+                }, 1, 20);
             }
 
             Bukkit.getPluginManager().registerEvents(new Listener() {

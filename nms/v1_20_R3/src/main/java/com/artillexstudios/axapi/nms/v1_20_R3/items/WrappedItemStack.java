@@ -20,6 +20,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.SnbtPrinterTagVisitor;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -476,7 +477,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
     @Override
     public String toSNBT() {
-        CompoundTag compoundTag = parent.save(new CompoundTag());
+        var compoundTag = (net.minecraft.nbt.CompoundTag) parent.save(new CompoundTag());
         compoundTag.putInt("DataVersion", CraftMagicNumbers.INSTANCE.getDataVersion());
         return new SnbtPrinterTagVisitor().visit(compoundTag);
     }

@@ -361,9 +361,9 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
     @Override
     public String toSNBT() {
-        CompoundTag compoundTag = (CompoundTag) itemStack.save(MinecraftServer.getServer().registryAccess());
+        var compoundTag = (net.minecraft.nbt.CompoundTag) itemStack.save(MinecraftServer.getServer().registryAccess());
         compoundTag.putInt("DataVersion", CraftMagicNumbers.INSTANCE.getDataVersion());
-        return new SnbtPrinterTagVisitor().visit((Tag) compoundTag);
+        return new SnbtPrinterTagVisitor().visit(compoundTag);
     }
 
     @Override
