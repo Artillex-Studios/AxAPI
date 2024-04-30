@@ -14,7 +14,6 @@ import net.kyori.adventure.text.Component;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.SnbtPrinterTagVisitor;
-import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Unit;
 import net.minecraft.world.item.Rarity;
@@ -46,13 +45,16 @@ import java.util.UUID;
 @SuppressWarnings("unchecked")
 public class WrappedItemStack implements com.artillexstudios.axapi.items.WrappedItemStack {
     private net.minecraft.world.item.ItemStack itemStack;
+    private ItemStack bukkitStack;
 
     public WrappedItemStack(ItemStack itemStack) {
         this(itemStack instanceof CraftItemStack cr ? cr.handle : CraftItemStack.asNMSCopy(itemStack));
+        this.bukkitStack = itemStack;
     }
 
     public WrappedItemStack(net.minecraft.world.item.ItemStack itemStack) {
         this.itemStack = itemStack;
+        this.bukkitStack = null;
     }
 
     @Override
@@ -373,13 +375,11 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
     @Override
     public void finishEdit() {
-//        var patch = itemStack.getComponentsPatch();
-//        itemStack.restorePatch(patch);
-//
-//        if (itemStack.getItem() != null && itemStack.getMaxDamage() > 0) {
-//            itemStack.setDamageValue(itemStack.getDamageValue());
-//        }
         ItemMeta meta = CraftItemStack.getItemMeta(itemStack);
-        CraftItemStack.setItemMeta(itemStack, meta);
+        if (bukkitStack != null) {
+            bukkitStack.setItemMeta(meta);
+        } else {
+            CraftItemStack.setItemMeta(itemStack, meta);
+        }
     }
 }
