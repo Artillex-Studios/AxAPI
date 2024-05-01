@@ -171,12 +171,8 @@ public class HologramLine {
             packetEntity.onClick(event -> {
                 page.hologram().changePage(event.getPlayer(), event.isAttack() ? Hologram.PageChangeDirection.BACK : Hologram.PageChangeDirection.FORWARD);
             });
-            if (page.isFirstPage()) {
-                for (int i = 0; i < page.lines().size(); i++) {
-                    HologramLine line = page.lines().get(i);
-                    line.packetEntity.setVisibleByDefault(true);
-                }
-            } else {
+
+            if (!page.isFirstPage()) {
                 for (int i = 0; i < page.lines().size(); i++) {
                     HologramLine line = page.lines().get(i);
                     line.packetEntity.setVisibleByDefault(false);

@@ -137,7 +137,7 @@ public class Hologram {
         if (direction == PageChangeDirection.BACK) {
             int current = page == null ? 0 : page;
 
-            if (current - 1 <= 0) {
+            if (current - 1 < 0) {
                 // Already on first page
                 return;
             }
@@ -149,12 +149,21 @@ public class Hologram {
             newPage.show(player);
             playerPages.put(player, current - 1);
         } else {
-            HologramPage previousPage = pages.get(page == null ? 0 : page);
+            int current = page == null ? 0 : page;
+            // pages: a, b size: 2 current: 0
+            // 0+1 = 1
+            // current: 1
+            // 1+1 = 2
+            if (current + 1 > pages.size()) {
+                return;
+            }
+
+            HologramPage previousPage = pages.get(current);
             previousPage.hide(player);
 
-            HologramPage newPage = pages.get((page == null ? 0 : page) + 1);
+            HologramPage newPage = pages.get(current + 1);
             newPage.show(player);
-            playerPages.put(player, (page == null ? 0 : page) + 1);
+            playerPages.put(player, current + 1);
         }
     }
 
