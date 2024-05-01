@@ -145,6 +145,7 @@ public class HologramLine {
                         entity.setName(null);
                     }
 
+                    ((PacketArmorStand) entity).setMarker(true);
                     entity.setInvisible(true);
                 });
                 break;

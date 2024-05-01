@@ -240,7 +240,9 @@ public class PacketListener extends ChannelDuplexHandler {
                 List<Pair<net.minecraft.world.entity.EquipmentSlot, ItemStack>> items = new ArrayList<>();
 
                 for (Pair<net.minecraft.world.entity.EquipmentSlot, ItemStack> slot : packet.getSlots()) {
-                    ItemStack itemStack = slot.getSecond().copy();
+                    ItemStack second = slot.getSecond();
+                    if (second == null) continue;
+                    ItemStack itemStack = second.copy();
                     PacketItemModifier.callModify(new WrappedItemStack(itemStack), player);
                     items.add(Pair.of(slot.getFirst(), itemStack));
                 }

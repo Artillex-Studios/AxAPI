@@ -131,7 +131,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
             tag = new CompoundTag();
         }
 
-        byte flag = parent.getTag() != null ? parent.getTag().contains("HideFlags", 99) ? (byte) this.parent.getTag().getInt("HideFlags") : 0 : 0;
+        byte flag = tag.contains("HideFlags", 99) ? (byte) tag.getInt("HideFlags") : 0;
         for (ItemFlag itemFlag : itemFlags) {
             flag |= (byte) (itemFlag.ordinal() << 1);
         }
@@ -283,8 +283,8 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
         } else if (component == DataComponent.CREATIVE_SLOT_LOCK) {
 
         } else if (component == DataComponent.ENCHANTMENT_GLINT_OVERRIDE) {
-            set(DataComponent.ENCHANTMENTS, get(DataComponent.ENCHANTMENTS).add(Enchantment.LOYALTY, 1));
             addItemFlags(ItemFlag.HIDE_ENCHANTS);
+            set(DataComponent.ENCHANTMENTS, get(DataComponent.ENCHANTMENTS).add(Enchantment.LOYALTY, 1));
         } else if (component == DataComponent.INTANGIBLE_PROJECTILE) {
 
         } else if (component == DataComponent.STORED_ENCHANTMENTS) {
