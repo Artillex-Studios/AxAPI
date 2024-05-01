@@ -49,8 +49,10 @@ public class HologramLine {
     }
 
     public void setContent(String content) {
+        System.out.println("CONTENT: " + content + " TYPE: " + type.name());
         this.content = content;
         if (packetEntity != null) {
+            System.out.println("Entity not null!");
             switch (type) {
                 case ITEM_STACK: {
                     PacketItem item = (PacketItem) packetEntity;
@@ -63,6 +65,8 @@ public class HologramLine {
                     break;
                 }
                 case TEXT: {
+                    hasPlaceholders = false;
+
                     if (!content.isEmpty()) {
                         for (int i = 0; i < placeholders.size(); i++) {
                             Placeholder placeholder = placeholders.get(i);
@@ -75,14 +79,13 @@ public class HologramLine {
                             Matcher matcher = pattern.matcher(content);
                             if (matcher.find()) {
                                 hasPlaceholders = true;
-                                return;
+                                break;
                             }
                         }
 
                         packetEntity.setName(StringUtils.format(content));
                     } else {
                         packetEntity.setName(null);
-                        hasPlaceholders = false;
                     }
                     break;
                 }
@@ -101,6 +104,7 @@ public class HologramLine {
             return;
         }
 
+        System.out.println("Entity null!");
         switch (type) {
             case ITEM_STACK: {
                 packetEntity = PacketEntityFactory.get().spawnEntity(location, EntityType.DROPPED_ITEM);
@@ -117,8 +121,11 @@ public class HologramLine {
             }
             case TEXT: {
                 packetEntity = PacketEntityFactory.get().spawnEntity(location, EntityType.ARMOR_STAND);
+                System.out.println("Spawned new packetentity!");
 
+                hasPlaceholders = false;
                 if (!this.content.isEmpty()) {
+                    System.out.println("CONTENT NOT EMPTY!");
                     for (int i = 0; i < placeholders.size(); i++) {
                         Placeholder placeholder = placeholders.get(i);
                         if (placeholder instanceof StaticPlaceholder) {
@@ -130,16 +137,18 @@ public class HologramLine {
                         Matcher matcher = pattern.matcher(content);
                         if (matcher.find()) {
                             hasPlaceholders = true;
-                            return;
+                            break;
                         }
                     }
 
                     packetEntity.setName(StringUtils.format(content));
+                    System.out.println("SET NAME!");
                 } else {
+                    System.out.println("REMOVE NAME!");
                     packetEntity.setName(null);
-                    hasPlaceholders = false;
                 }
 
+                System.out.println("Invisible!");
                 packetEntity.setInvisible(true);
                 break;
             }
@@ -163,19 +172,21 @@ public class HologramLine {
 
         if (packetEntity != null) {
             packetEntity.onClick(event -> {
+                System.out.println("CLICK!");
                 page.hologram().changePage(event.getPlayer(), event.isAttack() ? Hologram.PageChangeDirection.BACK : Hologram.PageChangeDirection.FORWARD);
             });
-//            if (page.isFirstPage()) {
-//                for (int i = 0; i < page.lines().size(); i++) {
-//                    HologramLine line = page.lines().get(i);
-//                    line.packetEntity.setVisibleByDefault(true);
-//                }
-//            } else {
-//                for (int i = 0; i < page.lines().size(); i++) {
-//                    HologramLine line = page.lines().get(i);
-//                    line.packetEntity.setVisibleByDefault(false);
-//                }
-//            }
+            if (page.isFirstPage()) {
+                System.out.println("FIRST PAGE!");
+                for (int i = 0; i < page.lines().size(); i++) {
+                    HologramLine line = page.lines().get(i);
+                    line.packetEntity.setVisibleByDefault(true);
+                }
+            } else {
+                for (int i = 0; i < page.lines().size(); i++) {
+                    HologramLine line = page.lines().get(i);
+                    line.packetEntity.setVisibleByDefault(false);
+                }
+            }
 
             Holograms.put(packetEntity.getEntityId(), this);
         }
