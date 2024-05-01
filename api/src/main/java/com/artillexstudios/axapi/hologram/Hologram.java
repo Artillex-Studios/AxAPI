@@ -43,16 +43,20 @@ public class Hologram {
         }
     }
 
+    public void addLines(List<String> content, HologramLine.Type type) {
+        for (String s : content) {
+            addLine(s, type);
+        }
+    }
+
     public void addLine(String content, HologramLine.Type type) {
         HologramPage page;
         if (pages.isEmpty()) {
             page = newPage();
-            System.out.println("ADDING NEW PAGE");
         } else {
             page = pages.get(0);
         }
 
-        System.out.println("ADD NEW LINE!");
         page.addLine(content, type);
     }
 

@@ -16,6 +16,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -119,31 +120,33 @@ public class HologramLine {
                 break;
             }
             case TEXT: {
-                packetEntity = PacketEntityFactory.get().spawnEntity(location, EntityType.ARMOR_STAND);
+                AtomicReference<String> reference = new AtomicReference<>(content);
 
-                hasPlaceholders = false;
-                if (!this.content.isEmpty()) {
-                    for (int i = 0; i < placeholders.size(); i++) {
-                        Placeholder placeholder = placeholders.get(i);
-                        if (placeholder instanceof StaticPlaceholder) {
-                            content = placeholder.parse(null, content);
+                packetEntity = PacketEntityFactory.get().spawnEntity(location, EntityType.ARMOR_STAND, entity -> {
+                    hasPlaceholders = false;
+                    if (!this.content.isEmpty()) {
+                        for (int i = 0; i < placeholders.size(); i++) {
+                            Placeholder placeholder = placeholders.get(i);
+                            if (placeholder instanceof StaticPlaceholder) {
+                                reference.set(placeholder.parse(null, reference.get()));
+                            }
                         }
+
+                        for (Pattern pattern : FeatureFlags.PLACEHOLDER_PATTERNS.get()) {
+                            Matcher matcher = pattern.matcher(reference.get());
+                            if (matcher.find()) {
+                                hasPlaceholders = true;
+                                break;
+                            }
+                        }
+
+                        packetEntity.setName(StringUtils.format(reference.get()));
+                    } else {
+                        packetEntity.setName(null);
                     }
 
-                    for (Pattern pattern : FeatureFlags.PLACEHOLDER_PATTERNS.get()) {
-                        Matcher matcher = pattern.matcher(content);
-                        if (matcher.find()) {
-                            hasPlaceholders = true;
-                            break;
-                        }
-                    }
-
-                    packetEntity.setName(StringUtils.format(content));
-                } else {
-                    packetEntity.setName(null);
-                }
-
-                packetEntity.setInvisible(true);
+                    packetEntity.setInvisible(true);
+                });
                 break;
             }
             case ENTITY: {
