@@ -154,7 +154,7 @@ public class Hologram {
             // 0+1 = 1
             // current: 1
             // 1+1 = 2
-            if (current + 1 > pages.size()) {
+            if (current + 1 >= pages.size()) {
                 return;
             }
 

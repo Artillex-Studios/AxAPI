@@ -173,10 +173,7 @@ public class HologramLine {
             });
 
             if (!page.isFirstPage()) {
-                for (int i = 0; i < page.lines().size(); i++) {
-                    HologramLine line = page.lines().get(i);
-                    line.packetEntity.setVisibleByDefault(false);
-                }
+                packetEntity.setVisibleByDefault(false);
             }
 
             Holograms.put(packetEntity.getEntityId(), this);
