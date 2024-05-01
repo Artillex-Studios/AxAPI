@@ -140,12 +140,12 @@ public class HologramLine {
                             }
                         }
 
-                        packetEntity.setName(StringUtils.format(reference.get()));
+                        entity.setName(StringUtils.format(reference.get()));
                     } else {
-                        packetEntity.setName(null);
+                        entity.setName(null);
                     }
 
-                    packetEntity.setInvisible(true);
+                    entity.setInvisible(true);
                 });
                 break;
             }
@@ -169,11 +169,9 @@ public class HologramLine {
 
         if (packetEntity != null) {
             packetEntity.onClick(event -> {
-                System.out.println("CLICK!");
                 page.hologram().changePage(event.getPlayer(), event.isAttack() ? Hologram.PageChangeDirection.BACK : Hologram.PageChangeDirection.FORWARD);
             });
             if (page.isFirstPage()) {
-                System.out.println("FIRST PAGE!");
                 for (int i = 0; i < page.lines().size(); i++) {
                     HologramLine line = page.lines().get(i);
                     line.packetEntity.setVisibleByDefault(true);
