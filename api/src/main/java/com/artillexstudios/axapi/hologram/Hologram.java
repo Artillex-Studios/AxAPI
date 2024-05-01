@@ -47,10 +47,12 @@ public class Hologram {
         HologramPage page;
         if (pages.isEmpty()) {
             page = newPage();
+            System.out.println("ADDING NEW PAGE");
         } else {
             page = pages.get(0);
         }
 
+        System.out.println("ADD NEW LINE!");
         page.addLine(content, type);
     }
 

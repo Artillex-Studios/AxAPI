@@ -29,6 +29,7 @@ public class HologramLine {
     private boolean hasPlaceholders = false;
 
     public HologramLine(HologramPage page, Location location, String content, Type type) {
+        System.out.println("HOLOGRAMLINE CONSTRUCTOR CALL!");
         this.page = page;
         this.location = location;
         this.type = type;
