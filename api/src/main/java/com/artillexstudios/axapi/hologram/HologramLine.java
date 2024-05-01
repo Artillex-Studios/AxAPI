@@ -29,7 +29,6 @@ public class HologramLine {
     private boolean hasPlaceholders = false;
 
     public HologramLine(HologramPage page, Location location, String content, Type type) {
-        System.out.println("HOLOGRAMLINE CONSTRUCTOR CALL!");
         this.page = page;
         this.location = location;
         this.type = type;
@@ -43,6 +42,8 @@ public class HologramLine {
 
     public void addPlaceholder(Placeholder placeholder) {
         this.placeholders.add(placeholder);
+        // Reparse the placeholders
+        setContent(content);
     }
 
     public boolean hasPlaceholders() {
@@ -50,10 +51,8 @@ public class HologramLine {
     }
 
     public void setContent(String content) {
-        System.out.println("CONTENT: " + content + " TYPE: " + type.name());
         this.content = content;
         if (packetEntity != null) {
-            System.out.println("Entity not null!");
             switch (type) {
                 case ITEM_STACK: {
                     PacketItem item = (PacketItem) packetEntity;
@@ -105,7 +104,6 @@ public class HologramLine {
             return;
         }
 
-        System.out.println("Entity null!");
         switch (type) {
             case ITEM_STACK: {
                 packetEntity = PacketEntityFactory.get().spawnEntity(location, EntityType.DROPPED_ITEM);
@@ -122,11 +120,9 @@ public class HologramLine {
             }
             case TEXT: {
                 packetEntity = PacketEntityFactory.get().spawnEntity(location, EntityType.ARMOR_STAND);
-                System.out.println("Spawned new packetentity!");
 
                 hasPlaceholders = false;
                 if (!this.content.isEmpty()) {
-                    System.out.println("CONTENT NOT EMPTY!");
                     for (int i = 0; i < placeholders.size(); i++) {
                         Placeholder placeholder = placeholders.get(i);
                         if (placeholder instanceof StaticPlaceholder) {
@@ -143,13 +139,10 @@ public class HologramLine {
                     }
 
                     packetEntity.setName(StringUtils.format(content));
-                    System.out.println("SET NAME!");
                 } else {
-                    System.out.println("REMOVE NAME!");
                     packetEntity.setName(null);
                 }
 
-                System.out.println("Invisible!");
                 packetEntity.setInvisible(true);
                 break;
             }
