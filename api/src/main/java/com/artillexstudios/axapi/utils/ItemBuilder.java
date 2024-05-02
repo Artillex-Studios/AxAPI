@@ -211,7 +211,9 @@ public class ItemBuilder {
     }
 
     public ItemBuilder glow(boolean glow) {
-        stack.set(DataComponent.ENCHANTMENT_GLINT_OVERRIDE, glow);
+        if (glow) {
+            stack.set(DataComponent.ENCHANTMENT_GLINT_OVERRIDE, true);
+        }
         return this;
     }
 

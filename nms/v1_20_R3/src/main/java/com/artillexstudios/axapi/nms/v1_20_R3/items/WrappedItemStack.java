@@ -9,8 +9,6 @@ import com.artillexstudios.axapi.items.component.Unbreakable;
 import com.artillexstudios.axapi.items.component.Unit;
 import com.artillexstudios.axapi.nms.v1_20_R3.ItemStackSerializer;
 import com.artillexstudios.axapi.utils.FastFieldAccessor;
-import it.unimi.dsi.fastutil.objects.Object2IntAVLTreeMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -20,7 +18,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.SnbtPrinterTagVisitor;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -128,7 +125,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
     public void addItemFlags(ItemFlag... itemFlags) {
         if (tag == null) {
-            tag = new CompoundTag();
+            tag = parent.getOrCreateTag();
         }
 
         byte flag = tag.contains("HideFlags", 99) ? (byte) tag.getInt("HideFlags") : 0;
@@ -141,7 +138,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
     public void removeItemFlags(ItemFlag... itemFlags) {
         if (tag == null) {
-            tag = new CompoundTag();
+            tag = parent.getOrCreateTag();
         }
 
         byte flag = parent.getTag() != null ? parent.getTag().contains("HideFlags", 99) ? (byte) this.parent.getTag().getInt("HideFlags") : 0 : 0;
@@ -249,11 +246,14 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
             var enchants = (ItemEnchantments) value;
             HashMap<net.minecraft.world.item.enchantment.Enchantment, Integer> enchantments = new HashMap<>();
-            for (Object2IntMap.Entry<Enchantment> entry : enchants.entrySet()) {
-                enchantments.put(CraftEnchantment.bukkitToMinecraft(entry.getKey()), entry.getIntValue());
+            for (Map.Entry<Enchantment, Integer> entry : enchants.entrySet()) {
+                enchantments.put(CraftEnchantment.bukkitToMinecraft(entry.getKey()), entry.getValue());
             }
 
             EnchantmentHelper.setEnchantments(enchantments, parent);
+            if (!enchants.showInTooltip()) {
+                addItemFlags(ItemFlag.HIDE_ENCHANTS);
+            }
         } else if (component == DataComponent.CUSTOM_MODEL_DATA) {
             if (tag == null) {
                 tag = new CompoundTag();
@@ -283,8 +283,10 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
         } else if (component == DataComponent.CREATIVE_SLOT_LOCK) {
 
         } else if (component == DataComponent.ENCHANTMENT_GLINT_OVERRIDE) {
-            addItemFlags(ItemFlag.HIDE_ENCHANTS);
-            set(DataComponent.ENCHANTMENTS, get(DataComponent.ENCHANTMENTS).add(Enchantment.LOYALTY, 1));
+            ItemEnchantments enchantments = get(DataComponent.ENCHANTMENTS);
+            enchantments = enchantments.withTooltip(false);
+            enchantments = enchantments.add(Enchantment.LOYALTY, 1);
+            set(DataComponent.ENCHANTMENTS, enchantments);
         } else if (component == DataComponent.INTANGIBLE_PROJECTILE) {
 
         } else if (component == DataComponent.STORED_ENCHANTMENTS) {
@@ -298,8 +300,8 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
             }
 
             var enchants = (ItemEnchantments) value;
-            for (Object2IntMap.Entry<Enchantment> entry : enchants.entrySet()) {
-                EnchantedBookItem.addEnchantment(parent, new EnchantmentInstance(CraftEnchantment.bukkitToMinecraft(entry.getKey()), entry.getIntValue()));
+            for (Map.Entry<Enchantment, Integer> entry : enchants.entrySet()) {
+                EnchantedBookItem.addEnchantment(parent, new EnchantmentInstance(CraftEnchantment.bukkitToMinecraft(entry.getKey()), entry.getValue()));
             }
         } else if (component == DataComponent.PROFILE) {
             if (tag == null) {
@@ -376,9 +378,9 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
             return null;
         } else if (component == DataComponent.ENCHANTMENTS) {
             var enchants = EnchantmentHelper.getEnchantments(parent);
-            Object2IntAVLTreeMap<Enchantment> enchantments = new Object2IntAVLTreeMap<>();
+            HashMap<Enchantment, Integer> enchantments = new HashMap<>();
             for (Map.Entry<net.minecraft.world.item.enchantment.Enchantment, Integer> entry : enchants.entrySet()) {
-                enchantments.put(CraftEnchantment.minecraftToBukkit(entry.getKey()), entry.getValue().intValue());
+                enchantments.put(CraftEnchantment.minecraftToBukkit(entry.getKey()), entry.getValue());
             }
 
             return (T) new ItemEnchantments(enchantments, !hasItemFlag(ItemFlag.HIDE_ENCHANTS));
@@ -399,9 +401,9 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
             return null;
         } else if (component == DataComponent.STORED_ENCHANTMENTS) {
             var enchants = EnchantmentHelper.getEnchantments(parent);
-            Object2IntAVLTreeMap<Enchantment> enchantments = new Object2IntAVLTreeMap<>();
+            HashMap<Enchantment, Integer> enchantments = new HashMap<>();
             for (Map.Entry<net.minecraft.world.item.enchantment.Enchantment, Integer> entry : enchants.entrySet()) {
-                enchantments.put(CraftEnchantment.minecraftToBukkit(entry.getKey()), entry.getValue().intValue());
+                enchantments.put(CraftEnchantment.minecraftToBukkit(entry.getKey()), entry.getValue());
             }
 
             return (T) new ItemEnchantments(enchantments, !hasItemFlag(ItemFlag.HIDE_ENCHANTS));

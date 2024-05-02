@@ -1,24 +1,24 @@
 package com.artillexstudios.axapi.items.component;
 
-import it.unimi.dsi.fastutil.objects.Object2IntAVLTreeMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import org.bukkit.enchantments.Enchantment;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 public class ItemEnchantments {
-    private final Object2IntAVLTreeMap<Enchantment> enchantments;
+    private final HashMap<Enchantment, Integer> enchantments;
     private final boolean showInTooltip;
 
-    public ItemEnchantments(Object2IntAVLTreeMap<Enchantment> enchantments, boolean showInTooltip) {
+    public ItemEnchantments(HashMap<Enchantment, Integer> enchantments, boolean showInTooltip) {
         this.enchantments = enchantments;
         this.showInTooltip = showInTooltip;
     }
 
     public ItemEnchantments remove(Enchantment enchantment) {
-        Object2IntAVLTreeMap<Enchantment> copy = this.enchantments.clone();
-        copy.removeInt(enchantment);
+        HashMap<Enchantment, Integer> copy = (HashMap<Enchantment, Integer>) this.enchantments.clone();
+        copy.remove(enchantment);
         return new ItemEnchantments(copy, showInTooltip);
     }
 
@@ -27,7 +27,7 @@ public class ItemEnchantments {
             return remove(enchantment);
         }
 
-        Object2IntAVLTreeMap<Enchantment> copy = this.enchantments.clone();
+        HashMap<Enchantment, Integer> copy = (HashMap<Enchantment, Integer>) this.enchantments.clone();
         copy.put(enchantment, Math.min(level, 255));
         return new ItemEnchantments(copy, showInTooltip);
     }
@@ -44,12 +44,12 @@ public class ItemEnchantments {
         return Collections.unmodifiableSet(this.enchantments.keySet());
     }
 
-    public Set<Object2IntMap.Entry<Enchantment>> entrySet() {
-        return Collections.unmodifiableSet(this.enchantments.object2IntEntrySet());
+    public Set<Map.Entry<Enchantment, Integer>> entrySet() {
+        return Collections.unmodifiableSet(this.enchantments.entrySet());
     }
 
     public int getLevel(Enchantment enchantment) {
-        return this.enchantments.getInt(enchantment);
+        return this.enchantments.get(enchantment);
     }
 
     public int size() {

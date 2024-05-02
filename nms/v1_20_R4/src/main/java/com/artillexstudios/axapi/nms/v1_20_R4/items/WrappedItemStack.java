@@ -8,8 +8,6 @@ import com.artillexstudios.axapi.nms.v1_20_R4.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import it.unimi.dsi.fastutil.objects.Object2IntAVLTreeMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.kyori.adventure.text.Component;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
@@ -38,6 +36,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -139,8 +138,8 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
             var vanilla = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
             vanilla.showInTooltip = itemEnchantments.showInTooltip();
 
-            for (Object2IntMap.Entry<Enchantment> e : itemEnchantments.entrySet()) {
-                vanilla.set(CraftEnchantment.bukkitToMinecraft(e.getKey()), e.getIntValue());
+            for (Map.Entry<Enchantment, Integer> e : itemEnchantments.entrySet()) {
+                vanilla.set(CraftEnchantment.bukkitToMinecraft(e.getKey()), e.getValue());
             }
 
             itemStack.set(DataComponents.ENCHANTMENTS, vanilla.toImmutable());
@@ -203,8 +202,8 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
             var vanilla = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
             vanilla.showInTooltip = itemEnchantments.showInTooltip();
 
-            for (Object2IntMap.Entry<Enchantment> e : itemEnchantments.entrySet()) {
-                vanilla.set(CraftEnchantment.bukkitToMinecraft(e.getKey()), e.getIntValue());
+            for (Map.Entry<Enchantment, Integer> e : itemEnchantments.entrySet()) {
+                vanilla.set(CraftEnchantment.bukkitToMinecraft(e.getKey()), e.getValue());
             }
 
             itemStack.set(DataComponents.STORED_ENCHANTMENTS, vanilla.toImmutable());
@@ -213,7 +212,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
                 itemStack.remove(DataComponents.PROFILE);
                 return;
             }
- 
+
             var profileProperties = (ProfileProperties) value;
             var gameProfile = new GameProfile(profileProperties.uuid(), profileProperties.name());
 
@@ -283,7 +282,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
             return (T) com.artillexstudios.axapi.items.component.Rarity.valueOf(itemStack.getOrDefault(DataComponents.RARITY, Rarity.COMMON).name());
         } else if (component == DataComponent.ENCHANTMENTS) {
             var vanilla = itemStack.get(DataComponents.ENCHANTMENTS);
-            Object2IntAVLTreeMap<Enchantment> enchants = new Object2IntAVLTreeMap<>();
+            HashMap<Enchantment, Integer> enchants = new HashMap<>();
             if (vanilla == null) {
                 return (T) new com.artillexstudios.axapi.items.component.ItemEnchantments(enchants, true);
             }
@@ -309,7 +308,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
             return itemStack.get(DataComponents.INTANGIBLE_PROJECTILE) == null ? null : (T) com.artillexstudios.axapi.items.component.Unit.INSTANCE;
         } else if (component == DataComponent.STORED_ENCHANTMENTS) {
             var vanilla = itemStack.get(DataComponents.STORED_ENCHANTMENTS);
-            Object2IntAVLTreeMap<Enchantment> enchants = new Object2IntAVLTreeMap<>();
+            HashMap<Enchantment, Integer> enchants = new HashMap<>();
             if (vanilla == null) {
                 return (T) new com.artillexstudios.axapi.items.component.ItemEnchantments(enchants, false);
             }
