@@ -274,7 +274,6 @@ public class ItemBuilder {
             if (resolver instanceof TagResolver.Single) {
                 TagResolver.Single s = (TagResolver.Single) resolver;
                 if (string.contains(s.key())) {
-                    System.out.println("CONTAINS! s:" + s.key() + " String:" + string);
                     return true;
                 }
             }

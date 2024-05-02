@@ -213,7 +213,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
                 itemStack.remove(DataComponents.PROFILE);
                 return;
             }
-
+ 
             var profileProperties = (ProfileProperties) value;
             var gameProfile = new GameProfile(profileProperties.uuid(), profileProperties.name());
 
