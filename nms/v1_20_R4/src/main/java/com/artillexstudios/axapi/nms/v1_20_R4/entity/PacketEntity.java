@@ -363,7 +363,7 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
                     var sanitised = item.copy();
                     equipments.add(Pair.of(slot, sanitised));
                 } else {
-                    equipments.add(Pair.of(slot, item));
+                    equipments.add(Pair.of(slot, net.minecraft.world.item.ItemStack.EMPTY));
                 }
             }
 
