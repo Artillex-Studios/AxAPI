@@ -1,12 +1,12 @@
 package com.artillexstudios.axapi.nms.v1_20_R4;
 
+import com.artillexstudios.axapi.nms.v1_20_R4.utils.IBlockDataListCopier;
 import com.artillexstudios.axapi.selection.Cuboid;
 import com.artillexstudios.axapi.selection.ParallelBlockSetter;
 import com.artillexstudios.axapi.utils.ClassUtils;
 import com.artillexstudios.axapi.utils.FastFieldAccessor;
 import com.destroystokyo.paper.util.maplist.IBlockDataList;
 import com.google.common.collect.Sets;
-import com.google.gson.Gson;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkHolder;
@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.chunk.PalettedContainer;
 import net.minecraft.world.level.levelgen.Heightmap;
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
 import org.bukkit.World;
@@ -42,7 +43,6 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
     private static final ExecutorService parallelExecutor = Executors.newFixedThreadPool(8);
     private static final Logger log = LoggerFactory.getLogger(ParallelBlockSetterImpl.class);
     private static final ArrayList<FastFieldAccessor> accessors = new ArrayList<>();
-    private static final Gson gson = new Gson();
 
     static {
         for (Field field : LevelChunkSection.class.getDeclaredFields()) {
@@ -62,10 +62,18 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
 
     public void copyFields(LevelChunkSection fromSection, LevelChunkSection toSection) {
         for (FastFieldAccessor accessor : accessors) {
-            Object from = accessor.getAny(fromSection);
-            // Deep copy
-            Object copied = gson.fromJson(gson.toJson(from), accessor.getField().getType());
-            accessor.setAny(toSection, copied);
+            if (accessor.getField().getType() == Short.TYPE) {
+                accessor.setShort(toSection, accessor.getShort(fromSection));
+            } else if (accessor.getField().getType() == Integer.TYPE) {
+                accessor.setInt(toSection, accessor.getInt(fromSection));
+            } else if (accessor.getField().getType() == PalettedContainer.class) {
+                PalettedContainer<?> container = accessor.get(fromSection);
+                accessor.set(toSection, container.copy());
+            } else if (accessor.getField().getType() == IBlockDataList.class) {
+                accessor.set(toSection, IBlockDataListCopier.copy(accessor.get(fromSection)));
+            } else {
+                log.error("No copier for class {}!", accessor.getField().getType().getName());
+            }
         }
     }
 
