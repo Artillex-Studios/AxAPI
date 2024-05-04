@@ -107,6 +107,15 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
                 LevelChunk levelChunk = level.getChunk(chunkX, chunkZ);
                 List<CompletableFuture<?>> chunkFutures = new ArrayList<>();
 
+                for (int i = -64; i < 320; i++) {
+                    int sectionIndex = levelChunk.getSectionIndex(i);
+                    log.error("Y: {} - section index: {}", i, sectionIndex);
+                }
+
+                if (true) {
+                    return;
+                }
+
                 for (int y = selection.getMinY(); y <= selection.getMaxY(); y++) {
                     int sectionIndex = levelChunk.getSectionIndex(y);
                     LevelChunkSection section = levelChunk.getSection(sectionIndex);
