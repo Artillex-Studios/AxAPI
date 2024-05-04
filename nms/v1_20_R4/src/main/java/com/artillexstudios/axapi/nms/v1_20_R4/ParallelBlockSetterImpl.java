@@ -107,48 +107,45 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
                 LevelChunk levelChunk = level.getChunk(chunkX, chunkZ);
                 List<CompletableFuture<?>> chunkFutures = new ArrayList<>();
 
-                for (int i = -64; i < 320; i++) {
-                    int sectionIndex = levelChunk.getSectionIndex(i);
-                    log.error("Y: {} - section index: {}", i, sectionIndex);
-                }
-
-                if (true) {
-                    return;
-                }
-
+                int lastSectionIndex = -1;
                 for (int y = selection.getMinY(); y <= selection.getMaxY(); y++) {
                     int sectionIndex = levelChunk.getSectionIndex(y);
-                    LevelChunkSection section = levelChunk.getSection(sectionIndex);
 
-                    int finalY = y;
-                    CompletableFuture<?> future = CompletableFuture.runAsync(() -> {
-                        LevelChunkSection newSection = copy(section);
+                    if (lastSectionIndex != sectionIndex) {
+                        lastSectionIndex = sectionIndex;
 
-                        for (int x = minX; x <= maxX; x++) {
-                            for (int z = minZ; z <= maxZ; z++) {
-                                CraftBlockData type = (CraftBlockData) distribution.sample();
+                        LevelChunkSection section = levelChunk.getSection(sectionIndex);
 
-                                int j = x & 15;
-                                int k = finalY & 15;
-                                int l = z & 15;
+                        int finalY = y;
+                        CompletableFuture<?> future = CompletableFuture.runAsync(() -> {
+                            LevelChunkSection newSection = copy(section);
 
-                                var state = type.getState();
-                                blockCount.incrementAndGet();
-                                newSection.setBlockState(j, k, l, state, true);
-                                updateHeightMap(levelChunk, j, finalY, l, state);
+                            for (int x = minX; x <= maxX; x++) {
+                                for (int z = minZ; z <= maxZ; z++) {
+                                    CraftBlockData type = (CraftBlockData) distribution.sample();
+
+                                    int j = x & 15;
+                                    int k = finalY & 15;
+                                    int l = z & 15;
+
+                                    var state = type.getState();
+                                    blockCount.incrementAndGet();
+                                    newSection.setBlockState(j, k, l, state, true);
+                                    updateHeightMap(levelChunk, j, finalY, l, state);
+                                }
                             }
-                        }
 
-                        try {
-                            MinecraftServer.getServer().submit(() -> {
-                                levelChunk.getSections()[sectionIndex] = newSection;
-                            }).get();
-                        } catch (InterruptedException | ExecutionException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }, parallelExecutor);
+                            try {
+                                MinecraftServer.getServer().submit(() -> {
+                                    levelChunk.getSections()[sectionIndex] = newSection;
+                                }).get();
+                            } catch (InterruptedException | ExecutionException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }, parallelExecutor);
 
-                    chunkFutures.add(future);
+                        chunkFutures.add(future);
+                    }
                 }
 
                 CompletableFuture<?> thisChunk = CompletableFuture.allOf(chunkFutures.toArray(new CompletableFuture[0]));
