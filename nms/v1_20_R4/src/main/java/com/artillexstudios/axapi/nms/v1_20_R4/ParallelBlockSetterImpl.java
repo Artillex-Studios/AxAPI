@@ -4,7 +4,9 @@ import com.artillexstudios.axapi.selection.Cuboid;
 import com.artillexstudios.axapi.selection.ParallelBlockSetter;
 import com.artillexstudios.axapi.utils.ClassUtils;
 import com.artillexstudios.axapi.utils.FastFieldAccessor;
+import com.destroystokyo.paper.util.maplist.IBlockDataList;
 import com.google.common.collect.Sets;
+import com.google.gson.Gson;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkHolder;
@@ -40,6 +42,7 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
     private static final ExecutorService parallelExecutor = Executors.newFixedThreadPool(8);
     private static final Logger log = LoggerFactory.getLogger(ParallelBlockSetterImpl.class);
     private static final ArrayList<FastFieldAccessor> accessors = new ArrayList<>();
+    private static final Gson gson = new Gson();
 
     static {
         for (Field field : LevelChunkSection.class.getDeclaredFields()) {
@@ -59,25 +62,10 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
 
     public void copyFields(LevelChunkSection fromSection, LevelChunkSection toSection) {
         for (FastFieldAccessor accessor : accessors) {
-            if (accessor.getField().getType() == Boolean.TYPE) {
-                accessor.setBoolean(toSection, accessor.getBoolean(fromSection));
-            } else if (accessor.getField().getType() == Byte.TYPE) {
-                accessor.setByte(toSection, accessor.getByte(fromSection));
-            } else if (accessor.getField().getType() == Short.TYPE) {
-                accessor.setShort(toSection, accessor.getShort(fromSection));
-            } else if (accessor.getField().getType() == Character.TYPE) {
-                accessor.setChar(toSection, accessor.getChar(fromSection));
-            } else if (accessor.getField().getType() == Integer.TYPE) {
-                accessor.setInt(toSection, accessor.getInt(fromSection));
-            } else if (accessor.getField().getType() == Long.TYPE) {
-                accessor.setLong(toSection, accessor.getLong(fromSection));
-            } else if (accessor.getField().getType() == Float.TYPE) {
-                accessor.setFloat(toSection, accessor.getFloat(fromSection));
-            } else if (accessor.getField().getType() == Double.TYPE) {
-                accessor.setDouble(toSection, accessor.getDouble(fromSection));
-            } else {
-                accessor.set(toSection, accessor.get(fromSection));
-            }
+            Object from = accessor.getAny(fromSection);
+            // Deep copy
+            Object copied = gson.fromJson(gson.toJson(from), accessor.getField().getType());
+            accessor.setAny(toSection, copied);
         }
     }
 

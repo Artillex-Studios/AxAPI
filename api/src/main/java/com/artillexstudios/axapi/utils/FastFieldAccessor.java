@@ -130,6 +130,50 @@ public class FastFieldAccessor {
     public byte getByte(Object object) {
         return unsafe.getByte(object, fieldOffset);
     }
+    
+    public void setAny(Object object, Object value) {
+        if (field.getType() == Boolean.TYPE) {
+            setBoolean(object, (Boolean) value);
+        } else if (field.getType() == Byte.TYPE) {
+            setByte(object, (Byte) value);
+        } else if (field.getType() == Short.TYPE) {
+            setShort(object, (Short) value);
+        } else if (field.getType() == Character.TYPE) {
+            setChar(object, (Character) value);
+        } else if (field.getType() == Integer.TYPE) {
+            setInt(object, (Integer) value);
+        } else if (field.getType() == Long.TYPE) {
+            setLong(object, (Long) value);
+        } else if (field.getType() == Float.TYPE) {
+            setFloat(object, (Float) value);
+        } else if (field.getType() == Double.TYPE) {
+            setDouble(object, (Double) value);
+        } else {
+            set(object, value);
+        }
+    }
+
+    public Object getAny(Object object) {
+        if (field.getType() == Boolean.TYPE) {
+            return getBoolean(object);
+        } else if (field.getType() == Byte.TYPE) {
+            return getByte(object);
+        } else if (field.getType() == Short.TYPE) {
+            return getShort(object);
+        } else if (field.getType() == Character.TYPE) {
+            return getChar(object);
+        } else if (field.getType() == Integer.TYPE) {
+            return getInt(object);
+        } else if (field.getType() == Long.TYPE) {
+            return getLong(object);
+        } else if (field.getType() == Float.TYPE) {
+            return getFloat(object);
+        } else if (field.getType() == Double.TYPE) {
+            return getDouble(object);
+        } else {
+            return get(object);
+        }
+    }
 
     public Field getField() {
         return field;
