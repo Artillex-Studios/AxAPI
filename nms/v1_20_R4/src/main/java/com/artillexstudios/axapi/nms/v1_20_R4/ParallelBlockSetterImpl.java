@@ -40,7 +40,7 @@ import java.util.function.IntConsumer;
 
 public class ParallelBlockSetterImpl implements ParallelBlockSetter {
     private static final ExecutorService executor = Executors.newSingleThreadExecutor();
-    private static final ExecutorService parallelExecutor = Executors.newFixedThreadPool(8);
+    private static final ExecutorService parallelExecutor = Executors.newVirtualThreadPerTaskExecutor();
     private static final Logger log = LoggerFactory.getLogger(ParallelBlockSetterImpl.class);
     private static final ArrayList<FastFieldAccessor> accessors = new ArrayList<>();
 
@@ -108,6 +108,7 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
                 List<CompletableFuture<?>> chunkFutures = new ArrayList<>();
 
                 int lastSectionIndex = -1;
+
                 for (int y = selection.getMinY(); y <= selection.getMaxY(); y++) {
                     int sectionIndex = levelChunk.getSectionIndex(y);
 
@@ -116,24 +117,30 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
 
                         LevelChunkSection section = levelChunk.getSection(sectionIndex);
 
-                        int finalY = y;
                         CompletableFuture<?> future = CompletableFuture.runAsync(() -> {
                             LevelChunkSection newSection = copy(section);
 
-                            for (int x = minX; x <= maxX; x++) {
-                                for (int z = minZ; z <= maxZ; z++) {
-                                    CraftBlockData type = (CraftBlockData) distribution.sample();
+                            for (int i = selection.getMinY(); i <= selection.getMaxY(); i++) {
+                                int m = levelChunk.getSectionIndex(i);
+                                if (m < sectionIndex) continue;
+                                if (m > sectionIndex) break;
 
-                                    int j = x & 15;
-                                    int k = finalY & 15;
-                                    int l = z & 15;
+                                for (int x = minX; x <= maxX; x++) {
+                                    for (int z = minZ; z <= maxZ; z++) {
+                                        CraftBlockData type = (CraftBlockData) distribution.sample();
 
-                                    var state = type.getState();
-                                    blockCount.incrementAndGet();
-                                    newSection.setBlockState(j, k, l, state, true);
-                                    updateHeightMap(levelChunk, j, finalY, l, state);
+                                        int j = x & 15;
+                                        int k = i & 15;
+                                        int l = z & 15;
+
+                                        var state = type.getState();
+                                        blockCount.incrementAndGet();
+                                        newSection.setBlockState(j, k, l, state, false);
+                                        updateHeightMap(levelChunk, j, i, l, state);
+                                    }
                                 }
                             }
+
 
                             try {
                                 MinecraftServer.getServer().submit(() -> {
