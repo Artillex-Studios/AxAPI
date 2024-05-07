@@ -69,6 +69,12 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
             } else if (accessor.getField().getType() == PalettedContainer.class) {
                 PalettedContainer<?> container = accessor.get(fromSection);
                 accessor.set(toSection, container.copy());
+                FastFieldAccessor dataAccessor = FastFieldAccessor.forClassField(PalettedContainer.class, "d");
+                FastFieldAccessor storageAccessor = FastFieldAccessor.forClassField(ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$c"), "b");
+
+                Object data = dataAccessor.get(container);
+                Object o = storageAccessor.get(data);
+                System.out.println("CLASS: " + o.getClass() + " name: " + o.getClass().getName());
             } else if (accessor.getField().getType() == IBlockDataList.class) {
                 accessor.set(toSection, IBlockDataListCopier.copy(accessor.get(fromSection)));
             } else {

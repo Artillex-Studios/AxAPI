@@ -35,6 +35,15 @@ public enum ClassUtils {
         }
     }
 
+    public Class<?> getClass(String clazz) {
+        try {
+            return Class.forName(clazz);
+        } catch (ClassNotFoundException exception) {
+            log.error("An unexpected error occurred while finding class {}!", clazz, exception);
+            throw new RuntimeException(exception);
+        }
+    }
+
     public <T> T newInstance(Class<?> clazz) {
         try {
             return (T) unsafe.allocateInstance(clazz);
