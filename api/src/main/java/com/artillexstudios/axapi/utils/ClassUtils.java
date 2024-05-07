@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.misc.Unsafe;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 
 public enum ClassUtils {
@@ -40,6 +41,16 @@ public enum ClassUtils {
             return Class.forName(clazz);
         } catch (ClassNotFoundException exception) {
             log.error("An unexpected error occurred while finding class {}!", clazz, exception);
+            throw new RuntimeException(exception);
+        }
+    }
+
+    public Field getDeclaredField(String clazz, String field) {
+        Class<?> cl = getClass(clazz);
+        try {
+            return cl.getDeclaredField(field);
+        } catch (NoSuchFieldException exception) {
+            log.error("An unexpected error occurred while getting field {} of class {}!", field, clazz, exception);
             throw new RuntimeException(exception);
         }
     }

@@ -33,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +50,7 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
     private static final ArrayList<FastFieldAccessor> accessors = new ArrayList<>();
     private static final FastFieldAccessor dataAccessor = FastFieldAccessor.forClassField(PalettedContainer.class, "d");
     private static final FastFieldAccessor statesAccessor = FastFieldAccessor.forClassField(LevelChunkSection.class, "i");
-    private static final Method storage = ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$c").getRecordComponents()[1].getAccessor();
+    private static final Field storage = ClassUtils.INSTANCE.getDeclaredField("net.minecraft.world.level.chunk.DataPaletteBlock$c", "b");
     private static final BlockState[] presetBlockStates = new BlockState[]{Blocks.STONE.defaultBlockState()};
 
     static {
@@ -92,7 +91,7 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
         Object data = dataAccessor.get(container);
         Object storageClass;
         try {
-            storageClass = storage.invoke(data).getClass();
+            storageClass = storage.get(data).getClass();
         } catch (Exception exception) {
             log.error("An unexpected error occurred while accessing states!", exception);
             return;
