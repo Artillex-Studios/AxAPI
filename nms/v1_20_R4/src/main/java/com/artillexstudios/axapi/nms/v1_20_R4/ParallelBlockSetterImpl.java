@@ -139,7 +139,7 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
         int chunkMinZ = selection.getMinZ() >> 4;
         int chunkMaxZ = selection.getMaxZ() >> 4;
 
-        List<Pair<BlockData, Double>> pmf = new ArrayList<>();
+        List<Pair<BlockData, Double>> pmf = distribution.getPmf();
 
         List<CompletableFuture<?>> chunkTasks = new ArrayList<>();
         for (int chunkX = chunkMinX; chunkX <= chunkMaxX; chunkX++) {
