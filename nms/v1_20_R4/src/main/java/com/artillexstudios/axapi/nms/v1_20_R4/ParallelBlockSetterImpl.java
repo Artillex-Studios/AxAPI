@@ -59,6 +59,7 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
     static {
         try {
             dataConstructor = ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$c").getDeclaredConstructor(ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$a"), BitStorage.class, Palette.class);
+            dataConstructor.setAccessible(true);
         } catch (NoSuchMethodException exception) {
             log.error("No constructor found!", exception);
         }
