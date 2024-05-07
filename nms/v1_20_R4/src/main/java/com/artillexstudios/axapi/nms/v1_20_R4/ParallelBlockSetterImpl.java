@@ -12,7 +12,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.SimpleBitStorage;
 import net.minecraft.util.ZeroBitStorage;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -30,11 +29,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.RecordComponent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -46,7 +46,7 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
     private static final Logger log = LoggerFactory.getLogger(ParallelBlockSetterImpl.class);
     private static final ArrayList<FastFieldAccessor> accessors = new ArrayList<>();
     private static final FastFieldAccessor dataAccessor = FastFieldAccessor.forClassField(PalettedContainer.class, "d");
-    private static final FastFieldAccessor storageAccessor = FastFieldAccessor.forClassField(ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$c"), "b");
+    private static final RecordComponent component = ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$c").getRecordComponents()[1];
 
 
     static {
@@ -81,7 +81,14 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
 
 
                 Object data = dataAccessor.get(container);
-                Object o = storageAccessor.get(data);
+                Object o;
+                try {
+                    o = component.getAccessor().invoke(data);
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    log.error("Doesn't work...", e);
+                    throw new RuntimeException(e);
+                }
+
                 log.error("Class: {}!", o.getClass());
                 if (o.getClass() == ZeroBitStorage.class) {
                     log.error("ZERO BIT STORAGE");
@@ -209,12 +216,12 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
         List<ServerPlayer> playersInRange = playerChunk.playerProvider.getPlayers(playerChunk.getPos(), false);
 
 //        executor.execute(() -> {
-            ClientboundLevelChunkWithLightPacket lightPacket = new ClientboundLevelChunkWithLightPacket(chunk, level.getLightEngine(), null, null, false);
-            int size = playersInRange.size();
-            for (int i = 0; i < size; i++) {
-                ServerPlayer player = playersInRange.get(i);
-                player.connection.send(lightPacket);
-            }
+        ClientboundLevelChunkWithLightPacket lightPacket = new ClientboundLevelChunkWithLightPacket(chunk, level.getLightEngine(), null, null, false);
+        int size = playersInRange.size();
+        for (int i = 0; i < size; i++) {
+            ServerPlayer player = playersInRange.get(i);
+            player.connection.send(lightPacket);
+        }
 //        });
     }
 
