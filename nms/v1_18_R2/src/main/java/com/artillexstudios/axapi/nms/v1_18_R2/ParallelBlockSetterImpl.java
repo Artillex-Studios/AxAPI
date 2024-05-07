@@ -49,11 +49,9 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
     private static final ExecutorService parallelExecutor = Executors.newFixedThreadPool(8);
     private static final Logger log = LoggerFactory.getLogger(ParallelBlockSetterImpl.class);
     private static final ArrayList<FastFieldAccessor> accessors = new ArrayList<>();
-    private static final FastFieldAccessor dataAccessor = FastFieldAccessor.forClassField(PalettedContainer.class, "d");
-    private static final FastFieldAccessor statesAccessor = FastFieldAccessor.forClassField(LevelChunkSection.class, "h");
-    private static final Method configuration = ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$c").getRecordComponents()[0].getAccessor();
+        private static final FastFieldAccessor dataAccessor = FastFieldAccessor.forClassField(PalettedContainer.class, "d");
+    private static final FastFieldAccessor statesAccessor = FastFieldAccessor.forClassField(LevelChunkSection.class, "i");
     private static final Method storage = ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$c").getRecordComponents()[1].getAccessor();
-    private static final Method palette = ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$c").getRecordComponents()[2].getAccessor();
     private static final BlockState[] presetBlockStates = new BlockState[]{Blocks.STONE.defaultBlockState()};
 
     static {
@@ -65,9 +63,7 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
             accessors.add(fieldAccessor);
         }
 
-        configuration.setAccessible(true);
         storage.setAccessible(true);
-        palette.setAccessible(true);
     }
 
     private final ServerLevel level;
