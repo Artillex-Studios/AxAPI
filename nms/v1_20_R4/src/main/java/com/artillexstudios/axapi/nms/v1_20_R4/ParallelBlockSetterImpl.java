@@ -113,13 +113,13 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
                     int sectionIndex = levelChunk.getSectionIndex(y);
 
                     if (lastSectionIndex != sectionIndex) {
+                        log.info("New section! x: {} z: {} y: {}", chunkX, chunkZ, y);
                         lastSectionIndex = sectionIndex;
 
                         LevelChunkSection section = levelChunk.getSection(sectionIndex);
+                        LevelChunkSection newSection = copy(section);
 
                         CompletableFuture<?> future = CompletableFuture.runAsync(() -> {
-                            LevelChunkSection newSection = copy(section);
-
                             for (int i = selection.getMinY(); i <= selection.getMaxY(); i++) {
                                 int m = levelChunk.getSectionIndex(i);
                                 if (m < sectionIndex) continue;
@@ -152,12 +152,14 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
                         }, parallelExecutor);
 
                         chunkFutures.add(future);
+                    } else {
+                        log.info("Old section! Y: {}", y);
                     }
                 }
 
                 CompletableFuture<?> thisChunk = CompletableFuture.allOf(chunkFutures.toArray(new CompletableFuture[0]));
 
-                thisChunk.thenAccept((ignored) -> MinecraftServer.getServer().executeBlocking(() -> {
+                thisChunk.thenAccept((ignored) -> MinecraftServer.getServer().submit(() -> {
                     var lightEngine = level.chunkSource.getLightEngine();
                     lightEngine.relight(Sets.newHashSet(levelChunk.getPos()), c -> {
                     }, c -> {
@@ -179,14 +181,14 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
         if (playerChunk == null) return;
         List<ServerPlayer> playersInRange = playerChunk.playerProvider.getPlayers(playerChunk.getPos(), false);
 
-        executor.execute(() -> {
+//        executor.execute(() -> {
             ClientboundLevelChunkWithLightPacket lightPacket = new ClientboundLevelChunkWithLightPacket(chunk, level.getLightEngine(), null, null, false);
             int size = playersInRange.size();
             for (int i = 0; i < size; i++) {
                 ServerPlayer player = playersInRange.get(i);
                 player.connection.send(lightPacket);
             }
-        });
+//        });
     }
 
     private void updateHeightMap(ChunkAccess chunk, int x, int y, int z, BlockState blockState) {
