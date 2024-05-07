@@ -13,7 +13,6 @@ import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.BitStorage;
-import net.minecraft.util.SimpleBitStorage;
 import net.minecraft.util.ZeroBitStorage;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -25,7 +24,6 @@ import net.minecraft.world.level.chunk.Palette;
 import net.minecraft.world.level.chunk.PalettedContainer;
 import net.minecraft.world.level.levelgen.Heightmap;
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
-import org.apache.commons.math3.distribution.EnumeratedRealDistribution;
 import org.apache.commons.math3.util.Pair;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
@@ -58,8 +56,8 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
     private static final Method configuration = ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$c").getRecordComponents()[0].getAccessor();
     private static final Method storage = ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$c").getRecordComponents()[1].getAccessor();
     private static final Method palette = ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$c").getRecordComponents()[2].getAccessor();
-    private static Constructor<?> dataConstructor;
     private static final BlockState[] presetBlockStates = new BlockState[]{Blocks.STONE.defaultBlockState()};
+    private static Constructor<?> dataConstructor;
 
     static {
         try {
@@ -163,8 +161,9 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
                         LevelChunkSection section = levelChunk.getSection(sectionIndex);
                         LevelChunkSection newSection = copy(section);
 
-                        EnumeratedDistribution<BlockData> newDistribution = new EnumeratedDistribution<>(pmf);
                         CompletableFuture<?> future = CompletableFuture.runAsync(() -> {
+                            EnumeratedDistribution<BlockData> newDistribution = new EnumeratedDistribution<>(pmf);
+
                             for (int i = selection.getMinY(); i <= selection.getMaxY(); i++) {
                                 int m = levelChunk.getSectionIndex(i);
                                 if (m < sectionIndex) continue;
@@ -186,14 +185,13 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
                                 }
                             }
 
-                            levelChunk.getSections()[sectionIndex] = newSection;
-//                            try {
-//                                MinecraftServer.getServer().submit(() -> {
-//                                    levelChunk.getSections()[sectionIndex] = newSection;
-//                                }).get();
-//                            } catch (InterruptedException | ExecutionException e) {
-//                                throw new RuntimeException(e);
-//                            }
+                            try {
+                                MinecraftServer.getServer().submit(() -> {
+                                    levelChunk.getSections()[sectionIndex] = newSection;
+                                }).get();
+                            } catch (InterruptedException | ExecutionException e) {
+                                throw new RuntimeException(e);
+                            }
                         }, parallelExecutor);
 
                         chunkFutures.add(future);
@@ -224,14 +222,14 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
         if (playerChunk == null) return;
         List<ServerPlayer> playersInRange = playerChunk.playerProvider.getPlayers(playerChunk.getPos(), false);
 
-//        executor.execute(() -> {
         ClientboundLevelChunkWithLightPacket lightPacket = new ClientboundLevelChunkWithLightPacket(chunk, level.getLightEngine(), null, null, false);
-        int size = playersInRange.size();
-        for (int i = 0; i < size; i++) {
-            ServerPlayer player = playersInRange.get(i);
-            player.connection.send(lightPacket);
-        }
-//        });
+        executor.execute(() -> {
+            int size = playersInRange.size();
+            for (int i = 0; i < size; i++) {
+                ServerPlayer player = playersInRange.get(i);
+                player.connection.send(lightPacket);
+            }
+        });
     }
 
     private void updateHeightMap(ChunkAccess chunk, int x, int y, int z, BlockState blockState) {
