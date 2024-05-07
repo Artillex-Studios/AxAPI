@@ -12,6 +12,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.SimpleBitStorage;
+import net.minecraft.util.ZeroBitStorage;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -43,6 +45,9 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
     private static final ExecutorService parallelExecutor = Executors.newVirtualThreadPerTaskExecutor();
     private static final Logger log = LoggerFactory.getLogger(ParallelBlockSetterImpl.class);
     private static final ArrayList<FastFieldAccessor> accessors = new ArrayList<>();
+    private static final FastFieldAccessor dataAccessor = FastFieldAccessor.forClassField(PalettedContainer.class, "d");
+    private static final FastFieldAccessor storageAccessor = FastFieldAccessor.forClassField(ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$c"), "b");
+
 
     static {
         for (Field field : LevelChunkSection.class.getDeclaredFields()) {
@@ -61,21 +66,33 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
     }
 
     public void copyFields(LevelChunkSection fromSection, LevelChunkSection toSection) {
+        log.error("CopyFields!");
         for (FastFieldAccessor accessor : accessors) {
             if (accessor.getField().getType() == Short.TYPE) {
+                log.error("Short!");
                 accessor.setShort(toSection, accessor.getShort(fromSection));
             } else if (accessor.getField().getType() == Integer.TYPE) {
+                log.error("Int!");
                 accessor.setInt(toSection, accessor.getInt(fromSection));
             } else if (accessor.getField().getType() == PalettedContainer.class) {
+                log.error("Palettedcontainer!");
                 PalettedContainer<?> container = accessor.get(fromSection);
-                accessor.set(toSection, container.copy());
-                FastFieldAccessor dataAccessor = FastFieldAccessor.forClassField(PalettedContainer.class, "d");
-                FastFieldAccessor storageAccessor = FastFieldAccessor.forClassField(ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$c"), "b");
+                PalettedContainer<?> copy = container.copy();
+
 
                 Object data = dataAccessor.get(container);
                 Object o = storageAccessor.get(data);
-                System.out.println("CLASS: " + o.getClass() + " name: " + o.getClass().getName());
+                log.error("Class: {}!", o.getClass());
+                if (o.getClass() == ZeroBitStorage.class) {
+                    log.error("ZERO BIT STORAGE");
+//                    storageAccessor.set(data, new SimpleBitStorage());
+                } else {
+                    log.error("NOT ZERO BIT STORAGE");
+                }
+
+                accessor.set(toSection, copy);
             } else if (accessor.getField().getType() == IBlockDataList.class) {
+                log.error("Iblockdatalist!");
                 accessor.set(toSection, IBlockDataListCopier.copy(accessor.get(fromSection)));
             } else {
                 log.error("No copier for class {}!", accessor.getField().getType().getName());
@@ -84,6 +101,7 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
     }
 
     public LevelChunkSection copy(LevelChunkSection section) {
+        log.error("Copy!");
         try {
             LevelChunkSection newSection = ClassUtils.INSTANCE.newInstance(LevelChunkSection.class);
             copyFields(section, newSection);
