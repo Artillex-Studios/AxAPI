@@ -54,7 +54,6 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
     private static final Method configuration = ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$c").getRecordComponents()[0].getAccessor();
     private static final Method storage = ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$c").getRecordComponents()[1].getAccessor();
     private static final Method palette = ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$c").getRecordComponents()[2].getAccessor();
-    private static final Method configBits = ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$a").getRecordComponents()[1].getAccessor();
     private static Constructor<?> dataConstructor;
 
     static {
@@ -75,7 +74,6 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
         configuration.setAccessible(true);
         storage.setAccessible(true);
         palette.setAccessible(true);
-        configBits.setAccessible(true);
     }
 
     private final ServerLevel level;
@@ -116,7 +114,7 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
                 Object config = configuration.invoke(data);
                 Object palette = configuration.invoke(data);
 
-                Object newData = dataConstructor.newInstance(config, new SimpleBitStorage((Integer) configBits.invoke(config), PalettedContainer.Strategy.SECTION_STATES.size()), palette);
+                Object newData = dataConstructor.newInstance(config, new SimpleBitStorage(4, PalettedContainer.Strategy.SECTION_STATES.size()), palette);
                 dataAccessor.set(container, newData);
             } catch (Exception exception) {
                 log.error("An unexpected error occurred while replacing storage!", exception);
@@ -125,7 +123,6 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
     }
 
     public LevelChunkSection copy(LevelChunkSection section) {
-        log.error("Copy!");
         try {
             LevelChunkSection newSection = ClassUtils.INSTANCE.newInstance(LevelChunkSection.class);
             copyFields(section, newSection);
