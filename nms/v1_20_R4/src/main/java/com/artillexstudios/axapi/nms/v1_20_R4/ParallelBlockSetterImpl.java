@@ -15,6 +15,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.BitStorage;
 import net.minecraft.util.SimpleBitStorage;
 import net.minecraft.util.ZeroBitStorage;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -55,6 +57,7 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
     private static final Method storage = ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$c").getRecordComponents()[1].getAccessor();
     private static final Method palette = ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$c").getRecordComponents()[2].getAccessor();
     private static Constructor<?> dataConstructor;
+    private static final BlockState[] presetBlockStates = new BlockState[]{Blocks.STONE.defaultBlockState()};
 
     static {
         try {
@@ -109,17 +112,20 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
             return;
         }
 
+
+
         // It's a zerobitstorage, we need to replace it with a simplebitstorage
         if (o.getClass() == ZeroBitStorage.class) {
-            try {
-                Object config = configuration.invoke(data);
-                Object palette = ParallelBlockSetterImpl.palette.invoke(data);
-
-                Object newData = dataConstructor.newInstance(config, new SimpleBitStorage(4, PalettedContainer.Strategy.SECTION_STATES.size()), palette);
-                dataAccessor.set(container, newData);
-            } catch (Exception exception) {
-                log.error("An unexpected error occurred while replacing storage!", exception);
-            }
+//            try {
+//                Object config = configuration.invoke(data);
+//                Object palette = ParallelBlockSetterImpl.palette.invoke(data);
+//
+//                Object newData = dataConstructor.newInstance(config, new SimpleBitStorage(4, PalettedContainer.Strategy.SECTION_STATES.size()), palette);
+//                dataAccessor.set(container, newData);
+//            } catch (Exception exception) {
+//                log.error("An unexpected error occurred while replacing storage!", exception);
+//            }
+            statesAccessor.set(toSection, new PalettedContainer<>(Block.BLOCK_STATE_REGISTRY, Blocks.AIR.defaultBlockState(), PalettedContainer.Strategy.SECTION_STATES, presetBlockStates));
         }
     }
 
