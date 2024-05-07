@@ -25,6 +25,8 @@ import net.minecraft.world.level.chunk.Palette;
 import net.minecraft.world.level.chunk.PalettedContainer;
 import net.minecraft.world.level.levelgen.Heightmap;
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
+import org.apache.commons.math3.distribution.EnumeratedRealDistribution;
+import org.apache.commons.math3.util.Pair;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.CraftWorld;
@@ -104,27 +106,16 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
 
         PalettedContainer<?> container = statesAccessor.get(toSection);
         Object data = dataAccessor.get(container);
-        Object o;
+        Object storageClass;
         try {
-            o = storage.invoke(data);
+            storageClass = storage.invoke(data).getClass();
         } catch (Exception exception) {
             log.error("An unexpected error occurred while accessing states!", exception);
             return;
         }
 
-
-
-        // It's a zerobitstorage, we need to replace it with a simplebitstorage
-        if (o.getClass() == ZeroBitStorage.class) {
-//            try {
-//                Object config = configuration.invoke(data);
-//                Object palette = ParallelBlockSetterImpl.palette.invoke(data);
-//
-//                Object newData = dataConstructor.newInstance(config, new SimpleBitStorage(4, PalettedContainer.Strategy.SECTION_STATES.size()), palette);
-//                dataAccessor.set(container, newData);
-//            } catch (Exception exception) {
-//                log.error("An unexpected error occurred while replacing storage!", exception);
-//            }
+        // It's a chunk with zerobitstorage, we need to replace it with a simplebitstorage
+        if (storageClass == ZeroBitStorage.class) {
             statesAccessor.set(toSection, new PalettedContainer<>(Block.BLOCK_STATE_REGISTRY, Blocks.AIR.defaultBlockState(), PalettedContainer.Strategy.SECTION_STATES, presetBlockStates));
         }
     }
@@ -148,6 +139,8 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
         int chunkMinZ = selection.getMinZ() >> 4;
         int chunkMaxZ = selection.getMaxZ() >> 4;
 
+        List<Pair<BlockData, Double>> pmf = new ArrayList<>();
+
         List<CompletableFuture<?>> chunkTasks = new ArrayList<>();
         for (int chunkX = chunkMinX; chunkX <= chunkMaxX; chunkX++) {
             int minX = Math.max(selection.getMinX(), chunkX << 4);
@@ -170,6 +163,7 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
                         LevelChunkSection section = levelChunk.getSection(sectionIndex);
                         LevelChunkSection newSection = copy(section);
 
+                        EnumeratedDistribution<BlockData> newDistribution = new EnumeratedDistribution<>(pmf);
                         CompletableFuture<?> future = CompletableFuture.runAsync(() -> {
                             for (int i = selection.getMinY(); i <= selection.getMaxY(); i++) {
                                 int m = levelChunk.getSectionIndex(i);
@@ -178,7 +172,7 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
 
                                 for (int x = minX; x <= maxX; x++) {
                                     for (int z = minZ; z <= maxZ; z++) {
-                                        CraftBlockData type = (CraftBlockData) distribution.sample();
+                                        CraftBlockData type = (CraftBlockData) newDistribution.sample();
 
                                         int j = x & 15;
                                         int k = i & 15;
@@ -192,13 +186,14 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
                                 }
                             }
 
-                            try {
-                                MinecraftServer.getServer().submit(() -> {
-                                    levelChunk.getSections()[sectionIndex] = newSection;
-                                }).get();
-                            } catch (InterruptedException | ExecutionException e) {
-                                throw new RuntimeException(e);
-                            }
+                            levelChunk.getSections()[sectionIndex] = newSection;
+//                            try {
+//                                MinecraftServer.getServer().submit(() -> {
+//                                    levelChunk.getSections()[sectionIndex] = newSection;
+//                                }).get();
+//                            } catch (InterruptedException | ExecutionException e) {
+//                                throw new RuntimeException(e);
+//                            }
                         }, parallelExecutor);
 
                         chunkFutures.add(future);
