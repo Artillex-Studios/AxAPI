@@ -5,6 +5,7 @@ import com.artillexstudios.axapi.selection.Cuboid;
 import com.artillexstudios.axapi.selection.ParallelBlockSetter;
 import com.artillexstudios.axapi.utils.ClassUtils;
 import com.artillexstudios.axapi.utils.FastFieldAccessor;
+import com.artillexstudios.axapi.utils.FastMethodInvoker;
 import com.destroystokyo.paper.util.maplist.IBlockDataList;
 import com.google.common.collect.Sets;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
@@ -83,8 +84,8 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
                 Object data = dataAccessor.get(container);
                 Object o;
                 try {
-                    o = component.getAccessor().invoke(data);
-                } catch (IllegalAccessException | InvocationTargetException e) {
+                    o = FastMethodInvoker.create(component.getAccessor()).invoke(data);
+                } catch (Exception e) {
                     log.error("Doesn't work...", e);
                     throw new RuntimeException(e);
                 }
