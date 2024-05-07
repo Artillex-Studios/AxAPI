@@ -5,6 +5,7 @@ import com.artillexstudios.axapi.selection.Cuboid;
 import com.artillexstudios.axapi.selection.ParallelBlockSetter;
 import com.artillexstudios.axapi.utils.ClassUtils;
 import com.artillexstudios.axapi.utils.FastFieldAccessor;
+import com.artillexstudios.axapi.utils.PaperUtils;
 import com.destroystokyo.paper.util.maplist.IBlockDataList;
 import com.google.common.collect.Sets;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
@@ -12,7 +13,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.BitStorage;
 import net.minecraft.util.ZeroBitStorage;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -20,7 +20,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
-import net.minecraft.world.level.chunk.Palette;
 import net.minecraft.world.level.chunk.PalettedContainer;
 import net.minecraft.world.level.levelgen.Heightmap;
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
@@ -33,7 +32,6 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -57,16 +55,8 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
     private static final Method storage = ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$c").getRecordComponents()[1].getAccessor();
     private static final Method palette = ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$c").getRecordComponents()[2].getAccessor();
     private static final BlockState[] presetBlockStates = new BlockState[]{Blocks.STONE.defaultBlockState()};
-    private static Constructor<?> dataConstructor;
 
     static {
-        try {
-            dataConstructor = ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$c").getDeclaredConstructor(ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$a"), BitStorage.class, Palette.class);
-            dataConstructor.setAccessible(true);
-        } catch (NoSuchMethodException exception) {
-            log.error("No constructor found!", exception);
-        }
-
         for (Field field : LevelChunkSection.class.getDeclaredFields()) {
             if (Modifier.isStatic(field.getModifiers())) continue;
             field.setAccessible(true);
@@ -95,7 +85,7 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
             } else if (accessor.getField().getType() == PalettedContainer.class) {
                 PalettedContainer<?> container = accessor.get(fromSection);
                 accessor.set(toSection, container.copy());
-            } else if (accessor.getField().getType() == IBlockDataList.class) {
+            } else if (PaperUtils.isPaper() && accessor.getField().getType() == IBlockDataList.class) {
                 accessor.set(toSection, IBlockDataListCopier.copy(accessor.get(fromSection)));
             } else {
                 log.error("No copier for class {}!", accessor.getField().getType().getName());

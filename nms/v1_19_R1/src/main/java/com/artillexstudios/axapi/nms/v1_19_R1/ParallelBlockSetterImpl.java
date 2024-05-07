@@ -1,20 +1,29 @@
 package com.artillexstudios.axapi.nms.v1_19_R1;
 
+import com.artillexstudios.axapi.nms.v1_19_R1.utils.IBlockDataListCopier;
 import com.artillexstudios.axapi.selection.Cuboid;
 import com.artillexstudios.axapi.selection.ParallelBlockSetter;
+import com.artillexstudios.axapi.utils.ClassUtils;
 import com.artillexstudios.axapi.utils.FastFieldAccessor;
+import com.artillexstudios.axapi.utils.PaperUtils;
+import com.destroystokyo.paper.util.maplist.IBlockDataList;
 import com.google.common.collect.Sets;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ZeroBitStorage;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.chunk.PalettedContainer;
 import net.minecraft.world.level.levelgen.Heightmap;
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
+import org.apache.commons.math3.util.Pair;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.v1_19_R1.CraftWorld;
@@ -22,9 +31,9 @@ import org.bukkit.craftbukkit.v1_19_R1.block.data.CraftBlockData;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,17 +49,14 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
     private static final ExecutorService parallelExecutor = Executors.newFixedThreadPool(8);
     private static final Logger log = LoggerFactory.getLogger(ParallelBlockSetterImpl.class);
     private static final ArrayList<FastFieldAccessor> accessors = new ArrayList<>();
-    private static Unsafe unsafe = null;
+    private static final FastFieldAccessor dataAccessor = FastFieldAccessor.forClassField(PalettedContainer.class, "d");
+    private static final FastFieldAccessor statesAccessor = FastFieldAccessor.forClassField(LevelChunkSection.class, "h");
+    private static final Method configuration = ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$c").getRecordComponents()[0].getAccessor();
+    private static final Method storage = ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$c").getRecordComponents()[1].getAccessor();
+    private static final Method palette = ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$c").getRecordComponents()[2].getAccessor();
+    private static final BlockState[] presetBlockStates = new BlockState[]{Blocks.STONE.defaultBlockState()};
 
     static {
-        try {
-            Field f = Unsafe.class.getDeclaredField("theUnsafe");
-            f.setAccessible(true);
-            unsafe = (Unsafe) f.get(null);
-        } catch (Exception exception) {
-            log.error("An error occurred while initializing FastFieldAccessor!", exception);
-        }
-
         for (Field field : LevelChunkSection.class.getDeclaredFields()) {
             if (Modifier.isStatic(field.getModifiers())) continue;
             field.setAccessible(true);
@@ -58,6 +64,10 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
             FastFieldAccessor fieldAccessor = FastFieldAccessor.forField(field);
             accessors.add(fieldAccessor);
         }
+
+        configuration.setAccessible(true);
+        storage.setAccessible(true);
+        palette.setAccessible(true);
     }
 
     private final ServerLevel level;
@@ -68,31 +78,39 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
 
     public void copyFields(LevelChunkSection fromSection, LevelChunkSection toSection) {
         for (FastFieldAccessor accessor : accessors) {
-            if (accessor.getField().getType() == Boolean.TYPE) {
-                accessor.setBoolean(toSection, accessor.getBoolean(fromSection));
-            } else if (accessor.getField().getType() == Byte.TYPE) {
-                accessor.setByte(toSection, accessor.getByte(fromSection));
-            } else if (accessor.getField().getType() == Short.TYPE) {
+            if (accessor.getField().getType() == Short.TYPE) {
                 accessor.setShort(toSection, accessor.getShort(fromSection));
-            } else if (accessor.getField().getType() == Character.TYPE) {
-                accessor.setChar(toSection, accessor.getChar(fromSection));
             } else if (accessor.getField().getType() == Integer.TYPE) {
                 accessor.setInt(toSection, accessor.getInt(fromSection));
-            } else if (accessor.getField().getType() == Long.TYPE) {
-                accessor.setLong(toSection, accessor.getLong(fromSection));
-            } else if (accessor.getField().getType() == Float.TYPE) {
-                accessor.setFloat(toSection, accessor.getFloat(fromSection));
-            } else if (accessor.getField().getType() == Double.TYPE) {
-                accessor.setDouble(toSection, accessor.getDouble(fromSection));
+            } else if (accessor.getField().getType() == PalettedContainer.class) {
+                PalettedContainer<?> container = accessor.get(fromSection);
+                accessor.set(toSection, container.copy());
+            } else if (PaperUtils.isPaper() && accessor.getField().getType() == IBlockDataList.class) {
+                accessor.set(toSection, IBlockDataListCopier.copy(accessor.get(fromSection)));
             } else {
-                accessor.set(toSection, accessor.get(fromSection));
+                log.error("No copier for class {}!", accessor.getField().getType().getName());
             }
+        }
+
+        PalettedContainer<?> container = statesAccessor.get(toSection);
+        Object data = dataAccessor.get(container);
+        Object storageClass;
+        try {
+            storageClass = storage.invoke(data).getClass();
+        } catch (Exception exception) {
+            log.error("An unexpected error occurred while accessing states!", exception);
+            return;
+        }
+
+        // It's a chunk with zerobitstorage, we need to replace it with a simplebitstorage
+        if (storageClass == ZeroBitStorage.class) {
+            statesAccessor.set(toSection, new PalettedContainer<>(Block.BLOCK_STATE_REGISTRY, Blocks.AIR.defaultBlockState(), PalettedContainer.Strategy.SECTION_STATES, presetBlockStates));
         }
     }
 
     public LevelChunkSection copy(LevelChunkSection section) {
         try {
-            LevelChunkSection newSection = (LevelChunkSection) unsafe.allocateInstance(LevelChunkSection.class);
+            LevelChunkSection newSection = ClassUtils.INSTANCE.newInstance(LevelChunkSection.class);
             copyFields(section, newSection);
 
             return newSection;
@@ -109,6 +127,8 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
         int chunkMinZ = selection.getMinZ() >> 4;
         int chunkMaxZ = selection.getMaxZ() >> 4;
 
+        List<Pair<BlockData, Double>> pmf = distribution.getPmf();
+
         List<CompletableFuture<?>> chunkTasks = new ArrayList<>();
         for (int chunkX = chunkMinX; chunkX <= chunkMaxX; chunkX++) {
             int minX = Math.max(selection.getMinX(), chunkX << 4);
@@ -120,62 +140,71 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
                 LevelChunk levelChunk = level.getChunk(chunkX, chunkZ);
                 List<CompletableFuture<?>> chunkFutures = new ArrayList<>();
 
+                int lastSectionIndex = -1;
+
                 for (int y = selection.getMinY(); y <= selection.getMaxY(); y++) {
                     int sectionIndex = levelChunk.getSectionIndex(y);
-                    LevelChunkSection section = levelChunk.getSection(sectionIndex);
 
-                    int finalY = y;
-                    CompletableFuture<?> future = CompletableFuture.runAsync(() -> {
+                    if (lastSectionIndex != sectionIndex) {
+                        lastSectionIndex = sectionIndex;
+
+                        LevelChunkSection section = levelChunk.getSection(sectionIndex);
                         LevelChunkSection newSection = copy(section);
 
-                        for (int x = minX; x <= maxX; x++) {
-                            for (int z = minZ; z <= maxZ; z++) {
-                                CraftBlockData type = (CraftBlockData) distribution.sample();
+                        CompletableFuture<?> future = CompletableFuture.runAsync(() -> {
+                            EnumeratedDistribution<BlockData> newDistribution = new EnumeratedDistribution<>(pmf);
 
-                                int j = x & 15;
-                                int k = finalY & 15;
-                                int l = z & 15;
+                            for (int i = selection.getMinY(); i <= selection.getMaxY(); i++) {
+                                int m = levelChunk.getSectionIndex(i);
+                                if (m < sectionIndex) continue;
+                                if (m > sectionIndex) break;
 
-                                var state = type.getState();
-                                blockCount.incrementAndGet();
-                                newSection.setBlockState(j, k, l, state, true);
-                                updateHeightMap(levelChunk, j, finalY, l, state);
+                                for (int x = minX; x <= maxX; x++) {
+                                    for (int z = minZ; z <= maxZ; z++) {
+                                        CraftBlockData type = (CraftBlockData) newDistribution.sample();
+
+                                        int j = x & 15;
+                                        int k = i & 15;
+                                        int l = z & 15;
+
+                                        var state = type.getState();
+                                        blockCount.incrementAndGet();
+                                        newSection.setBlockState(j, k, l, state, true);
+                                        updateHeightMap(levelChunk, j, i, l, state);
+                                    }
+                                }
                             }
-                        }
 
-                        try {
-                            MinecraftServer.getServer().submit(() -> {
-                                levelChunk.getSections()[sectionIndex] = newSection;
-                            }).get();
-                        } catch (InterruptedException | ExecutionException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }, parallelExecutor);
+                            try {
+                                MinecraftServer.getServer().submit(() -> {
+                                    levelChunk.getSections()[sectionIndex] = newSection;
+                                }).get();
+                            } catch (InterruptedException | ExecutionException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }, parallelExecutor);
 
-                    chunkFutures.add(future);
+                        chunkFutures.add(future);
+                    }
                 }
 
                 CompletableFuture<?> thisChunk = CompletableFuture.allOf(chunkFutures.toArray(new CompletableFuture[0]));
 
-                thisChunk.thenAccept((ignored) -> {
-                    MinecraftServer.getServer().executeBlocking(() -> {
-                        var lightEngine = level.chunkSource.getLightEngine();
-                        lightEngine.relight(Sets.newHashSet(levelChunk.getPos()), c -> {
-                        }, c -> {
-                        });
-
-                        sendUpdatePacket(levelChunk);
+                thisChunk.thenAccept((ignored) -> MinecraftServer.getServer().submit(() -> {
+                    var lightEngine = level.chunkSource.getLightEngine();
+                    lightEngine.relight(Sets.newHashSet(levelChunk.getPos()), c -> {
+                    }, c -> {
                     });
-                });
+
+                    sendUpdatePacket(levelChunk);
+                }));
 
                 chunkTasks.add(thisChunk);
             }
         }
 
         CompletableFuture<?> future = CompletableFuture.allOf(chunkTasks.toArray(new CompletableFuture[0]));
-        future.thenAccept((ignored) -> {
-            consumer.accept(blockCount.get());
-        });
+        future.thenAccept((ignored) -> consumer.accept(blockCount.get()));
     }
 
     private void sendUpdatePacket(@NotNull LevelChunk chunk) {
@@ -183,8 +212,8 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
         if (playerChunk == null) return;
         List<ServerPlayer> playersInRange = playerChunk.playerProvider.getPlayers(playerChunk.getPos(), false);
 
+        ClientboundLevelChunkWithLightPacket lightPacket = new ClientboundLevelChunkWithLightPacket(chunk, level.getLightEngine(), null, null, false);
         executor.execute(() -> {
-            ClientboundLevelChunkWithLightPacket lightPacket = new ClientboundLevelChunkWithLightPacket(chunk, level.getLightEngine(), null, null, false);
             int size = playersInRange.size();
             for (int i = 0; i < size; i++) {
                 ServerPlayer player = playersInRange.get(i);
