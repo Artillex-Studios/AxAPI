@@ -84,7 +84,9 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
                 Object data = dataAccessor.get(container);
                 Object o;
                 try {
-                    o = FastMethodInvoker.create(component.getAccessor()).invoke(data);
+                    var a = component.getAccessor();
+                    a.setAccessible(true);
+                    o = a.invoke(data);
                 } catch (Exception e) {
                     log.error("Doesn't work...", e);
                     throw new RuntimeException(e);
