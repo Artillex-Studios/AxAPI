@@ -117,6 +117,7 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
                         lastSectionIndex = sectionIndex;
 
                         LevelChunkSection section = levelChunk.getSection(sectionIndex);
+                        log.info("Sectionsize: {}, Original section: {}", levelChunk.getSections().length, section);
                         LevelChunkSection newSection = copy(section);
 
                         CompletableFuture<?> future = CompletableFuture.runAsync(() -> {
@@ -135,20 +136,22 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
 
                                         var state = type.getState();
                                         blockCount.incrementAndGet();
-                                        newSection.setBlockState(j, k, l, state, false);
-                                        updateHeightMap(levelChunk, j, i, l, state);
+                                        newSection.setBlockState(j, k, l, state, true);
+//                                        updateHeightMap(levelChunk, j, i, l, state);
                                     }
                                 }
                             }
 
+                            log.info("Sectionsize: {}, new section: {}", levelChunk.getSections().length, newSection);
+                            levelChunk.getSections()[sectionIndex] = newSection;
 
-                            try {
-                                MinecraftServer.getServer().submit(() -> {
-                                    levelChunk.getSections()[sectionIndex] = newSection;
-                                }).get();
-                            } catch (InterruptedException | ExecutionException e) {
-                                throw new RuntimeException(e);
-                            }
+//                            try {
+//                                MinecraftServer.getServer().submit(() -> {
+//                                    levelChunk.getSections()[sectionIndex] = newSection;
+//                                }).get();
+//                            } catch (InterruptedException | ExecutionException e) {
+//                                throw new RuntimeException(e);
+//                            }
                         }, parallelExecutor);
 
                         chunkFutures.add(future);
