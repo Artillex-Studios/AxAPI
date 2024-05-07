@@ -113,7 +113,7 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
         if (o.getClass() == ZeroBitStorage.class) {
             try {
                 Object config = configuration.invoke(data);
-                Object palette = configuration.invoke(data);
+                Object palette = ParallelBlockSetterImpl.palette.invoke(data);
 
                 Object newData = dataConstructor.newInstance(config, new SimpleBitStorage(4, PalettedContainer.Strategy.SECTION_STATES.size()), palette);
                 dataAccessor.set(container, newData);
