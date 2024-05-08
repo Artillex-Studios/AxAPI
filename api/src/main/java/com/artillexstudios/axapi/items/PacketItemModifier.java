@@ -25,9 +25,22 @@ public class PacketItemModifier {
         return listening;
     }
 
-    public static void callModify(WrappedItemStack itemStack, Player player) {
+    public static void callModify(WrappedItemStack itemStack, Player player, Context context) {
         for (PacketItemModifierListener listener : listeners) {
-            listener.modifyItemStack(player, itemStack);
+            listener.modifyItemStack(player, itemStack, context);
         }
+    }
+
+    public static void restore(WrappedItemStack itemStack) {
+        for (PacketItemModifierListener listener : listeners) {
+            listener.restore(itemStack);
+        }
+    }
+
+    public enum Context {
+        SET_SLOT,
+        SET_CONTENTS,
+        EQUIPMENT,
+        DROPPED_ITEM
     }
 }

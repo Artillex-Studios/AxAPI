@@ -32,6 +32,7 @@ import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
+import net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket;
 import net.minecraft.network.protocol.game.ServerboundSignUpdatePacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
@@ -136,6 +137,11 @@ public class PacketListener extends ChannelDuplexHandler {
                 serverPlayer.connection.send(new ClientboundBlockUpdatePacket(pos, data.getState()));
             });
             return;
+        }  else if (msg instanceof ServerboundSetCreativeModeSlotPacket packet) {
+            var item = packet.getItem();
+            if (PacketItemModifier.isListening()) {
+                PacketItemModifier.restore(new WrappedItemStack(item));
+            }
         }
 
         super.channelRead(ctx, msg);
@@ -204,16 +210,16 @@ public class PacketListener extends ChannelDuplexHandler {
             super.write(ctx, packet, promise);
         } else if (msg instanceof ClientboundContainerSetSlotPacket packet) {
             if (PacketItemModifier.isListening()) {
-                PacketItemModifier.callModify(new WrappedItemStack(packet.getItem()), player);
+                PacketItemModifier.callModify(new WrappedItemStack(packet.getItem()), player, PacketItemModifier.Context.SET_SLOT);
             }
 
             super.write(ctx, packet, promise);
         } else if (msg instanceof ClientboundContainerSetContentPacket packet) {
             if (PacketItemModifier.isListening()) {
-                PacketItemModifier.callModify(new WrappedItemStack(packet.getCarriedItem()), player);
+                PacketItemModifier.callModify(new WrappedItemStack(packet.getCarriedItem()), player, PacketItemModifier.Context.SET_CONTENTS);
 
                 for (ItemStack item : packet.getItems()) {
-                    PacketItemModifier.callModify(new WrappedItemStack(item), player);
+                    PacketItemModifier.callModify(new WrappedItemStack(item), player, PacketItemModifier.Context.SET_CONTENTS);
                 }
             }
 
@@ -224,7 +230,7 @@ public class PacketListener extends ChannelDuplexHandler {
 
                 for (Pair<net.minecraft.world.entity.EquipmentSlot, ItemStack> slot : packet.getSlots()) {
                     ItemStack itemStack = slot.getSecond().copy();
-                    PacketItemModifier.callModify(new WrappedItemStack(itemStack), player);
+                    PacketItemModifier.callModify(new WrappedItemStack(itemStack), player, PacketItemModifier.Context.EQUIPMENT);
                     items.add(Pair.of(slot.getFirst(), itemStack));
                 }
 

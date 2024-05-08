@@ -36,6 +36,7 @@ import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
+import net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket;
 import net.minecraft.network.protocol.game.ServerboundSignUpdatePacket;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -88,61 +89,70 @@ public class PacketListener extends ChannelDuplexHandler {
 
     @Override
     public void channelRead(@NotNull ChannelHandlerContext ctx, @NotNull Object msg) throws Exception {
-        if (msg instanceof ServerboundInteractPacket packet) {
-            if (AxPlugin.tracker == null) {
-                super.channelRead(ctx, msg);
+        switch (msg) {
+            case ServerboundInteractPacket packet -> {
+                if (AxPlugin.tracker == null) {
+                    super.channelRead(ctx, msg);
+                    return;
+                }
+
+                FriendlyByteBuf byteBuf = new FriendlyByteBuf(Unpooled.buffer());
+                methodInvoker.invoke(packet, byteBuf);
+                int entityId = byteBuf.readVarInt();
+                int actionType = byteBuf.readVarInt();
+                InteractionHand hand = null;
+                Vector vector = null;
+                boolean attack = false;
+                if (actionType == 0) {
+                    // Interact
+                    int interactionHand = byteBuf.readVarInt();
+                    hand = interactionHand == 0 ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+                } else if (actionType == 1) {
+                    // Attack
+                    attack = true;
+                } else {
+                    // Interact at
+                    float x = byteBuf.readFloat();
+                    float y = byteBuf.readFloat();
+                    float z = byteBuf.readFloat();
+                    vector = new Vector(x, y, z);
+                    int interactionHand = byteBuf.readVarInt();
+                    hand = interactionHand == 0 ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+                }
+
+                byteBuf.release();
+
+                PacketEntity entity = AxPlugin.tracker.getById(entityId);
+                if (entity != null) {
+                    PacketEntityInteractEvent event = new PacketEntityInteractEvent(player, entity, attack, vector, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
+                    com.artillexstudios.axapi.nms.v1_20_R4.entity.PacketEntity packetEntity = (com.artillexstudios.axapi.nms.v1_20_R4.entity.PacketEntity) entity;
+                    packetEntity.acceptEventConsumers(event);
+                    Bukkit.getPluginManager().callEvent(event);
+                }
+            }
+            case ServerboundSignUpdatePacket updatePacket -> {
+                SignInput signInput = SignInput.remove(player);
+                if (signInput == null) {
+                    super.channelRead(ctx, msg);
+                    return;
+                }
+
+                signInput.getListener().accept(player, ComponentSerializer.INSTANCE.asAdventureFromJson(Arrays.asList(updatePacket.getLines())).toArray(new net.kyori.adventure.text.Component[0]));
+                com.artillexstudios.axapi.scheduler.Scheduler.get().run(task -> {
+                    CraftBlockData data = (CraftBlockData) signInput.getLocation().getBlock().getType().createBlockData();
+                    BlockPos pos = CraftLocation.toBlockPosition(signInput.getLocation());
+                    ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
+                    serverPlayer.connection.send(new ClientboundBlockUpdatePacket(pos, data.getState()));
+                });
                 return;
             }
-
-            FriendlyByteBuf byteBuf = new FriendlyByteBuf(Unpooled.buffer());
-            methodInvoker.invoke(packet, byteBuf);
-            int entityId = byteBuf.readVarInt();
-            int actionType = byteBuf.readVarInt();
-            InteractionHand hand = null;
-            Vector vector = null;
-            boolean attack = false;
-            if (actionType == 0) {
-                // Interact
-                int interactionHand = byteBuf.readVarInt();
-                hand = interactionHand == 0 ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
-            } else if (actionType == 1) {
-                // Attack
-                attack = true;
-            } else {
-                // Interact at
-                float x = byteBuf.readFloat();
-                float y = byteBuf.readFloat();
-                float z = byteBuf.readFloat();
-                vector = new Vector(x, y, z);
-                int interactionHand = byteBuf.readVarInt();
-                hand = interactionHand == 0 ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+            case ServerboundSetCreativeModeSlotPacket packet -> {
+                var item = packet.itemStack();
+                if (PacketItemModifier.isListening()) {
+                    PacketItemModifier.restore(new WrappedItemStack(item));
+                }
             }
-
-            byteBuf.release();
-
-            PacketEntity entity = AxPlugin.tracker.getById(entityId);
-            if (entity != null) {
-                PacketEntityInteractEvent event = new PacketEntityInteractEvent(player, entity, attack, vector, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
-                com.artillexstudios.axapi.nms.v1_20_R4.entity.PacketEntity packetEntity = (com.artillexstudios.axapi.nms.v1_20_R4.entity.PacketEntity) entity;
-                packetEntity.acceptEventConsumers(event);
-                Bukkit.getPluginManager().callEvent(event);
-            }
-        } else if (msg instanceof ServerboundSignUpdatePacket updatePacket) {
-            SignInput signInput = SignInput.remove(player);
-            if (signInput == null) {
-                super.channelRead(ctx, msg);
-                return;
-            }
-
-
-            signInput.getListener().accept(player, ComponentSerializer.INSTANCE.asAdventureFromJson(Arrays.asList(updatePacket.getLines())).toArray(new net.kyori.adventure.text.Component[0]));
-            com.artillexstudios.axapi.scheduler.Scheduler.get().run(task -> {
-                CraftBlockData data = (CraftBlockData) signInput.getLocation().getBlock().getType().createBlockData();
-                BlockPos pos = CraftLocation.toBlockPosition(signInput.getLocation());
-                ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
-                serverPlayer.connection.send(new ClientboundBlockUpdatePacket(pos, data.getState()));
-            });
-            return;
+            default -> {}
         }
 
         super.channelRead(ctx, msg);
@@ -150,130 +160,135 @@ public class PacketListener extends ChannelDuplexHandler {
 
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-        if (msg instanceof ClientboundSetEntityDataPacket dataPacket) {
-            HologramLine line = Holograms.byId(dataPacket.id());
+        switch (msg) {
+            case ClientboundSetEntityDataPacket dataPacket -> {
+                HologramLine line = Holograms.byId(dataPacket.id());
 
-            if (line == null || (line.type() != HologramLine.Type.TEXT || !line.hasPlaceholders())) {
-                // The entity is not a packet entity, skip!
-                super.write(ctx, msg, promise);
-                return;
-            } else if (PacketItemModifier.isListening()) {
-                for (SynchedEntityData.DataValue<?> packedItem : dataPacket.packedItems()) {
-                    if (packedItem.serializer().equals(EntityDataSerializers.ITEM_STACK)) {
-                        ItemStack value = (ItemStack) packedItem.value();
-                        PacketItemModifier.callModify(new WrappedItemStack(value), player);
-
-                        super.write(ctx, msg, promise);
-                        return;
-                    }
-                }
-            }
-
-            List<SynchedEntityData.DataValue<?>> dataValues = new ArrayList<>(dataPacket.packedItems());
-            Iterator<SynchedEntityData.DataValue<?>> iterator = dataValues.iterator();
-
-            SynchedEntityData.DataValue<?> value = null;
-            while (iterator.hasNext()) {
-                SynchedEntityData.DataValue<?> next = iterator.next();
-                if (next.id() != EntityData.CUSTOM_NAME.id()) continue;
-
-                Optional<Component> content = (Optional<Component>) next.value();
-                if (content.isEmpty()) {
+                if (line == null || (line.type() != HologramLine.Type.TEXT || !line.hasPlaceholders())) {
+                    // The entity is not a packet entity, skip!
                     super.write(ctx, msg, promise);
                     return;
-                }
-
-                String legacy = legacyCache.get(content.get(), (minecraftComponent) -> {
-                    String gsonText = Component.Serializer.toJson(minecraftComponent, MinecraftServer.getServer().registryAccess());
-                    net.kyori.adventure.text.Component gsonComponent = GsonComponentSerializer.gson().deserialize(gsonText);
-                    return LEGACY_COMPONENT_SERIALIZER.serialize(gsonComponent);
-                });
-
-                if (legacy == null) {
-                    super.write(ctx, msg, promise);
-                    return;
-                }
-
-                ThreadSafeList<Placeholder> placeholders = line.placeholders();
-                for (int i = 0; i < placeholders.size(); i++) {
-                    Placeholder placeholder = placeholders.get(i);
-                    if (placeholder instanceof StaticPlaceholder) continue;
-                    legacy = placeholder.parse(player, legacy);
-                }
-
-                Component component = componentCache.get(legacy, (legacyText) -> {
-                    net.kyori.adventure.text.Component formatted = StringUtils.format(legacyText);
-                    String gson = GsonComponentSerializer.gson().serialize(formatted);
-                    return Component.Serializer.fromJson(gson, MinecraftServer.getServer().registryAccess());
-                });
-
-                value = new SynchedEntityData.DataValue<>(next.id(), EntityData.CUSTOM_NAME.serializer(), Optional.ofNullable(component));
-                iterator.remove();
-                break;
-            }
-
-            if (value != null) {
-                dataValues.add(value);
-            }
-
-            ClientboundSetEntityDataPacket packet = new ClientboundSetEntityDataPacket(dataPacket.id(), dataValues);
-
-            super.write(ctx, packet, promise);
-        } else if (msg instanceof ClientboundContainerSetSlotPacket packet) {
-            if (PacketItemModifier.isListening()) {
-                PacketItemModifier.callModify(new WrappedItemStack(packet.getItem()), player);
-            }
-
-            super.write(ctx, packet, promise);
-        } else if (msg instanceof ClientboundContainerSetContentPacket packet) {
-            if (PacketItemModifier.isListening()) {
-                PacketItemModifier.callModify(new WrappedItemStack(packet.getCarriedItem()), player);
-
-                for (ItemStack item : packet.getItems()) {
-                    PacketItemModifier.callModify(new WrappedItemStack(item), player);
-                }
-            }
-
-            super.write(ctx, packet, promise);
-        } else if (msg instanceof ClientboundSetEquipmentPacket packet) {
-            if (PacketItemModifier.isListening()) {
-                List<Pair<net.minecraft.world.entity.EquipmentSlot, ItemStack>> items = new ArrayList<>();
-
-                for (Pair<net.minecraft.world.entity.EquipmentSlot, ItemStack> slot : packet.getSlots()) {
-                    ItemStack second = slot.getSecond();
-                    if (second == null) {
-                        items.add(Pair.of(slot.getFirst(), ItemStack.EMPTY));
-                        continue;
-                    }
-
-                    ItemStack itemStack = second.copy();
-                    PacketItemModifier.callModify(new WrappedItemStack(itemStack), player);
-                    items.add(Pair.of(slot.getFirst(), itemStack));
-                }
-
-                ClientboundSetEquipmentPacket newEquipmentPacket = new ClientboundSetEquipmentPacket(packet.getEntity(), items);
-                super.write(ctx, newEquipmentPacket, promise);
-            } else {
-                super.write(ctx, msg, promise);
-            }
-        } else if (msg instanceof ClientboundBundlePacket bundlePacket && PacketItemModifier.isListening()) {
-            for (Packet<?> packet : bundlePacket.subPackets()) {
-                if (packet instanceof ClientboundSetEntityDataPacket dataPacket) {
+                } else if (PacketItemModifier.isListening()) {
                     for (SynchedEntityData.DataValue<?> packedItem : dataPacket.packedItems()) {
                         if (packedItem.serializer().equals(EntityDataSerializers.ITEM_STACK)) {
                             ItemStack value = (ItemStack) packedItem.value();
-                            PacketItemModifier.callModify(new WrappedItemStack(value), player);
+                            PacketItemModifier.callModify(new WrappedItemStack(value), player, PacketItemModifier.Context.DROPPED_ITEM);
 
                             super.write(ctx, msg, promise);
                             return;
                         }
                     }
                 }
-            }
 
-            super.write(ctx, msg, promise);
-        } else {
-            super.write(ctx, msg, promise);
+                List<SynchedEntityData.DataValue<?>> dataValues = new ArrayList<>(dataPacket.packedItems());
+                Iterator<SynchedEntityData.DataValue<?>> iterator = dataValues.iterator();
+
+                SynchedEntityData.DataValue<?> value = null;
+                while (iterator.hasNext()) {
+                    SynchedEntityData.DataValue<?> next = iterator.next();
+                    if (next.id() != EntityData.CUSTOM_NAME.id()) continue;
+
+                    Optional<Component> content = (Optional<Component>) next.value();
+                    if (content.isEmpty()) {
+                        super.write(ctx, msg, promise);
+                        return;
+                    }
+
+                    String legacy = legacyCache.get(content.get(), (minecraftComponent) -> {
+                        String gsonText = Component.Serializer.toJson(minecraftComponent, MinecraftServer.getServer().registryAccess());
+                        net.kyori.adventure.text.Component gsonComponent = GsonComponentSerializer.gson().deserialize(gsonText);
+                        return LEGACY_COMPONENT_SERIALIZER.serialize(gsonComponent);
+                    });
+
+                    if (legacy == null) {
+                        super.write(ctx, msg, promise);
+                        return;
+                    }
+
+                    ThreadSafeList<Placeholder> placeholders = line.placeholders();
+                    for (int i = 0; i < placeholders.size(); i++) {
+                        Placeholder placeholder = placeholders.get(i);
+                        if (placeholder instanceof StaticPlaceholder) continue;
+                        legacy = placeholder.parse(player, legacy);
+                    }
+
+                    Component component = componentCache.get(legacy, (legacyText) -> {
+                        net.kyori.adventure.text.Component formatted = StringUtils.format(legacyText);
+                        String gson = GsonComponentSerializer.gson().serialize(formatted);
+                        return Component.Serializer.fromJson(gson, MinecraftServer.getServer().registryAccess());
+                    });
+
+                    value = new SynchedEntityData.DataValue<>(next.id(), EntityData.CUSTOM_NAME.serializer(), Optional.ofNullable(component));
+                    iterator.remove();
+                    break;
+                }
+
+                if (value != null) {
+                    dataValues.add(value);
+                }
+
+                ClientboundSetEntityDataPacket packet = new ClientboundSetEntityDataPacket(dataPacket.id(), dataValues);
+
+                super.write(ctx, packet, promise);
+            }
+            case ClientboundContainerSetSlotPacket packet -> {
+                if (PacketItemModifier.isListening()) {
+                    PacketItemModifier.callModify(new WrappedItemStack(packet.getItem()), player, PacketItemModifier.Context.SET_SLOT);
+                }
+
+                super.write(ctx, packet, promise);
+            }
+            case ClientboundContainerSetContentPacket packet -> {
+                if (PacketItemModifier.isListening()) {
+                    PacketItemModifier.callModify(new WrappedItemStack(packet.getCarriedItem()), player, PacketItemModifier.Context.SET_CONTENTS);
+
+                    for (ItemStack item : packet.getItems()) {
+                        PacketItemModifier.callModify(new WrappedItemStack(item), player, PacketItemModifier.Context.SET_CONTENTS);
+                    }
+                }
+
+                super.write(ctx, packet, promise);
+            }
+            case ClientboundSetEquipmentPacket packet -> {
+                if (PacketItemModifier.isListening()) {
+                    List<Pair<net.minecraft.world.entity.EquipmentSlot, ItemStack>> items = new ArrayList<>();
+
+                    for (Pair<net.minecraft.world.entity.EquipmentSlot, ItemStack> slot : packet.getSlots()) {
+                        ItemStack second = slot.getSecond();
+                        if (second == null) {
+                            items.add(Pair.of(slot.getFirst(), ItemStack.EMPTY));
+                            continue;
+                        }
+
+                        ItemStack itemStack = second.copy();
+                        PacketItemModifier.callModify(new WrappedItemStack(itemStack), player, PacketItemModifier.Context.EQUIPMENT);
+                        items.add(Pair.of(slot.getFirst(), itemStack));
+                    }
+
+                    ClientboundSetEquipmentPacket newEquipmentPacket = new ClientboundSetEquipmentPacket(packet.getEntity(), items);
+                    super.write(ctx, newEquipmentPacket, promise);
+                } else {
+                    super.write(ctx, msg, promise);
+                }
+            }
+            case ClientboundBundlePacket bundlePacket when PacketItemModifier.isListening() -> {
+                for (Packet<?> packet : bundlePacket.subPackets()) {
+                    if (packet instanceof ClientboundSetEntityDataPacket dataPacket) {
+                        for (SynchedEntityData.DataValue<?> packedItem : dataPacket.packedItems()) {
+                            if (packedItem.serializer().equals(EntityDataSerializers.ITEM_STACK)) {
+                                ItemStack value = (ItemStack) packedItem.value();
+                                PacketItemModifier.callModify(new WrappedItemStack(value), player, PacketItemModifier.Context.DROPPED_ITEM);
+
+                                super.write(ctx, msg, promise);
+                                return;
+                            }
+                        }
+                    }
+                }
+
+                super.write(ctx, msg, promise);
+            }
+            case null, default -> super.write(ctx, msg, promise);
         }
     }
 
