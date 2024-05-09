@@ -83,7 +83,7 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
             } else if (PaperUtils.isPaper() && accessor.getField().getType() == IBlockDataList.class) {
                 accessor.set(toSection, IBlockDataListCopier.copy(accessor.get(fromSection)));
             } else {
-                log.error("No copier for class {}!", accessor.getField().getType().getName());
+                log.error("No copier for class {}; classname: {} field name {} typename: {}!", accessor.getField().getType(), accessor.getField().getType().getName(), accessor.getField().getName(), accessor.getField().getType().getTypeName());
             }
         }
 
