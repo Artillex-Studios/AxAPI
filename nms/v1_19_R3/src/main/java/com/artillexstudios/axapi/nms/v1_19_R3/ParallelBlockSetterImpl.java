@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -82,6 +83,9 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
                 accessor.set(toSection, container.copy());
             } else if (PaperUtils.isPaper() && accessor.getField().getType() == IBlockDataList.class) {
                 accessor.set(toSection, IBlockDataListCopier.copy(accessor.get(fromSection)));
+            } else if (accessor.getField().getType() == long[].class) {
+                long[] longs = accessor.get(fromSection);
+                accessor.set(toSection, Arrays.copyOf(longs, longs.length));
             } else {
                 log.error("No copier for class {}; classname: {} field name {} typename: {}!", accessor.getField().getType(), accessor.getField().getType().getName(), accessor.getField().getName(), accessor.getField().getType().getTypeName());
             }
