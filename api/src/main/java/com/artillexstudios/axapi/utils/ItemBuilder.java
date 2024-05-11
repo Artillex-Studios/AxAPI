@@ -285,12 +285,13 @@ public class ItemBuilder {
     }
 
     public static List<String> toTagResolver(List<String> lore, TagResolver... resolvers) {
+        List<String> newLore = new ArrayList<>(lore);
         for (int i = 0; i < lore.size(); i++) {
-            String toFormat = lore.get(i);
-            lore.set(i, toTagResolver(toFormat, resolvers));
+            String toFormat = newLore.get(i);
+            newLore.set(i, toTagResolver(toFormat, resolvers));
         }
 
-        return lore;
+        return newLore;
     }
 
     public ItemBuilder setLore(List<String> lore, Map<String, String> replacements) {
