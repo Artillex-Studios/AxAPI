@@ -134,14 +134,14 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
             tag = parent.getOrCreateTag();
         }
 
-        byte flag = tag.contains("HideFlags", 99) ? (byte) tag.getInt("HideFlags") : 0;
+        byte flag = tag.contains("HideFlags", 99) ? (byte) tag.getByte("HideFlags") : 0;
         for (ItemFlag itemFlag : itemFlags) {
-            log.info("Flag: {}", itemFlag);
+            log.info("Flag: {} ordinal: {} 1: {}, flag0: {}", itemFlag, itemFlag.ordinal(), (byte) (itemFlag.ordinal() << 1), flag);
             flag |= (byte) (itemFlag.ordinal() << 1);
             log.info("Flag2: {}", flag);
         }
 
-        tag.putInt("HideFlags", flag);
+        tag.putByte("HideFlags", flag);
         log.info("PutInt: {}", flag);
         finishEdit();
     }
