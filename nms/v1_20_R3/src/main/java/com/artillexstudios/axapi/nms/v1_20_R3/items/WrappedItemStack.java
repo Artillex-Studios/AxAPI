@@ -31,6 +31,7 @@ import org.bukkit.craftbukkit.v1_20_R3.util.CraftMagicNumbers;
 import org.bukkit.craftbukkit.v1_20_R3.util.CraftNamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -135,10 +136,13 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
         byte flag = tag.contains("HideFlags", 99) ? (byte) tag.getInt("HideFlags") : 0;
         for (ItemFlag itemFlag : itemFlags) {
+            log.info("Flag: {}", itemFlag);
             flag |= (byte) (itemFlag.ordinal() << 1);
+            log.info("Flag2: {}", flag);
         }
 
         tag.putInt("HideFlags", flag);
+        log.info("PutInt: {}", flag);
         finishEdit();
     }
 
@@ -503,6 +507,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
     @Override
     public void finishEdit() {
         if (tag == null || tag.isEmpty()) {
+            log.info("Tag empty");
             if (CraftItemStack.class.isAssignableFrom(bukkitStack.getClass())) {
                 CraftItemStack craftItemStack = (CraftItemStack) bukkitStack;
                 ItemStack handle = HANDLE_ACCESSOR.get(craftItemStack);
@@ -516,13 +521,17 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
         }
 
         if (CraftItemStack.class.isAssignableFrom(bukkitStack.getClass())) {
+            log.info("Craft");
             CraftItemStack craftItemStack = (CraftItemStack) bukkitStack;
             ItemStack handle = HANDLE_ACCESSOR.get(craftItemStack);
             handle.setTag(tag);
         } else {
+            log.info("Other");
             parent.setTag(tag);
             org.bukkit.inventory.ItemStack bukkitItem = CraftItemStack.asCraftMirror(parent);
-            bukkitStack.setItemMeta(bukkitItem.getItemMeta());
+            ItemMeta meta = bukkitItem.getItemMeta();
+            bukkitStack.setItemMeta(meta);
+            CraftItemStack.setItemMeta(parent, meta);
         }
     }
 }
