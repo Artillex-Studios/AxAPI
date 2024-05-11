@@ -422,6 +422,10 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
             ProfileProperties profileProperties = new ProfileProperties(UUID.randomUUID(), "skull");
             CompoundTag skullOwner = tag.getCompound("SkullOwner");
+            if (tag.isEmpty()) {
+                return null;
+            }
+
             CompoundTag propertiesTag = skullOwner.getCompound("Properties");
             ListTag tag = propertiesTag.getList("textures", 10);
             String textures = "";

@@ -320,6 +320,10 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
             return (T) new com.artillexstudios.axapi.items.component.ItemEnchantments(enchants, vanilla.showInTooltip);
         } else if (component == DataComponent.PROFILE) {
             var profile = itemStack.get(DataComponents.PROFILE);
+            if (profile == null) {
+                return null;
+            }
+
             var profileProperties = new ProfileProperties(profile.id().orElse(new UUID(0, 0)), profile.name().orElse(""));
             profile.properties().forEach((k, v) -> {
                 profileProperties.put(k, new ProfileProperties.Property(v.name(), v.value(), v.signature()));

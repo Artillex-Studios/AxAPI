@@ -10,6 +10,7 @@ import com.artillexstudios.axapi.items.component.Unbreakable;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.google.common.collect.Lists;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
@@ -172,72 +173,6 @@ public class ItemBuilder {
         return flagList;
     }
 
-
-    public ItemBuilder setPotion(String potion) {
-        stack.set(DataComponent.POTION_CONTENTS, PotionType.valueOf(potion.toUpperCase(Locale.ENGLISH)));
-        return this;
-    }
-
-    public ItemBuilder setName(String name) {
-        setName(name, resolvers);
-        return this;
-    }
-
-    public ItemBuilder setName(String name, Map<String, String> replacements) {
-        AtomicReference<String> toFormat = new AtomicReference<>(name);
-        replacements.forEach((pattern, replacement) -> toFormat.set(toFormat.get().replace(pattern, replacement)));
-
-        setName(toFormat.get(), TagResolver.resolver());
-        return this;
-    }
-
-    public ItemBuilder setName(String name, TagResolver... resolvers) {
-        stack.set(DataComponent.CUSTOM_NAME, StringUtils.format(toTagResolver(name, resolvers), resolvers));
-        return this;
-    }
-
-//    public <T, Z> ItemBuilder storePersistentData(NamespacedKey key, PersistentDataType<T, Z> type, Z value) {
-//        meta.getPersistentDataContainer().set(key, type, value);
-//        return this;
-//    }
-
-    public ItemBuilder setColor(String colorString) {
-        String[] rgb = colorString.replace(" ", "").split(",");
-        Color color = Color.fromRGB(Integer.parseInt(rgb[0]), Integer.parseInt(rgb[1]), Integer.parseInt(rgb[2]));
-
-        stack.set(DataComponent.DYED_COLOR, new DyedColor(color, this.flags.contains(ItemFlag.HIDE_DYE)));
-
-        return this;
-    }
-
-    public ItemBuilder glow(boolean glow) {
-        if (glow) {
-            stack.set(DataComponent.ENCHANTMENT_GLINT_OVERRIDE, true);
-        }
-        return this;
-    }
-
-    public ItemBuilder addEnchantment(Enchantment enchantment, int level) {
-        ItemEnchantments enchants = stack.get(DataComponent.ENCHANTMENTS);
-        enchants = enchants.add(enchantment, level);
-        if (this.flags.contains(ItemFlag.HIDE_ENCHANTS)) {
-            enchants = enchants.withTooltip(false);
-        }
-
-        stack.set(DataComponent.ENCHANTMENTS, enchants);
-        return this;
-    }
-
-    public ItemBuilder setCustomModelData(Integer modelData) {
-        stack.set(DataComponent.CUSTOM_MODEL_DATA, modelData);
-        return this;
-    }
-
-    public ItemBuilder setLore(List<String> lore) {
-        setLore(lore, resolvers);
-        return this;
-    }
-
     public static String toTagResolver(String string, TagResolver... resolvers) {
         if (!string.contains("%")) {
             return string;
@@ -294,6 +229,71 @@ public class ItemBuilder {
         return newLore;
     }
 
+    public ItemBuilder setPotion(String potion) {
+        stack.set(DataComponent.POTION_CONTENTS, PotionType.valueOf(potion.toUpperCase(Locale.ENGLISH)));
+        return this;
+    }
+
+//    public <T, Z> ItemBuilder storePersistentData(NamespacedKey key, PersistentDataType<T, Z> type, Z value) {
+//        meta.getPersistentDataContainer().set(key, type, value);
+//        return this;
+//    }
+
+    public ItemBuilder setName(String name) {
+        setName(name, resolvers);
+        return this;
+    }
+
+    public ItemBuilder setName(String name, Map<String, String> replacements) {
+        AtomicReference<String> toFormat = new AtomicReference<>(name);
+        replacements.forEach((pattern, replacement) -> toFormat.set(toFormat.get().replace(pattern, replacement)));
+
+        setName(toFormat.get(), TagResolver.resolver());
+        return this;
+    }
+
+    public ItemBuilder setName(String name, TagResolver... resolvers) {
+        stack.set(DataComponent.CUSTOM_NAME, StringUtils.format(toTagResolver(name, resolvers), resolvers));
+        return this;
+    }
+
+    public ItemBuilder setColor(String colorString) {
+        String[] rgb = colorString.replace(" ", "").split(",");
+        Color color = Color.fromRGB(Integer.parseInt(rgb[0]), Integer.parseInt(rgb[1]), Integer.parseInt(rgb[2]));
+
+        stack.set(DataComponent.DYED_COLOR, new DyedColor(color, this.flags.contains(ItemFlag.HIDE_DYE)));
+
+        return this;
+    }
+
+    public ItemBuilder glow(boolean glow) {
+        if (glow) {
+            stack.set(DataComponent.ENCHANTMENT_GLINT_OVERRIDE, true);
+        }
+        return this;
+    }
+
+    public ItemBuilder addEnchantment(Enchantment enchantment, int level) {
+        ItemEnchantments enchants = stack.get(DataComponent.ENCHANTMENTS);
+        enchants = enchants.add(enchantment, level);
+        if (this.flags.contains(ItemFlag.HIDE_ENCHANTS)) {
+            enchants = enchants.withTooltip(false);
+        }
+
+        stack.set(DataComponent.ENCHANTMENTS, enchants);
+        return this;
+    }
+
+    public ItemBuilder setCustomModelData(Integer modelData) {
+        stack.set(DataComponent.CUSTOM_MODEL_DATA, modelData);
+        return this;
+    }
+
+    public ItemBuilder setLore(List<String> lore) {
+        setLore(lore, resolvers);
+        return this;
+    }
+
     public ItemBuilder setLore(List<String> lore, Map<String, String> replacements) {
         List<String> newList = new ArrayList<>(replacements.size());
         for (String line : lore) {
@@ -334,11 +334,27 @@ public class ItemBuilder {
             map.put("snbt", stack.toSNBT());
         } else {
             map.put("type", stack.get(DataComponent.MATERIAL).name());
-            map.put("name", MiniMessage.miniMessage().serialize(stack.get(DataComponent.CUSTOM_NAME)));
-            map.put("lore", Lists.transform(stack.get(DataComponent.LORE).lines(), a -> MiniMessage.miniMessage().serialize(a)));
+
+            Component name = stack.get(DataComponent.CUSTOM_NAME);
+            if (name != Component.empty()) {
+                map.put("name", MiniMessage.miniMessage().serialize(name));
+            }
+
+            List<Component> lore = stack.get(DataComponent.LORE).lines();
+            if (!lore.isEmpty()) {
+                map.put("lore", Lists.transform(lore, a -> MiniMessage.miniMessage().serialize(a)));
+            }
+
             map.put("amount", stack.getAmount());
-            map.put("custom-model-data", stack.get(DataComponent.CUSTOM_MODEL_DATA));
-            map.put("texture", stack.get(DataComponent.PROFILE).properties().get("textures").stream().findFirst().orElse(new ProfileProperties.Property("", "", null)).value());
+            int modelData = stack.get(DataComponent.CUSTOM_MODEL_DATA);
+            if (modelData != 0) {
+                map.put("custom-model-data", stack.get(DataComponent.CUSTOM_MODEL_DATA));
+            }
+
+            ProfileProperties profileProperties = stack.get(DataComponent.PROFILE);
+            if (profileProperties != null) {
+                map.put("texture", profileProperties.properties().get("textures").stream().findFirst().orElse(new ProfileProperties.Property("", "", null)).value());
+            }
         }
 
         return map;
