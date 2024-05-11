@@ -138,9 +138,9 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
             tag = parent.getOrCreateTag();
         }
 
-        byte flag = tag.contains("HideFlags", 99) ? (byte) tag.getInt("HideFlags") : 0;
+        byte flag = tag.contains("HideFlags", 99) ? (byte) tag.getInt("HideFlags") : (byte) 0;
         for (ItemFlag itemFlag : itemFlags) {
-            flag |= (byte) (itemFlag.ordinal() << 1);
+            flag |= getBitModifier(itemFlag);
         }
 
         tag.putInt("HideFlags", flag);
@@ -527,5 +527,9 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
             org.bukkit.inventory.ItemStack bukkitItem = CraftItemStack.asCraftMirror(parent);
             bukkitStack.setItemMeta(bukkitItem.getItemMeta());
         }
+    }
+
+    private byte getBitModifier(ItemFlag hideFlag) {
+        return (byte) (1 << hideFlag.ordinal());
     }
 }

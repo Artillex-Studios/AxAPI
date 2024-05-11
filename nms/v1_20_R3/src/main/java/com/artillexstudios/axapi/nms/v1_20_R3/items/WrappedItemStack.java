@@ -34,11 +34,8 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -49,7 +46,6 @@ import java.util.UUID;
 public class WrappedItemStack implements com.artillexstudios.axapi.items.WrappedItemStack {
     private static final FastFieldAccessor HANDLE_ACCESSOR = FastFieldAccessor.forClassField(CraftItemStack.class, "handle");
     private static final String DISPLAY_TAG = "display";
-    private static final Logger log = LoggerFactory.getLogger(WrappedItemStack.class);
     private final ItemStack parent;
     private final org.bukkit.inventory.ItemStack bukkitStack;
     private CompoundTag tag;
@@ -400,7 +396,6 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
         } else if (component == DataComponent.CREATIVE_SLOT_LOCK) {
             return null;
         } else if (component == DataComponent.ENCHANTMENT_GLINT_OVERRIDE) {
-            log.info("GLINT OVERRIDE!");
             set(DataComponent.ENCHANTMENTS, get(DataComponent.ENCHANTMENTS).add(Enchantment.LOYALTY, 1));
             addItemFlags(ItemFlag.HIDE_ENCHANTS);
         } else if (component == DataComponent.INTANGIBLE_PROJECTILE) {
