@@ -52,6 +52,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
     private static final Logger log = LoggerFactory.getLogger(WrappedItemStack.class);
     private final ItemStack parent;
     private final org.bukkit.inventory.ItemStack bukkitStack;
+    private final List<ItemFlag> flags = new ArrayList<>();
     private CompoundTag tag;
 
     public WrappedItemStack(org.bukkit.inventory.ItemStack itemStack) {
@@ -129,21 +130,21 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
     }
 
     public void addItemFlags(ItemFlag... itemFlags) {
-        log.info("Adding itemflag! {}", Arrays.toString(itemFlags));
-        if (tag == null) {
-            tag = parent.getOrCreateTag();
-        }
-
-        byte flag = tag.contains("HideFlags", 99) ? (byte) tag.getByte("HideFlags") : 0;
-        for (ItemFlag itemFlag : itemFlags) {
-            log.info("Flag: {} ordinal: {} 1: {}, flag0: {}", itemFlag, itemFlag.ordinal(), (byte) (itemFlag.ordinal() << 1), flag);
-            flag |= (byte) (itemFlag.ordinal() << 1);
-            log.info("Flag2: {}", flag);
-        }
-
-        tag.putByte("HideFlags", flag);
-        log.info("PutInt: {}", flag);
-        finishEdit();
+//        if (tag == null) {
+//            tag = parent.getOrCreateTag();
+//        }
+//
+//        byte flag = tag.contains("HideFlags", 99) ? (byte) tag.getByte("HideFlags") : 0;
+//        for (ItemFlag itemFlag : itemFlags) {
+//            log.info("Flag: {} ordinal: {} 1: {}, flag0: {}", itemFlag, itemFlag.ordinal(), (byte) (itemFlag.ordinal() << 1), flag);
+//            flag |= (byte) (itemFlag.ordinal() << 1);
+//            log.info("Flag2: {}", flag);
+//        }
+//
+//        tag.putByte("HideFlags", flag);
+//        log.info("PutInt: {}", flag);
+//        finishEdit();
+        this.flags.addAll(List.of(itemFlags));
     }
 
     public void removeItemFlags(ItemFlag... itemFlags) {
@@ -521,15 +522,18 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
         }
 
         if (CraftItemStack.class.isAssignableFrom(bukkitStack.getClass())) {
-            log.info("Craft");
             CraftItemStack craftItemStack = (CraftItemStack) bukkitStack;
             ItemStack handle = HANDLE_ACCESSOR.get(craftItemStack);
             handle.setTag(tag);
+            ItemMeta meta = CraftItemStack.getItemMeta(handle);
+            meta.addItemFlags(flags.toArray(new ItemFlag[0]));
+            CraftItemStack.setItemMeta(handle, meta);
         } else {
             log.info("Other");
             parent.setTag(tag);
             org.bukkit.inventory.ItemStack bukkitItem = CraftItemStack.asCraftMirror(parent);
             ItemMeta meta = bukkitItem.getItemMeta();
+            meta.addItemFlags(flags.toArray(new ItemFlag[0]));
             bukkitStack.setItemMeta(meta);
             CraftItemStack.setItemMeta(parent, meta);
         }
