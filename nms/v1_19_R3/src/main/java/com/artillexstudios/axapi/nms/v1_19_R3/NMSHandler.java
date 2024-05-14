@@ -194,19 +194,20 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
         tag.putInt("z", pos.getZ());
         tag.putString("id", "minecraft:oak_sign");
 
+        if (!tag.contains("front_text")) {
+            tag.put("front_text", new CompoundTag());
+        }
+
+        CompoundTag sideTag = tag.getCompound("front_text");
+        if (!tag.contains("messages")) {
+            sideTag.put("messages", new ListTag());
+        }
+
+        ListTag messagesNbt = sideTag.getList("messages", Tag.TAG_STRING);
 
         for (int i = 0; i < 4; i++) {
             String gson = toGson(i > signInput.getLines().length ? Component.empty() : signInput.getLines()[i]);
-            if (!tag.contains("front_text")) {
-                tag.put("front_text", new CompoundTag());
-            }
 
-            CompoundTag sideTag = tag.getCompound("front_text");
-            if (!tag.contains("messages")) {
-                sideTag.put("messages", new ListTag());
-            }
-
-            ListTag messagesNbt = sideTag.getList("messages", Tag.TAG_STRING);
             messagesNbt.set(i, net.minecraft.nbt.StringTag.valueOf(gson));
         }
 
@@ -216,6 +217,7 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
         ClientboundOpenSignEditorPacket openSignEditorPacket = new ClientboundOpenSignEditorPacket(pos);
         player.connection.send(clientboundBlockEntityDataPacket);
         player.connection.send(openSignEditorPacket);
+        buf.release();
     }
 
     @Override

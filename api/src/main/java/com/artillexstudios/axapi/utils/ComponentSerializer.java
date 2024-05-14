@@ -59,4 +59,8 @@ public enum ComponentSerializer {
 
         return adventures;
     }
+
+    public String toGson(Component component) {
+        return GsonComponentSerializer.gson().serialize(component);
+    }
 }
