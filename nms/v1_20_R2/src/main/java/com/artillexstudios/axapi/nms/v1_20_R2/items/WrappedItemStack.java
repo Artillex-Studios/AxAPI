@@ -100,6 +100,11 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
         while (var2.hasNext()) {
             String json = var2.next();
+            if (json.isEmpty() || json.isBlank()) {
+                adventures.add(Component.empty());
+                continue;
+            }
+
             adventures.add(GsonComponentSerializer.gson().deserialize(json));
         }
 

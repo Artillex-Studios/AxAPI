@@ -128,7 +128,6 @@ public class PacketListener extends ChannelDuplexHandler {
                 return;
             }
 
-
             signInput.getListener().accept(player, WrappedItemStack.asAdventureFromJson(Arrays.asList(updatePacket.getLines())).toArray(new net.kyori.adventure.text.Component[0]));
             com.artillexstudios.axapi.scheduler.Scheduler.get().run(task -> {
                 CraftBlockData data = (CraftBlockData) signInput.getLocation().getBlock().getType().createBlockData();
