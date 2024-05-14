@@ -261,6 +261,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
             }
 
             EnchantmentHelper.setEnchantments(enchantments, parent);
+            this.tag = parent.getTag();
             if (!enchants.showInTooltip()) {
                 addItemFlags(ItemFlag.HIDE_ENCHANTS);
             }
@@ -313,6 +314,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
             for (Map.Entry<Enchantment, Integer> entry : enchants.entrySet()) {
                 EnchantedBookItem.addEnchantment(parent, new EnchantmentInstance(CraftEnchantment.getRaw(entry.getKey()), entry.getValue()));
             }
+            this.tag = parent.getTag();
         } else if (component == DataComponent.PROFILE) {
             if (tag == null) {
                 tag = new CompoundTag();
