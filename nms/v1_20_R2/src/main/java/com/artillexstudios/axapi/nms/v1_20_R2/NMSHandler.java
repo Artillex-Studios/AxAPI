@@ -208,7 +208,6 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
         for (int i = 0; i < 4; i++) {
             String gson = toGson(i > signInput.getLines().length ? Component.empty() : signInput.getLines()[i]);
 
-            log.info("Gson: {}", gson);
             messagesNbt.add(i, net.minecraft.nbt.StringTag.valueOf(gson));
         }
 
