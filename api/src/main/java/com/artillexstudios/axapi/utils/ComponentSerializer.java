@@ -2,6 +2,7 @@ package com.artillexstudios.axapi.utils;
 
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.serializers.Serializer;
+import com.google.gson.stream.MalformedJsonException;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 
@@ -48,7 +49,12 @@ public enum ComponentSerializer {
 
         while (var2.hasNext()) {
             String json = var2.next();
-            adventures.add(GsonComponentSerializer.gson().deserialize(json));
+
+            try {
+                adventures.add(GsonComponentSerializer.gson().deserialize(json));
+            } catch (Exception exception) {
+                adventures.add(Component.empty());
+            }
         }
 
         return adventures;

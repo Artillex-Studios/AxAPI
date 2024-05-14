@@ -10,6 +10,8 @@ import com.artillexstudios.axapi.items.component.Unit;
 import com.artillexstudios.axapi.nms.v1_20_R2.ItemStackSerializer;
 import com.artillexstudios.axapi.utils.FastFieldAccessor;
 import com.google.common.base.Preconditions;
+import it.unimi.dsi.fastutil.objects.Object2IntAVLTreeMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.core.Registry;
@@ -38,8 +40,6 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,7 +52,6 @@ import java.util.UUID;
 public class WrappedItemStack implements com.artillexstudios.axapi.items.WrappedItemStack {
     private static final FastFieldAccessor HANDLE_ACCESSOR = FastFieldAccessor.forClassField(CraftItemStack.class, "handle");
     private static final String DISPLAY_TAG = "display";
-    private static final Logger log = LoggerFactory.getLogger(WrappedItemStack.class);
     private final ItemStack parent;
     private final org.bukkit.inventory.ItemStack bukkitStack;
     private CompoundTag tag;
@@ -101,28 +100,10 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
         while (var2.hasNext()) {
             String json = var2.next();
-            if (json.isEmpty() || json.isBlank()) {
-                adventures.add(Component.empty());
-                continue;
-            }
-
-            try {
-                adventures.add(GsonComponentSerializer.gson().deserialize(json));
-            } catch (Exception exception) {
-                log.error("An unexpected error occurred while deserializing json! {}", json, exception);
-                adventures.add(Component.empty());
-            }
+            adventures.add(GsonComponentSerializer.gson().deserialize(json));
         }
 
         return adventures;
-    }
-
-    public static Enchantment minecraftToBukkit(net.minecraft.world.item.enchantment.Enchantment minecraft) {
-        Preconditions.checkArgument(minecraft != null);
-        Registry<net.minecraft.world.item.enchantment.Enchantment> registry = CraftRegistry.getMinecraftRegistry(Registries.ENCHANTMENT);
-        Enchantment bukkit = (Enchantment) org.bukkit.Registry.ENCHANTMENT.get(CraftNamespacedKey.fromMinecraft(((ResourceKey) registry.getResourceKey(minecraft).orElseThrow()).location()));
-        Preconditions.checkArgument(bukkit != null);
-        return bukkit;
     }
 
     public List<Component> getLore() {
@@ -476,6 +457,14 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
         }
 
         return null;
+    }
+
+    public static Enchantment minecraftToBukkit(net.minecraft.world.item.enchantment.Enchantment minecraft) {
+        Preconditions.checkArgument(minecraft != null);
+        Registry<net.minecraft.world.item.enchantment.Enchantment> registry = CraftRegistry.getMinecraftRegistry(Registries.ENCHANTMENT);
+        Enchantment bukkit = (Enchantment)org.bukkit.Registry.ENCHANTMENT.get(CraftNamespacedKey.fromMinecraft(((ResourceKey)registry.getResourceKey(minecraft).orElseThrow()).location()));
+        Preconditions.checkArgument(bukkit != null);
+        return bukkit;
     }
 
     public Component getName() {

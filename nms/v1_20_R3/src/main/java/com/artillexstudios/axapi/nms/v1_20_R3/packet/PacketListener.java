@@ -10,6 +10,7 @@ import com.artillexstudios.axapi.hologram.Holograms;
 import com.artillexstudios.axapi.items.PacketItemModifier;
 import com.artillexstudios.axapi.nms.v1_20_R3.entity.EntityData;
 import com.artillexstudios.axapi.nms.v1_20_R3.items.WrappedItemStack;
+import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axapi.utils.placeholder.Placeholder;
 import com.artillexstudios.axapi.utils.placeholder.StaticPlaceholder;
@@ -132,7 +133,7 @@ public class PacketListener extends ChannelDuplexHandler {
             }
 
 
-            signInput.getListener().accept(player, WrappedItemStack.asAdventureFromJson(Arrays.asList(updatePacket.getLines())).toArray(new net.kyori.adventure.text.Component[0]));
+            signInput.getListener().accept(player, ComponentSerializer.INSTANCE.asAdventureFromJson(Arrays.asList(updatePacket.getLines())).toArray(new net.kyori.adventure.text.Component[0]));
             com.artillexstudios.axapi.scheduler.Scheduler.get().run(task -> {
                 CraftBlockData data = (CraftBlockData) signInput.getLocation().getBlock().getType().createBlockData();
                 BlockPos pos = CraftLocation.toBlockPosition(signInput.getLocation());
