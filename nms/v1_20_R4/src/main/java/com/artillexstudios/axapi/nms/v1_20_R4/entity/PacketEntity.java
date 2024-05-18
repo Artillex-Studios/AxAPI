@@ -19,6 +19,7 @@ import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
@@ -28,10 +29,13 @@ import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.CraftWorld;
+import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.util.CraftVector;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,6 +90,7 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     private boolean itemDirty = false;
     private boolean shouldTeleport = false;
     private int ridingEntity = 0;
+    private Vector velocity;
 
     public PacketEntity(EntityType entityType, Location location, Consumer<com.artillexstudios.axapi.entity.impl.PacketEntity> consumer) {
         entityId = ENTITY_COUNTER.incrementAndGet();
@@ -203,6 +208,16 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
         var equipmentSlot = net.minecraft.world.entity.EquipmentSlot.byTypeAndIndex(slot.getType() == EquipmentSlot.Type.ARMOR ? net.minecraft.world.entity.EquipmentSlot.Type.ARMOR : net.minecraft.world.entity.EquipmentSlot.Type.HAND, slot.getIndex());
 
         return CraftItemStack.asCraftMirror(getItemBySlot(equipmentSlot));
+    }
+
+    @Override
+    public void setVelocity(Vector vector) {
+        this.velocity = vector;
+        if (velocity != null) {
+            this.tracker.broadcast(new ClientboundSetEntityMotionPacket(entityId, CraftVector.toNMS(vector)));
+        } else {
+            this.tracker.broadcast(new ClientboundSetEntityMotionPacket(entityId, Vec3.ZERO));
+        }
     }
 
     @Override
@@ -324,6 +339,10 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
                 var sanitised = item.copy();
                 equipments.add(Pair.of(slot, sanitised));
             }
+        }
+
+        if (velocity != null) {
+            consumer.accept(new ClientboundSetEntityMotionPacket(entityId, CraftVector.toNMS(velocity)));
         }
 
         if (ridingEntity != 0) {

@@ -168,7 +168,7 @@ public class PacketListener extends ChannelDuplexHandler {
                     // The entity is not a packet entity, skip!
                     super.write(ctx, msg, promise);
                     return;
-                } else if (PacketItemModifier.isListening()) {
+                } /*else if (PacketItemModifier.isListening()) {
                     for (SynchedEntityData.DataValue<?> packedItem : dataPacket.packedItems()) {
                         if (packedItem.serializer().equals(EntityDataSerializers.ITEM_STACK)) {
                             ItemStack value = (ItemStack) packedItem.value();
@@ -179,7 +179,7 @@ public class PacketListener extends ChannelDuplexHandler {
                         }
                     }
                 }
-
+*/
                 List<SynchedEntityData.DataValue<?>> dataValues = new ArrayList<>(dataPacket.packedItems());
                 Iterator<SynchedEntityData.DataValue<?>> iterator = dataValues.iterator();
 
@@ -271,23 +271,23 @@ public class PacketListener extends ChannelDuplexHandler {
                     super.write(ctx, msg, promise);
                 }
             }
-            case ClientboundBundlePacket bundlePacket when PacketItemModifier.isListening() -> {
-                for (Packet<?> packet : bundlePacket.subPackets()) {
-                    if (packet instanceof ClientboundSetEntityDataPacket dataPacket) {
-                        for (SynchedEntityData.DataValue<?> packedItem : dataPacket.packedItems()) {
-                            if (packedItem.serializer().equals(EntityDataSerializers.ITEM_STACK)) {
-                                ItemStack value = (ItemStack) packedItem.value();
-                                PacketItemModifier.callModify(new WrappedItemStack(value), player, PacketItemModifier.Context.DROPPED_ITEM);
-
-                                super.write(ctx, msg, promise);
-                                return;
-                            }
-                        }
-                    }
-                }
-
-                super.write(ctx, msg, promise);
-            }
+//            case ClientboundBundlePacket bundlePacket when PacketItemModifier.isListening() -> {
+//                for (Packet<?> packet : bundlePacket.subPackets()) {
+//                    if (packet instanceof ClientboundSetEntityDataPacket dataPacket) {
+//                        for (SynchedEntityData.DataValue<?> packedItem : dataPacket.packedItems()) {
+//                            if (packedItem.serializer().equals(EntityDataSerializers.ITEM_STACK)) {
+//                                ItemStack value = (ItemStack) packedItem.value();
+//                                PacketItemModifier.callModify(new WrappedItemStack(value), player, PacketItemModifier.Context.DROPPED_ITEM);
+//
+//                                super.write(ctx, msg, promise);
+//                                return;
+//                            }
+//                        }
+//                    }
+//                }
+//
+//                super.write(ctx, msg, promise);
+//            }
             case null, default -> super.write(ctx, msg, promise);
         }
     }
