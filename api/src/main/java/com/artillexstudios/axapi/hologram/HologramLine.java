@@ -14,6 +14,9 @@ import com.artillexstudios.axapi.utils.placeholder.StaticPlaceholder;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
@@ -21,6 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class HologramLine {
+    private static final Logger log = LoggerFactory.getLogger(HologramLine.class);
     private final Type type;
     private final ThreadSafeList<Placeholder> placeholders = new ThreadSafeList<>();
     private final HologramPage page;
@@ -57,7 +61,9 @@ public class HologramLine {
             switch (type) {
                 case ITEM_STACK: {
                     PacketItem item = (PacketItem) packetEntity;
-                    item.setItemStack(NMSHandlers.getNmsHandler().wrapItem(content).toBukkit());
+                    ItemStack bukkit = NMSHandlers.getNmsHandler().wrapItem(content).toBukkit();
+                    log.info("Setting contents! {}, {}", content, bukkit);
+                    item.setItemStack(bukkit);
                     break;
                 }
                 case HEAD:
@@ -109,7 +115,9 @@ public class HologramLine {
             case ITEM_STACK: {
                 packetEntity = PacketEntityFactory.get().spawnEntity(location, EntityType.DROPPED_ITEM);
                 PacketItem item = (PacketItem) packetEntity;
-                item.setItemStack(NMSHandlers.getNmsHandler().wrapItem(this.content).toBukkit());
+                ItemStack bukkit = NMSHandlers.getNmsHandler().wrapItem(content).toBukkit();
+                log.info("Setting contents! v2 {}, {}", content, bukkit);
+                item.setItemStack(bukkit);
                 item.setGravity(false);
                 break;
             }

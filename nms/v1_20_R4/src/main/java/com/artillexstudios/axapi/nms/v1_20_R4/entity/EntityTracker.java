@@ -131,7 +131,7 @@ public class EntityTracker implements PacketEntityTracker {
             double d1 = dx * dx + dz * dz;
             boolean flag = d1 <= entity.getViewDistanceSquared();
 
-            if (this.entity instanceof PacketItem item && item.getItemStack().getType() == Material.AIR) {
+            if (this.entity instanceof PacketItem item && (item.getItemStack() == null || item.getItemStack().getType() == Material.AIR)) {
                 flag = false;
             }
 
