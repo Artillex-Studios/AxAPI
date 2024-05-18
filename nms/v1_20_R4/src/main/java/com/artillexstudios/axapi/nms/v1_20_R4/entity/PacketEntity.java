@@ -17,10 +17,12 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
+import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
+import net.minecraft.network.protocol.game.VecDeltaCodec;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -91,10 +93,14 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     private boolean shouldTeleport = false;
     private int ridingEntity = 0;
     private Vector velocity;
+    private final VecDeltaCodec codec = new VecDeltaCodec();
+    private Vec3 vec3;
 
     public PacketEntity(EntityType entityType, Location location, Consumer<com.artillexstudios.axapi.entity.impl.PacketEntity> consumer) {
         entityId = ENTITY_COUNTER.incrementAndGet();
         this.location = location;
+        this.vec3 = new Vec3(location.getX(), location.getY(), location.getZ());
+        codec.setBase(vec3);
         this.level = ((CraftWorld) location.getWorld()).getHandle();
         this.entityType = net.minecraft.world.entity.EntityType.byString(entityType.getName()).orElse(net.minecraft.world.entity.EntityType.ARMOR_STAND);
         data = new com.artillexstudios.axapi.nms.v1_20_R4.entity.SynchedEntityData();
@@ -139,6 +145,7 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     @Override
     public void teleport(Location location) {
         this.location = location;
+        this.vec3 = new Vec3(location.getX(), location.getY(), location.getZ());
         this.level = ((CraftWorld) location.getWorld()).getHandle();
         this.shouldTeleport = true;
     }
@@ -393,8 +400,17 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
 
         if (shouldTeleport) {
             shouldTeleport = false;
+            long k = this.codec.encodeX(vec3);
+            long l = this.codec.encodeY(vec3);
+            long i1 = this.codec.encodeZ(vec3);
+            boolean flag6 = k < -32768L || k > 32767L || l < -32768L || l > 32767L || i1 < -32768L || i1 > 32767L;
+            this.codec.setBase(vec3);
 
-            tracker.broadcast(ClientboundTeleportEntityWrapper.createNew(this, location));
+            if (!flag6) {
+                tracker.broadcast(new ClientboundMoveEntityPacket.Pos(entityId, (short) ((int) k), (short) ((int) l), (short) ((int) i1), true));
+            } else {
+                tracker.broadcast(ClientboundTeleportEntityWrapper.createNew(this, location));
+            }
         }
     }
 

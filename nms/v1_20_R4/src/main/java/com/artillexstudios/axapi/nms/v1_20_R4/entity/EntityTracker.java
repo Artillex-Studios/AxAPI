@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.objects.ReferenceSets;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerPlayerConnection;
+import org.bukkit.Material;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
@@ -130,7 +131,11 @@ public class EntityTracker implements PacketEntityTracker {
             double d1 = dx * dx + dz * dz;
             boolean flag = d1 <= entity.getViewDistanceSquared();
 
-            if (!entity.canSee(player.getBukkitEntity())) {
+            if (this.entity instanceof PacketItem item && item.getItemStack().getType() == Material.AIR) {
+                flag = false;
+            }
+
+            if (flag && !entity.canSee(player.getBukkitEntity())) {
                 flag = false;
             }
 
