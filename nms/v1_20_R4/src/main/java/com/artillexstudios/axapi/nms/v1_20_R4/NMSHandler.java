@@ -15,33 +15,36 @@ import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.Title;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Dynamic;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.Connection;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
+import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
 import net.minecraft.network.protocol.game.ClientboundOpenSignEditorPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.util.datafix.fixes.References;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
+import org.bukkit.craftbukkit.inventory.CraftContainer;
+import org.bukkit.craftbukkit.util.CraftChatMessage;
 import org.bukkit.craftbukkit.util.CraftLocation;
 import org.bukkit.craftbukkit.util.CraftMagicNumbers;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -211,6 +214,19 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
         ClientboundOpenSignEditorPacket openSignEditorPacket = new ClientboundOpenSignEditorPacket(pos, true);
         player.connection.send(clientboundBlockEntityDataPacket);
         player.connection.send(openSignEditorPacket);
+    }
+
+    @Override
+    public void setTitle(Inventory inventory, Component title) {
+        net.minecraft.network.chat.Component nmsTitle = ComponentSerializer.INSTANCE.toVanilla(title);
+        for (HumanEntity viewer : inventory.getViewers()) {
+            CraftPlayer craftPlayer = (CraftPlayer) viewer;
+            ServerPlayer serverPlayer = craftPlayer.getHandle();
+            int containerId = serverPlayer.containerMenu.containerId;
+            MenuType<?> windowType = CraftContainer.getNotchInventoryType(inventory);
+            serverPlayer.connection.send(new ClientboundOpenScreenPacket(containerId, windowType, nmsTitle));
+            craftPlayer.updateInventory();
+        }
     }
 
     @Override

@@ -10,6 +10,7 @@ import com.artillexstudios.axapi.selection.ParallelBlockSetter;
 import com.artillexstudios.axapi.serializers.Serializer;
 import com.artillexstudios.axapi.utils.ActionBar;
 import com.artillexstudios.axapi.utils.BossBar;
+import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.Title;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Dynamic;
@@ -28,17 +29,22 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
+import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
 import net.minecraft.network.protocol.game.ClientboundOpenSignEditorPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.datafix.fixes.References;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_18_R2.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_18_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_18_R2.inventory.CraftContainer;
 import org.bukkit.craftbukkit.v1_18_R2.util.CraftMagicNumbers;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -212,6 +218,19 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
         player.connection.send(clientboundBlockEntityDataPacket);
         player.connection.send(openSignEditorPacket);
         buf.release();
+    }
+
+    @Override
+    public void setTitle(Inventory inventory, Component title) {
+        net.minecraft.network.chat.Component nmsTitle = ComponentSerializer.INSTANCE.toVanilla(title);
+        for (HumanEntity viewer : inventory.getViewers()) {
+            CraftPlayer craftPlayer = (CraftPlayer) viewer;
+            ServerPlayer serverPlayer = craftPlayer.getHandle();
+            int containerId = serverPlayer.containerMenu.containerId;
+            MenuType<?> windowType = CraftContainer.getNotchInventoryType(inventory);
+            serverPlayer.connection.send(new ClientboundOpenScreenPacket(containerId, windowType, nmsTitle));
+            craftPlayer.updateInventory();
+        }
     }
 
     @Override

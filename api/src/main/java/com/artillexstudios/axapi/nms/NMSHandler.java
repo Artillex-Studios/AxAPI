@@ -16,6 +16,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.slf4j.Logger;
@@ -52,6 +53,8 @@ public interface NMSHandler {
     WrappedItemStack wrapItem(byte[] bytes);
 
     void openSignInput(SignInput signInput);
+
+    void setTitle(Inventory inventory, Component title);
 
     default ParallelBlockSetter newParallelSetter(World world) {
         return null;
