@@ -217,24 +217,24 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
             setDisplayTag(this.tag, "Name", StringTag.valueOf(GsonComponentSerializer.gson().serialize((Component) value)));
         } else if (component == DataComponent.ITEM_NAME) {
-            if (this.tag == null) {
-                this.tag = new CompoundTag();
+            if (value == null) {
+                setDisplayTag(this.tag == null ? new CompoundTag() : this.tag, "Name", null);
+                return;
             }
 
-            if (value == null) {
-                setDisplayTag(this.tag, "Name", null);
-                return;
+            if (this.tag == null) {
+                this.tag = parent.getOrCreateTag();
             }
 
             setDisplayTag(this.tag, "Name", StringTag.valueOf(GsonComponentSerializer.gson().serialize((Component) value)));
         } else if (component == DataComponent.LORE) {
-            if (this.tag == null) {
-                this.tag = new CompoundTag();
+            if (value == null) {
+                setDisplayTag(this.tag == null ? new CompoundTag() : this.tag, "Lore", null);
+                return;
             }
 
-            if (value == null) {
-                setDisplayTag(this.tag, "Lore", null);
-                return;
+            if (this.tag == null) {
+                this.tag = parent.getOrCreateTag();
             }
 
             ListTag tag = new ListTag();
@@ -248,13 +248,13 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
         } else if (component == DataComponent.RARITY) {
 
         } else if (component == DataComponent.ENCHANTMENTS) {
-            if (tag == null) {
-                tag = new CompoundTag();
-            }
-
             if (value == null) {
                 tag.remove("Enchantments");
                 return;
+            }
+
+            if (this.tag == null) {
+                this.tag = parent.getOrCreateTag();
             }
 
             var enchants = (ItemEnchantments) value;
