@@ -2,7 +2,6 @@ package com.artillexstudios.axapi.utils;
 
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.serializers.Serializer;
-import com.google.gson.stream.MalformedJsonException;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 
@@ -60,7 +59,29 @@ public enum ComponentSerializer {
         return adventures;
     }
 
+    public List<String> toGsonList(List<Component> list) {
+        ArrayList<String> newList = new ArrayList<>();
+        for (Component component : list) {
+            newList.add(toGson(component));
+        }
+
+        return newList;
+    }
+
     public String toGson(Component component) {
         return GsonComponentSerializer.gson().serialize(component);
+    }
+
+    public Component fromGson(String string) {
+        return GsonComponentSerializer.gson().deserialize(string);
+    }
+
+    public List<Component> fromGsonList(List<String> list) {
+        ArrayList<Component> newList = new ArrayList<>();
+        for (String line : list) {
+            newList.add(fromGson(line));
+        }
+
+        return newList;
     }
 }

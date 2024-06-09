@@ -3,6 +3,7 @@ package com.artillexstudios.axapi.nms.v1_19_R1;
 import com.artillexstudios.axapi.entity.PacketEntityTracker;
 import com.artillexstudios.axapi.gui.SignInput;
 import com.artillexstudios.axapi.items.WrappedItemStack;
+import com.artillexstudios.axapi.items.component.DataComponentImpl;
 import com.artillexstudios.axapi.nms.v1_19_R1.entity.EntityTracker;
 import com.artillexstudios.axapi.nms.v1_19_R1.packet.PacketListener;
 import com.artillexstudios.axapi.selection.BlockSetter;
@@ -231,6 +232,11 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
             serverPlayer.connection.send(new ClientboundOpenScreenPacket(containerId, windowType, nmsTitle));
             craftPlayer.updateInventory();
         }
+    }
+
+    @Override
+    public DataComponentImpl dataComponents() {
+        return new com.artillexstudios.axapi.nms.v1_19_R1.items.data.DataComponentImpl();
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.artillexstudios.axapi.nms.v1_20_R4;
 import com.artillexstudios.axapi.entity.PacketEntityTracker;
 import com.artillexstudios.axapi.gui.SignInput;
 import com.artillexstudios.axapi.items.WrappedItemStack;
+import com.artillexstudios.axapi.items.component.DataComponentImpl;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.nms.v1_20_R4.entity.EntityTracker;
 import com.artillexstudios.axapi.nms.v1_20_R4.packet.PacketListener;
@@ -39,7 +40,6 @@ import org.bukkit.World;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.craftbukkit.inventory.CraftContainer;
-import org.bukkit.craftbukkit.util.CraftChatMessage;
 import org.bukkit.craftbukkit.util.CraftLocation;
 import org.bukkit.craftbukkit.util.CraftMagicNumbers;
 import org.bukkit.entity.HumanEntity;
@@ -227,6 +227,11 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
             serverPlayer.connection.send(new ClientboundOpenScreenPacket(containerId, windowType, nmsTitle));
             craftPlayer.updateInventory();
         }
+    }
+
+    @Override
+    public DataComponentImpl dataComponents() {
+        return new com.artillexstudios.axapi.nms.v1_20_R4.items.data.DataComponentImpl();
     }
 
     @Override

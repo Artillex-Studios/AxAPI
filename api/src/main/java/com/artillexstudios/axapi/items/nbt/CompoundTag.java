@@ -75,5 +75,7 @@ public interface CompoundTag {
 
     void remove(String key);
 
+    boolean isEmpty();
+
     Object getParent();
 }

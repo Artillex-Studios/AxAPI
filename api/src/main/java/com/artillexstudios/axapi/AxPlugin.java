@@ -2,6 +2,7 @@ package com.artillexstudios.axapi;
 
 import com.artillexstudios.axapi.entity.PacketEntityTracker;
 import com.artillexstudios.axapi.hologram.Holograms;
+import com.artillexstudios.axapi.items.component.DataComponents;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.scheduler.Scheduler;
 import com.artillexstudios.axapi.utils.FeatureFlags;
@@ -130,6 +131,7 @@ public abstract class AxPlugin extends JavaPlugin {
         libraryManager.loadLibrary(caffeine);
 
         hasNMSHandler = NMSHandlers.British.initialise(this);
+        DataComponents.setDataComponentImpl(NMSHandlers.getNmsHandler().dataComponents());
 
         load();
         if (hasNMSHandler && FeatureFlags.PACKET_ENTITY_TRACKER_ENABLED.get()) {
