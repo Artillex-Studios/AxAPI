@@ -8,89 +8,91 @@ import org.bukkit.potion.PotionType;
 public class DataComponents {
     private static DataComponentImpl dataComponentImpl;
 
-    private static DataComponent<CompoundTag> customData() {
+    public static DataComponent<CompoundTag> customData() {
         return dataComponentImpl.customData();
     }
 
-    private static DataComponent<Integer> maxStackSize() {
+    public static DataComponent<Integer> maxStackSize() {
         return dataComponentImpl.maxStackSize();
     }
 
-    private static DataComponent<Integer> maxDamage() {
+    public static DataComponent<Integer> maxDamage() {
         return dataComponentImpl.maxDamage();
     }
 
-    private static DataComponent<Integer> damage() {
+    public static DataComponent<Integer> damage() {
         return dataComponentImpl.damage();
     }
 
-    private static DataComponent<Unbreakable> unbreakable() {
+    public static DataComponent<Unbreakable> unbreakable() {
         return dataComponentImpl.unbreakable();
     }
 
-    private static DataComponent<Component> customName() {
+    public static DataComponent<Component> customName() {
         return dataComponentImpl.customName();
     }
 
-    private static DataComponent<Component> itemName() {
+    public static DataComponent<Component> itemName() {
         return dataComponentImpl.itemName();
     }
-    private static DataComponent<ItemLore> lore() {
+
+    public static DataComponent<ItemLore> lore() {
         return dataComponentImpl.lore();
     }
 
-    private static DataComponent<Rarity> rarity() {
+    public static DataComponent<Rarity> rarity() {
         return dataComponentImpl.rarity();
     }
-    private static DataComponent<ItemEnchantments> enchantments() {
+
+    public static DataComponent<ItemEnchantments> enchantments() {
         return dataComponentImpl.enchantments();
     }
 
-    private static DataComponent<Integer> customModelData() {
+    public static DataComponent<Integer> customModelData() {
         return dataComponentImpl.customModelData();
     }
 
-    private static DataComponent<Unit> hideAdditionalTooltip() {
+    public static DataComponent<Unit> hideAdditionalTooltip() {
         return dataComponentImpl.hideAdditionalTooltip();
     }
 
-    private static DataComponent<Unit> hideTooltip() {
+    public static DataComponent<Unit> hideTooltip() {
         return dataComponentImpl.hideTooltip();
     }
 
-    private static DataComponent<Integer> repairCost() {
+    public static DataComponent<Integer> repairCost() {
         return dataComponentImpl.repairCost();
     }
 
-    private static DataComponent<Unit> creativeSlotLock() {
+    public static DataComponent<Unit> creativeSlotLock() {
         return dataComponentImpl.creativeSlotLock();
     }
 
-    private static DataComponent<Boolean> enchantmentGlintOverride() {
+    public static DataComponent<Boolean> enchantmentGlintOverride() {
         return dataComponentImpl.enchantmentGlintOverride();
     }
 
-    private static DataComponent<Unit> intangibleProjectile() {
+    public static DataComponent<Unit> intangibleProjectile() {
         return dataComponentImpl.intangibleProjectile();
     }
 
-    private static DataComponent<ItemEnchantments> storedEnchantments() {
+    public static DataComponent<ItemEnchantments> storedEnchantments() {
         return dataComponentImpl.storedEnchantments();
     }
 
-    private static DataComponent<ProfileProperties> profile() {
+    public static DataComponent<ProfileProperties> profile() {
         return dataComponentImpl.profile();
     }
 
-    private static DataComponent<Material> material() {
+    public static DataComponent<Material> material() {
         return dataComponentImpl.material();
     }
 
-    private static DataComponent<DyedColor> dyedColor() {
+    public static DataComponent<DyedColor> dyedColor() {
         return dataComponentImpl.dyedColor();
     }
 
-    private static DataComponent<PotionType> potionType() {
+    public static DataComponent<PotionType> potionType() {
         return dataComponentImpl.potionType();
     }
 
