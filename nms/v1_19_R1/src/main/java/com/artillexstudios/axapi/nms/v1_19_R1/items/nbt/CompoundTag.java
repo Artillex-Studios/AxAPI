@@ -174,6 +174,11 @@ public class CompoundTag implements com.artillexstudios.axapi.items.nbt.Compound
         parent.remove(key);
     }
 
+    @Override
+    public boolean isEmpty() {
+        return parent.isEmpty();
+    }
+
     public net.minecraft.nbt.CompoundTag getParent() {
         return parent;
     }
