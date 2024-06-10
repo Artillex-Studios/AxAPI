@@ -337,13 +337,15 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
 
     @Override
     public void sendMetaUpdate() {
-        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-        buf.writeVarInt(entityId);
-        SynchedEntityData.pack(data.packForNameUpdate(), buf);
+        if (this.tracker != null) {
+            FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+            buf.writeVarInt(entityId);
+            SynchedEntityData.pack(data.packForNameUpdate(), buf);
 
-        ClientboundSetEntityDataPacket clientboundSetEntityDataPacket = new ClientboundSetEntityDataPacket(buf);
-        buf.release();
-        this.tracker.broadcast(clientboundSetEntityDataPacket);
+            ClientboundSetEntityDataPacket clientboundSetEntityDataPacket = new ClientboundSetEntityDataPacket(buf);
+            buf.release();
+            this.tracker.broadcast(clientboundSetEntityDataPacket);
+        }
     }
 
     public void acceptEventConsumers(PacketEntityInteractEvent event) {

@@ -339,7 +339,9 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
 
     @Override
     public void sendMetaUpdate() {
-        this.tracker.broadcast(new ClientboundSetEntityDataPacket(entityId, data.packForNameUpdate()));
+        if (this.tracker != null) {
+            this.tracker.broadcast(new ClientboundSetEntityDataPacket(entityId, data.packForNameUpdate()));
+        }
     }
 
     public void acceptEventConsumers(PacketEntityInteractEvent event) {
