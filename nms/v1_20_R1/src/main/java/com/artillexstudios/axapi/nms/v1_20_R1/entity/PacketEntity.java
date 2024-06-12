@@ -148,12 +148,12 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
                 tag.remove("filtered_pages");
                 tag.remove("title");
                 tag.remove("generation");
-            }
 
+                tag.remove("LodestonePos");
 
-            tag.remove("LodestonePos");
-            if (tag.contains("LodestoneDimension")) {
-                tag.putString("LodestoneDimension", "paper:paper");
+                if (tag.contains("LodestoneDimension")) {
+                    tag.putString("LodestoneDimension", "paper:paper");
+                }
             }
 
             return copy;
