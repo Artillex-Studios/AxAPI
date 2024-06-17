@@ -53,9 +53,18 @@ public class FastFieldAccessor {
             Field f = clazz.getDeclaredField(field);
             f.setAccessible(true);
             return new FastFieldAccessor(f);
-        } catch (NoSuchFieldException e) {
-            log.error("An error occurred while creating new FastFieldAccessor for field {} of class {}! Fields of class: {}!", field, clazz.getName(), Arrays.stream(clazz.getDeclaredFields()).map(f -> f.getName() + "-" + f.getType()).collect(Collectors.joining(", ")));
-            throw new RuntimeException(e);
+        } catch (NoSuchFieldException exception) {
+            log.error("An error occurred while creating new FastFieldAccessor for field {} of class {}! Fields of class: {}!", field, clazz.getName(), Arrays.stream(clazz.getDeclaredFields()).map(f -> f.getName() + "-" + f.getType()).collect(Collectors.joining(", ")), exception);
+            throw new RuntimeException(exception);
+        }
+    }
+
+    public static FastFieldAccessor forClassField(String clazz, String field) {
+        try {
+            return forClassField(Class.forName(clazz), field);
+        } catch (ClassNotFoundException exception) {
+            log.error("Could not find class named {}!", clazz, exception);
+            throw new RuntimeException(exception);
         }
     }
 
