@@ -14,6 +14,7 @@ import com.artillexstudios.axapi.utils.ActionBar;
 import com.artillexstudios.axapi.utils.BossBar;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.Title;
+import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Dynamic;
 import io.netty.channel.Channel;
@@ -35,8 +36,11 @@ import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
+import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.craftbukkit.inventory.CraftContainer;
@@ -232,6 +236,19 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     @Override
     public DataComponentImpl dataComponents() {
         return new com.artillexstudios.axapi.nms.v1_20_R4.items.data.DataComponentImpl();
+    }
+
+    @Override
+    public OfflinePlayer getCachedOfflinePlayer(String name) {
+        OfflinePlayer result = Bukkit.getPlayerExact(name);
+        if (result == null) {
+            GameProfile profile = MinecraftServer.getServer().getProfileCache().getProfileIfCached(name);
+            if (profile != null) {
+                result = ((CraftServer) Bukkit.getServer()).getOfflinePlayer(profile);
+            }
+        }
+
+        return result;
     }
 
     @Override

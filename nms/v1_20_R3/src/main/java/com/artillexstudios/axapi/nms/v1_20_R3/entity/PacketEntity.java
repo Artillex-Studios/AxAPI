@@ -79,13 +79,13 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     private final NonNullList<net.minecraft.world.item.ItemStack> handSlots;
     private final NonNullList<net.minecraft.world.item.ItemStack> armorSlots;
     private final Set<Player> invertedVisibilityEntities = Collections.newSetFromMap(new WeakHashMap<>());
-    private boolean visibleByDefault = true;
     public boolean invisible = false;
     public boolean silent = false;
     public com.artillexstudios.axapi.nms.v1_20_R3.entity.SynchedEntityData data;
     public EntityTracker.TrackedEntity tracker;
     public ServerLevel level;
     public Predicate<Player> predicate;
+    private boolean visibleByDefault = true;
     private List<SynchedEntityData.DataValue<?>> trackedValues;
     private Location location;
     private Component name = Component.empty();

@@ -12,6 +12,7 @@ import com.artillexstudios.axapi.utils.ActionBar;
 import com.artillexstudios.axapi.utils.BossBar;
 import com.artillexstudios.axapi.utils.Title;
 import net.kyori.adventure.text.Component;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -54,6 +55,8 @@ public interface NMSHandler {
     void setTitle(Inventory inventory, Component title);
 
     DataComponentImpl dataComponents();
+
+    OfflinePlayer getCachedOfflinePlayer(String name);
 
     default ParallelBlockSetter newParallelSetter(World world) {
         return null;
