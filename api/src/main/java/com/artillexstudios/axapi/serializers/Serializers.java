@@ -11,5 +11,5 @@ public class Serializers {
 
     public static final Serializer<ItemStack, String> ITEM_STACK = new ItemStackSerializer();
 
-    public static final Serializer<ItemStack[], String> ITEM_ARRAY = new ItemArraySerializer();
+    public static final Serializer<ItemStack[], byte[]> ITEM_ARRAY = new ItemArraySerializer();
 }
