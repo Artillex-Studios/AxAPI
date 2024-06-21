@@ -8,15 +8,14 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import java.io.ByteArrayOutputStream;
 
-public class ItemArraySerializer implements Serializer<ItemStack[], String> {
+public class ItemArraySerializer implements Serializer<ItemStack[], byte[]> {
     private static final ItemStack AIR = new ItemStack(Material.AIR);
 
     @Override
-    public String serialize(ItemStack[] value) {
+    public byte[] serialize(ItemStack[] value) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         ByteArrayDataOutput outputStream = ByteStreams.newDataOutput(stream);
         outputStream.writeInt(value.length);
@@ -32,12 +31,12 @@ public class ItemArraySerializer implements Serializer<ItemStack[], String> {
             outputStream.write(serialized);
         }
 
-        return Base64Coder.encodeLines(outputStream.toByteArray());
+        return outputStream.toByteArray();
     }
 
     @Override
-    public ItemStack[] deserialize(String value) {
-        ByteArrayDataInput input = ByteStreams.newDataInput(Base64Coder.decodeLines(value));
+    public ItemStack[] deserialize(byte[] value) {
+        ByteArrayDataInput input = ByteStreams.newDataInput(value);
         int length = input.readInt();
         ItemStack[] items = new ItemStack[length];
 
