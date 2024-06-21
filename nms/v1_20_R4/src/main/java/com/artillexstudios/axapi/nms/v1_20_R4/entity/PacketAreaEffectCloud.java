@@ -9,9 +9,9 @@ import org.bukkit.entity.EntityType;
 
 import java.util.function.Consumer;
 
-public class PacketAreaEffectCloud extends PacketEntity implements com.artillexstudios.axapi.entity.impl.PacketAreaEffectCloud {
+public class PacketAreaEffectCloud extends PacketEntity implements com.artillexstudios.axapi.packetentity.impl.PacketAreaEffectCloud {
 
-    public PacketAreaEffectCloud(Location location, Consumer<com.artillexstudios.axapi.entity.impl.PacketEntity> consumer) {
+    public PacketAreaEffectCloud(Location location, Consumer<com.artillexstudios.axapi.packetentity.impl.PacketEntity> consumer) {
         super(EntityType.AREA_EFFECT_CLOUD, location, consumer);
     }
 

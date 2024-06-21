@@ -22,7 +22,6 @@ import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
-import net.minecraft.network.protocol.game.ClientboundSetEntityLinkPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
@@ -30,7 +29,6 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.phys.Vec3;
@@ -58,7 +56,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class PacketEntity implements com.artillexstudios.axapi.entity.impl.PacketEntity {
+public class PacketEntity implements com.artillexstudios.axapi.packetentity.impl.PacketEntity {
     private static final Cache<Component, Optional<net.minecraft.network.chat.Component>> CACHE = Caffeine.newBuilder().maximumSize(600).scheduler(Scheduler.systemScheduler()).expireAfterAccess(Duration.ofSeconds(60)).build();
     private static AtomicInteger ENTITY_COUNTER;
 
@@ -94,7 +92,7 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     private int ridingEntity = 0;
     public Predicate<Player> predicate;
 
-    public PacketEntity(EntityType entityType, Location location, Consumer<com.artillexstudios.axapi.entity.impl.PacketEntity> consumer) {
+    public PacketEntity(EntityType entityType, Location location, Consumer<com.artillexstudios.axapi.packetentity.impl.PacketEntity> consumer) {
         entityId = ENTITY_COUNTER.incrementAndGet();
         this.location = location;
         this.level = ((CraftWorld) location.getWorld()).getHandle();
@@ -315,7 +313,7 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     }
 
     @Override
-    public void ride(com.artillexstudios.axapi.entity.impl.PacketEntity entity) {
+    public void ride(com.artillexstudios.axapi.packetentity.impl.PacketEntity entity) {
         ridingEntity = entity.getEntityId();
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         buf.writeVarInt(ridingEntity);

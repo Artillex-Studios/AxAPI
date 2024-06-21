@@ -1,6 +1,5 @@
 package com.artillexstudios.axapi.events;
 
-import com.artillexstudios.axapi.entity.impl.PacketEntity;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;

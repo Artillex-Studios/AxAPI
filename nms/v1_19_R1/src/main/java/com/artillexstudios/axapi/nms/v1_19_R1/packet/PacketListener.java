@@ -2,7 +2,6 @@ package com.artillexstudios.axapi.nms.v1_19_R1.packet;
 
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.collections.ThreadSafeList;
-import com.artillexstudios.axapi.entity.impl.PacketEntity;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.gui.SignInput;
 import com.artillexstudios.axapi.hologram.HologramLine;

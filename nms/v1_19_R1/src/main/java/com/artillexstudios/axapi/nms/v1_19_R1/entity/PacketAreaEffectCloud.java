@@ -1,6 +1,5 @@
 package com.artillexstudios.axapi.nms.v1_19_R1.entity;
 
-import com.google.common.base.Preconditions;
 import net.minecraft.core.particles.ParticleTypes;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -10,9 +9,9 @@ import org.bukkit.entity.EntityType;
 
 import java.util.function.Consumer;
 
-public class PacketAreaEffectCloud extends PacketEntity implements com.artillexstudios.axapi.entity.impl.PacketAreaEffectCloud {
+public class PacketAreaEffectCloud extends PacketEntity implements com.artillexstudios.axapi.packetentity.impl.PacketAreaEffectCloud {
 
-    public PacketAreaEffectCloud(Location location, Consumer<com.artillexstudios.axapi.entity.impl.PacketEntity> consumer) {
+    public PacketAreaEffectCloud(Location location, Consumer<com.artillexstudios.axapi.packetentity.impl.PacketEntity> consumer) {
         super(EntityType.AREA_EFFECT_CLOUD, location, consumer);
     }
 

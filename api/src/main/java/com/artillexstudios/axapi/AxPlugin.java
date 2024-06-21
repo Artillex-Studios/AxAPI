@@ -1,6 +1,5 @@
 package com.artillexstudios.axapi;
 
-import com.artillexstudios.axapi.entity.PacketEntityTracker;
 import com.artillexstudios.axapi.hologram.Holograms;
 import com.artillexstudios.axapi.items.component.DataComponents;
 import com.artillexstudios.axapi.nms.NMSHandlers;

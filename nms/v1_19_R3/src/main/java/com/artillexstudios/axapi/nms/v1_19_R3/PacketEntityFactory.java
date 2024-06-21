@@ -1,6 +1,5 @@
 package com.artillexstudios.axapi.nms.v1_19_R3;
 
-import com.artillexstudios.axapi.entity.impl.PacketEntity;
 import com.artillexstudios.axapi.nms.v1_19_R3.entity.PacketAreaEffectCloud;
 import com.artillexstudios.axapi.nms.v1_19_R3.entity.PacketArmorStand;
 import com.artillexstudios.axapi.nms.v1_19_R3.entity.PacketItem;
@@ -9,7 +8,7 @@ import org.bukkit.entity.EntityType;
 
 import java.util.function.Consumer;
 
-public class PacketEntityFactory implements com.artillexstudios.axapi.entity.PacketEntityFactory {
+public class PacketEntityFactory implements com.artillexstudios.axapi.packetentity.PacketEntityFactory {
 
     @Override
     public PacketEntity spawnEntity(Location location, EntityType entityType, Consumer<PacketEntity> consumer) {

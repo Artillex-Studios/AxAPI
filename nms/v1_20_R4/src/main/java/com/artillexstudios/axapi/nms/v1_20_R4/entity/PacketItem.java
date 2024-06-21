@@ -8,10 +8,10 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.function.Consumer;
 
-public class PacketItem extends PacketEntity implements com.artillexstudios.axapi.entity.impl.PacketItem {
+public class PacketItem extends PacketEntity implements com.artillexstudios.axapi.packetentity.impl.PacketItem {
     private ItemStack itemStack = new ItemStack(Material.AIR);
 
-    public PacketItem(Location location, Consumer<com.artillexstudios.axapi.entity.impl.PacketEntity> consumer) {
+    public PacketItem(Location location, Consumer<com.artillexstudios.axapi.packetentity.impl.PacketEntity> consumer) {
         super(EntityType.ITEM, location, consumer);
     }
 

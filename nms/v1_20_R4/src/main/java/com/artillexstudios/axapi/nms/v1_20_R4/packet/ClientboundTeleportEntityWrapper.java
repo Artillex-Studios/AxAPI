@@ -1,6 +1,5 @@
 package com.artillexstudios.axapi.nms.v1_20_R4.packet;
 
-import com.artillexstudios.axapi.entity.impl.PacketEntity;
 import com.artillexstudios.axapi.reflection.ClassUtils;
 import com.artillexstudios.axapi.reflection.FastFieldAccessor;
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;

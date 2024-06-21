@@ -1,6 +1,5 @@
 package com.artillexstudios.axapi.nms;
 
-import com.artillexstudios.axapi.entity.PacketEntityFactory;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.artillexstudios.axapi.utils.Version;
 

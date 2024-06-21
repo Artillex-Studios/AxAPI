@@ -1,6 +1,5 @@
 package com.artillexstudios.axapi.nms.v1_20_R4.entity;
 
-import com.artillexstudios.axapi.entity.PacketEntityTracker;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
@@ -21,7 +20,7 @@ public class EntityTracker implements PacketEntityTracker {
     private final Int2ObjectMap<TrackedEntity> entityMap = new Int2ObjectOpenHashMap<>();
 
     @Override
-    public com.artillexstudios.axapi.entity.impl.PacketEntity getById(int id) {
+    public com.artillexstudios.axapi.packetentity.impl.PacketEntity getById(int id) {
         lock.readLock().lock();
         try {
             TrackedEntity entity = entityMap.get(id);
@@ -32,7 +31,7 @@ public class EntityTracker implements PacketEntityTracker {
     }
 
     @Override
-    public void addEntity(com.artillexstudios.axapi.entity.impl.PacketEntity entity) {
+    public void addEntity(com.artillexstudios.axapi.packetentity.impl.PacketEntity entity) {
         PacketEntity packetEntity = (PacketEntity) entity;
         TrackedEntity trackedEntity = new TrackedEntity(packetEntity);
         packetEntity.tracker = trackedEntity;
@@ -48,7 +47,7 @@ public class EntityTracker implements PacketEntityTracker {
     }
 
     @Override
-    public void removeEntity(com.artillexstudios.axapi.entity.impl.PacketEntity entity) {
+    public void removeEntity(com.artillexstudios.axapi.packetentity.impl.PacketEntity entity) {
         var packetEntity = (PacketEntity) entity;
 
         lock.writeLock().lock();

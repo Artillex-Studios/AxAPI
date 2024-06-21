@@ -31,7 +31,6 @@ import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.CraftWorld;
-import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.util.CraftVector;
 import org.bukkit.entity.EntityType;
@@ -56,7 +55,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class PacketEntity implements com.artillexstudios.axapi.entity.impl.PacketEntity {
+public class PacketEntity implements com.artillexstudios.axapi.packetentity.impl.PacketEntity {
     private static final Logger log = LoggerFactory.getLogger(PacketEntity.class);
     private static final Cache<Component, Optional<net.minecraft.network.chat.Component>> CACHE = Caffeine.newBuilder().maximumSize(600).scheduler(Scheduler.systemScheduler()).expireAfterAccess(Duration.ofSeconds(60)).build();
     private static AtomicInteger ENTITY_COUNTER;
@@ -96,7 +95,7 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     private final VecDeltaCodec codec = new VecDeltaCodec();
     private Vec3 vec3;
 
-    public PacketEntity(EntityType entityType, Location location, Consumer<com.artillexstudios.axapi.entity.impl.PacketEntity> consumer) {
+    public PacketEntity(EntityType entityType, Location location, Consumer<com.artillexstudios.axapi.packetentity.impl.PacketEntity> consumer) {
         entityId = ENTITY_COUNTER.incrementAndGet();
         this.location = location;
         this.vec3 = new Vec3(location.getX(), location.getY(), location.getZ());
@@ -278,7 +277,7 @@ public class PacketEntity implements com.artillexstudios.axapi.entity.impl.Packe
     }
 
     @Override
-    public void ride(com.artillexstudios.axapi.entity.impl.PacketEntity entity) {
+    public void ride(com.artillexstudios.axapi.packetentity.impl.PacketEntity entity) {
         ridingEntity = entity.getEntityId();
         int[] passengers = new int[]{entityId};
         this.tracker.broadcast(ClientboundSetPassengersWrapper.createNew(ridingEntity, passengers));

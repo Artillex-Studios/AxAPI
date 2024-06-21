@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.nms.v1_18_R2.entity;
 
+import com.google.common.collect.HashBiMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -7,6 +8,7 @@ import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class SynchedEntityData {
     private final Int2ObjectMap<net.minecraft.network.syncher.SynchedEntityData.DataItem<?>> items = new Int2ObjectOpenHashMap<>();

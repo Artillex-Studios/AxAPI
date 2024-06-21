@@ -1,10 +1,6 @@
 package com.artillexstudios.axapi.hologram;
 
 import com.artillexstudios.axapi.collections.ThreadSafeList;
-import com.artillexstudios.axapi.entity.PacketEntityFactory;
-import com.artillexstudios.axapi.entity.impl.PacketArmorStand;
-import com.artillexstudios.axapi.entity.impl.PacketEntity;
-import com.artillexstudios.axapi.entity.impl.PacketItem;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
 import com.artillexstudios.axapi.utils.FeatureFlags;
@@ -62,7 +58,6 @@ public class HologramLine {
                 case ITEM_STACK: {
                     PacketItem item = (PacketItem) packetEntity;
                     ItemStack bukkit = NMSHandlers.getNmsHandler().wrapItem(content).toBukkit();
-                    log.info("Setting contents! {}, {}", content, bukkit);
                     item.setItemStack(bukkit);
                     break;
                 }
