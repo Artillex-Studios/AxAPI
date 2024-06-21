@@ -1,6 +1,8 @@
 package com.artillexstudios.axapi.packetentity;
 
+import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.packetentity.meta.EntityMeta;
+import com.artillexstudios.axapi.utils.EquipmentSlot;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -23,4 +25,8 @@ public interface PacketEntity {
     void show(Player player);
 
     void setVisibleByDefault(boolean visible);
+
+    void setItem(EquipmentSlot slot, WrappedItemStack item);
+
+    WrappedItemStack getItem(EquipmentSlot slot);
 }
