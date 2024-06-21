@@ -1,4 +1,4 @@
-package com.artillexstudios.axapi.utils;
+package com.artillexstudios.axapi.reflection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

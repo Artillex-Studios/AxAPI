@@ -2,7 +2,7 @@ package com.artillexstudios.axapi.nms.v1_20_R3.items;
 
 import com.artillexstudios.axapi.items.component.DataComponent;
 import com.artillexstudios.axapi.nms.v1_20_R3.ItemStackSerializer;
-import com.artillexstudios.axapi.utils.FastFieldAccessor;
+import com.artillexstudios.axapi.reflection.FastFieldAccessor;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.SnbtPrinterTagVisitor;
 import net.minecraft.world.item.ItemStack;

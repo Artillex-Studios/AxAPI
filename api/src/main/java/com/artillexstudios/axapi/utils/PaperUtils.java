@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.utils;
 
+import com.artillexstudios.axapi.reflection.ClassUtils;
 import com.artillexstudios.axapi.utils.server.ServerImplementation;
 import com.artillexstudios.axapi.utils.server.ServerImplementationPaper;
 import com.artillexstudios.axapi.utils.server.ServerImplementationSpigot;

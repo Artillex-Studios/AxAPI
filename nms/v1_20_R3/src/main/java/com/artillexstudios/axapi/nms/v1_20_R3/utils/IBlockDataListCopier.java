@@ -1,7 +1,7 @@
 package com.artillexstudios.axapi.nms.v1_20_R3.utils;
 
-import com.artillexstudios.axapi.utils.ClassUtils;
-import com.artillexstudios.axapi.utils.FastFieldAccessor;
+import com.artillexstudios.axapi.reflection.ClassUtils;
+import com.artillexstudios.axapi.reflection.FastFieldAccessor;
 import com.destroystokyo.paper.util.maplist.IBlockDataList;
 import it.unimi.dsi.fastutil.shorts.Short2LongOpenHashMap;
 

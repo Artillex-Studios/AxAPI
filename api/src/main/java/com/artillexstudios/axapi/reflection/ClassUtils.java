@@ -1,6 +1,5 @@
-package com.artillexstudios.axapi.utils;
+package com.artillexstudios.axapi.reflection;
 
-import com.artillexstudios.axapi.collections.ThreadSafeList;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

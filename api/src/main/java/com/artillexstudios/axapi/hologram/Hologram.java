@@ -1,7 +1,7 @@
 package com.artillexstudios.axapi.hologram;
 
 import com.artillexstudios.axapi.collections.ThreadSafeList;
-import com.artillexstudios.axapi.utils.ClassUtils;
+import com.artillexstudios.axapi.reflection.ClassUtils;
 import com.artillexstudios.axapi.utils.Pair;
 import com.artillexstudios.axapi.utils.placeholder.Placeholder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
