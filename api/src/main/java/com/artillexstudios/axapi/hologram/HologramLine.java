@@ -15,6 +15,8 @@ import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
@@ -29,10 +31,14 @@ public class HologramLine {
     private Location location;
     private boolean hasPlaceholders = false;
 
-    public HologramLine(HologramPage page, Location location, String content, Type type) {
+    public HologramLine(HologramPage page, Location location, String content, Type type, List<Placeholder> placeholders) {
         this.page = page;
         this.location = location;
         this.type = type;
+
+        for (Placeholder placeholder : placeholders) {
+            this.addPlaceholder(placeholder);
+        }
         setContent(content);
     }
 
@@ -165,7 +171,6 @@ public class HologramLine {
             }
             case SMALL_HEAD: {
                 packetEntity = NMSHandlers.getNmsHandler().createEntity(EntityType.ARMOR_STAND, location);
-                ;
                 ArmorStandMeta meta = (ArmorStandMeta) packetEntity.meta();
                 packetEntity.setItem(EquipmentSlot.HELMET, NMSHandlers.getNmsHandler().wrapItem(this.content));
                 meta.invisible(true);

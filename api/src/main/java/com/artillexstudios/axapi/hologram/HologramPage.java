@@ -6,6 +6,9 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class HologramPage {
     private final ObjectArrayList<Placeholder> placeholders = new ObjectArrayList<>(5);
     private final ThreadSafeList<HologramLine> lines = new ThreadSafeList<>();
@@ -37,25 +40,16 @@ public class HologramPage {
     }
 
     public HologramLine addLine(String content, HologramLine.Type type) {
-        HologramLine hologramLine = new HologramLine(this, getLocationRel(lines.size()), content, type);
+        List<Placeholder> placeholders = new ArrayList<>(this.hologram.placeholders().size() + this.placeholders.size());
+        placeholders.addAll(this.hologram.placeholders());
+        placeholders.addAll(this.placeholders());
+        HologramLine hologramLine = new HologramLine(this, getLocationRel(lines.size()), content, type, placeholders);
         addLine(hologramLine);
         return hologramLine;
     }
 
     public void addLine(HologramLine line) {
         this.lines.add(line);
-
-        ObjectArrayList<Placeholder> placeholders = hologram.placeholders();
-        for (int i = 0; i < placeholders.size(); i++) {
-            Placeholder placeholder = placeholders.get(i);
-            line.addPlaceholder(placeholder);
-        }
-
-        for (int i = 0; i < this.placeholders.size(); i++) {
-            Placeholder placeholder = this.placeholders.get(i);
-            line.addPlaceholder(placeholder);
-        }
-
         realign();
     }
 
