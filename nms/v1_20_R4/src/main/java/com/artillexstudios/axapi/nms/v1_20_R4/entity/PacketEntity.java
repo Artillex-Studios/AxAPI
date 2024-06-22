@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.nms.v1_20_R4.entity;
 
 import com.artillexstudios.axapi.AxPlugin;
+import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.nms.v1_20_R4.packet.ClientboundTeleportEntityWrapper;
@@ -38,6 +39,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.WeakHashMap;
+import java.util.function.Consumer;
 
 public class PacketEntity implements com.artillexstudios.axapi.packetentity.PacketEntity {
     private static final FastFieldAccessor nmsStack = FastFieldAccessor.forClassField(com.artillexstudios.axapi.nms.v1_20_R4.items.WrappedItemStack.class, "itemStack");
@@ -55,6 +57,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     private volatile boolean shouldTeleport = false;
     private volatile boolean itemDirty = false;
     private boolean visibleByDefault = true;
+    private Consumer<PacketEntityInteractEvent> interactConsumer;
 
     public PacketEntity(EntityType entityType, Location location) {
         this.id = NMSHandlers.getNmsHandler().nextEntityId();
@@ -261,6 +264,18 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     public void remove() {
         AxPlugin.tracker.removeEntity(this);
         this.location = null;
+    }
+
+    @Override
+    public void onInteract(Consumer<PacketEntityInteractEvent> event) {
+        this.interactConsumer = event;
+    }
+
+    @Override
+    public void callInteract(PacketEntityInteractEvent event) {
+        if (this.interactConsumer != null) {
+            this.interactConsumer.accept(event);
+        }
     }
 
     private ItemStack getItemBySlot(net.minecraft.world.entity.EquipmentSlot slot) {

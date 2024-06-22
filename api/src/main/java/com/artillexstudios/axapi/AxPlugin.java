@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi;
 
+import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.hologram.Holograms;
 import com.artillexstudios.axapi.items.component.DataComponents;
 import com.artillexstudios.axapi.nms.NMSHandlers;
@@ -73,6 +74,11 @@ public abstract class AxPlugin extends JavaPlugin {
                 @EventHandler
                 public void onPlayerJoinEvent(@NotNull final PlayerJoinEvent event) {
                     NMSHandlers.getNmsHandler().injectPlayer(event.getPlayer());
+                }
+
+                @EventHandler
+                public void onPacketEntityInteractEvent(@NotNull final PacketEntityInteractEvent event) {
+                    event.getPacketEntity().callInteract(event);
                 }
 
                 @EventHandler

@@ -179,10 +179,9 @@ public class HologramLine {
         }
 
         if (packetEntity != null) {
-            // TODO: Click event
-//            packetEntity.onClick(event -> {
-//                page.hologram().changePage(event.getPlayer(), event.isAttack() ? Hologram.PageChangeDirection.BACK : Hologram.PageChangeDirection.FORWARD);
-//            });
+            packetEntity.onInteract(event -> {
+                page.hologram().changePage(event.getPlayer(), event.isAttack() ? Hologram.PageChangeDirection.BACK : Hologram.PageChangeDirection.FORWARD);
+            });
 
             if (!page.isFirstPage()) {
                 packetEntity.setVisibleByDefault(false);

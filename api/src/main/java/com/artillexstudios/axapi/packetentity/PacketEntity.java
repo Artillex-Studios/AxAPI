@@ -1,10 +1,13 @@
 package com.artillexstudios.axapi.packetentity;
 
+import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.packetentity.meta.EntityMeta;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+
+import java.util.function.Consumer;
 
 public interface PacketEntity {
 
@@ -44,4 +47,8 @@ public interface PacketEntity {
     boolean canSee(Player player);
 
     void remove();
+
+    void onInteract(Consumer<PacketEntityInteractEvent> event);
+
+    void callInteract(PacketEntityInteractEvent event);
 }
