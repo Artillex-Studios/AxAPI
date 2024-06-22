@@ -50,7 +50,9 @@ public class HologramLine {
     public void addPlaceholder(Placeholder placeholder) {
         this.placeholders.add(placeholder);
         // Reparse the placeholders
-        setContent(content);
+        if (content != null) {
+            setContent(content);
+        }
     }
 
     public boolean hasPlaceholders() {
