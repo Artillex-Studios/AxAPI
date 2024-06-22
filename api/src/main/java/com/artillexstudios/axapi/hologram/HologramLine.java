@@ -35,10 +35,8 @@ public class HologramLine {
         this.page = page;
         this.location = location;
         this.type = type;
+        this.placeholders.addAll(placeholders);
 
-        for (Placeholder placeholder : placeholders) {
-            this.addPlaceholder(placeholder);
-        }
         setContent(content);
     }
 
@@ -50,9 +48,8 @@ public class HologramLine {
     public void addPlaceholder(Placeholder placeholder) {
         this.placeholders.add(placeholder);
         // Reparse the placeholders
-        if (content != null) {
-            setContent(content);
-        }
+
+        setContent(content);
     }
 
     public boolean hasPlaceholders() {
