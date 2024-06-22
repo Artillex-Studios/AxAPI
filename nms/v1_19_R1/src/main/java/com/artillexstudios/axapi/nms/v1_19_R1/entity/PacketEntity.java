@@ -1,7 +1,10 @@
 package com.artillexstudios.axapi.nms.v1_19_R1.entity;
 
 import com.artillexstudios.axapi.AxPlugin;
+import com.artillexstudios.axapi.collections.ThreadSafeList;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
+import com.artillexstudios.axapi.hologram.HologramLine;
+import com.artillexstudios.axapi.hologram.Holograms;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.packetentity.meta.EntityMeta;
@@ -10,11 +13,16 @@ import com.artillexstudios.axapi.packetentity.meta.Metadata;
 import com.artillexstudios.axapi.packetentity.tracker.EntityTracker;
 import com.artillexstudios.axapi.reflection.FastFieldAccessor;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
+import com.artillexstudios.axapi.utils.StringUtils;
+import com.artillexstudios.axapi.utils.placeholder.Placeholder;
+import com.artillexstudios.axapi.utils.placeholder.StaticPlaceholder;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import io.netty.buffer.Unpooled;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
@@ -25,6 +33,7 @@ import net.minecraft.network.protocol.game.VecDeltaCodec;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
@@ -36,6 +45,8 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.WeakHashMap;
@@ -163,12 +174,25 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
 
             if (dirty != null) {
                 this.trackedValues = transform(this.meta.metadata().getNonDefaultValues());
-                FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-                buf.writeVarInt(this.id);
-                SynchedEntityData.pack(dirty, buf);
 
-                this.tracker.broadcast(new ClientboundSetEntityDataPacket(buf));
-                buf.release();
+                HologramLine line = Holograms.byId(this.id);
+                if (line == null || !line.hasPlaceholders()) {
+                    FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+                    buf.writeVarInt(this.id);
+                    SynchedEntityData.pack(dirty, buf);
+
+                    this.tracker.broadcast(new ClientboundSetEntityDataPacket(buf));
+                    buf.release();
+                } else {
+                    FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+                    for (Player player : this.tracker.seenBy) {
+                        buf.writeVarInt(this.id);
+                        SynchedEntityData.pack(translate(player, line, dirty), buf);
+                        NMSHandlers.getNmsHandler().sendPacket(player, new ClientboundSetEntityDataPacket(buf));
+                        buf.clear();
+                    }
+                    buf.release();
+                }
             }
         }
 
@@ -230,9 +254,14 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
         serverPlayer.connection.send(getAddEntityPacket(this));
 
         if (this.trackedValues != null) {
+            HologramLine line = Holograms.byId(this.id);
             FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
             buf.writeVarInt(this.id);
-            SynchedEntityData.pack(this.trackedValues, buf);
+            if (line == null || (line.type() != HologramLine.Type.TEXT || !line.hasPlaceholders())) {
+                SynchedEntityData.pack(this.trackedValues, buf);
+            } else {
+                SynchedEntityData.pack(translate(player, line, this.trackedValues), buf);
+            }
 
             serverPlayer.connection.send(new ClientboundSetEntityDataPacket(buf));
             buf.release();
@@ -279,14 +308,65 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
 
     @Override
     public void update() {
-        if (this.tracker != null) {
-            FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-            buf.writeVarInt(this.id);
-            SynchedEntityData.pack(transform(this.meta.metadata().packForNameUpdate()), buf);
+        List<SynchedEntityData.DataItem<?>> transformed = transform(this.meta.metadata().packForNameUpdate());
 
-            this.tracker.broadcast(new ClientboundSetEntityDataPacket(buf));
-            buf.release();
+        HologramLine line = Holograms.byId(this.id);
+        if (line == null) {
+            return;
         }
+
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        for (Player player : this.tracker.seenBy) {
+            buf.writeVarInt(this.id);
+            SynchedEntityData.pack(translate(player, line, transformed), buf);
+            NMSHandlers.getNmsHandler().sendPacket(player, new ClientboundSetEntityDataPacket(buf));
+            buf.clear();
+        }
+        buf.release();
+    }
+
+    private List<SynchedEntityData.DataItem<?>> translate(Player player, HologramLine line, List<SynchedEntityData.DataItem<?>> values) {
+        List<SynchedEntityData.DataItem<?>> dataValues = new ArrayList<>(values);
+        ListIterator<SynchedEntityData.DataItem<?>> iterator = dataValues.listIterator();
+        while (iterator.hasNext()) {
+            SynchedEntityData.DataItem<?> value = iterator.next();
+
+            if (value.getAccessor().getId() == 2 && line.type() == HologramLine.Type.TEXT) {
+                Optional<Component> content = (Optional<Component>) value.getValue();
+                if (content.isEmpty()) {
+                    return values;
+                }
+
+                String legacy = legacyCache.get(content.get(), (minecraftComponent) -> {
+                    String gsonText = Component.Serializer.toJson((Component) minecraftComponent);
+                    net.kyori.adventure.text.Component gsonComponent = GsonComponentSerializer.gson().deserialize(gsonText);
+                    return LEGACY_COMPONENT_SERIALIZER.serialize(gsonComponent);
+                });
+
+                if (legacy == null) {
+                    return values;
+                }
+
+                ThreadSafeList<Placeholder> placeholders = line.placeholders();
+                for (int i = 0; i < placeholders.size(); i++) {
+                    Placeholder placeholder = placeholders.get(i);
+                    if (placeholder instanceof StaticPlaceholder) continue;
+                    legacy = placeholder.parse(player, legacy);
+                }
+
+                Component component = (Component) componentCache.get(legacy, (legacyText) -> {
+                    net.kyori.adventure.text.Component formatted = StringUtils.format(legacyText);
+                    String gson = GsonComponentSerializer.gson().serialize(formatted);
+                    return Component.Serializer.fromJson(gson);
+                });
+
+                iterator.remove();
+                iterator.add(new SynchedEntityData.DataItem<>(value.getAccessor(), Optional.ofNullable(component)));
+                break;
+            }
+        }
+
+        return dataValues;
     }
 
     private ItemStack getItemBySlot(net.minecraft.world.entity.EquipmentSlot slot) {

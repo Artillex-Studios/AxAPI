@@ -226,6 +226,7 @@ public class HologramLine {
         HEAD,
         SMALL_HEAD,
         ENTITY,
-        UNKNOWN
+        UNKNOWN,
+        TEXT_DISPLAY // Not yet implemented
     }
 }

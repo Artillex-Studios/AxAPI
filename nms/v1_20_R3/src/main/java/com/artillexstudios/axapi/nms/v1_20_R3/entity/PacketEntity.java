@@ -1,7 +1,10 @@
 package com.artillexstudios.axapi.nms.v1_20_R3.entity;
 
 import com.artillexstudios.axapi.AxPlugin;
+import com.artillexstudios.axapi.collections.ThreadSafeList;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
+import com.artillexstudios.axapi.hologram.HologramLine;
+import com.artillexstudios.axapi.hologram.Holograms;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.packetentity.meta.EntityMeta;
@@ -10,11 +13,16 @@ import com.artillexstudios.axapi.packetentity.meta.Metadata;
 import com.artillexstudios.axapi.packetentity.tracker.EntityTracker;
 import com.artillexstudios.axapi.reflection.FastFieldAccessor;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
+import com.artillexstudios.axapi.utils.StringUtils;
+import com.artillexstudios.axapi.utils.placeholder.Placeholder;
+import com.artillexstudios.axapi.utils.placeholder.StaticPlaceholder;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import io.netty.buffer.Unpooled;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
@@ -38,6 +46,8 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.WeakHashMap;
@@ -165,7 +175,15 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
 
             if (dirty != null) {
                 this.trackedValues = transform(this.meta.metadata().getNonDefaultValues());
-                this.tracker.broadcast(new ClientboundSetEntityDataPacket(this.id, dirty));
+
+                HologramLine line = Holograms.byId(this.id);
+                if (line == null || !line.hasPlaceholders()) {
+                    this.tracker.broadcast(new ClientboundSetEntityDataPacket(this.id, dirty));
+                } else {
+                    for (Player player : this.tracker.seenBy) {
+                        NMSHandlers.getNmsHandler().sendPacket(player, new ClientboundSetEntityDataPacket(this.id, this.translate(player, line, dirty)));
+                    }
+                }
             }
         }
 
@@ -228,7 +246,12 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
         list.add(getAddEntityPacket(this));
 
         if (this.trackedValues != null) {
-            list.add(new ClientboundSetEntityDataPacket(this.id, this.trackedValues));
+            HologramLine line = Holograms.byId(this.id);
+            if (line == null || (line.type() != HologramLine.Type.TEXT || !line.hasPlaceholders())) {
+                list.add(new ClientboundSetEntityDataPacket(this.id, this.trackedValues));
+            } else {
+                list.add(new ClientboundSetEntityDataPacket(this.id, this.translate(player, line, this.trackedValues)));
+            }
         }
 
         List<Pair<net.minecraft.world.entity.EquipmentSlot, ItemStack>> equipments = Lists.newArrayList();
@@ -274,9 +297,60 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
 
     @Override
     public void update() {
-        if (this.tracker != null) {
-            this.tracker.broadcast(new ClientboundSetEntityDataPacket(this.id, transform(this.meta.metadata().packForNameUpdate())));
+        List<SynchedEntityData.DataValue<?>> transformed = transform(this.meta.metadata().packForNameUpdate());
+
+        HologramLine line = Holograms.byId(this.id);
+        if (line == null) {
+            return;
         }
+
+        for (Player player : this.tracker.seenBy) {
+            NMSHandlers.getNmsHandler().sendPacket(player, new ClientboundSetEntityDataPacket(this.id, translate(player, line, transformed)));
+        }
+    }
+
+    private List<SynchedEntityData.DataValue<?>> translate(Player player, HologramLine line, List<SynchedEntityData.DataValue<?>> values) {
+        List<SynchedEntityData.DataValue<?>> dataValues = new ArrayList<>(values);
+        ListIterator<SynchedEntityData.DataValue<?>> iterator = dataValues.listIterator();
+        while (iterator.hasNext()) {
+            SynchedEntityData.DataValue<?> value = iterator.next();
+
+            if (value.id() == 2 && line.type() == HologramLine.Type.TEXT) {
+                Optional<Component> content = (Optional<Component>) value.value();
+                if (content.isEmpty()) {
+                    return values;
+                }
+
+                String legacy = legacyCache.get(content.get(), (minecraftComponent) -> {
+                    String gsonText = Component.Serializer.toJson((Component) minecraftComponent);
+                    net.kyori.adventure.text.Component gsonComponent = GsonComponentSerializer.gson().deserialize(gsonText);
+                    return LEGACY_COMPONENT_SERIALIZER.serialize(gsonComponent);
+                });
+
+                if (legacy == null) {
+                    return values;
+                }
+
+                ThreadSafeList<Placeholder> placeholders = line.placeholders();
+                for (int i = 0; i < placeholders.size(); i++) {
+                    Placeholder placeholder = placeholders.get(i);
+                    if (placeholder instanceof StaticPlaceholder) continue;
+                    legacy = placeholder.parse(player, legacy);
+                }
+
+                Component component = (Component) componentCache.get(legacy, (legacyText) -> {
+                    net.kyori.adventure.text.Component formatted = StringUtils.format(legacyText);
+                    String gson = GsonComponentSerializer.gson().serialize(formatted);
+                    return Component.Serializer.fromJson(gson);
+                });
+
+                iterator.remove();
+                iterator.add(new SynchedEntityData.DataValue<>(value.id(), value.serializer(), Optional.ofNullable(component)));
+                break;
+            }
+        }
+
+        return dataValues;
     }
 
     private ItemStack getItemBySlot(net.minecraft.world.entity.EquipmentSlot slot) {
