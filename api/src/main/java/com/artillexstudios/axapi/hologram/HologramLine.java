@@ -14,10 +14,7 @@ import com.artillexstudios.axapi.utils.placeholder.StaticPlaceholder;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
@@ -25,7 +22,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class HologramLine {
-    private static final Logger log = LoggerFactory.getLogger(HologramLine.class);
     private final Type type;
     private final ThreadSafeList<Placeholder> placeholders = new ThreadSafeList<>();
     private final HologramPage page;
@@ -35,7 +31,6 @@ public class HologramLine {
     private Location location;
 
     public HologramLine(HologramPage page, Location location, String content, Type type, List<Placeholder> placeholders) {
-        log.info("HologramLine ctor {}", placeholders);
         this.page = page;
         this.location = location;
         this.type = type;
@@ -52,7 +47,6 @@ public class HologramLine {
     public void addPlaceholder(Placeholder placeholder) {
         this.placeholders.add(placeholder);
         // Reparse the placeholders
-        log.info("addPlaceholder");
 
         setContent(content);
     }
@@ -106,8 +100,8 @@ public class HologramLine {
                     Holograms.remove(packetEntity.id());
                     packetEntity.remove();
                     packetEntity = NMSHandlers.getNmsHandler().createEntity(EntityType.valueOf(content.toUpperCase(Locale.ENGLISH)), location);
+                    setup();
                     packetEntity.spawn();
-                    Holograms.put(packetEntity.id(), this);
                     break;
                 }
                 case UNKNOWN: {
@@ -124,6 +118,7 @@ public class HologramLine {
                 ItemEntityMeta meta = (ItemEntityMeta) packetEntity.meta();
                 meta.itemStack(NMSHandlers.getNmsHandler().wrapItem(content));
                 meta.hasNoGravity(true);
+                setup();
                 packetEntity.spawn();
                 break;
             }
@@ -132,12 +127,12 @@ public class HologramLine {
                 packetEntity.setItem(EquipmentSlot.HELMET, NMSHandlers.getNmsHandler().wrapItem(this.content));
                 EntityMeta meta = packetEntity.meta();
                 meta.invisible(true);
+                setup();
                 packetEntity.spawn();
                 break;
             }
             case TEXT: {
                 packetEntity = NMSHandlers.getNmsHandler().createEntity(EntityType.ARMOR_STAND, location);
-                log.info("Spawn");
                 AtomicReference<String> reference = new AtomicReference<>(content);
                 ArmorStandMeta meta = (ArmorStandMeta) packetEntity.meta();
                 hasPlaceholders = false;
@@ -152,7 +147,6 @@ public class HologramLine {
                     for (Pattern pattern : FeatureFlags.PLACEHOLDER_PATTERNS.get()) {
                         Matcher matcher = pattern.matcher(reference.get());
                         if (matcher.find()) {
-                            log.info("HasPlaceholders");
                             hasPlaceholders = true;
                             break;
                         }
@@ -167,12 +161,13 @@ public class HologramLine {
 
                 meta.marker(true);
                 meta.invisible(true);
-                log.info("entity spawn");
+                setup();
                 packetEntity.spawn();
                 break;
             }
             case ENTITY: {
                 packetEntity = NMSHandlers.getNmsHandler().createEntity(EntityType.valueOf(content.toUpperCase(Locale.ENGLISH)), location);
+                setup();
                 packetEntity.spawn();
                 break;
             }
@@ -182,6 +177,7 @@ public class HologramLine {
                 packetEntity.setItem(EquipmentSlot.HELMET, NMSHandlers.getNmsHandler().wrapItem(this.content));
                 meta.invisible(true);
                 meta.small(true);
+                setup();
                 packetEntity.spawn();
                 break;
             }
@@ -189,18 +185,18 @@ public class HologramLine {
                 break;
             }
         }
+    }
 
-        if (packetEntity != null) {
-            packetEntity.onInteract(event -> {
-                page.hologram().changePage(event.getPlayer(), event.isAttack() ? Hologram.PageChangeDirection.BACK : Hologram.PageChangeDirection.FORWARD);
-            });
+    private void setup() {
+        packetEntity.onInteract(event -> {
+            page.hologram().changePage(event.getPlayer(), event.isAttack() ? Hologram.PageChangeDirection.BACK : Hologram.PageChangeDirection.FORWARD);
+        });
 
-            if (!page.isFirstPage()) {
-                packetEntity.setVisibleByDefault(false);
-            }
-
-            Holograms.put(packetEntity.id(), this);
+        if (!page.isFirstPage()) {
+            packetEntity.setVisibleByDefault(false);
         }
+
+        Holograms.put(packetEntity.id(), this);
     }
 
     public void teleport(Location location) {
