@@ -55,12 +55,12 @@ public class ArmorStandMeta extends LivingEntityMeta {
     @Override
     protected void defineDefaults() {
         super.defineDefaults();
-        this.metadata.set(Accessors.ARMOR_STAND_DATA, (byte) 0);
-        this.metadata.set(Accessors.HEAD_ROTATION, new EulerAngle(0, 0, 0));
-        this.metadata.set(Accessors.BODY_ROTATION, new EulerAngle(0, 0, 0));
-        this.metadata.set(Accessors.LEFT_ARM_ROTATION, new EulerAngle(-10, 0, -10));
-        this.metadata.set(Accessors.RIGHT_ARM_ROTATION, new EulerAngle(-15, 0, 10));
-        this.metadata.set(Accessors.LEFT_LEG_ROTATION, new EulerAngle(-1, 0, -1));
-        this.metadata.set(Accessors.RIGHT_LEG_ROTATION, new EulerAngle(-1, 0, 1));
+        this.metadata.define(Accessors.ARMOR_STAND_DATA, (byte) 0);
+        this.metadata.define(Accessors.HEAD_ROTATION, new EulerAngle(0, 0, 0));
+        this.metadata.define(Accessors.BODY_ROTATION, new EulerAngle(0, 0, 0));
+        this.metadata.define(Accessors.LEFT_ARM_ROTATION, new EulerAngle(-10, 0, -10));
+        this.metadata.define(Accessors.RIGHT_ARM_ROTATION, new EulerAngle(-15, 0, 10));
+        this.metadata.define(Accessors.LEFT_LEG_ROTATION, new EulerAngle(-1, 0, -1));
+        this.metadata.define(Accessors.RIGHT_LEG_ROTATION, new EulerAngle(-1, 0, 1));
     }
 }
