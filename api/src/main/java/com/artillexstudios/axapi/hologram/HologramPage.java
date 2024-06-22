@@ -50,6 +50,18 @@ public class HologramPage {
 
     public void addLine(HologramLine line) {
         this.lines.add(line);
+
+//        ObjectArrayList<Placeholder> placeholders = hologram.placeholders();
+//        for (int i = 0; i < placeholders.size(); i++) {
+//            Placeholder placeholder = placeholders.get(i);
+//            line.addPlaceholder(placeholder);
+//        }
+//
+//        for (int i = 0; i < this.placeholders.size(); i++) {
+//            Placeholder placeholder = this.placeholders.get(i);
+//            line.addPlaceholder(placeholder);
+//        }
+
         realign();
     }
 

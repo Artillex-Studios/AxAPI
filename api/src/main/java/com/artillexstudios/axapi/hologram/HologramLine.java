@@ -14,6 +14,8 @@ import com.artillexstudios.axapi.utils.placeholder.StaticPlaceholder;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,15 +25,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class HologramLine {
+    private static final Logger log = LoggerFactory.getLogger(HologramLine.class);
     private final Type type;
     private final ThreadSafeList<Placeholder> placeholders = new ThreadSafeList<>();
     private final HologramPage page;
-    private PacketEntity packetEntity = null;
+    private volatile PacketEntity packetEntity = null;
+    private volatile boolean hasPlaceholders = false;
     private String content;
     private Location location;
-    private boolean hasPlaceholders = false;
 
     public HologramLine(HologramPage page, Location location, String content, Type type, List<Placeholder> placeholders) {
+        log.info("HologramLine ctor {}", placeholders);
         this.page = page;
         this.location = location;
         this.type = type;
@@ -48,6 +52,7 @@ public class HologramLine {
     public void addPlaceholder(Placeholder placeholder) {
         this.placeholders.add(placeholder);
         // Reparse the placeholders
+        log.info("addPlaceholder");
 
         setContent(content);
     }
@@ -132,6 +137,7 @@ public class HologramLine {
             }
             case TEXT: {
                 packetEntity = NMSHandlers.getNmsHandler().createEntity(EntityType.ARMOR_STAND, location);
+                log.info("Spawn");
                 AtomicReference<String> reference = new AtomicReference<>(content);
                 ArmorStandMeta meta = (ArmorStandMeta) packetEntity.meta();
                 hasPlaceholders = false;
@@ -146,6 +152,7 @@ public class HologramLine {
                     for (Pattern pattern : FeatureFlags.PLACEHOLDER_PATTERNS.get()) {
                         Matcher matcher = pattern.matcher(reference.get());
                         if (matcher.find()) {
+                            log.info("HasPlaceholders");
                             hasPlaceholders = true;
                             break;
                         }
@@ -160,6 +167,7 @@ public class HologramLine {
 
                 meta.marker(true);
                 meta.invisible(true);
+                log.info("entity spawn");
                 packetEntity.spawn();
                 break;
             }
