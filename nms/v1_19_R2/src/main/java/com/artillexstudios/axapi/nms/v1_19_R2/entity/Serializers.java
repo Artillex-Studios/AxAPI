@@ -17,7 +17,7 @@ import java.util.EnumMap;
 import java.util.Optional;
 
 public class Serializers {
-    private static final FastFieldAccessor nmsStack = FastFieldAccessor.forClassField(com.artillexstudios.axapi.nms.v1_19_R2.items.WrappedItemStack.class, "itemStack");
+    private static final FastFieldAccessor nmsStack = FastFieldAccessor.forClassField(com.artillexstudios.axapi.nms.v1_19_R2.items.WrappedItemStack.class, "parent");
     private static final EnumMap<EntityDataSerializers.Type, Transformer<?>> typeTransformers = new EnumMap<>(EntityDataSerializers.Type.class);
 
     static {

@@ -41,7 +41,7 @@ import java.util.WeakHashMap;
 import java.util.function.Consumer;
 
 public class PacketEntity implements com.artillexstudios.axapi.packetentity.PacketEntity {
-    private static final FastFieldAccessor nmsStack = FastFieldAccessor.forClassField(com.artillexstudios.axapi.nms.v1_19_R2.items.WrappedItemStack.class, "itemStack");
+    private static final FastFieldAccessor nmsStack = FastFieldAccessor.forClassField(com.artillexstudios.axapi.nms.v1_19_R2.items.WrappedItemStack.class, "parent");
     private final int id;
     private final EntityMeta meta;
     private final net.minecraft.world.entity.EntityType<?> type;
