@@ -30,6 +30,7 @@ import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.network.protocol.game.VecDeltaCodec;
+import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
@@ -339,7 +340,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
                 });
 
                 iterator.remove();
-                iterator.add(new SynchedEntityData.DataValue<>(value.id(), value.serializer(), Optional.ofNullable(component)));
+                iterator.add(new SynchedEntityData.DataValue<>(value.id(), (EntityDataSerializer<Object>) value.serializer(), Optional.ofNullable(component)));
                 break;
             }
         }

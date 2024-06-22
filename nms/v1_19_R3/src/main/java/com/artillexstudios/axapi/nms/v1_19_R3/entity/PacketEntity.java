@@ -350,7 +350,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
                 });
 
                 iterator.remove();
-                iterator.add(new SynchedEntityData.DataValue<>(value.id(), value.serializer(), Optional.ofNullable(component)));
+                iterator.add(new SynchedEntityData.DataValue<>(value.id(), (EntityDataSerializer<Object>) value.serializer(), Optional.ofNullable(component)));
                 break;
             }
         }
