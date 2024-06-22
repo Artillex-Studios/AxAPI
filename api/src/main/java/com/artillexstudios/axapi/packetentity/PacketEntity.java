@@ -12,12 +12,17 @@ public interface PacketEntity {
 
     Location location();
 
-    void meta(EntityMeta meta);
-
+    /**
+     * Returns a modifyable meta instance
+     * @return Entity metadata instance
+     */
     EntityMeta meta();
 
     int id();
 
+    /**
+     * Adds the entity into our tracker
+     */
     void spawn();
 
     void hide(Player player);
@@ -29,4 +34,14 @@ public interface PacketEntity {
     void setItem(EquipmentSlot slot, WrappedItemStack item);
 
     WrappedItemStack getItem(EquipmentSlot slot);
+
+    void sendChanges();
+
+    void removePairing(Player player);
+
+    void addPairing(Player player);
+
+    boolean canSee(Player player);
+
+    void remove();
 }

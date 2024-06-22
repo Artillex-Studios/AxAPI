@@ -48,6 +48,21 @@ public final class Metadata {
         }
     }
 
+    public List<DataItem<?>> getNonDefaultValues() {
+        List<DataItem<?>> list = null;
+
+        for (DataItem<?> next : this.items.values()) {
+            if (!next.isSetToDefault()) {
+                if (list == null) {
+                    list = new ArrayList<>();
+                }
+
+                list.add(next.copy());
+            }
+        }
+        return list;
+    }
+
     public boolean isDirty() {
         return this.dirty;
     }
@@ -97,11 +112,13 @@ public final class Metadata {
     public static class DataItem<T> {
         final EntityDataAccessor<T> accessor;
         T value;
+        final T original;
         private boolean dirty;
 
         public DataItem(EntityDataAccessor<T> data, T value) {
             this.accessor = data;
             this.value = value;
+            this.original = value;
             this.dirty = true;
         }
 
@@ -123,6 +140,10 @@ public final class Metadata {
 
         public void setDirty(boolean dirty) {
             this.dirty = dirty;
+        }
+
+        public boolean isSetToDefault() {
+            return this.original.equals(this.value);
         }
 
         public DataItem<T> copy() {

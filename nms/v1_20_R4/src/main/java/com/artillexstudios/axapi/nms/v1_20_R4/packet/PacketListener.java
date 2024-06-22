@@ -7,10 +7,10 @@ import com.artillexstudios.axapi.gui.SignInput;
 import com.artillexstudios.axapi.hologram.HologramLine;
 import com.artillexstudios.axapi.hologram.Holograms;
 import com.artillexstudios.axapi.items.PacketItemModifier;
-import com.artillexstudios.axapi.nms.v1_20_R4.entity.EntityData;
 import com.artillexstudios.axapi.nms.v1_20_R4.items.WrappedItemStack;
-import com.artillexstudios.axapi.utils.ComponentSerializer;
+import com.artillexstudios.axapi.packetentity.PacketEntity;
 import com.artillexstudios.axapi.reflection.FastMethodInvoker;
+import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axapi.utils.placeholder.Placeholder;
 import com.artillexstudios.axapi.utils.placeholder.StaticPlaceholder;
@@ -35,6 +35,7 @@ import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
 import net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket;
 import net.minecraft.network.protocol.game.ServerboundSignUpdatePacket;
+import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -121,8 +122,7 @@ public class PacketListener extends ChannelDuplexHandler {
                 PacketEntity entity = AxPlugin.tracker.getById(entityId);
                 if (entity != null) {
                     PacketEntityInteractEvent event = new PacketEntityInteractEvent(player, entity, attack, vector, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
-                    com.artillexstudios.axapi.nms.v1_20_R4.entity.PacketEntity packetEntity = (com.artillexstudios.axapi.nms.v1_20_R4.entity.PacketEntity) entity;
-                    packetEntity.acceptEventConsumers(event);
+                    // TODO: Call interact on entity
                     Bukkit.getPluginManager().callEvent(event);
                 }
             }
@@ -164,25 +164,15 @@ public class PacketListener extends ChannelDuplexHandler {
                     // The entity is not a packet entity, skip!
                     super.write(ctx, msg, promise);
                     return;
-                } /*else if (PacketItemModifier.isListening()) {
-                    for (SynchedEntityData.DataValue<?> packedItem : dataPacket.packedItems()) {
-                        if (packedItem.serializer().equals(EntityDataSerializers.ITEM_STACK)) {
-                            ItemStack value = (ItemStack) packedItem.value();
-                            PacketItemModifier.callModify(new WrappedItemStack(value), player, PacketItemModifier.Context.DROPPED_ITEM);
-
-                            super.write(ctx, msg, promise);
-                            return;
-                        }
-                    }
                 }
-*/
+
                 List<SynchedEntityData.DataValue<?>> dataValues = new ArrayList<>(dataPacket.packedItems());
                 Iterator<SynchedEntityData.DataValue<?>> iterator = dataValues.iterator();
 
                 SynchedEntityData.DataValue<?> value = null;
                 while (iterator.hasNext()) {
                     SynchedEntityData.DataValue<?> next = iterator.next();
-                    if (next.id() != EntityData.CUSTOM_NAME.id()) continue;
+                    if (next.id() != 2) continue;
 
                     Optional<Component> content = (Optional<Component>) next.value();
                     if (content.isEmpty()) {
@@ -214,7 +204,7 @@ public class PacketListener extends ChannelDuplexHandler {
                         return Component.Serializer.fromJson(gson, MinecraftServer.getServer().registryAccess());
                     });
 
-                    value = new SynchedEntityData.DataValue<>(next.id(), EntityData.CUSTOM_NAME.serializer(), Optional.ofNullable(component));
+                    value = new SynchedEntityData.DataValue<>(next.id(), EntityDataSerializers.OPTIONAL_COMPONENT, Optional.ofNullable(component));
                     iterator.remove();
                     break;
                 }

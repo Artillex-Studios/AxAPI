@@ -7,8 +7,8 @@ import com.artillexstudios.axapi.gui.SignInput;
 import com.artillexstudios.axapi.hologram.HologramLine;
 import com.artillexstudios.axapi.hologram.Holograms;
 import com.artillexstudios.axapi.items.PacketItemModifier;
-import com.artillexstudios.axapi.nms.v1_19_R1.entity.EntityData;
 import com.artillexstudios.axapi.nms.v1_19_R1.items.WrappedItemStack;
+import com.artillexstudios.axapi.packetentity.PacketEntity;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axapi.utils.placeholder.Placeholder;
@@ -34,6 +34,7 @@ import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
 import net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket;
 import net.minecraft.network.protocol.game.ServerboundSignUpdatePacket;
+import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -116,8 +117,6 @@ public class PacketListener extends ChannelDuplexHandler {
             PacketEntity entity = AxPlugin.tracker.getById(entityId);
             if (entity != null) {
                 PacketEntityInteractEvent event = new PacketEntityInteractEvent(player, entity, attack, vector, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
-                com.artillexstudios.axapi.nms.v1_19_R1.entity.PacketEntity packetEntity = (com.artillexstudios.axapi.nms.v1_19_R1.entity.PacketEntity) entity;
-                packetEntity.acceptEventConsumers(event);
                 Bukkit.getPluginManager().callEvent(event);
             }
         } else if (msg instanceof ServerboundSignUpdatePacket updatePacket) {
@@ -136,7 +135,7 @@ public class PacketListener extends ChannelDuplexHandler {
                 serverPlayer.connection.send(new ClientboundBlockUpdatePacket(pos, data.getState()));
             });
             return;
-        }  else if (msg instanceof ServerboundSetCreativeModeSlotPacket packet) {
+        } else if (msg instanceof ServerboundSetCreativeModeSlotPacket packet) {
             var item = packet.getItem();
             if (PacketItemModifier.isListening()) {
                 PacketItemModifier.restore(new WrappedItemStack(item));
@@ -163,7 +162,7 @@ public class PacketListener extends ChannelDuplexHandler {
             SynchedEntityData.DataItem<?> value = null;
             while (iterator.hasNext()) {
                 SynchedEntityData.DataItem<?> next = iterator.next();
-                if (next.getAccessor().getId() != EntityData.CUSTOM_NAME.getId()) continue;
+                if (next.getAccessor().getId() != 2) continue;
 
                 Optional<Component> content = (Optional<Component>) next.getValue();
                 if (content.isEmpty()) {
@@ -195,7 +194,7 @@ public class PacketListener extends ChannelDuplexHandler {
                     return Component.Serializer.fromJson(gson);
                 });
 
-                value = new SynchedEntityData.DataItem<>(EntityData.CUSTOM_NAME, Optional.ofNullable(component));
+                value = new SynchedEntityData.DataItem<>(EntityDataSerializers.OPTIONAL_COMPONENT.createAccessor(2), Optional.ofNullable(component));
                 iterator.remove();
                 break;
             }

@@ -25,12 +25,19 @@ public class MessageUtils {
     }
 
     public void sendFormatted(CommandSender sender, String message, TagResolver... resolvers) {
+        if (message.isEmpty()) {
+            return;
+        }
+
         sender.sendMessage(StringUtils.formatToString(message, resolvers));
     }
 
     public void sendLang(CommandSender commandSender, String message, TagResolver... resolvers) {
         String configString = config.getString(message);
-        if (configString.isEmpty()) return;
+        if (configString.isEmpty()) {
+            return;
+        }
+
         sendFormatted(commandSender, prefixConfig.getString(prefixRoute) + configString, resolvers);
     }
 
@@ -42,6 +49,11 @@ public class MessageUtils {
     }
 
     public void sendLang(CommandSender sender, String message, Map<String, String> replacements) {
-        sendFormatted(sender, prefixConfig.getString(prefixRoute) + config.getString(message), replacements);
+        String parsed = config.getString(message);
+        if (parsed.isEmpty()) {
+            return;
+        }
+
+        sendFormatted(sender, prefixConfig.getString(prefixRoute) + parsed, replacements);
     }
 }

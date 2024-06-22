@@ -3,8 +3,8 @@ package com.artillexstudios.axapi.nms.v1_20_R3;
 import com.artillexstudios.axapi.gui.SignInput;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.component.DataComponentImpl;
-import com.artillexstudios.axapi.nms.v1_20_R3.entity.EntityTracker;
 import com.artillexstudios.axapi.nms.v1_20_R3.packet.PacketListener;
+import com.artillexstudios.axapi.packetentity.PacketEntity;
 import com.artillexstudios.axapi.selection.BlockSetter;
 import com.artillexstudios.axapi.selection.ParallelBlockSetter;
 import com.artillexstudios.axapi.serializers.Serializer;
@@ -28,6 +28,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
@@ -36,9 +37,11 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.util.datafix.fixes.References;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
@@ -48,6 +51,7 @@ import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftContainer;
 import org.bukkit.craftbukkit.v1_20_R3.util.CraftLocation;
 import org.bukkit.craftbukkit.v1_20_R3.util.CraftMagicNumbers;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -56,11 +60,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Field;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     private final String AXAPI_HANDLER;
     private Field channelField;
     private Field connectionField;
+    private AtomicInteger entityCounter;
 
     public NMSHandler(JavaPlugin plugin) {
         AXAPI_HANDLER = "axapi_handler_" + plugin.getName().toLowerCase(Locale.ENGLISH);
@@ -70,6 +76,9 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
             connectionField.setAccessible(true);
             channelField = Class.forName("net.minecraft.network.NetworkManager").getDeclaredField("n");
             channelField.setAccessible(true);
+            Field entityIdField = Entity.class.getDeclaredField("d");
+            entityIdField.setAccessible(true);
+            entityCounter = (AtomicInteger) entityIdField.get(null);
         } catch (Exception exception) {
             log.error("An exception occurred while initializing NMSHandler!", exception);
         }
@@ -135,8 +144,8 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     }
 
     @Override
-    public PacketEntityTracker newTracker() {
-        return new EntityTracker();
+    public PacketEntity createEntity(EntityType entityType, Location location) {
+        return new com.artillexstudios.axapi.nms.v1_20_R3.entity.PacketEntity(entityType, location);
     }
 
     @Override
@@ -262,8 +271,20 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     }
 
     @Override
+    public void sendPacket(Player player, Object packet) {
+        CraftPlayer craftPlayer = (CraftPlayer) player;
+        ServerPlayer serverPlayer = craftPlayer.getHandle();
+        serverPlayer.connection.send((Packet<?>) packet);
+    }
+
+    @Override
     public ParallelBlockSetter newParallelSetter(World world) {
         return new ParallelBlockSetterImpl(world);
+    }
+
+    @Override
+    public int nextEntityId() {
+        return entityCounter.incrementAndGet();
     }
 
     public String toGson(Component component) {

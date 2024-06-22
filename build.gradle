@@ -86,6 +86,7 @@ allprojects {
         implementation("net.kyori:adventure-text-minimessage:4.14.0")
         implementation("net.kyori:adventure-text-serializer-plain:4.14.0")
         compileOnly("it.unimi.dsi:fastutil-core:8.5.12")
+        compileOnly("it.unimi.dsi:fastutil:8.5.12")
         compileOnly("org.apache.commons:commons-math3:3.6.1")
         compileOnly("com.github.ben-manes.caffeine:caffeine:2.9.2")
         compileOnly("me.clip:placeholderapi:2.11.5")

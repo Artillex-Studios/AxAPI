@@ -15,7 +15,7 @@ public class EntityMeta {
         this.defineDefaults();
     }
 
-    public void setSilent(boolean silent) {
+    public void silent(boolean silent) {
         this.metadata.set(Accessors.SILENT, silent);
     }
 
@@ -23,23 +23,23 @@ public class EntityMeta {
         return this.metadata.get(Accessors.SILENT);
     }
 
-    public void setHasNoGravity(boolean hasNoGravity) {
+    public void hasNoGravity(boolean hasNoGravity) {
         this.metadata.set(Accessors.HAS_NO_GRAVITY, hasNoGravity);
     }
 
-    public boolean hsaNoGravity() {
+    public boolean hasNoGravity() {
         return this.metadata.get(Accessors.HAS_NO_GRAVITY);
     }
 
-    public boolean isCustomNameVisible() {
+    public boolean customNameVisible() {
         return this.metadata.get(Accessors.CUSTOM_NAME_VISIBLE);
     }
 
-    public void setCustomNameVisible(boolean customNameVisible) {
+    public void customNameVisible(boolean customNameVisible) {
         this.metadata.set(Accessors.CUSTOM_NAME_VISIBLE, customNameVisible);
     }
 
-    public void setName(Component name) {
+    public void name(Component name) {
         if (name == null || name == Component.empty()) {
             this.metadata.set(Accessors.CUSTOM_NAME, Optional.empty());
             return;
@@ -52,23 +52,23 @@ public class EntityMeta {
         }
     }
 
-    public void setSneaking(boolean sneaking) {
+    public void sneaking(boolean sneaking) {
         setSharedFlag(1, sneaking);
     }
 
-    public void setOnFire(boolean onFire) {
+    public void onFire(boolean onFire) {
         setSharedFlag(0, onFire);
     }
 
-    public void setSprinting(boolean sprinting) {
+    public void sprinting(boolean sprinting) {
         setSharedFlag(3, sprinting);
     }
 
-    public void setSwimming(boolean swimming) {
+    public void swimming(boolean swimming) {
         setSharedFlag(4, swimming);
     }
 
-    public void setInvisible(boolean invisible) {
+    public void invisible(boolean invisible) {
         setSharedFlag(5, invisible);
     }
 
@@ -125,11 +125,15 @@ public class EntityMeta {
         }
     }
 
+    public Metadata metadata() {
+        return metadata;
+    }
+
     protected void defineDefaults() {
-        this.metadata.define(Accessors.SHARED_FLAGS, (byte) 0); // shared flags
-        this.metadata.define(Accessors.CUSTOM_NAME, Optional.empty()); // custom name
-        this.metadata.define(Accessors.CUSTOM_NAME_VISIBLE, false); // custom name visible
-        this.metadata.define(Accessors.SILENT, false); // silent
-        this.metadata.define(Accessors.HAS_NO_GRAVITY, false); // has no gravity
+        this.metadata.define(Accessors.SHARED_FLAGS, (byte) 0);
+        this.metadata.define(Accessors.CUSTOM_NAME, Optional.empty());
+        this.metadata.define(Accessors.CUSTOM_NAME_VISIBLE, false);
+        this.metadata.define(Accessors.SILENT, false);
+        this.metadata.define(Accessors.HAS_NO_GRAVITY, false);
     }
 }

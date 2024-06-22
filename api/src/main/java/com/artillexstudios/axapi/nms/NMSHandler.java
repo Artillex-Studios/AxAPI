@@ -4,6 +4,7 @@ import com.artillexstudios.axapi.gui.SignInput;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.component.DataComponentImpl;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
+import com.artillexstudios.axapi.packetentity.PacketEntity;
 import com.artillexstudios.axapi.selection.ParallelBlockSetter;
 import com.artillexstudios.axapi.selection.BlockSetter;
 import com.artillexstudios.axapi.serializers.Serializer;
@@ -11,8 +12,10 @@ import com.artillexstudios.axapi.utils.ActionBar;
 import com.artillexstudios.axapi.utils.BossBar;
 import com.artillexstudios.axapi.utils.Title;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -31,7 +34,7 @@ public interface NMSHandler {
 
     int getProtocolVersionId(Player player);
 
-    PacketEntityTracker newTracker();
+    PacketEntity createEntity(EntityType entityType, Location location);
 
     BlockSetter newSetter(World world);
 
@@ -57,7 +60,11 @@ public interface NMSHandler {
 
     OfflinePlayer getCachedOfflinePlayer(String name);
 
+    void sendPacket(Player player, Object packet);
+
     default ParallelBlockSetter newParallelSetter(World world) {
         return null;
     }
+
+    int nextEntityId();
 }

@@ -3,6 +3,7 @@ package com.artillexstudios.axapi;
 import com.artillexstudios.axapi.hologram.Holograms;
 import com.artillexstudios.axapi.items.component.DataComponents;
 import com.artillexstudios.axapi.nms.NMSHandlers;
+import com.artillexstudios.axapi.packetentity.tracker.EntityTracker;
 import com.artillexstudios.axapi.scheduler.Scheduler;
 import com.artillexstudios.axapi.utils.FeatureFlags;
 import net.byteflux.libby.BukkitLibraryManager;
@@ -27,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class AxPlugin extends JavaPlugin {
     private static final Logger log = LoggerFactory.getLogger(AxPlugin.class);
-    public static PacketEntityTracker tracker;
+    public static EntityTracker tracker;
     private static boolean hasNMSHandler;
 
     public AxPlugin() {
@@ -44,7 +45,7 @@ public abstract class AxPlugin extends JavaPlugin {
 
         if (hasNMSHandler) {
             if (tracker != null) {
-                Future<?> future =  Executors.newScheduledThreadPool(FeatureFlags.PACKET_ENTITY_TRACKER_THREADS.get()).scheduleAtFixedRate(() -> {
+                Future<?> future = Executors.newScheduledThreadPool(FeatureFlags.PACKET_ENTITY_TRACKER_THREADS.get()).scheduleAtFixedRate(() -> {
                     try {
                         tracker.process();
                     } catch (Exception exception) {
@@ -134,7 +135,7 @@ public abstract class AxPlugin extends JavaPlugin {
 
         load();
         if (hasNMSHandler && FeatureFlags.PACKET_ENTITY_TRACKER_ENABLED.get()) {
-            tracker = NMSHandlers.getNmsHandler().newTracker();
+            tracker = new EntityTracker();
         }
     }
 
