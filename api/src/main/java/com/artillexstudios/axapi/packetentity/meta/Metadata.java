@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.packetentity.meta;
 
+import com.artillexstudios.axapi.packetentity.meta.serializer.Accessors;
 import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataAccessor;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -60,6 +61,20 @@ public final class Metadata {
                 list.add(next.copy());
             }
         }
+        return list;
+    }
+
+    public List<DataItem<?>> packForNameUpdate() {
+        List<DataItem<?>> list = null;
+
+        for (DataItem<?> next : this.items.values()) {
+            if (next.getAccessor().id() == Accessors.CUSTOM_NAME.id()) {
+                list = new ArrayList<>(1);
+                list.add(next.copy());
+                break;
+            }
+        }
+
         return list;
     }
 

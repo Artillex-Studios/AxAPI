@@ -70,31 +70,13 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
         this.armorSlots = NonNullList.withSize(4, ItemStack.EMPTY);
     }
 
-    private static List<SynchedEntityData.DataValue<?>> trackedValues(EntityMeta meta) {
+    private static List<SynchedEntityData.DataValue<?>> transform(List<Metadata.DataItem<?>> toTransform) {
         List<SynchedEntityData.DataValue<?>> dataValues = null;
-        List<Metadata.DataItem<?>> nonDefaultValues = meta.metadata().getNonDefaultValues();
 
-        if (nonDefaultValues != null) {
-            dataValues = new ArrayList<>(nonDefaultValues.size());
+        if (toTransform != null) {
+            dataValues = new ArrayList<>(toTransform.size());
 
-            for (Metadata.DataItem<?> dataItem : nonDefaultValues) {
-                Serializers.Transformer<?> transformer = Serializers.transformer(dataItem.getAccessor());
-
-                dataValues.add(new SynchedEntityData.DataValue<>(dataItem.getAccessor().id(), (EntityDataSerializer<Object>) transformer.serializer(), transformer.transform(dataItem.getValue())));
-            }
-        }
-
-        return dataValues;
-    }
-
-    private static List<SynchedEntityData.DataValue<?>> dirtyValues(EntityMeta meta) {
-        List<SynchedEntityData.DataValue<?>> dataValues = null;
-        List<Metadata.DataItem<?>> dirty = meta.metadata().packDirty();
-
-        if (dirty != null) {
-            dataValues = new ArrayList<>(dirty.size());
-
-            for (Metadata.DataItem<?> dataItem : dirty) {
+            for (Metadata.DataItem<?> dataItem : toTransform) {
                 Serializers.Transformer<?> transformer = Serializers.transformer(dataItem.getAccessor());
 
                 dataValues.add(new SynchedEntityData.DataValue<>(dataItem.getAccessor().id(), (EntityDataSerializer<Object>) transformer.serializer(), transformer.transform(dataItem.getValue())));
@@ -132,7 +114,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
 
     @Override
     public void spawn() {
-        this.trackedValues = trackedValues(this.meta);
+        this.trackedValues = transform(this.meta.metadata().getNonDefaultValues());
 
         AxPlugin.tracker.addEntity(this);
     }
@@ -179,10 +161,10 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     @Override
     public void sendChanges() {
         if (this.meta.metadata().isDirty()) {
-            List<SynchedEntityData.DataValue<?>> dirty = dirtyValues(this.meta);
+            List<SynchedEntityData.DataValue<?>> dirty = transform(this.meta.metadata().packDirty());
 
             if (dirty != null) {
-                this.trackedValues = trackedValues(this.meta);
+                this.trackedValues = transform(this.meta.metadata().getNonDefaultValues());
                 this.tracker.broadcast(new ClientboundSetEntityDataPacket(this.id, dirty));
             }
         }
@@ -287,6 +269,13 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     public void callInteract(PacketEntityInteractEvent event) {
         if (this.interactConsumer != null) {
             this.interactConsumer.accept(event);
+        }
+    }
+
+    @Override
+    public void update() {
+        if (this.tracker != null) {
+            this.tracker.broadcast(new ClientboundSetEntityDataPacket(this.id, transform(this.meta.metadata().packForNameUpdate())));
         }
     }
 

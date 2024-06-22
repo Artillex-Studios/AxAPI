@@ -23,6 +23,7 @@ import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.network.protocol.game.VecDeltaCodec;
 import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -67,31 +68,13 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
         this.armorSlots = NonNullList.withSize(4, ItemStack.EMPTY);
     }
 
-    private static List<SynchedEntityData.DataItem<?>> trackedValues(EntityMeta meta) {
+    private static List<SynchedEntityData.DataItem<?>> transform(List<Metadata.DataItem<?>> toTransform) {
         List<SynchedEntityData.DataItem<?>> dataValues = null;
-        List<Metadata.DataItem<?>> nonDefaultValues = meta.metadata().getNonDefaultValues();
 
-        if (nonDefaultValues != null) {
-            dataValues = new ArrayList<>(nonDefaultValues.size());
+        if (toTransform != null) {
+            dataValues = new ArrayList<>(toTransform.size());
 
-            for (Metadata.DataItem<?> dataItem : nonDefaultValues) {
-                Serializers.Transformer<?> transformer = Serializers.transformer(dataItem.getAccessor());
-
-                dataValues.add(new SynchedEntityData.DataItem<>((EntityDataAccessor<Object>) transformer.serializer().createAccessor(dataItem.getAccessor().id()), transformer.transform(dataItem.getValue())));
-            }
-        }
-
-        return dataValues;
-    }
-
-    private static List<SynchedEntityData.DataItem<?>> dirtyValues(EntityMeta meta) {
-        List<SynchedEntityData.DataItem<?>> dataValues = null;
-        List<Metadata.DataItem<?>> dirty = meta.metadata().packDirty();
-
-        if (dirty != null) {
-            dataValues = new ArrayList<>(dirty.size());
-
-            for (Metadata.DataItem<?> dataItem : dirty) {
+            for (Metadata.DataItem<?> dataItem : toTransform) {
                 Serializers.Transformer<?> transformer = Serializers.transformer(dataItem.getAccessor());
 
                 dataValues.add(new SynchedEntityData.DataItem<>((EntityDataAccessor<Object>) transformer.serializer().createAccessor(dataItem.getAccessor().id()), transformer.transform(dataItem.getValue())));
@@ -129,7 +112,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
 
     @Override
     public void spawn() {
-        this.trackedValues = trackedValues(this.meta);
+        this.trackedValues = transform(this.meta.metadata().getNonDefaultValues());
 
         AxPlugin.tracker.addEntity(this);
     }
@@ -176,10 +159,10 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     @Override
     public void sendChanges() {
         if (this.meta.metadata().isDirty()) {
-            List<SynchedEntityData.DataItem<?>> dirty = dirtyValues(this.meta);
+            List<SynchedEntityData.DataItem<?>> dirty = transform(this.meta.metadata().packDirty());
 
             if (dirty != null) {
-                this.trackedValues = trackedValues(this.meta);
+                this.trackedValues = transform(this.meta.metadata().getNonDefaultValues());
                 FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
                 buf.writeVarInt(this.id);
                 SynchedEntityData.pack(dirty, buf);
@@ -291,6 +274,18 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     public void callInteract(PacketEntityInteractEvent event) {
         if (this.interactConsumer != null) {
             this.interactConsumer.accept(event);
+        }
+    }
+
+    @Override
+    public void update() {
+        if (this.tracker != null) {
+            FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+            buf.writeVarInt(this.id);
+            SynchedEntityData.pack(transform(this.meta.metadata().packForNameUpdate()), buf);
+
+            this.tracker.broadcast(new ClientboundSetEntityDataPacket(buf));
+            buf.release();
         }
     }
 

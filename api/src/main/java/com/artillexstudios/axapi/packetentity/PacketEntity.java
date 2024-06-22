@@ -51,4 +51,6 @@ public interface PacketEntity {
     void onInteract(Consumer<PacketEntityInteractEvent> event);
 
     void callInteract(PacketEntityInteractEvent event);
+
+    void update();
 }
