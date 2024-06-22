@@ -361,7 +361,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
                 });
 
                 iterator.remove();
-                iterator.add(new SynchedEntityData.DataItem<>(value.getAccessor(), Optional.ofNullable(component)));
+                iterator.add(new SynchedEntityData.DataItem<>((EntityDataAccessor<Object>) value.getAccessor(), Optional.ofNullable(component)));
                 break;
             }
         }
