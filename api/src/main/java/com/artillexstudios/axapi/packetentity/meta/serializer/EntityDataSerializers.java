@@ -1,11 +1,11 @@
 package com.artillexstudios.axapi.packetentity.meta.serializer;
 
 import com.artillexstudios.axapi.items.WrappedItemStack;
-import com.artillexstudios.axapi.utils.RotationType;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.Pose;
 import org.bukkit.util.EulerAngle;
 
 import java.util.Optional;
@@ -24,6 +24,7 @@ public final class EntityDataSerializers<T> {
     public static final EntityDataSerializers<EulerAngle> ROTATIONS = new EntityDataSerializers<>(Type.ROTATIONS);
     public static final EntityDataSerializers<Location> LOCATION = new EntityDataSerializers<>(Type.LOCATION);
     public static final EntityDataSerializers<Optional<Location>> OPTIONAL_LOCATION = new EntityDataSerializers<>(Type.OPTIONAL_LOCATION);
+    public static final EntityDataSerializers<Pose> POSE = new EntityDataSerializers<>(Type.POSE);
 
     public final Type type;
 
@@ -48,6 +49,7 @@ public final class EntityDataSerializers<T> {
         PARTICLE,
         ROTATIONS,
         LOCATION,
-        OPTIONAL_LOCATION;
+        OPTIONAL_LOCATION,
+        POSE;
     }
 }

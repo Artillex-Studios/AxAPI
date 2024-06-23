@@ -8,6 +8,7 @@ import net.minecraft.core.Rotations;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataSerializer;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.ItemStack;
 import org.bukkit.Particle;
 import org.bukkit.craftbukkit.v1_18_R1.CraftParticle;
@@ -143,6 +144,20 @@ public class Serializers {
             @Override
             public EntityDataSerializer<Rotations> serializer() {
                 return net.minecraft.network.syncher.EntityDataSerializers.ROTATIONS;
+            }
+        });
+
+        typeTransformers.put(EntityDataSerializers.Type.POSE, new Transformer<Pose>() {
+            private static final Pose[] poses = Pose.values();
+
+            @Override
+            public Pose transform(Object other) {
+                return poses[((org.bukkit.entity.Pose) other).ordinal()];
+            }
+
+            @Override
+            public EntityDataSerializer<Pose> serializer() {
+                return net.minecraft.network.syncher.EntityDataSerializers.POSE;
             }
         });
     }

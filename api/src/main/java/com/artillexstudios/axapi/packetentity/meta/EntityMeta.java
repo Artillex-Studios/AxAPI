@@ -2,6 +2,7 @@ package com.artillexstudios.axapi.packetentity.meta;
 
 import com.artillexstudios.axapi.packetentity.meta.serializer.Accessors;
 import net.kyori.adventure.text.Component;
+import org.bukkit.entity.Pose;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -134,6 +135,7 @@ public class EntityMeta {
         this.metadata.define(Accessors.CUSTOM_NAME, Optional.empty());
         this.metadata.define(Accessors.CUSTOM_NAME_VISIBLE, false);
         this.metadata.define(Accessors.SILENT, false);
+        this.metadata.define(Accessors.POSE, Pose.STANDING);
         this.metadata.define(Accessors.HAS_NO_GRAVITY, false);
     }
 }
