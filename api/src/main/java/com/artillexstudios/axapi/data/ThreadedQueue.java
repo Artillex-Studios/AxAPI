@@ -21,8 +21,11 @@ public class ThreadedQueue<T extends Runnable> implements Runnable {
     public void stop() {
         killed = true;
 
-        synchronized (lock) {
+        lock.lock();
+        try {
             condition.signalAll();
+        } finally {
+            lock.unlock();
         }
     }
 
