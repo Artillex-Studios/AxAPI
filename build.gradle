@@ -16,6 +16,7 @@ java {
 dependencies {
     implementation project(path: ":api")
     implementation project(path: ":folia")
+    implementation project(path: ":nms:v1_21_R1", configuration: "reobf")
     implementation project(path: ":nms:v1_20_R4", configuration: "reobf")
     implementation project(path: ":nms:v1_20_R3", configuration: "reobf")
     implementation project(path: ":nms:v1_20_R2", configuration: "reobf")
@@ -86,6 +87,7 @@ allprojects {
         implementation("net.kyori:adventure-text-minimessage:4.14.0")
         implementation("net.kyori:adventure-text-serializer-plain:4.14.0")
         compileOnly("it.unimi.dsi:fastutil-core:8.5.12")
+        compileOnly("it.unimi.dsi:fastutil:8.5.12")
         compileOnly("org.apache.commons:commons-math3:3.6.1")
         compileOnly("com.github.ben-manes.caffeine:caffeine:2.9.2")
         compileOnly("me.clip:placeholderapi:2.11.5")

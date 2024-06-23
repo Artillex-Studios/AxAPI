@@ -1,11 +1,13 @@
 package com.artillexstudios.axapi;
 
-import com.artillexstudios.axapi.entity.PacketEntityTracker;
+import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.hologram.Holograms;
 import com.artillexstudios.axapi.items.component.DataComponents;
 import com.artillexstudios.axapi.nms.NMSHandlers;
+import com.artillexstudios.axapi.packetentity.tracker.EntityTracker;
 import com.artillexstudios.axapi.scheduler.Scheduler;
 import com.artillexstudios.axapi.utils.FeatureFlags;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import net.byteflux.libby.BukkitLibraryManager;
 import net.byteflux.libby.Library;
 import net.byteflux.libby.logging.LogLevel;
@@ -28,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class AxPlugin extends JavaPlugin {
     private static final Logger log = LoggerFactory.getLogger(AxPlugin.class);
-    public static PacketEntityTracker tracker;
+    public static EntityTracker tracker;
     private static boolean hasNMSHandler;
 
     public AxPlugin() {
@@ -45,19 +47,19 @@ public abstract class AxPlugin extends JavaPlugin {
 
         if (hasNMSHandler) {
             if (tracker != null) {
-                Future<?> future =  Executors.newScheduledThreadPool(FeatureFlags.PACKET_ENTITY_TRACKER_THREADS.get()).scheduleAtFixedRate(() -> {
+                Executors.newScheduledThreadPool(FeatureFlags.PACKET_ENTITY_TRACKER_THREADS.get(), new ThreadFactoryBuilder().setUncaughtExceptionHandler((thread, exception) -> log.error("Thread {} threw an uncaught exception!", thread, exception)).build()).scheduleAtFixedRate(() -> {
                     try {
                         tracker.process();
                     } catch (Exception exception) {
-                        if (exception instanceof ConcurrentModificationException) {
-                            // There's something weird with the entity tracker after the server starts up.
-                            // Nothing blew up yet, so I guess the error is safe to ignore...
-                            // If something blows up, I'm not the person to blame!
-                            // (But people don't like seeing errors, so this is the solution until I find out what causes the tracker to throw a CME)
-                            //
-                            // Please don't hunt me for this, I didn't want to do it.
-                            return;
-                        }
+//                        if (exception instanceof ConcurrentModificationException) {
+//                            // There's something weird with the entity tracker after the server starts up.
+//                            // Nothing blew up yet, so I guess the error is safe to ignore...
+//                            // If something blows up, I'm not the person to blame!
+//                            // (But people don't like seeing errors, so this is the solution until I find out what causes the tracker to throw a CME)
+//                            //
+//                            // Please don't hunt me for this, I didn't want to do it.
+//                            return;
+//                        }
 
                         log.error("An unexpected error occurred while processing packet entities via the tracker!", exception);
                     }
@@ -73,6 +75,11 @@ public abstract class AxPlugin extends JavaPlugin {
                 @EventHandler
                 public void onPlayerJoinEvent(@NotNull final PlayerJoinEvent event) {
                     NMSHandlers.getNmsHandler().injectPlayer(event.getPlayer());
+                }
+
+                @EventHandler
+                public void onPacketEntityInteractEvent(@NotNull final PacketEntityInteractEvent event) {
+                    event.getPacketEntity().callInteract(event);
                 }
 
                 @EventHandler
@@ -135,7 +142,7 @@ public abstract class AxPlugin extends JavaPlugin {
 
         load();
         if (hasNMSHandler && FeatureFlags.PACKET_ENTITY_TRACKER_ENABLED.get()) {
-            tracker = NMSHandlers.getNmsHandler().newTracker();
+            tracker = new EntityTracker();
         }
     }
 

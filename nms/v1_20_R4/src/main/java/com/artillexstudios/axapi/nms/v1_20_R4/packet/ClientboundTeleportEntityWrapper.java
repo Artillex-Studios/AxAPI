@@ -1,8 +1,8 @@
 package com.artillexstudios.axapi.nms.v1_20_R4.packet;
 
-import com.artillexstudios.axapi.entity.impl.PacketEntity;
-import com.artillexstudios.axapi.utils.ClassUtils;
-import com.artillexstudios.axapi.utils.FastFieldAccessor;
+import com.artillexstudios.axapi.packetentity.PacketEntity;
+import com.artillexstudios.axapi.reflection.ClassUtils;
+import com.artillexstudios.axapi.reflection.FastFieldAccessor;
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import org.bukkit.Location;
 
@@ -17,7 +17,7 @@ public class ClientboundTeleportEntityWrapper {
 
     public static ClientboundTeleportEntityPacket createNew(PacketEntity entity, Location location) {
         ClientboundTeleportEntityPacket packet = ClassUtils.INSTANCE.newInstance(ClientboundTeleportEntityPacket.class);
-        entityId.setInt(packet, entity.getEntityId());
+        entityId.setInt(packet, entity.id());
         x.setDouble(packet, location.getX());
         y.setDouble(packet, location.getY());
         z.setDouble(packet, location.getZ());

@@ -1,6 +1,6 @@
 package com.artillexstudios.axapi.events;
 
-import com.artillexstudios.axapi.entity.impl.PacketEntity;
+import com.artillexstudios.axapi.packetentity.PacketEntity;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -26,12 +26,12 @@ public class PacketEntityInteractEvent extends Event {
         this.hand = hand;
     }
 
-    @Override
-    public @NotNull HandlerList getHandlers() {
+    public static HandlerList getHandlerList() {
         return HANDLER_LIST;
     }
 
-    public static HandlerList getHandlerList() {
+    @Override
+    public @NotNull HandlerList getHandlers() {
         return HANDLER_LIST;
     }
 
