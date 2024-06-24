@@ -36,6 +36,13 @@ public final class EntityDataSerializers<T> {
         return new EntityDataAccessor<>(id, this);
     }
 
+    @Override
+    public String toString() {
+        return "EntityDataSerializers{" +
+                "type=" + type +
+                '}';
+    }
+
     public enum Type {
         BYTE,
         INT,

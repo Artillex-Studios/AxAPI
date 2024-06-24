@@ -12,7 +12,7 @@ import java.util.List;
 public final class Metadata {
     private final Int2ObjectMap<DataItem<?>> items = new Int2ObjectOpenHashMap<>();
     private volatile boolean dirty = false;
-    
+
     public <T> void define(EntityDataAccessor<T> accessor, T value) {
         this.createDataItem(accessor, value);
     }
@@ -20,15 +20,11 @@ public final class Metadata {
     public <T> void createDataItem(EntityDataAccessor<T> accessor, T value) {
         DataItem<T> dataItem = new DataItem<>(accessor, value);
 
-        synchronized (items) {
-            items.put(accessor.id(), dataItem);
-        }
+        items.put(accessor.id(), dataItem);
     }
 
     private <T> DataItem<T> getItem(EntityDataAccessor<T> key) {
-        synchronized (items) {
-            return (DataItem) this.items.get(key.id());
-        }
+        return (DataItem) this.items.get(key.id());
     }
 
     public <T> T get(EntityDataAccessor<T> data) {
@@ -61,6 +57,7 @@ public final class Metadata {
                 list.add(next.copy());
             }
         }
+
         return list;
     }
 
@@ -89,46 +86,42 @@ public final class Metadata {
     public List<DataItem<?>> getAll() {
         List<DataItem<?>> list = null;
 
-        synchronized (items) {
-            for (DataItem<?> next : this.items.values()) {
-                if (list == null) {
-                    list = new ArrayList<>();
-                }
-
-                list.add(next.copy());
+        for (DataItem<?> next : this.items.values()) {
+            if (list == null) {
+                list = new ArrayList<>();
             }
 
-            return list;
+            list.add(next.copy());
         }
+
+        return list;
     }
 
     public List<DataItem<?>> packDirty() {
         List<DataItem<?>> list = null;
 
-        synchronized (items) {
-            if (dirty) {
-                for (DataItem<?> next : this.items.values()) {
-                    if (next.isDirty()) {
-                        next.setDirty(false);
-                        if (list == null) {
-                            list = new ArrayList<>();
-                        }
-
-                        list.add(next.copy());
+        if (dirty) {
+            for (DataItem<?> next : this.items.values()) {
+                if (next.isDirty()) {
+                    next.setDirty(false);
+                    if (list == null) {
+                        list = new ArrayList<>();
                     }
+
+                    list.add(next.copy());
                 }
             }
-
-            this.dirty = false;
-            return list;
         }
+
+        this.dirty = false;
+        return list;
     }
-    
+
     public static class DataItem<T> {
         final EntityDataAccessor<T> accessor;
-        T value;
         final T original;
-        private boolean dirty;
+        volatile T value;
+        private volatile boolean dirty;
 
         public DataItem(EntityDataAccessor<T> data, T value) {
             this.accessor = data;
@@ -141,12 +134,12 @@ public final class Metadata {
             return this.accessor;
         }
 
-        public void setValue(T value) {
-            this.value = value;
-        }
-
         public T getValue() {
             return this.value;
+        }
+
+        public void setValue(T value) {
+            this.value = value;
         }
 
         public boolean isDirty() {
@@ -163,6 +156,16 @@ public final class Metadata {
 
         public DataItem<T> copy() {
             return new DataItem<>(this.accessor, value);
+        }
+
+        @Override
+        public String toString() {
+            return "DataItem{" +
+                    "accessor=" + accessor +
+                    ", value=" + value +
+                    ", original=" + original +
+                    ", dirty=" + dirty +
+                    '}';
         }
     }
 }

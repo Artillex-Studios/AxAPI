@@ -13,6 +13,7 @@ import com.artillexstudios.axapi.packetentity.meta.EntityMetaFactory;
 import com.artillexstudios.axapi.packetentity.meta.Metadata;
 import com.artillexstudios.axapi.packetentity.tracker.EntityTracker;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
+import com.artillexstudios.axapi.utils.FeatureFlags;
 import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axapi.utils.placeholder.Placeholder;
 import com.artillexstudios.axapi.utils.placeholder.StaticPlaceholder;
@@ -40,6 +41,8 @@ import org.bukkit.Location;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,6 +55,7 @@ import java.util.WeakHashMap;
 import java.util.function.Consumer;
 
 public class PacketEntity implements com.artillexstudios.axapi.packetentity.PacketEntity {
+    private final Logger log = LoggerFactory.getLogger(PacketEntity.class);
     private final int id;
     private final EntityMeta meta;
     private final net.minecraft.world.entity.EntityType<?> type;
@@ -121,7 +125,15 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
 
     @Override
     public void spawn() {
-        this.trackedValues = transform(this.meta.metadata().getNonDefaultValues());
+        List<Metadata.DataItem<?>> values = this.meta.metadata().getNonDefaultValues();
+        if (FeatureFlags.DEBUG.get()) {
+            this.log.info("Pre transofmation: {}", values);
+        }
+
+        this.trackedValues = transform(values);
+        if (FeatureFlags.DEBUG.get()) {
+            this.log.info("Post transofmation: {}", this.trackedValues);
+        }
 
         AxPlugin.tracker.addEntity(this);
     }
@@ -169,7 +181,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     public void sendChanges() {
         if (this.meta.metadata().isDirty()) {
             List<SynchedEntityData.DataValue<?>> dirty = transform(this.meta.metadata().packDirty());
-
+            log.info("Metadata dirty, sending! {}", dirty);
             if (dirty != null) {
                 this.trackedValues = transform(this.meta.metadata().getNonDefaultValues());
 
@@ -227,6 +239,9 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
 
     @Override
     public void addPairing(Player player) {
+        if (FeatureFlags.DEBUG.get()) {
+            this.log.info("Tracking for {}", player.getName());
+        }
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
         ArrayList<Packet<? super ClientGamePacketListener>> list = new ArrayList<>();
 
@@ -235,6 +250,9 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
         if (this.trackedValues != null) {
             HologramLine line = Holograms.byId(this.id);
             if (line == null || (line.type() != HologramLine.Type.TEXT || !line.hasPlaceholders())) {
+                if (FeatureFlags.DEBUG.get()) {
+                    this.log.info("Not translating");
+                }
                 list.add(new ClientboundSetEntityDataPacket(this.id, this.trackedValues));
             } else {
                 list.add(new ClientboundSetEntityDataPacket(this.id, this.translate(player, line, this.trackedValues)));

@@ -16,4 +16,12 @@ public final class EntityDataAccessor<T> {
     public EntityDataSerializers<T> serializers() {
         return serializers;
     }
+
+    @Override
+    public String toString() {
+        return "EntityDataAccessor{" +
+                "id=" + id +
+                ", serializers=" + serializers +
+                '}';
+    }
 }
