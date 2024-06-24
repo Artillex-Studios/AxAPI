@@ -153,9 +153,9 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     @Override
     public void setItem(EquipmentSlot slot, WrappedItemStack item) {
         if (slot.getType() == EquipmentSlot.Type.HAND) {
-            this.handSlots.set(slot.getIndex(), ((com.artillexstudios.axapi.nms.v1_19_R3.items.WrappedItemStack) item).parent);
+            this.handSlots.set(slot.getIndex(), item == null ? ItemStack.EMPTY : ((com.artillexstudios.axapi.nms.v1_19_R3.items.WrappedItemStack) item).parent);
         } else {
-            this.armorSlots.set(slot.getIndex(), ((com.artillexstudios.axapi.nms.v1_19_R3.items.WrappedItemStack) item).parent);
+            this.armorSlots.set(slot.getIndex(), item == null ? ItemStack.EMPTY : ((com.artillexstudios.axapi.nms.v1_19_R3.items.WrappedItemStack) item).parent);
         }
 
         this.itemDirty = true;
