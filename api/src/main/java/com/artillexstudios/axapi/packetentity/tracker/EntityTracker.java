@@ -105,7 +105,7 @@ public final class EntityTracker {
                 }
             }
 
-            if (oldTrackerCandidates.equals(newTrackerCandidates)) {
+            if (oldTrackerCandidates != null && oldTrackerCandidates.equals(newTrackerCandidates)) {
                 return;
             }
 
