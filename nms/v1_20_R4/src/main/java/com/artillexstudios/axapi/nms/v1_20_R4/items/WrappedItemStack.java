@@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public class WrappedItemStack implements com.artillexstudios.axapi.items.WrappedItemStack {
-    private net.minecraft.world.item.ItemStack itemStack;
+    public net.minecraft.world.item.ItemStack itemStack;
     private ItemStack bukkitStack;
 
     public WrappedItemStack(ItemStack itemStack) {

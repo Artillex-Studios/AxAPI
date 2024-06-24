@@ -11,7 +11,7 @@ import org.bukkit.craftbukkit.v1_19_R1.util.CraftMagicNumbers;
 
 public class WrappedItemStack implements com.artillexstudios.axapi.items.WrappedItemStack {
     private static final FastFieldAccessor HANDLE_ACCESSOR = FastFieldAccessor.forClassField(CraftItemStack.class, "handle");
-    private final ItemStack parent;
+    public final ItemStack parent;
     private final org.bukkit.inventory.ItemStack bukkitStack;
 
     public WrappedItemStack(org.bukkit.inventory.ItemStack itemStack) {

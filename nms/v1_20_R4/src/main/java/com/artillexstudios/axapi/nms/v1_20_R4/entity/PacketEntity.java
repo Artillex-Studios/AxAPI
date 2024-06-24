@@ -12,7 +12,6 @@ import com.artillexstudios.axapi.packetentity.meta.EntityMeta;
 import com.artillexstudios.axapi.packetentity.meta.EntityMetaFactory;
 import com.artillexstudios.axapi.packetentity.meta.Metadata;
 import com.artillexstudios.axapi.packetentity.tracker.EntityTracker;
-import com.artillexstudios.axapi.reflection.FastFieldAccessor;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
 import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axapi.utils.placeholder.Placeholder;
@@ -53,7 +52,6 @@ import java.util.WeakHashMap;
 import java.util.function.Consumer;
 
 public class PacketEntity implements com.artillexstudios.axapi.packetentity.PacketEntity {
-    private static final FastFieldAccessor nmsStack = FastFieldAccessor.forClassField(com.artillexstudios.axapi.nms.v1_20_R4.items.WrappedItemStack.class, "itemStack");
     private final int id;
     private final EntityMeta meta;
     private final net.minecraft.world.entity.EntityType<?> type;
@@ -154,9 +152,9 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     @Override
     public void setItem(EquipmentSlot slot, WrappedItemStack item) {
         if (slot.getType() == EquipmentSlot.Type.HAND) {
-            this.handSlots.set(slot.getIndex(), nmsStack.get(item));
+            this.handSlots.set(slot.getIndex(), ((com.artillexstudios.axapi.nms.v1_20_R4.items.WrappedItemStack) item).itemStack);
         } else {
-            this.armorSlots.set(slot.getIndex(), nmsStack.get(item));
+            this.armorSlots.set(slot.getIndex(), ((com.artillexstudios.axapi.nms.v1_20_R4.items.WrappedItemStack) item).itemStack);
         }
 
         this.itemDirty = true;

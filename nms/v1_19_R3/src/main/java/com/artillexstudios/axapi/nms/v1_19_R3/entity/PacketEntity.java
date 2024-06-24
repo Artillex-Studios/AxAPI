@@ -11,19 +11,14 @@ import com.artillexstudios.axapi.packetentity.meta.EntityMeta;
 import com.artillexstudios.axapi.packetentity.meta.EntityMetaFactory;
 import com.artillexstudios.axapi.packetentity.meta.Metadata;
 import com.artillexstudios.axapi.packetentity.tracker.EntityTracker;
-import com.artillexstudios.axapi.reflection.FastFieldAccessor;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
 import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axapi.utils.placeholder.Placeholder;
 import com.artillexstudios.axapi.utils.placeholder.StaticPlaceholder;
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.Scheduler;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import io.netty.buffer.Unpooled;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -47,7 +42,6 @@ import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -59,7 +53,6 @@ import java.util.WeakHashMap;
 import java.util.function.Consumer;
 
 public class PacketEntity implements com.artillexstudios.axapi.packetentity.PacketEntity {
-    private static final FastFieldAccessor nmsStack = FastFieldAccessor.forClassField(com.artillexstudios.axapi.nms.v1_19_R3.items.WrappedItemStack.class, "parent");
     private final int id;
     private final EntityMeta meta;
     private final net.minecraft.world.entity.EntityType<?> type;
@@ -160,9 +153,9 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     @Override
     public void setItem(EquipmentSlot slot, WrappedItemStack item) {
         if (slot.getType() == EquipmentSlot.Type.HAND) {
-            this.handSlots.set(slot.getIndex(), nmsStack.get(item));
+            this.handSlots.set(slot.getIndex(), ((com.artillexstudios.axapi.nms.v1_19_R3.items.WrappedItemStack) item).parent);
         } else {
-            this.armorSlots.set(slot.getIndex(), nmsStack.get(item));
+            this.armorSlots.set(slot.getIndex(), ((com.artillexstudios.axapi.nms.v1_19_R3.items.WrappedItemStack) item).parent);
         }
 
         this.itemDirty = true;

@@ -11,7 +11,7 @@ import org.bukkit.craftbukkit.v1_20_R3.util.CraftMagicNumbers;
 
 public class WrappedItemStack implements com.artillexstudios.axapi.items.WrappedItemStack {
     private static final FastFieldAccessor HANDLE_ACCESSOR = FastFieldAccessor.forClassField(CraftItemStack.class, "handle");
-    private final ItemStack parent;
+    public final ItemStack parent;
     private final org.bukkit.inventory.ItemStack bukkitStack;
 
     public WrappedItemStack(org.bukkit.inventory.ItemStack itemStack) {
@@ -51,7 +51,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
     @Override
     public String toSNBT() {
-        var compoundTag = (net.minecraft.nbt.CompoundTag) parent.save(new CompoundTag());
+        var compoundTag = parent.save(new CompoundTag());
         compoundTag.putInt("DataVersion", CraftMagicNumbers.INSTANCE.getDataVersion());
         return new SnbtPrinterTagVisitor().visit(compoundTag);
     }
