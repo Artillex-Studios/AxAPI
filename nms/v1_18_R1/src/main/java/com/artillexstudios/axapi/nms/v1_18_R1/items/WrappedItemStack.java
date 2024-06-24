@@ -15,7 +15,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
     private final org.bukkit.inventory.ItemStack bukkitStack;
 
     public WrappedItemStack(org.bukkit.inventory.ItemStack itemStack) {
-        this.parent = CraftItemStack.asNMSCopy(itemStack);
+        this.parent = itemStack.getType().isAir() ? ItemStack.EMPTY : CraftItemStack.asNMSCopy(itemStack);
         bukkitStack = itemStack;
     }
 
@@ -51,7 +51,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
     @Override
     public String toSNBT() {
-        var compoundTag = (net.minecraft.nbt.CompoundTag) parent.save(new CompoundTag());
+        var compoundTag = parent.save(new CompoundTag());
         compoundTag.putInt("DataVersion", CraftMagicNumbers.INSTANCE.getDataVersion());
         return new SnbtPrinterTagVisitor().visit(compoundTag);
     }

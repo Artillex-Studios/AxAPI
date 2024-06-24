@@ -14,7 +14,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
     private ItemStack bukkitStack;
 
     public WrappedItemStack(ItemStack itemStack) {
-        this(itemStack instanceof CraftItemStack cr ? cr.handle : CraftItemStack.asNMSCopy(itemStack));
+        this(itemStack.getType().isAir() ? net.minecraft.world.item.ItemStack.EMPTY : itemStack instanceof CraftItemStack cr ? cr.handle : CraftItemStack.asNMSCopy(itemStack));
         this.bukkitStack = itemStack;
     }
 
