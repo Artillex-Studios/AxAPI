@@ -98,7 +98,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     }
 
     private static ClientboundAddEntityPacket getAddEntityPacket(PacketEntity entity) {
-        return new ClientboundAddEntityPacket(entity.id(), UUID.randomUUID(), entity.location().getX(), entity.location().getY(), entity.location().getZ(), entity.location().getPitch(), entity.location().getYaw(), entity.type, 1, Vec3.ZERO, 0);
+        return new ClientboundAddEntityPacket(entity.id(), UUID.randomUUID(), entity.location().getX(), entity.location().getY(), entity.location().getZ(), entity.location().getPitch(), entity.location().getYaw(), entity.type, 0, Vec3.ZERO, 0);
     }
 
     @Override
