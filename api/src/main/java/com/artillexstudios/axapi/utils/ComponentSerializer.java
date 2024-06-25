@@ -2,9 +2,13 @@ package com.artillexstudios.axapi.utils;
 
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.serializers.Serializer;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.Scheduler;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -13,13 +17,23 @@ public enum ComponentSerializer {
     INSTANCE;
 
     private final Serializer<Object, Component> serializer = NMSHandlers.getNmsHandler().componentSerializer();
+    private final Cache<Component, Object> componentCache = Caffeine.newBuilder()
+            .maximumSize(200)
+            .expireAfterAccess(Duration.ofSeconds(20))
+            .scheduler(Scheduler.systemScheduler())
+            .build();
+    private final Cache<Object, Component> vanillaCache = Caffeine.newBuilder()
+            .maximumSize(200)
+            .expireAfterAccess(Duration.ofSeconds(20))
+            .scheduler(Scheduler.systemScheduler())
+            .build();
 
     public <T> T toVanilla(Component component) {
-        return (T) serializer.deserialize(component);
+        return (T) componentCache.get(component, serializer::deserialize);
     }
 
     public Component fromVanilla(Object object) {
-        return serializer.serialize(object);
+        return vanillaCache.get(object, serializer::serialize);
     }
 
     public <T> List<T> toVanillaList(List<Component> components) {

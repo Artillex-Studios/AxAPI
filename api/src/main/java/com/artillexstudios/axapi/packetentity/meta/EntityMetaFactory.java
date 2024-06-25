@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.packetentity.meta;
 
+import com.artillexstudios.axapi.packetentity.meta.entity.AreaEffectCloudMeta;
 import com.artillexstudios.axapi.packetentity.meta.entity.ArmorStandMeta;
 import com.artillexstudios.axapi.packetentity.meta.entity.ItemEntityMeta;
 import org.bukkit.entity.EntityType;
@@ -12,6 +13,7 @@ public class EntityMetaFactory {
 
     static {
         register(EntityType.DROPPED_ITEM, ItemEntityMeta::new);
+        register(EntityType.AREA_EFFECT_CLOUD, AreaEffectCloudMeta::new);
         register(EntityType.ARMOR_STAND, ArmorStandMeta::new);
     }
 
