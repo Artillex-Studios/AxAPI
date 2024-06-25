@@ -23,6 +23,13 @@ public final class Metadata {
         items.put(accessor.id(), dataItem);
     }
 
+    public void markNotDirty() {
+        this.dirty = false;
+        items.forEach((k, v) -> {
+            v.dirty = false;
+        });
+    }
+
     private <T> DataItem<T> getItem(EntityDataAccessor<T> key) {
         return (DataItem) this.items.get(key.id());
     }

@@ -106,6 +106,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
         this.location = location;
         this.vec3 = new Vec3(location.getX(), location.getY(), location.getZ());
         this.shouldTeleport = true;
+        log.info("ShouldTeleport {}", shouldTeleport);
     }
 
     @Override
@@ -125,15 +126,9 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
 
     @Override
     public void spawn() {
+        this.meta.metadata().markNotDirty();
         List<Metadata.DataItem<?>> values = this.meta.metadata().getNonDefaultValues();
-        if (FeatureFlags.DEBUG.get()) {
-            this.log.info("Pre transofmation: {}", values);
-        }
-
         this.trackedValues = transform(values);
-        if (FeatureFlags.DEBUG.get()) {
-            this.log.info("Post transofmation: {}", this.trackedValues);
-        }
 
         AxPlugin.tracker.addEntity(this);
     }
@@ -181,7 +176,6 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     public void sendChanges() {
         if (this.meta.metadata().isDirty()) {
             List<SynchedEntityData.DataValue<?>> dirty = transform(this.meta.metadata().packDirty());
-            log.info("Metadata dirty, sending! {}", dirty);
             if (dirty != null) {
                 this.trackedValues = transform(this.meta.metadata().getNonDefaultValues());
 
@@ -216,6 +210,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
         }
 
         if (this.shouldTeleport) {
+            log.info("teleporting");
             this.shouldTeleport = false;
             long k = this.codec.encodeX(vec3);
             long l = this.codec.encodeY(vec3);
