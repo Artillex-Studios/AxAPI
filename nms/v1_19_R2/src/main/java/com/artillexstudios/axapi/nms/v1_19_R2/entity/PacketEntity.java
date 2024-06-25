@@ -119,6 +119,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
 
     @Override
     public void spawn() {
+        this.meta.metadata().markNotDirty();
         this.trackedValues = transform(this.meta.metadata().getNonDefaultValues());
 
         AxPlugin.tracker.addEntity(this);

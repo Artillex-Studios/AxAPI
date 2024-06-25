@@ -13,7 +13,6 @@ import com.artillexstudios.axapi.packetentity.meta.EntityMetaFactory;
 import com.artillexstudios.axapi.packetentity.meta.Metadata;
 import com.artillexstudios.axapi.packetentity.tracker.EntityTracker;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
-import com.artillexstudios.axapi.utils.FeatureFlags;
 import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axapi.utils.placeholder.Placeholder;
 import com.artillexstudios.axapi.utils.placeholder.StaticPlaceholder;
@@ -41,8 +40,6 @@ import org.bukkit.Location;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,7 +52,6 @@ import java.util.WeakHashMap;
 import java.util.function.Consumer;
 
 public class PacketEntity implements com.artillexstudios.axapi.packetentity.PacketEntity {
-    private final Logger log = LoggerFactory.getLogger(PacketEntity.class);
     private final int id;
     private final EntityMeta meta;
     private final net.minecraft.world.entity.EntityType<?> type;
@@ -106,7 +102,6 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
         this.location = location;
         this.vec3 = new Vec3(location.getX(), location.getY(), location.getZ());
         this.shouldTeleport = true;
-        log.info("ShouldTeleport {}", shouldTeleport);
     }
 
     @Override
@@ -127,8 +122,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     @Override
     public void spawn() {
         this.meta.metadata().markNotDirty();
-        List<Metadata.DataItem<?>> values = this.meta.metadata().getNonDefaultValues();
-        this.trackedValues = transform(values);
+        this.trackedValues = transform(this.meta.metadata().getNonDefaultValues());
 
         AxPlugin.tracker.addEntity(this);
     }
@@ -210,7 +204,6 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
         }
 
         if (this.shouldTeleport) {
-            log.info("teleporting");
             this.shouldTeleport = false;
             long k = this.codec.encodeX(vec3);
             long l = this.codec.encodeY(vec3);
@@ -234,9 +227,6 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
 
     @Override
     public void addPairing(Player player) {
-        if (FeatureFlags.DEBUG.get()) {
-            this.log.info("Tracking for {}", player.getName());
-        }
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
         ArrayList<Packet<? super ClientGamePacketListener>> list = new ArrayList<>();
 
@@ -245,9 +235,6 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
         if (this.trackedValues != null) {
             HologramLine line = Holograms.byId(this.id);
             if (line == null || (line.type() != HologramLine.Type.TEXT || !line.hasPlaceholders())) {
-                if (FeatureFlags.DEBUG.get()) {
-                    this.log.info("Not translating");
-                }
                 list.add(new ClientboundSetEntityDataPacket(this.id, this.trackedValues));
             } else {
                 list.add(new ClientboundSetEntityDataPacket(this.id, this.translate(player, line, this.trackedValues)));
