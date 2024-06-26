@@ -15,6 +15,7 @@ import io.netty.channel.ChannelPromise;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
@@ -150,16 +151,30 @@ public class PacketListener extends ChannelDuplexHandler {
             } else {
                 super.write(ctx, msg, promise);
             }
-        } else if (msg instanceof ClientboundBundlePacket bundlePacket && PacketItemModifier.isListening()) {
-            for (Packet<?> packet : bundlePacket.subPackets()) {
-                if (packet instanceof ClientboundSetEntityDataPacket dataPacket) {
-                    for (SynchedEntityData.DataValue<?> packedItem : dataPacket.packedItems()) {
-                        if (packedItem.serializer().equals(EntityDataSerializers.ITEM_STACK)) {
-                            ItemStack value = (ItemStack) packedItem.value();
-                            PacketItemModifier.callModify(new WrappedItemStack(value), player, PacketItemModifier.Context.DROPPED_ITEM);
+        } else if (msg instanceof ClientboundSetEntityDataPacket packet) {
+            List<SynchedEntityData.DataValue<?>> packedItems = packet.packedItems();
+            if (PacketItemModifier.isListening()) {
+                for (SynchedEntityData.DataValue<?> packedItem : packedItems) {
+                    if (packedItem.value() instanceof ItemStack stack) {
+                        WrappedItemStack wrapped =
+                                new WrappedItemStack(stack);
+                        PacketItemModifier.callModify(wrapped, player, PacketItemModifier.Context.DROPPED_ITEM);
+                    }
+                }
+            }
 
-                            super.write(ctx, msg, promise);
-                            return;
+            super.write(ctx, msg, promise);
+        } else if (msg instanceof ClientboundBundlePacket packet) {
+            if (PacketItemModifier.isListening()) {
+                for (Packet<? extends net.minecraft.network.PacketListener> subPacket : packet.subPackets()) {
+                    if (subPacket instanceof ClientboundSetEntityDataPacket metaPacket) {
+                        List<SynchedEntityData.DataValue<?>> packedItems = metaPacket.packedItems();
+                        for (SynchedEntityData.DataValue<?> packedItem : packedItems) {
+                            if (packedItem.value() instanceof ItemStack stack) {
+                                WrappedItemStack wrapped =
+                                        new WrappedItemStack(stack);
+                                PacketItemModifier.callModify(wrapped, player, PacketItemModifier.Context.DROPPED_ITEM);
+                            }
                         }
                     }
                 }

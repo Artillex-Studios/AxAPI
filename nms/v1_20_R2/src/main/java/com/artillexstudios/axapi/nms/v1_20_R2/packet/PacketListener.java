@@ -14,13 +14,17 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
+import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
 import net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket;
 import net.minecraft.network.protocol.game.ServerboundSignUpdatePacket;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
@@ -144,7 +148,37 @@ public class PacketListener extends ChannelDuplexHandler {
             } else {
                 super.write(ctx, msg, promise);
             }
-        } else {
+        } else if (msg instanceof ClientboundSetEntityDataPacket packet) {
+            List<SynchedEntityData.DataValue<?>> packedItems = packet.packedItems();
+            if (PacketItemModifier.isListening()) {
+                for (SynchedEntityData.DataValue<?> packedItem : packedItems) {
+                    if (packedItem.value() instanceof ItemStack stack) {
+                        WrappedItemStack wrapped =
+                                new WrappedItemStack(stack);
+                        PacketItemModifier.callModify(wrapped, player, PacketItemModifier.Context.DROPPED_ITEM);
+                    }
+                }
+            }
+
+            super.write(ctx, msg, promise);
+        } else if (msg instanceof ClientboundBundlePacket packet) {
+            if (PacketItemModifier.isListening()) {
+                for (Packet<? extends net.minecraft.network.PacketListener> subPacket : packet.subPackets()) {
+                    if (subPacket instanceof ClientboundSetEntityDataPacket metaPacket) {
+                        List<SynchedEntityData.DataValue<?>> packedItems = metaPacket.packedItems();
+                        for (SynchedEntityData.DataValue<?> packedItem : packedItems) {
+                            if (packedItem.value() instanceof ItemStack stack) {
+                                WrappedItemStack wrapped =
+                                        new WrappedItemStack(stack);
+                                PacketItemModifier.callModify(wrapped, player, PacketItemModifier.Context.DROPPED_ITEM);
+                            }
+                        }
+                    }
+                }
+            }
+
+            super.write(ctx, msg, promise);
+        }  else {
             super.write(ctx, msg, promise);
         }
     }

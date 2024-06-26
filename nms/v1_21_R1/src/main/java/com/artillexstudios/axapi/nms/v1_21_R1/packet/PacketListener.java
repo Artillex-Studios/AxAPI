@@ -175,8 +175,6 @@ public class PacketListener extends ChannelDuplexHandler {
                             WrappedItemStack wrapped =
                                     new WrappedItemStack(stack);
                             PacketItemModifier.callModify(wrapped, player, PacketItemModifier.Context.DROPPED_ITEM);
-                            wrapped.finishEdit();
-                            log.info("Instance of itemstack! {} {}", id, stack);
                         }
                     }
                 }
@@ -194,8 +192,6 @@ public class PacketListener extends ChannelDuplexHandler {
                                     WrappedItemStack wrapped =
                                             new WrappedItemStack(stack);
                                     PacketItemModifier.callModify(wrapped, player, PacketItemModifier.Context.DROPPED_ITEM);
-                                    wrapped.finishEdit();
-                                    log.info("Instance of itemstack; bundle! {} {}", id, stack);
                                 }
                             }
                         }
