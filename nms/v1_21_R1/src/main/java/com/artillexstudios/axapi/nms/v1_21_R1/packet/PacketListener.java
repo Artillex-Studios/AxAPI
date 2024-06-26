@@ -169,20 +169,34 @@ public class PacketListener extends ChannelDuplexHandler {
                 }
             }
             case ClientboundSetEntityDataPacket(int id, List<SynchedEntityData.DataValue<?>> packedItems) -> {
-                for (SynchedEntityData.DataValue<?> packedItem : packedItems) {
-                    if (packedItem.value() instanceof ItemStack stack) {
-                        log.info("Instance of itemstack! {} {}", id, stack);
+                if (PacketItemModifier.isListening()) {
+                    for (SynchedEntityData.DataValue<?> packedItem : packedItems) {
+                        if (packedItem.value() instanceof ItemStack stack) {
+                            WrappedItemStack wrapped =
+                                    new WrappedItemStack(stack);
+                            PacketItemModifier.callModify(wrapped, player, PacketItemModifier.Context.DROPPED_ITEM);
+                            wrapped.finishEdit();
+                            log.info("Instance of itemstack! {} {}", id, stack);
+                        }
                     }
                 }
 
                 super.write(ctx, msg, promise);
             }
             case ClientboundBundlePacket packet -> {
-                for (Packet<? super ClientGamePacketListener> subPacket : packet.subPackets()) {
-                    if (subPacket instanceof ClientboundSetEntityDataPacket(int id, List<SynchedEntityData.DataValue<?>> packedItems)) {
-                        for (SynchedEntityData.DataValue<?> packedItem : packedItems) {
-                            if (packedItem.value() instanceof ItemStack stack) {
-                                log.info("Instance of itemstack; bundle! {} {}", id, stack);
+                if (PacketItemModifier.isListening()) {
+                    for (Packet<? super ClientGamePacketListener> subPacket : packet.subPackets()) {
+                        if (subPacket instanceof ClientboundSetEntityDataPacket(
+                                int id, List<SynchedEntityData.DataValue<?>> packedItems
+                        )) {
+                            for (SynchedEntityData.DataValue<?> packedItem : packedItems) {
+                                if (packedItem.value() instanceof ItemStack stack) {
+                                    WrappedItemStack wrapped =
+                                            new WrappedItemStack(stack);
+                                    PacketItemModifier.callModify(wrapped, player, PacketItemModifier.Context.DROPPED_ITEM);
+                                    wrapped.finishEdit();
+                                    log.info("Instance of itemstack; bundle! {} {}", id, stack);
+                                }
                             }
                         }
                     }
