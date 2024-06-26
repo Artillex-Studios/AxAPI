@@ -15,13 +15,19 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
+import net.minecraft.network.protocol.game.ClientboundBundleDelimiterPacket;
+import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
 import net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket;
 import net.minecraft.network.protocol.game.ServerboundSignUpdatePacket;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
@@ -161,6 +167,28 @@ public class PacketListener extends ChannelDuplexHandler {
                 } else {
                     super.write(ctx, msg, promise);
                 }
+            }
+            case ClientboundSetEntityDataPacket(int id, List<SynchedEntityData.DataValue<?>> packedItems) -> {
+                for (SynchedEntityData.DataValue<?> packedItem : packedItems) {
+                    if (packedItem.value() instanceof ItemStack stack) {
+                        log.info("Instance of itemstack! {} {}", id, stack);
+                    }
+                }
+
+                super.write(ctx, msg, promise);
+            }
+            case ClientboundBundlePacket packet -> {
+                for (Packet<? super ClientGamePacketListener> subPacket : packet.subPackets()) {
+                    if (subPacket instanceof ClientboundSetEntityDataPacket(int id, List<SynchedEntityData.DataValue<?>> packedItems)) {
+                        for (SynchedEntityData.DataValue<?> packedItem : packedItems) {
+                            if (packedItem.value() instanceof ItemStack stack) {
+                                log.info("Instance of itemstack; bundle! {} {}", id, stack);
+                            }
+                        }
+                    }
+                }
+
+                super.write(ctx, msg, promise);
             }
             case null, default -> super.write(ctx, msg, promise);
         }
