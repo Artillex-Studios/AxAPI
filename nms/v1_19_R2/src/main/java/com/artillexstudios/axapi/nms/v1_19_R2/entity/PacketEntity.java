@@ -211,7 +211,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
             this.codec.setBase(vec3);
 
             if (!flag6) {
-                this.tracker.broadcast(new ClientboundMoveEntityPacket.Pos(this.id, (short) ((int) k), (short) ((int) l), (short) ((int) i1), true));
+                this.tracker.broadcast(new ClientboundMoveEntityPacket.PosRot(this.id, (short) ((int) k), (short) ((int) l), (short) ((int) i1), (byte) ((int) (location.getYaw() * 256.0F / 360.0F)), (byte) ((int) (location.getPitch() * 256.0F / 360.0F)), true));
             } else {
                 FriendlyByteBuf byteBuf = new FriendlyByteBuf(Unpooled.buffer());
                 byteBuf.writeVarInt(this.id);
