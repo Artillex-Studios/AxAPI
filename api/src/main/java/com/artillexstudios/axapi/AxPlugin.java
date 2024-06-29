@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ConcurrentModificationException;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 public abstract class AxPlugin extends JavaPlugin {
@@ -51,15 +50,15 @@ public abstract class AxPlugin extends JavaPlugin {
                     try {
                         tracker.process();
                     } catch (Exception exception) {
-//                        if (exception instanceof ConcurrentModificationException) {
-//                            // There's something weird with the entity tracker after the server starts up.
-//                            // Nothing blew up yet, so I guess the error is safe to ignore...
-//                            // If something blows up, I'm not the person to blame!
-//                            // (But people don't like seeing errors, so this is the solution until I find out what causes the tracker to throw a CME)
-//                            //
-//                            // Please don't hunt me for this, I didn't want to do it.
-//                            return;
-//                        }
+                        if (exception instanceof ConcurrentModificationException) {
+                            // There's something weird with the entity tracker after the server starts up.
+                            // Nothing blew up yet, so I guess the error is safe to ignore...
+                            // If something blows up, I'm not the person to blame!
+                            // (But people don't like seeing errors, so this is the solution until I find out what causes the tracker to throw a CME)
+                            //
+                            // Please don't hunt me for this, I didn't want to do it.
+                            return;
+                        }
 
                         log.error("An unexpected error occurred while processing packet entities via the tracker!", exception);
                     }
