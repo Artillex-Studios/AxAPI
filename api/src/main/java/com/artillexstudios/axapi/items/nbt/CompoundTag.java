@@ -3,6 +3,7 @@ package com.artillexstudios.axapi.items.nbt;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public interface CompoundTag {
@@ -76,6 +77,8 @@ public interface CompoundTag {
     void remove(String key);
 
     boolean isEmpty();
+
+    Set<String> getAllKeys();
 
     Object getParent();
 }

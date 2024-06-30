@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.nms.v1_20_R2.items.nbt;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class CompoundTag implements com.artillexstudios.axapi.items.nbt.CompoundTag {
@@ -177,6 +178,11 @@ public class CompoundTag implements com.artillexstudios.axapi.items.nbt.Compound
     @Override
     public boolean isEmpty() {
         return parent.isEmpty();
+    }
+
+    @Override
+    public Set<String> getAllKeys() {
+        return parent.getAllKeys();
     }
 
     public net.minecraft.nbt.CompoundTag getParent() {
