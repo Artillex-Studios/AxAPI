@@ -43,5 +43,7 @@ public interface Scheduler {
 
     void runLater(Entity entity, Consumer<ScheduledTask> task, Runnable retired, long delayTicks);
 
+    boolean isOwnedByCurrentRegion(Location location);
+
     void cancelAll();
 }

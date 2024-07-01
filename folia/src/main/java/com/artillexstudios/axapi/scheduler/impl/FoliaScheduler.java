@@ -94,6 +94,11 @@ public class FoliaScheduler implements Scheduler {
     }
 
     @Override
+    public boolean isOwnedByCurrentRegion(Location location) {
+        return Bukkit.isOwnedByCurrentRegion(location);
+    }
+
+    @Override
     public void cancelAll() {
         Bukkit.getAsyncScheduler().cancelTasks(this.plugin);
         Bukkit.getGlobalRegionScheduler().cancelTasks(this.plugin);

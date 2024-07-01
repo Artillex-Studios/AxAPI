@@ -92,6 +92,11 @@ public class BukkitScheduler implements Scheduler {
     }
 
     @Override
+    public boolean isOwnedByCurrentRegion(Location location) {
+        return true;
+    }
+
+    @Override
     public void cancelAll() {
         Bukkit.getScheduler().cancelTasks(this.plugin);
     }
