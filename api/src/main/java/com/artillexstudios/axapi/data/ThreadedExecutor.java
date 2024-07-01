@@ -5,22 +5,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Queue;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * A class where you can submit your Runnables into
- * @param <T> Class, which extends Runnable
+ * An implementation of ThreadedQueue which is also an executor.
+ * This can be used in CompletableFutures, or other places aswell.
+ * This class also has a method that returns a future.
  */
-public class ThreadedQueue<T extends Runnable> implements Runnable {
-    private static final Logger log = LoggerFactory.getLogger(ThreadedQueue.class);
-    private final Queue<T> jobs = Queues.newArrayDeque();
+public class ThreadedExecutor implements Runnable, Executor {
+    private static final Logger log = LoggerFactory.getLogger(ThreadedExecutor.class);
+    private final Queue<Runnable> jobs = Queues.newArrayDeque();
     private final Thread thread;
     private final ReentrantLock lock = new ReentrantLock();
     private final Condition condition = lock.newCondition();
     private volatile boolean killed = false;
 
-    public ThreadedQueue(String threadName) {
+    public ThreadedExecutor(String threadName) {
         this.thread = new Thread(this, threadName);
         thread.start();
     }
@@ -36,7 +39,8 @@ public class ThreadedQueue<T extends Runnable> implements Runnable {
         }
     }
 
-    public void submit(T task) {
+    @Override
+    public void execute(Runnable task) {
         lock.lock();
         try {
             jobs.offer(task);
@@ -46,22 +50,38 @@ public class ThreadedQueue<T extends Runnable> implements Runnable {
         }
     }
 
+    public CompletableFuture<Void> submit(Runnable task) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        execute(() -> {
+            try {
+                task.run();
+            } catch (Throwable throwable) {
+                future.completeExceptionally(throwable);
+                return;
+            }
+
+            future.complete(null);
+        });
+
+        return future;
+    }
+
     @Override
     public void run() {
         while (!killed) {
             try {
-                T next = next();
+                Runnable next = next();
 
                 if (next != null) {
                     next.run();
                 }
             } catch (InterruptedException exception) {
-                log.error("An unexpected error occurred while running ThreadedQueue {}!", thread.getName(), exception);
+                log.error("An unexpected error occurred while running ThreadedExecutor {}!", thread.getName(), exception);
             }
         }
     }
 
-    public T next() throws InterruptedException {
+    public Runnable next() throws InterruptedException {
         lock.lock();
         try {
             while (jobs.isEmpty() && !killed) {
