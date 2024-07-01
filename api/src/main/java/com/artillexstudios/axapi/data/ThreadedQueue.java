@@ -55,7 +55,7 @@ public class ThreadedQueue<T extends Runnable> implements Runnable {
                 if (next != null) {
                     next.run();
                 }
-            } catch (InterruptedException exception) {
+            } catch (Exception exception) {
                 log.error("An unexpected error occurred while running ThreadedQueue {}!", thread.getName(), exception);
             }
         }

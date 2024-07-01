@@ -75,7 +75,7 @@ public class ThreadedExecutor implements Runnable, Executor {
                 if (next != null) {
                     next.run();
                 }
-            } catch (InterruptedException exception) {
+            } catch (Exception exception) {
                 log.error("An unexpected error occurred while running ThreadedExecutor {}!", thread.getName(), exception);
             }
         }
