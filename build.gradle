@@ -133,8 +133,10 @@ tasks.build.dependsOn(shadowJar)
 
 shadowJar {
     relocate('me.neznamy.yamlassist', 'com.artillexstudios.axapi.libs.yamlassist')
-    relocate('dev.dejvokep', 'com.artillexstudios.axapi.libs.boostedyaml')
+    relocate('org.apache.commons.math3', 'com.artillexstudios.axapi.libs.math3')
+    relocate('com.github.benmanes', 'com.artillexstudios.axapi.libs.caffeine')
     relocate('com.alessiodp.libby', 'com.artillexstudios.axapi.libs.libby')
+    relocate('dev.dejvokep', 'com.artillexstudios.axapi.libs.boostedyaml')
 }
 
 allprojects.forEach { it.afterEvaluate {

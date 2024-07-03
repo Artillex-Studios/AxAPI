@@ -124,12 +124,14 @@ public abstract class AxPlugin extends JavaPlugin {
                 .groupId("org{}apache{}commons")
                 .artifactId("commons-math3")
                 .version("3.6.1")
+                .relocate("org{}apache{}commons{}math3", "com.artillexstudios.axapi.libs.math3")
                 .build();
 
         Library caffeine = Library.builder()
                 .groupId("com{}github{}ben-manes{}caffeine")
                 .artifactId("caffeine")
-                .version("2.9.2")
+                .version("3.1.8")
+                .relocate("com{}github{}benmanes", "com.artillexstudios.axapi.libs.caffeine")
                 .build();
 
         libraryManager.setLogLevel(LogLevel.DEBUG);
