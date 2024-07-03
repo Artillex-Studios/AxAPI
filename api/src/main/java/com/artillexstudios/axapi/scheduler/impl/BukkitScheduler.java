@@ -22,6 +22,11 @@ public class BukkitScheduler implements Scheduler {
     }
 
     @Override
+    public ScheduledTask run(Runnable task) {
+        return new BukkitScheduledTask(Bukkit.getScheduler().runTask(this.plugin, task));
+    }
+
+    @Override
     public void execute(Runnable runnable) {
         runnable.run();
     }
@@ -37,8 +42,18 @@ public class BukkitScheduler implements Scheduler {
     }
 
     @Override
+    public ScheduledTask runLater(Runnable task, long ticksLater) {
+        return new BukkitScheduledTask(Bukkit.getScheduler().runTaskLater(this.plugin, task, ticksLater));
+    }
+
+    @Override
     public void runLaterAsync(Consumer<ScheduledTask> task, long ticksLater) {
         Bukkit.getScheduler().runTaskLaterAsynchronously(this.plugin, (a) -> task.accept(new BukkitScheduledTask(a)), ticksLater);
+    }
+
+    @Override
+    public ScheduledTask runLaterAsync(Runnable task, long ticksLater) {
+        return new BukkitScheduledTask(Bukkit.getScheduler().runTaskLaterAsynchronously(this.plugin, task, ticksLater));
     }
 
     @Override
@@ -47,8 +62,18 @@ public class BukkitScheduler implements Scheduler {
     }
 
     @Override
+    public ScheduledTask runTimer(Runnable task, long delay, long period) {
+        return new BukkitScheduledTask(Bukkit.getScheduler().runTaskTimer(this.plugin, task, delay, period));
+    }
+
+    @Override
     public void runAsyncTimer(Consumer<ScheduledTask> task, long delay, long period) {
         Bukkit.getScheduler().runTaskTimerAsynchronously(this.plugin, (a) -> task.accept(new BukkitScheduledTask(a)), delay, period);
+    }
+
+    @Override
+    public ScheduledTask runAsyncTimer(Runnable task, long delay, long period) {
+        return new BukkitScheduledTask(Bukkit.getScheduler().runTaskTimerAsynchronously(this.plugin, task, delay, period));
     }
 
     @Override
@@ -57,13 +82,28 @@ public class BukkitScheduler implements Scheduler {
     }
 
     @Override
+    public ScheduledTask runAt(Location location, Runnable task) {
+        return new BukkitScheduledTask(Bukkit.getScheduler().runTask(this.plugin, task));
+    }
+
+    @Override
     public void runTimerAt(Location location, Consumer<ScheduledTask> task, long delay, long period) {
         Bukkit.getScheduler().runTaskTimer(this.plugin, (a) -> task.accept(new BukkitScheduledTask(a)), delay, period);
     }
 
     @Override
+    public ScheduledTask runTimerAt(Location location, Runnable task, long delay, long period) {
+        return new BukkitScheduledTask(Bukkit.getScheduler().runTaskTimer(this.plugin, task, delay, period));
+    }
+
+    @Override
     public void runLaterAt(Location location, Consumer<ScheduledTask> task, long ticksLater) {
         Bukkit.getScheduler().runTaskLater(this.plugin, (a) -> task.accept(new BukkitScheduledTask(a)), ticksLater);
+    }
+
+    @Override
+    public ScheduledTask runLaterAt(Location location, Runnable task, long ticksLater) {
+        return new BukkitScheduledTask(Bukkit.getScheduler().runTaskLater(this.plugin, task, ticksLater));
     }
 
     @Override
@@ -87,8 +127,18 @@ public class BukkitScheduler implements Scheduler {
     }
 
     @Override
+    public ScheduledTask runTaskTimer(Entity entity, Runnable task, Runnable retired, long initialDelayTicks, long periodTicks) {
+        return new BukkitScheduledTask(Bukkit.getScheduler().runTaskTimer(this.plugin, task, initialDelayTicks, periodTicks));
+    }
+
+    @Override
     public void runLater(Entity entity, Consumer<ScheduledTask> task, Runnable retired, long delayTicks) {
         Bukkit.getScheduler().runTaskLater(this.plugin, (a) -> task.accept(new BukkitScheduledTask(a)), delayTicks);
+    }
+
+    @Override
+    public ScheduledTask runLater(Entity entity, Runnable task, Runnable retired, long delayTicks) {
+        return new BukkitScheduledTask(Bukkit.getScheduler().runTaskLater(this.plugin, task, delayTicks));
     }
 
     @Override
