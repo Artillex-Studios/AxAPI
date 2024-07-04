@@ -2,10 +2,6 @@ package com.artillexstudios.axapi.utils.placeholder;
 
 import java.util.ArrayList;
 
-// According to some testing this implementation is ~1000x faster
-// than the builtin replace method. Although this doesn't work
-// as good as the regular replace function
-// for our use-cases this is good enough.
 public class PlaceholderParser {
     private final ArrayList<StringPlaceholder> placeholders = new ArrayList<>();
     private boolean empty = true;
