@@ -2,6 +2,7 @@ package com.artillexstudios.axapi.nms.v1_20_R4.items;
 
 import com.artillexstudios.axapi.items.component.DataComponent;
 import com.artillexstudios.axapi.nms.v1_20_R4.ItemStackSerializer;
+import com.artillexstudios.axapi.reflection.FastFieldAccessor;
 import net.minecraft.nbt.SnbtPrinterTagVisitor;
 import net.minecraft.server.MinecraftServer;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
@@ -10,11 +11,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public class WrappedItemStack implements com.artillexstudios.axapi.items.WrappedItemStack {
+    private static final FastFieldAccessor HANDLE_ACCESSOR = FastFieldAccessor.forClassField(CraftItemStack.class, "handle");
     public net.minecraft.world.item.ItemStack itemStack;
     private ItemStack bukkitStack;
 
     public WrappedItemStack(ItemStack itemStack) {
-        this(itemStack.getType().isAir() ? net.minecraft.world.item.ItemStack.EMPTY : itemStack instanceof CraftItemStack cr ? cr.handle : CraftItemStack.asNMSCopy(itemStack));
+        this(itemStack.getType().isAir() ? net.minecraft.world.item.ItemStack.EMPTY : itemStack instanceof CraftItemStack cr ? HANDLE_ACCESSOR.get(cr) : CraftItemStack.asNMSCopy(itemStack));
         this.bukkitStack = itemStack;
     }
 
