@@ -9,6 +9,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZoneId;
@@ -41,11 +42,10 @@ public class LogUtils {
         }
 
         String formattedTime = TIME_FORMAT.format(time);
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(logFile))) {
-            writer.write(formattedTime + " " + log);
-            writer.newLine();
-            writer.flush();
-        } catch (Exception exception) {
+        try (FileWriter fileWriter = new FileWriter(logFile, true); PrintWriter printWriter = new PrintWriter(fileWriter)) {
+            printWriter.print("[" + formattedTime + "] ");
+            printWriter.println(log);
+        } catch (IOException exception) {
             LogUtils.log.error("An unexpected error occurred while writing to log file!", exception);
         }
     }
