@@ -15,8 +15,8 @@ import org.jetbrains.annotations.NotNull;
 import java.text.DecimalFormat;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -57,7 +57,7 @@ public class StringUtils {
     }
 
     @NotNull
-    public static Component format(@NotNull String input, HashMap<String, String> replacements) {
+    public static Component format(@NotNull String input, Map<String, String> replacements) {
         AtomicReference<String> string = new AtomicReference<>(input);
         replacements.forEach((from, to) -> string.set(string.get().replace(from, to)));
 
@@ -78,7 +78,7 @@ public class StringUtils {
     }
 
     @NotNull
-    public static String formatToString(@NotNull String input, HashMap<String, String> replacements) {
+    public static String formatToString(@NotNull String input, Map<String, String> replacements) {
         AtomicReference<String> string = new AtomicReference<>(input);
         replacements.forEach((from, to) -> string.set(string.get().replace(from, to)));
 

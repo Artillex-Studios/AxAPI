@@ -11,8 +11,10 @@ import com.artillexstudios.axapi.serializers.Serializer;
 import com.artillexstudios.axapi.utils.ActionBar;
 import com.artillexstudios.axapi.utils.BossBar;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
+import com.artillexstudios.axapi.utils.Pair;
 import com.artillexstudios.axapi.utils.Title;
 import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Dynamic;
 import io.netty.buffer.Unpooled;
@@ -60,6 +62,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Field;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
@@ -285,6 +288,15 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     @Override
     public int nextEntityId() {
         return entityCounter.incrementAndGet();
+    }
+
+    @Override
+    public Pair<String, String> textures(Player player) {
+        CraftPlayer craftPlayer = (CraftPlayer) player;
+        ServerPlayer serverPlayer = craftPlayer.getHandle();
+        GameProfile profile = serverPlayer.getGameProfile();
+        Optional<Property> property = profile.getProperties().get("textures").stream().findFirst();
+        return property.map(value -> Pair.of(value.value(), value.signature())).orElse(null);
     }
 
     public String toGson(Component component) {

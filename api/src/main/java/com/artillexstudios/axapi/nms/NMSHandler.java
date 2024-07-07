@@ -10,6 +10,7 @@ import com.artillexstudios.axapi.selection.BlockSetter;
 import com.artillexstudios.axapi.serializers.Serializer;
 import com.artillexstudios.axapi.utils.ActionBar;
 import com.artillexstudios.axapi.utils.BossBar;
+import com.artillexstudios.axapi.utils.Pair;
 import com.artillexstudios.axapi.utils.Title;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
@@ -67,4 +68,6 @@ public interface NMSHandler {
     }
 
     int nextEntityId();
+
+    Pair<String, String> textures(Player player);
 }
