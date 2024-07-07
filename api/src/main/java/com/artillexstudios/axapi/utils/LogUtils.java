@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -28,7 +30,15 @@ public class LogUtils {
         Path logPath = LOGS_PATH.resolve(date + ".log");
         File logFile = logPath.toFile();
 
-        logFile.mkdirs();
+        if (!logFile.getParentFile().exists()) {
+            logFile.getParentFile().mkdirs();
+        }
+
+        try {
+            logFile.createNewFile();
+        } catch (IOException exception) {
+            LogUtils.log.error("An unexpected error occurred while creating new file!", exception);
+        }
 
         String formattedTime = TIME_FORMAT.format(time);
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(logFile))) {
