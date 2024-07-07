@@ -71,4 +71,10 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
             CraftItemStack.setItemMeta(itemStack, meta);
         }
     }
+
+    @Override
+    public com.artillexstudios.axapi.items.WrappedItemStack copy() {
+        finishEdit();
+        return new WrappedItemStack(this.itemStack.copy());
+    }
 }

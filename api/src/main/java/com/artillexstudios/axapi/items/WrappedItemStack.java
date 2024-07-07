@@ -42,4 +42,6 @@ public interface WrappedItemStack {
     byte[] serialize();
 
     void finishEdit();
+
+    WrappedItemStack copy();
 }

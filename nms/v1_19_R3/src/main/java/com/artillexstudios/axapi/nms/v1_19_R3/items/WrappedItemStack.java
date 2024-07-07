@@ -87,4 +87,10 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
             bukkitStack.setItemMeta(bukkitItem.getItemMeta());
         }
     }
+
+    @Override
+    public com.artillexstudios.axapi.items.WrappedItemStack copy() {
+        finishEdit();
+        return new WrappedItemStack(this.parent.copy());
+    }
 }
