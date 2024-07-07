@@ -31,7 +31,7 @@ public class LogUtils {
         File logFile = logPath.toFile();
 
         if (!logFile.getParentFile().exists()) {
-            logFile.getParentFile().mkdirs();
+            logFile.getParentFile().mkdir();
         }
 
         try {
