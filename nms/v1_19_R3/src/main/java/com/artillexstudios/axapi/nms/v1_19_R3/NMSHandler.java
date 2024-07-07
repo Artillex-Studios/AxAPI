@@ -35,6 +35,7 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
 import net.minecraft.network.protocol.game.ClientboundOpenSignEditorPacket;
+import net.minecraft.network.protocol.game.ClientboundSystemChatPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
@@ -297,6 +298,13 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
         GameProfile profile = serverPlayer.getGameProfile();
         Optional<Property> property = profile.getProperties().get("textures").stream().findFirst();
         return property.map(value -> Pair.of(value.getValue(), value.getSignature())).orElse(null);
+    }
+
+    @Override
+    public void sendMessage(Player player, Component message) {
+        CraftPlayer craftPlayer = (CraftPlayer) player;
+        ServerPlayer serverPlayer = craftPlayer.getHandle();
+        serverPlayer.connection.send(new ClientboundSystemChatPacket((net.minecraft.network.chat.Component) ComponentSerializer.INSTANCE.toVanilla(message), false));
     }
 
     public String toGson(Component component) {

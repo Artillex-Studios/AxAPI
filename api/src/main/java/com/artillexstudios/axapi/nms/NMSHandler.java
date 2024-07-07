@@ -70,4 +70,6 @@ public interface NMSHandler {
     int nextEntityId();
 
     Pair<String, String> textures(Player player);
+
+    void sendMessage(Player player, Component message);
 }
