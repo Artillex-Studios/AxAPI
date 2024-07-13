@@ -101,8 +101,10 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     @Override
     public void teleport(Location location) {
         this.location = location;
-        this.vec3 = new Vec3(location.getX(), location.getY(), location.getZ());
-        this.shouldTeleport = true;
+        synchronized (this.codec) {
+            this.vec3 = new Vec3(location.getX(), location.getY(), location.getZ());
+            this.shouldTeleport = true;
+        }
     }
 
     @Override
@@ -206,27 +208,29 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
         }
 
         if (this.shouldTeleport) {
-            this.shouldTeleport = false;
-            long k = this.codec.encodeX(vec3);
-            long l = this.codec.encodeY(vec3);
-            long i1 = this.codec.encodeZ(vec3);
-            boolean flag6 = k < -32768L || k > 32767L || l < -32768L || l > 32767L || i1 < -32768L || i1 > 32767L;
-            this.codec.setBase(vec3);
+            synchronized (this.codec) {
+                this.shouldTeleport = false;
+                long k = this.codec.encodeX(vec3);
+                long l = this.codec.encodeY(vec3);
+                long i1 = this.codec.encodeZ(vec3);
+                boolean flag6 = k < -32768L || k > 32767L || l < -32768L || l > 32767L || i1 < -32768L || i1 > 32767L;
+                this.codec.setBase(vec3);
 
-            if (!flag6) {
-                this.tracker.broadcast(new ClientboundMoveEntityPacket.PosRot(this.id, (short) ((int) k), (short) ((int) l), (short) ((int) i1), (byte) ((int) (location.getYaw() * 256.0F / 360.0F)), (byte) ((int) (location.getPitch() * 256.0F / 360.0F)), true));
-            } else {
-                FriendlyByteBuf byteBuf = new FriendlyByteBuf(Unpooled.buffer());
-                byteBuf.writeVarInt(this.id);
-                byteBuf.writeDouble(this.location.getX());
-                byteBuf.writeDouble(this.location.getY());
-                byteBuf.writeDouble(this.location.getZ());
-                byteBuf.writeByte((byte) ((int) (this.location.getYaw() * 256.0F / 360.0F)));
-                byteBuf.writeByte((byte) ((int) (this.location.getPitch() * 256.0F / 360.0F)));
-                byteBuf.writeBoolean(true);
+                if (!flag6) {
+                    this.tracker.broadcast(new ClientboundMoveEntityPacket.PosRot(this.id, (short) ((int) k), (short) ((int) l), (short) ((int) i1), (byte) ((int) (location.getYaw() * 256.0F / 360.0F)), (byte) ((int) (location.getPitch() * 256.0F / 360.0F)), true));
+                } else {
+                    FriendlyByteBuf byteBuf = new FriendlyByteBuf(Unpooled.buffer());
+                    byteBuf.writeVarInt(this.id);
+                    byteBuf.writeDouble(this.location.getX());
+                    byteBuf.writeDouble(this.location.getY());
+                    byteBuf.writeDouble(this.location.getZ());
+                    byteBuf.writeByte((byte) ((int) (this.location.getYaw() * 256.0F / 360.0F)));
+                    byteBuf.writeByte((byte) ((int) (this.location.getPitch() * 256.0F / 360.0F)));
+                    byteBuf.writeBoolean(true);
 
-                this.tracker.broadcast(new ClientboundTeleportEntityPacket(byteBuf));
-                byteBuf.release();
+                    this.tracker.broadcast(new ClientboundTeleportEntityPacket(byteBuf));
+                    byteBuf.release();
+                }
             }
         }
     }
