@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.hologram;
 
 import com.artillexstudios.axapi.collections.ThreadSafeList;
+import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.utils.placeholder.Placeholder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.bukkit.Location;
@@ -8,14 +9,17 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class HologramPage {
     private final ObjectArrayList<Placeholder> placeholders = new ObjectArrayList<>(5);
     private final ThreadSafeList<HologramLine> lines = new ThreadSafeList<>();
     private final Hologram hologram;
+    private Consumer<PacketEntityInteractEvent> event;
 
     public HologramPage(Hologram hologram) {
         this.hologram = hologram;
+        this.event = hologram.event();
     }
 
     public void addPlaceholder(Placeholder placeholder) {
@@ -86,6 +90,19 @@ public class HologramPage {
         }
 
         lines.clear();
+    }
+
+    public void event(Consumer<PacketEntityInteractEvent> event) {
+        this.event = event;
+        for (int i = 0; i < this.lines.size(); i++) {
+            HologramLine line = lines.get(i);
+            if (line.event() != null) continue;
+            line.event(event);
+        }
+    }
+
+    public Consumer<PacketEntityInteractEvent> event() {
+        return this.event;
     }
 
     public Hologram hologram() {

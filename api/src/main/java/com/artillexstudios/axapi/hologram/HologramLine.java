@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.hologram;
 
 import com.artillexstudios.axapi.collections.ThreadSafeList;
+import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
 import com.artillexstudios.axapi.packetentity.meta.EntityMeta;
@@ -18,6 +19,7 @@ import org.bukkit.entity.Player;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,6 +27,7 @@ public class HologramLine {
     private final Type type;
     private final ThreadSafeList<Placeholder> placeholders = new ThreadSafeList<>();
     private final HologramPage page;
+    private Consumer<PacketEntityInteractEvent> event;
     private volatile PacketEntity packetEntity = null;
     private volatile boolean hasPlaceholders = false;
     private String content;
@@ -36,6 +39,7 @@ public class HologramLine {
         this.type = type;
         this.placeholders.addAll(placeholders);
 
+        this.event(page.event());
         setContent(content);
     }
 
@@ -187,8 +191,20 @@ public class HologramLine {
         }
     }
 
+    public void event(Consumer<PacketEntityInteractEvent> event) {
+        this.event = event;
+    }
+
+    public Consumer<PacketEntityInteractEvent> event() {
+        return this.event;
+    }
+
     private void setup() {
         packetEntity.onInteract(event -> {
+            if (this.event != null) {
+                this.event.accept(event);
+            }
+
             page.hologram().changePage(event.getPlayer(), event.isAttack() ? Hologram.PageChangeDirection.BACK : Hologram.PageChangeDirection.FORWARD);
         });
 

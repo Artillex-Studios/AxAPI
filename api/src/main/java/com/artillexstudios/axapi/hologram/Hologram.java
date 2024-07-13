@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.hologram;
 
 import com.artillexstudios.axapi.collections.ThreadSafeList;
+import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.reflection.ClassUtils;
 import com.artillexstudios.axapi.utils.Pair;
 import com.artillexstudios.axapi.utils.placeholder.Placeholder;
@@ -11,12 +12,14 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 import java.util.WeakHashMap;
+import java.util.function.Consumer;
 
 public class Hologram {
     private final WeakHashMap<Player, Integer> playerPages = new WeakHashMap<>();
     private final ObjectArrayList<Placeholder> placeholders = new ObjectArrayList<>(5);
     private final ThreadSafeList<HologramPage> pages = new ThreadSafeList<>();
     private final double lineSpace;
+    private Consumer<PacketEntityInteractEvent> event;
     private Location location;
     private String id;
 
@@ -165,6 +168,20 @@ public class Hologram {
             newPage.show(player);
             playerPages.put(player, current + 1);
         }
+    }
+
+    public void event(Consumer<PacketEntityInteractEvent> event) {
+        this.event = event;
+
+        for (int i = 0; i < this.pages.size(); i++) {
+            HologramPage page = this.pages.get(i);
+            if (page.event() != null) continue;
+            page.event(event);
+        }
+    }
+
+    public Consumer<PacketEntityInteractEvent> event() {
+        return this.event;
     }
 
     public double lineSpace() {
