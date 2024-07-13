@@ -84,7 +84,7 @@ public class DebugMarker implements com.artillexstudios.axapi.utils.DebugMarker 
 
     private void createPacket() {
         FriendlyByteBuf friendlyByteBuf = new FriendlyByteBuf(Unpooled.buffer());
-        friendlyByteBuf.writeBlockPos(new BlockPos(this.location.getX(), this.location.getY(), this.location.getZ()));
+        friendlyByteBuf.writeBlockPos(new BlockPos(this.location.getBlockX(), this.location.getBlockY(), this.location.getBlockZ()));
         friendlyByteBuf.writeInt(this.transparency << 24 | color.asRGB());
         friendlyByteBuf.writeUtf(message);
         friendlyByteBuf.writeInt(duration);
