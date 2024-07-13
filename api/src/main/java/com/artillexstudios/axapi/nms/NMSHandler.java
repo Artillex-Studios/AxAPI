@@ -10,9 +10,11 @@ import com.artillexstudios.axapi.selection.BlockSetter;
 import com.artillexstudios.axapi.serializers.Serializer;
 import com.artillexstudios.axapi.utils.ActionBar;
 import com.artillexstudios.axapi.utils.BossBar;
+import com.artillexstudios.axapi.utils.DebugMarker;
 import com.artillexstudios.axapi.utils.Pair;
 import com.artillexstudios.axapi.utils.Title;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
@@ -72,4 +74,8 @@ public interface NMSHandler {
     Pair<String, String> textures(Player player);
 
     void sendMessage(Player player, Component message);
+
+    default DebugMarker marker(Color color, String message, int duration, int transparency, Location location) {
+        return null;
+    }
 }

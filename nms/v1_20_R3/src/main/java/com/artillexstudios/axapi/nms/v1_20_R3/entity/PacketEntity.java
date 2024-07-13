@@ -100,8 +100,8 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
 
     @Override
     public void teleport(Location location) {
-        this.location = location;
         synchronized (this.codec) {
+            this.location = location;
             this.vec3 = new Vec3(location.getX(), location.getY(), location.getZ());
             this.shouldTeleport = true;
         }
