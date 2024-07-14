@@ -75,7 +75,5 @@ public interface NMSHandler {
 
     void sendMessage(Player player, Component message);
 
-    default DebugMarker marker(Color color, String message, int duration, int transparency, Location location) {
-        return null;
-    }
+    DebugMarker marker(Color color, String message, int duration, int transparency, Location location);
 }

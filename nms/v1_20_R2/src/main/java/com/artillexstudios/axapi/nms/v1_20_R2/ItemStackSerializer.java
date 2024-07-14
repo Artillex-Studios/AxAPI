@@ -3,7 +3,6 @@ package com.artillexstudios.axapi.nms.v1_20_R2;
 import com.google.common.base.Preconditions;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.MinecraftServer;

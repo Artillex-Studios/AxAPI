@@ -11,6 +11,7 @@ import com.artillexstudios.axapi.serializers.Serializer;
 import com.artillexstudios.axapi.utils.ActionBar;
 import com.artillexstudios.axapi.utils.BossBar;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
+import com.artillexstudios.axapi.utils.DebugMarker;
 import com.artillexstudios.axapi.utils.Pair;
 import com.artillexstudios.axapi.utils.Title;
 import com.mojang.authlib.GameProfile;
@@ -44,6 +45,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -305,6 +307,11 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
         CraftPlayer craftPlayer = (CraftPlayer) player;
         ServerPlayer serverPlayer = craftPlayer.getHandle();
         serverPlayer.connection.send(new ClientboundSystemChatPacket((net.minecraft.network.chat.Component) ComponentSerializer.INSTANCE.toVanilla(message), false));
+    }
+
+    @Override
+    public DebugMarker marker(Color color, String message, int duration, int transparency, Location location) {
+        return new com.artillexstudios.axapi.nms.v1_19_R3.utils.DebugMarker(color, message, duration, transparency, location);
     }
 
     public String toGson(Component component) {
