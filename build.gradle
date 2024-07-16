@@ -92,6 +92,7 @@ allprojects {
         compileOnly("com.github.ben-manes.caffeine:caffeine:2.9.2")
         compileOnly("me.clip:placeholderapi:2.11.5")
 
+
         implementation("com.github.Artillex-Studios.Lamp:common:1d02c47a86") {
             exclude group: 'net.kyori', module: 'adventure'
         }

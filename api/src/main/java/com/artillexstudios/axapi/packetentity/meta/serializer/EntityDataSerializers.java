@@ -1,7 +1,9 @@
 package com.artillexstudios.axapi.packetentity.meta.serializer;
 
 import com.artillexstudios.axapi.items.WrappedItemStack;
+import com.artillexstudios.axapi.utils.Vector3f;
 import net.kyori.adventure.text.Component;
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.block.BlockState;
@@ -25,6 +27,7 @@ public final class EntityDataSerializers<T> {
     public static final EntityDataSerializers<Location> LOCATION = new EntityDataSerializers<>(Type.LOCATION);
     public static final EntityDataSerializers<Optional<Location>> OPTIONAL_LOCATION = new EntityDataSerializers<>(Type.OPTIONAL_LOCATION);
     public static final EntityDataSerializers<Pose> POSE = new EntityDataSerializers<>(Type.POSE);
+    public static final EntityDataSerializers<Vector3f> VECTOR3 = new EntityDataSerializers<>(Type.VECTOR3);
 
     public final Type type;
 
@@ -57,6 +60,7 @@ public final class EntityDataSerializers<T> {
         ROTATIONS,
         LOCATION,
         OPTIONAL_LOCATION,
-        POSE;
+        POSE,
+        VECTOR3;
     }
 }

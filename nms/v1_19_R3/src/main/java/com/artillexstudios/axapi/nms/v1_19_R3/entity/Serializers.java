@@ -13,6 +13,7 @@ import net.minecraft.world.item.ItemStack;
 import org.bukkit.Particle;
 import org.bukkit.craftbukkit.v1_19_R3.CraftParticle;
 import org.bukkit.util.EulerAngle;
+import org.joml.Vector3f;
 
 import java.util.EnumMap;
 import java.util.Optional;
@@ -158,6 +159,19 @@ public class Serializers {
             @Override
             public EntityDataSerializer<Pose> serializer() {
                 return net.minecraft.network.syncher.EntityDataSerializers.POSE;
+            }
+        });
+
+        typeTransformers.put(EntityDataSerializers.Type.VECTOR3, new Transformer<Vector3f>() {
+            @Override
+            public Vector3f transform(Object other) {
+                com.artillexstudios.axapi.utils.Vector3f vector3f = (com.artillexstudios.axapi.utils.Vector3f) other;
+                return new Vector3f(vector3f.x(), vector3f.y(), vector3f.z());
+            }
+
+            @Override
+            public EntityDataSerializer<Vector3f> serializer() {
+                return net.minecraft.network.syncher.EntityDataSerializers.VECTOR3;
             }
         });
     }

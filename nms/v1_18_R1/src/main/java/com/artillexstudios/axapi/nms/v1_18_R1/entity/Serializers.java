@@ -4,6 +4,8 @@ import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataAccessor
 import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataSerializers;
 import com.artillexstudios.axapi.reflection.FastFieldAccessor;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
+import com.mojang.math.Vector3d;
+import com.mojang.math.Vector3f;
 import net.minecraft.core.Rotations;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.chat.Component;
@@ -158,6 +160,18 @@ public class Serializers {
             @Override
             public EntityDataSerializer<Pose> serializer() {
                 return net.minecraft.network.syncher.EntityDataSerializers.POSE;
+            }
+        });
+
+        typeTransformers.put(EntityDataSerializers.Type.VECTOR3, new Transformer<Vector3f>() {
+            @Override
+            public Vector3f transform(Object other) {
+                throw new RuntimeException("Unsupported type!");
+            }
+
+            @Override
+            public EntityDataSerializer<Vector3f> serializer() {
+                throw new RuntimeException("Unsupported type!");
             }
         });
     }
