@@ -72,5 +72,9 @@ public interface PacketEntity {
 
     void callInteract(PacketEntityInteractEvent event);
 
+    void ride(int entityId);
+
+    void unRide(int entityId);
+
     void update();
 }

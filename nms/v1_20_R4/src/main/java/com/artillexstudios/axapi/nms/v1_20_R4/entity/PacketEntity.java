@@ -7,6 +7,7 @@ import com.artillexstudios.axapi.hologram.HologramLine;
 import com.artillexstudios.axapi.hologram.Holograms;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.nms.NMSHandlers;
+import com.artillexstudios.axapi.nms.v1_20_R4.packet.ClientboundSetPassengersWrapper;
 import com.artillexstudios.axapi.nms.v1_20_R4.packet.ClientboundTeleportEntityWrapper;
 import com.artillexstudios.axapi.packetentity.meta.EntityMeta;
 import com.artillexstudios.axapi.packetentity.meta.EntityMetaFactory;
@@ -66,6 +67,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     private volatile boolean shouldTeleport = false;
     private volatile boolean itemDirty = false;
     private boolean visibleByDefault = true;
+    private int riddenEntityId = -1;
     private Consumer<PacketEntityInteractEvent> interactConsumer;
 
     public PacketEntity(EntityType entityType, Location location) {
@@ -260,6 +262,10 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
             list.add(new ClientboundSetEquipmentPacket(this.id, equipments));
         }
 
+        if (this.riddenEntityId != -1) {
+            list.add(ClientboundSetPassengersWrapper.createNew(this.riddenEntityId, new int[]{this.id}));
+        }
+
         serverPlayer.connection.send(new ClientboundBundlePacket(list));
     }
 
@@ -285,6 +291,23 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
         if (this.interactConsumer != null) {
             this.interactConsumer.accept(event);
         }
+    }
+
+    @Override
+    public void ride(int entityId) {
+        this.unRide(this.riddenEntityId);
+        this.riddenEntityId = entityId;
+        this.tracker.broadcast(ClientboundSetPassengersWrapper.createNew(this.riddenEntityId, new int[]{this.id}));
+    }
+
+    @Override
+    public void unRide(int entityId) {
+        if (this.riddenEntityId == -1) {
+            return;
+        }
+
+        this.tracker.broadcast(ClientboundSetPassengersWrapper.createNew(this.riddenEntityId, new int[0]));
+        this.riddenEntityId = -1;
     }
 
     @Override

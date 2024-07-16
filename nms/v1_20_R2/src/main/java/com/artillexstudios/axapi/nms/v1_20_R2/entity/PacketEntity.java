@@ -30,6 +30,7 @@ import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
+import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.network.protocol.game.VecDeltaCodec;
 import net.minecraft.network.syncher.EntityDataSerializer;
@@ -67,6 +68,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     private volatile boolean shouldTeleport = false;
     private volatile boolean itemDirty = false;
     private boolean visibleByDefault = true;
+    private int riddenEntityId = -1;
     private Consumer<PacketEntityInteractEvent> interactConsumer;
 
     public PacketEntity(EntityType entityType, Location location) {
@@ -271,6 +273,14 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
             list.add(new ClientboundSetEquipmentPacket(this.id, equipments));
         }
 
+        if (this.riddenEntityId != -1) {
+            FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+            buf.writeVarInt(this.riddenEntityId);
+            buf.writeVarIntArray(new int[]{this.id});
+            list.add(new ClientboundSetPassengersPacket(buf));
+            buf.release();
+        }
+
         serverPlayer.connection.send(new ClientboundBundlePacket(list));
     }
 
@@ -296,6 +306,31 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
         if (this.interactConsumer != null) {
             this.interactConsumer.accept(event);
         }
+    }
+
+    @Override
+    public void ride(int entityId) {
+        this.unRide(this.riddenEntityId);
+        this.riddenEntityId = entityId;
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        buf.writeVarInt(this.riddenEntityId);
+        buf.writeVarIntArray(new int[]{this.id});
+        this.tracker.broadcast(new ClientboundSetPassengersPacket(buf));
+        buf.release();
+    }
+
+    @Override
+    public void unRide(int entityId) {
+        if (this.riddenEntityId == -1) {
+            return;
+        }
+
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        buf.writeVarInt(this.riddenEntityId);
+        buf.writeVarIntArray(new int[0]);
+        this.tracker.broadcast(new ClientboundSetPassengersPacket(buf));
+        buf.release();
+        this.riddenEntityId = -1;
     }
 
     @Override
