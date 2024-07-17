@@ -51,7 +51,6 @@ public class FastFieldAccessor {
 
         try {
             Field f = clazz.getDeclaredField(field);
-            f.setAccessible(true);
             return new FastFieldAccessor(f);
         } catch (NoSuchFieldException exception) {
             log.error("An error occurred while creating new FastFieldAccessor for field {} of class {}! Fields of class: {}!", field, clazz.getName(), Arrays.stream(clazz.getDeclaredFields()).map(f -> f.getName() + "-" + f.getType()).collect(Collectors.joining(", ")), exception);
