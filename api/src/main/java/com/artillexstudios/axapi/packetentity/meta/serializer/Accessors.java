@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.packetentity.meta.serializer;
 
 import com.artillexstudios.axapi.items.WrappedItemStack;
+import com.artillexstudios.axapi.utils.ParticleArguments;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Particle;
 import org.bukkit.entity.Pose;
@@ -28,5 +29,5 @@ public final class Accessors {
     public static final EntityDataAccessor<Float> AREA_EFFECT_CLOUD_RADIUS = EntityDataSerializers.FLOAT.createAccessor(8);
     public static final EntityDataAccessor<Integer> AREA_EFFECT_CLOUD_COLOR = EntityDataSerializers.INT.createAccessor(9);
     public static final EntityDataAccessor<Boolean> AREA_EFFECT_CLOUD_POINT = EntityDataSerializers.BOOLEAN.createAccessor(10);
-    public static final EntityDataAccessor<Particle> AREA_EFFECT_CLOUD_PARTICLE = EntityDataSerializers.PARTICLE.createAccessor(11);
+    public static final EntityDataAccessor<ParticleArguments> AREA_EFFECT_CLOUD_PARTICLE = EntityDataSerializers.PARTICLE.createAccessor(11);
 }
