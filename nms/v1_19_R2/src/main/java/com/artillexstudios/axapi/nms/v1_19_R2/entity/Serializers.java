@@ -4,6 +4,7 @@ import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataAccessor
 import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataSerializers;
 import com.artillexstudios.axapi.reflection.FastFieldAccessor;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
+import com.artillexstudios.axapi.utils.ParticleArguments;
 import net.minecraft.core.Rotations;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.chat.Component;
@@ -123,7 +124,8 @@ public class Serializers {
         typeTransformers.put(EntityDataSerializers.Type.PARTICLE, new Transformer<ParticleOptions>() {
             @Override
             public ParticleOptions transform(Object other) {
-                return CraftParticle.toNMS((Particle) other, null);
+                ParticleArguments arguments = (ParticleArguments) other;
+                return CraftParticle.toNMS(arguments.particle(), arguments.data());
             }
 
             @Override
@@ -165,13 +167,12 @@ public class Serializers {
         typeTransformers.put(EntityDataSerializers.Type.VECTOR3, new Transformer<Vector3f>() {
             @Override
             public Vector3f transform(Object other) {
-                com.artillexstudios.axapi.utils.Vector3f vector3f = (com.artillexstudios.axapi.utils.Vector3f) other;
-                return new Vector3f(vector3f.x(), vector3f.y(), vector3f.z());
+                throw new RuntimeException("Unsupported type!");
             }
 
             @Override
             public EntityDataSerializer<Vector3f> serializer() {
-                return net.minecraft.network.syncher.EntityDataSerializers.VECTOR3;
+                throw new RuntimeException("Unsupported type!");
             }
         });
     }

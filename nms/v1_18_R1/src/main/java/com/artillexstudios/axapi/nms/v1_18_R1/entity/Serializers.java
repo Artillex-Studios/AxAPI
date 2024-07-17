@@ -4,6 +4,7 @@ import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataAccessor
 import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataSerializers;
 import com.artillexstudios.axapi.reflection.FastFieldAccessor;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
+import com.artillexstudios.axapi.utils.ParticleArguments;
 import com.mojang.math.Vector3d;
 import com.mojang.math.Vector3f;
 import net.minecraft.core.Rotations;
@@ -124,7 +125,8 @@ public class Serializers {
         typeTransformers.put(EntityDataSerializers.Type.PARTICLE, new Transformer<ParticleOptions>() {
             @Override
             public ParticleOptions transform(Object other) {
-                return CraftParticle.toNMS((Particle) other, null);
+                ParticleArguments arguments = (ParticleArguments) other;
+                return CraftParticle.toNMS(arguments.particle(), arguments.data());
             }
 
             @Override

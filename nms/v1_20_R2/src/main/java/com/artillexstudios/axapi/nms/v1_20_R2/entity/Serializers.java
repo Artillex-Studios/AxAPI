@@ -4,6 +4,7 @@ import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataAccessor
 import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataSerializers;
 import com.artillexstudios.axapi.reflection.FastFieldAccessor;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
+import com.artillexstudios.axapi.utils.ParticleArguments;
 import net.minecraft.core.Rotations;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.chat.Component;
@@ -123,7 +124,8 @@ public class Serializers {
         typeTransformers.put(EntityDataSerializers.Type.PARTICLE, new Transformer<ParticleOptions>() {
             @Override
             public ParticleOptions transform(Object other) {
-                return CraftParticle.createParticleParam((Particle) other, null);
+                ParticleArguments arguments = (ParticleArguments) other;
+                return CraftParticle.createParticleParam(arguments.particle(), arguments.data());
             }
 
             @Override

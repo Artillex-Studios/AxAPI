@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.packetentity.meta.serializer;
 
 import com.artillexstudios.axapi.items.WrappedItemStack;
+import com.artillexstudios.axapi.utils.ParticleArguments;
 import com.artillexstudios.axapi.utils.Vector3f;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
@@ -22,7 +23,7 @@ public final class EntityDataSerializers<T> {
     public static final EntityDataSerializers<WrappedItemStack> ITEM_STACK = new EntityDataSerializers<>(Type.ITEM_STACK);
     public static final EntityDataSerializers<BlockState> BLOCK_STATE = new EntityDataSerializers<>(Type.BLOCK_STATE);
     public static final EntityDataSerializers<Boolean> BOOLEAN = new EntityDataSerializers<>(Type.BOOLEAN);
-    public static final EntityDataSerializers<Particle> PARTICLE = new EntityDataSerializers<>(Type.PARTICLE);
+    public static final EntityDataSerializers<ParticleArguments> PARTICLE = new EntityDataSerializers<>(Type.PARTICLE);
     public static final EntityDataSerializers<EulerAngle> ROTATIONS = new EntityDataSerializers<>(Type.ROTATIONS);
     public static final EntityDataSerializers<Location> LOCATION = new EntityDataSerializers<>(Type.LOCATION);
     public static final EntityDataSerializers<Optional<Location>> OPTIONAL_LOCATION = new EntityDataSerializers<>(Type.OPTIONAL_LOCATION);
