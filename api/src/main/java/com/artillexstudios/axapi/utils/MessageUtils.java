@@ -1,8 +1,10 @@
 package com.artillexstudios.axapi.utils;
 
+import com.artillexstudios.axapi.nms.NMSHandlers;
 import dev.dejvokep.boostedyaml.YamlDocument;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -29,7 +31,11 @@ public class MessageUtils {
             return;
         }
 
-        sender.sendMessage(StringUtils.formatToString(message, resolvers));
+        if (sender instanceof Player) {
+            NMSHandlers.getNmsHandler().sendMessage((Player) sender, StringUtils.format(message, resolvers));
+        } else {
+            sender.sendMessage(StringUtils.formatToString(message, resolvers));
+        }
     }
 
     public void sendLang(CommandSender commandSender, String message, TagResolver... resolvers) {

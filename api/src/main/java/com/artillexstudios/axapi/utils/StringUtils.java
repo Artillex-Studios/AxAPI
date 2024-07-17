@@ -1,15 +1,16 @@
 package com.artillexstudios.axapi.utils;
 
+import com.artillexstudios.axapi.reflection.FastFieldAccessor;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.Scheduler;
+import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.md_5.bungee.api.ChatColor;
+import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
@@ -17,72 +18,81 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class StringUtils {
-    private static final Cache<String, String> CACHE = Caffeine.newBuilder().maximumSize(200).scheduler(Scheduler.systemScheduler()).expireAfterAccess(Duration.ofSeconds(2)).build();
-    private static final Pattern HEX_PATTERN = Pattern.compile("&#([0-9a-fA-F]{6})");
-    public static LegacyComponentSerializer LEGACY_COMPONENT_SERIALIZER;
-    public static MiniMessage MINI_MESSAGE;
+    private static final Pattern HEX_PATTERN = Pattern.compile("(?<=&#)[0-9a-fA-F]{6}|(?<=#)[0-9a-fA-F]{6}");
+    private static final FastFieldAccessor TEXT = FastFieldAccessor.forClassField(Matcher.class, "text");
+    private static final ObjectImmutableList<Pair<String, String>> COLOR_FORMATS = ObjectImmutableList.of(
+            Pair.of("&0", "<black>"),
+            Pair.of("&1", "<dark_blue>"),
+            Pair.of("&2", "<dark_green>"),
+            Pair.of("&3", "<dark_aqua>"),
+            Pair.of("&4", "<dark_red>"),
+            Pair.of("&5", "<dark_purple>"),
+            Pair.of("&6", "<gold>"),
+            Pair.of("&7", "<gray>"),
+            Pair.of("&8", "<dark_gray>"),
+            Pair.of("&9", "<blue>"),
+            Pair.of("&a", "<green>"),
+            Pair.of("&b", "<aqua>"),
+            Pair.of("&c", "<red>"),
+            Pair.of("&d", "<light_purple>"),
+            Pair.of("&e", "<yellow>"),
+            Pair.of("&f", "<white>"),
+            Pair.of("&l", "<b>"),
+            Pair.of("&m", "<st>"),
+            Pair.of("&n", "<u>"),
+            Pair.of("&o", "<i>"),
+            Pair.of("&r", "<reset>")
+    );
+    private static final Cache<String, String> COLOR_CACHE = Caffeine.newBuilder()
+            .expireAfterAccess(Duration.ofSeconds(30))
+            .maximumSize(200)
+            .build();
+    public static MiniMessage MINI_MESSAGE = MiniMessage.builder()
+            .tags(StandardTags.defaults())
+            .build();
+    public static LegacyComponentSerializer LEGACY_COMPONENT_SERIALIZER = LegacyComponentSerializer.builder()
+            .useUnusualXRepeatedCharacterHexFormat()
+            .character('\u00a7')
+            .hexColors()
+            .build();
 
-    static {
-        if (Version.getServerVersion().protocolId >= Version.v1_16_5.protocolId) {
-            MINI_MESSAGE = MiniMessage.builder()
-                    .tags(StandardTags.defaults())
-                    .build();
+    public static Component format(@NotNull String input, @NotNull Map<String, String> replacements) {
+        return format(input, ItemBuilder.mapResolvers(replacements));
+    }
 
-            LEGACY_COMPONENT_SERIALIZER = LegacyComponentSerializer.builder()
-                    .character('\u00a7')
-                    .hexColors()
-                    .useUnusualXRepeatedCharacterHexFormat()
-                    .build();
-        } else {
-            MINI_MESSAGE = MiniMessage.builder()
-                    .tags(StandardTags.defaults())
-                    .build();
+    public static Component format(@NotNull String input, @NotNull TagResolver... resolvers) {
+        String formatted = COLOR_CACHE.get(input, str -> {
+            String toFormat = str;
+            for (Pair<String, String> placeholder : COLOR_FORMATS) {
+                toFormat = toFormat.replace(placeholder.getFirst(), placeholder.getSecond());
+            }
 
-            LEGACY_COMPONENT_SERIALIZER = LegacyComponentSerializer.builder()
-                    .character('\u00a7')
-                    .hexColors()
-                    .useUnusualXRepeatedCharacterHexFormat()
-                    .build();
+            toFormat = replaceAll(HEX_PATTERN.matcher(toFormat), fo -> "<#" + fo.group(1) + ">").replace("&#", "");
+            toFormat = ItemBuilder.toTagResolver(toFormat, resolvers);
+
+            return toFormat;
+        });
+
+        if (formatted == null) {
+            return Component.empty();
         }
+
+        return MINI_MESSAGE.deserialize(formatted, resolvers).applyFallbackStyle(TextDecoration.ITALIC.withState(false));
     }
 
-    @NotNull
-    public static Component format(@NotNull String input, TagResolver... resolvers) {
-        return LEGACY_COMPONENT_SERIALIZER.deserialize(formatToString(input, resolvers)).applyFallbackStyle(TextDecoration.ITALIC.withState(false));
+    public static String formatToString(@NotNull String string, @NotNull TagResolver... resolvers) {
+        return ChatColor.translateAlternateColorCodes('&', LEGACY_COMPONENT_SERIALIZER.serialize(format(string, resolvers)));
     }
 
-    @NotNull
-    public static Component format(@NotNull String input, Map<String, String> replacements) {
-        AtomicReference<String> string = new AtomicReference<>(input);
-        replacements.forEach((from, to) -> string.set(string.get().replace(from, to)));
-
-        return format(string.get());
-    }
-
-    @NotNull
-    public static String formatToString(@NotNull String input, TagResolver... resolvers) {
-        if (resolvers.length == 0) {
-            return CACHE.get(input, key -> {
-                String changed = input.replace("§", "&");
-                return ChatColor.translateAlternateColorCodes('&', legacyHexFormat(LEGACY_COMPONENT_SERIALIZER.serialize(MINI_MESSAGE.deserialize(changed, resolvers))));
-            });
-        }
-
-        String changed = input.replace("§", "&");
-        return ChatColor.translateAlternateColorCodes('&', legacyHexFormat(LEGACY_COMPONENT_SERIALIZER.serialize(MINI_MESSAGE.deserialize(changed, resolvers))));
-    }
-
-    @NotNull
-    public static String formatToString(@NotNull String input, Map<String, String> replacements) {
-        AtomicReference<String> string = new AtomicReference<>(input);
-        replacements.forEach((from, to) -> string.set(string.get().replace(from, to)));
-
-        return formatToString(string.get());
+    public static String formatToString(@NotNull String string, @NotNull Map<String, String> replacements) {
+        return formatToString(string, ItemBuilder.mapResolvers(replacements));
     }
 
     @NotNull
@@ -95,21 +105,9 @@ public class StringUtils {
         return newList;
     }
 
-    // Thanks! https://www.spigotmc.org/threads/hex-color-code-translate.449748/
-    public static String legacyHexFormat(String message) {
-        Matcher matcher = HEX_PATTERN.matcher(message);
-        StringBuffer builder = new StringBuffer(message.length() + 4 * 8);
-
-        while (matcher.find()) {
-            String group = matcher.group(1);
-            matcher.appendReplacement(builder, ChatColor.COLOR_CHAR + "x"
-                    + ChatColor.COLOR_CHAR + group.charAt(0) + ChatColor.COLOR_CHAR + group.charAt(1)
-                    + ChatColor.COLOR_CHAR + group.charAt(2) + ChatColor.COLOR_CHAR + group.charAt(3)
-                    + ChatColor.COLOR_CHAR + group.charAt(4) + ChatColor.COLOR_CHAR + group.charAt(5)
-            );
-        }
-
-        return matcher.appendTail(builder).toString();
+    @NotNull
+    public static List<Component> formatList(@NotNull List<String> list, Map<String, String> replacements) {
+        return formatList(list, ItemBuilder.mapResolvers(replacements));
     }
 
     @NotNull
@@ -120,6 +118,11 @@ public class StringUtils {
         }
 
         return newList;
+    }
+
+    @NotNull
+    public static List<String> formatListToString(@NotNull List<String> list, Map<String, String> replacements) {
+        return formatListToString(list, ItemBuilder.mapResolvers(replacements));
     }
 
     public static String formatNumber(String pattern, double number) {
@@ -136,5 +139,22 @@ public class StringUtils {
         long seconds = total % 60;
 
         return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+    }
+
+    public static String replaceAll(@NotNull Matcher matcher, @NotNull Function<MatchResult, String> replacer) {
+        Objects.requireNonNull(replacer);
+        matcher.reset();
+        boolean result = matcher.find();
+        if (result) {
+            StringBuffer sb = new StringBuffer();
+            do {
+                String replacement = replacer.apply(matcher);
+                matcher.appendReplacement(sb, replacement);
+                result = matcher.find();
+            } while (result);
+            matcher.appendTail(sb);
+            return sb.toString();
+        }
+        return TEXT.get(matcher);
     }
 }
