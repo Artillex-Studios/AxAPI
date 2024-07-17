@@ -74,7 +74,7 @@ public class StringUtils {
                 toFormat = toFormat.replace(placeholder.getFirst(), placeholder.getSecond());
             }
 
-            toFormat = replaceAll(HEX_PATTERN.matcher(toFormat), fo -> "<#" + fo.group(1) + ">").replace("&#", "");
+            toFormat = replaceAll(HEX_PATTERN.matcher(toFormat), fo -> "<#" + fo.group(0) + ">").replace("&#", "");
             toFormat = ItemBuilder.toTagResolver(toFormat, resolvers);
 
             return toFormat;
