@@ -50,7 +50,7 @@ public class StringUtils {
             Pair.of("&r", "<reset>"),
             Pair.of("\n", "<br>")
     );
-    private static final CharImmutableList COLOR_CHARS = CharImmutableList.of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f');
+    private static final CharImmutableList COLOR_CHARS = CharImmutableList.of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', '#');
     private static final Cache<String, String> COLOR_CACHE = Caffeine.newBuilder()
             .expireAfterAccess(Duration.ofMinutes(1))
             .maximumSize(200)
@@ -79,13 +79,14 @@ public class StringUtils {
             toFormat = replaceLegacyFormat(toFormat, "&o", "<i>", "</i>");
             toFormat = replaceLegacyFormat(toFormat, "&k", "<obf>", "</obf>");
 
+            toFormat = replaceAll(HEX_PATTERN.matcher(toFormat), fo -> "<#" + fo.group(0) + ">").replace("&#", "");
+            toFormat = replaceAll(UNUSUAL_LEGACY_HEX_PATTERN.matcher(toFormat), fo -> "<#" + fo.group(0) + fo.group(1) + fo.group(2) + fo.group(3) + fo.group(4) + fo.group(5) + ">");
+            toFormat = replaceAll(UNUSUAL_LEGACY_HEX_PATTERN.matcher(toFormat), fo -> "");
+
             for (Pair<String, String> placeholder : COLOR_FORMATS) {
                 toFormat = toFormat.replace(placeholder.getFirst(), placeholder.getSecond());
             }
 
-            toFormat = replaceAll(HEX_PATTERN.matcher(toFormat), fo -> "<#" + fo.group(0) + ">").replace("&#", "");
-            toFormat = replaceAll(UNUSUAL_LEGACY_HEX_PATTERN.matcher(toFormat), fo -> "<#" + fo.group(0) + fo.group(1) + fo.group(2) + fo.group(3) + fo.group(4) + fo.group(5) + ">");
-            toFormat = replaceAll(LEGACY_CLEANUP.matcher(toFormat), fo -> "");
             toFormat = ItemBuilder.toTagResolver(toFormat, resolvers);
 
             return toFormat;
