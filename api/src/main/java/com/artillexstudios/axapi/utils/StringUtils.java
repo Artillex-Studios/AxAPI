@@ -26,6 +26,8 @@ import java.util.regex.Pattern;
 
 public class StringUtils {
     private static final Pattern HEX_PATTERN = Pattern.compile("(?<=&#)[0-9a-fA-F]{6}|(?<=#)[0-9a-fA-F]{6}");
+    private static final Pattern LEGACY_CLEANUP = Pattern.compile("&[a-fA-F0-9x]");
+    private static final Pattern UNUSUAL_LEGACY_HEX_PATTERN = Pattern.compile("&x&([a-fA-F0-9])&([a-fA-F0-9])&([a-fA-F0-9])&([a-fA-F0-9])&([a-fA-F0-9])&([a-fA-F0-9])");
     private static final FastFieldAccessor TEXT = FastFieldAccessor.forClassField(Matcher.class, "text");
     private static final ObjectImmutableList<Pair<String, String>> COLOR_FORMATS = ObjectImmutableList.of(
             Pair.of("&0", "<black>"),
@@ -44,14 +46,11 @@ public class StringUtils {
             Pair.of("&d", "<light_purple>"),
             Pair.of("&e", "<yellow>"),
             Pair.of("&f", "<white>"),
-            Pair.of("&l", "<b>"),
-            Pair.of("&m", "<st>"),
-            Pair.of("&n", "<u>"),
-            Pair.of("&o", "<i>"),
-            Pair.of("&r", "<reset>")
+            Pair.of("&r", "<reset>"),
+            Pair.of("\n", "<br>")
     );
     private static final Cache<String, String> COLOR_CACHE = Caffeine.newBuilder()
-            .expireAfterAccess(Duration.ofSeconds(30))
+            .expireAfterAccess(Duration.ofMinutes(1))
             .maximumSize(200)
             .build();
     public static MiniMessage MINI_MESSAGE = MiniMessage.builder()
@@ -68,13 +67,23 @@ public class StringUtils {
     }
 
     public static Component format(@NotNull String input, @NotNull TagResolver... resolvers) {
+        // I will probably have to improve the performance of this code by a large margin...
         String formatted = COLOR_CACHE.get(input, str -> {
-            String toFormat = str;
+            String toFormat = str.replace('\u00a7', '&');
+
+            replaceLegacyFormat(toFormat, "&l", "<b>", "</b>");
+            replaceLegacyFormat(toFormat, "&m", "<st>", "</st>");
+            replaceLegacyFormat(toFormat, "&n", "<u>", "</u>");
+            replaceLegacyFormat(toFormat, "&o", "<i>", "</i>");
+            replaceLegacyFormat(toFormat, "&k", "<obf>", "</obf>");
+
             for (Pair<String, String> placeholder : COLOR_FORMATS) {
                 toFormat = toFormat.replace(placeholder.getFirst(), placeholder.getSecond());
             }
 
             toFormat = replaceAll(HEX_PATTERN.matcher(toFormat), fo -> "<#" + fo.group(0) + ">").replace("&#", "");
+            toFormat = replaceAll(UNUSUAL_LEGACY_HEX_PATTERN.matcher(toFormat), fo -> "<#" + fo.group(0) + fo.group(1) + fo.group(2) + fo.group(3) + fo.group(4) + fo.group(5) + ">");
+            toFormat = replaceAll(LEGACY_CLEANUP.matcher(toFormat), fo -> "");
             toFormat = ItemBuilder.toTagResolver(toFormat, resolvers);
 
             return toFormat;
@@ -139,6 +148,23 @@ public class StringUtils {
         long seconds = total % 60;
 
         return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+    }
+
+    private static String replaceLegacyFormat(String toFormat, String search, String start, String close) {
+        int index;
+        while ((index = toFormat.indexOf(search)) != -1) {
+            toFormat = org.apache.commons.lang.StringUtils.replaceOnce(toFormat, search, start);
+            for (int i = index; i < toFormat.length(); i++) {
+                if (toFormat.charAt(i) == ' ') {
+                    StringBuilder stringBuilder = new StringBuilder(toFormat);
+                    stringBuilder.insert(i, close);
+                    toFormat = stringBuilder.toString();
+                    break;
+                }
+            }
+        }
+
+        return toFormat;
     }
 
     public static String replaceAll(@NotNull Matcher matcher, @NotNull Function<MatchResult, String> replacer) {
