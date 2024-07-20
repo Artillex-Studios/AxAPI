@@ -1,12 +1,12 @@
 package com.artillexstudios.axapi.nms.v1_21_R1;
 
+import ca.spottedleaf.moonrise.common.list.IBlockDataList;
 import com.artillexstudios.axapi.nms.v1_21_R1.utils.IBlockDataListCopier;
 import com.artillexstudios.axapi.reflection.ClassUtils;
 import com.artillexstudios.axapi.reflection.FastFieldAccessor;
 import com.artillexstudios.axapi.selection.Cuboid;
 import com.artillexstudios.axapi.selection.ParallelBlockSetter;
 import com.artillexstudios.axapi.utils.PaperUtils;
-import com.destroystokyo.paper.util.maplist.IBlockDataList;
 import com.google.common.collect.Sets;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.server.MinecraftServer;

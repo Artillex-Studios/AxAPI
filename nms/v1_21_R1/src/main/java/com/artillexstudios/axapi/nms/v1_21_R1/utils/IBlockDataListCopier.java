@@ -1,8 +1,8 @@
 package com.artillexstudios.axapi.nms.v1_21_R1.utils;
 
+import ca.spottedleaf.moonrise.common.list.IBlockDataList;
 import com.artillexstudios.axapi.reflection.ClassUtils;
 import com.artillexstudios.axapi.reflection.FastFieldAccessor;
-import com.destroystokyo.paper.util.maplist.IBlockDataList;
 import it.unimi.dsi.fastutil.shorts.Short2LongOpenHashMap;
 
 import java.util.Arrays;
