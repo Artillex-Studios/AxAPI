@@ -100,7 +100,7 @@ public class StringUtils {
     }
 
     public static String formatToString(@NotNull String string, @NotNull TagResolver... resolvers) {
-        return ChatColor.translateAlternateColorCodes('&', LEGACY_COMPONENT_SERIALIZER.serialize(format(string, resolvers)));
+        return LegacyTranslator.flatten(format(string, resolvers));
     }
 
     public static String formatToString(@NotNull String string, @NotNull Map<String, String> replacements) {
