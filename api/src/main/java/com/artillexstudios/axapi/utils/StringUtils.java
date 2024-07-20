@@ -73,11 +73,11 @@ public class StringUtils {
         String formatted = COLOR_CACHE.get(input, str -> {
             String toFormat = str.replace('\u00a7', '&');
 
-            toFormat = replaceLegacyFormat(toFormat, "&l", "<b>", "<reset>");
-            toFormat = replaceLegacyFormat(toFormat, "&m", "<st>", "<reset>");
-            toFormat = replaceLegacyFormat(toFormat, "&n", "<u>", "<reset>");
-            toFormat = replaceLegacyFormat(toFormat, "&o", "<i>", "<reset>");
-            toFormat = replaceLegacyFormat(toFormat, "&k", "<obf>", "<reset>");
+            toFormat = replaceLegacyFormat(toFormat, "&l", "<b>", "</b>");
+            toFormat = replaceLegacyFormat(toFormat, "&m", "<st>", "</st>");
+            toFormat = replaceLegacyFormat(toFormat, "&n", "<u>", "</u>");
+            toFormat = replaceLegacyFormat(toFormat, "&o", "<i>", "</i>");
+            toFormat = replaceLegacyFormat(toFormat, "&k", "<obf>", "</obf>");
 
             for (Pair<String, String> placeholder : COLOR_FORMATS) {
                 toFormat = toFormat.replace(placeholder.getFirst(), placeholder.getSecond());
