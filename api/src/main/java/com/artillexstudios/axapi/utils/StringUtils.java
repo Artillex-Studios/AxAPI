@@ -3,6 +3,7 @@ package com.artillexstudios.axapi.utils;
 import com.artillexstudios.axapi.reflection.FastFieldAccessor;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import it.unimi.dsi.fastutil.chars.CharImmutableList;
 import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -49,6 +50,7 @@ public class StringUtils {
             Pair.of("&r", "<reset>"),
             Pair.of("\n", "<br>")
     );
+    private static final CharImmutableList COLOR_CHARS = CharImmutableList.of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f');
     private static final Cache<String, String> COLOR_CACHE = Caffeine.newBuilder()
             .expireAfterAccess(Duration.ofMinutes(1))
             .maximumSize(200)
@@ -71,11 +73,11 @@ public class StringUtils {
         String formatted = COLOR_CACHE.get(input, str -> {
             String toFormat = str.replace('\u00a7', '&');
 
-            replaceLegacyFormat(toFormat, "&l", "<b>", "</b>");
-            replaceLegacyFormat(toFormat, "&m", "<st>", "</st>");
-            replaceLegacyFormat(toFormat, "&n", "<u>", "</u>");
-            replaceLegacyFormat(toFormat, "&o", "<i>", "</i>");
-            replaceLegacyFormat(toFormat, "&k", "<obf>", "</obf>");
+            toFormat = replaceLegacyFormat(toFormat, "&l", "<b>", "<reset>");
+            toFormat = replaceLegacyFormat(toFormat, "&m", "<st>", "<reset>");
+            toFormat = replaceLegacyFormat(toFormat, "&n", "<u>", "<reset>");
+            toFormat = replaceLegacyFormat(toFormat, "&o", "<i>", "<reset>");
+            toFormat = replaceLegacyFormat(toFormat, "&k", "<obf>", "<reset>");
 
             for (Pair<String, String> placeholder : COLOR_FORMATS) {
                 toFormat = toFormat.replace(placeholder.getFirst(), placeholder.getSecond());
@@ -155,7 +157,7 @@ public class StringUtils {
         while ((index = toFormat.indexOf(search)) != -1) {
             toFormat = org.apache.commons.lang.StringUtils.replaceOnce(toFormat, search, start);
             for (int i = index; i < toFormat.length(); i++) {
-                if (toFormat.charAt(i) == ' ') {
+                if (toFormat.charAt(i) == '&' && toFormat.length() < i + 1 && COLOR_CHARS.contains(toFormat.charAt(i + 1))) {
                     StringBuilder stringBuilder = new StringBuilder(toFormat);
                     stringBuilder.insert(i, close);
                     toFormat = stringBuilder.toString();
@@ -169,7 +171,6 @@ public class StringUtils {
 
     public static String replaceAll(@NotNull Matcher matcher, @NotNull Function<MatchResult, String> replacer) {
         Objects.requireNonNull(replacer);
-        matcher.reset();
         boolean result = matcher.find();
         if (result) {
             StringBuffer sb = new StringBuffer();
