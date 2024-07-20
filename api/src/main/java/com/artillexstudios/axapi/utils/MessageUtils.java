@@ -26,6 +26,22 @@ public class MessageUtils {
         this.prefixRoute = prefixRoute;
     }
 
+    public static void sendMessage(CommandSender sender, String message, TagResolver... resolvers) {
+        sendMessage(sender, "", message, resolvers);
+    }
+
+    public static void sendMessage(CommandSender sender, String prefix, String message, TagResolver... resolvers) {
+        if (message.isEmpty()) {
+            return;
+        }
+
+        if (sender instanceof Player) {
+            NMSHandlers.getNmsHandler().sendMessage((Player) sender, StringUtils.format(prefix +message, resolvers));
+        } else {
+            sender.sendMessage(StringUtils.formatToString(message, resolvers));
+        }
+    }
+
     public void sendFormatted(CommandSender sender, String message, TagResolver... resolvers) {
         if (message.isEmpty()) {
             return;
