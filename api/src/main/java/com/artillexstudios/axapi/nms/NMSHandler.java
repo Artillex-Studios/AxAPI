@@ -78,5 +78,5 @@ public interface NMSHandler {
 
     DebugMarker marker(Color color, String message, int duration, int transparency, Location location);
 
-    double getBase(Attribute attribute);
+    double getBase(Player player, Attribute attribute);
 }

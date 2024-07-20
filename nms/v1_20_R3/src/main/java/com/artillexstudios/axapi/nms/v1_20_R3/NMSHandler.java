@@ -317,8 +317,9 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     }
 
     @Override
-    public double getBase(Attribute attribute) {
-        return CraftAttribute.bukkitToMinecraft(attribute).getDefaultValue();
+    public double getBase(Player player, Attribute attribute) {
+        CraftPlayer craftPlayer = (CraftPlayer) player;
+        return craftPlayer.getAttribute(attribute).getDefaultValue();
     }
 
     public String toGson(Component component) {
