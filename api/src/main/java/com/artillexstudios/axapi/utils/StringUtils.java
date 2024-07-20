@@ -157,7 +157,7 @@ public class StringUtils {
         while ((index = toFormat.indexOf(search)) != -1) {
             toFormat = org.apache.commons.lang.StringUtils.replaceOnce(toFormat, search, start);
             for (int i = index; i < toFormat.length(); i++) {
-                if (toFormat.charAt(i) == '&' && toFormat.length() < i + 1 && COLOR_CHARS.contains(toFormat.charAt(i + 1))) {
+                if (toFormat.charAt(i) == '&' && i + 1 < toFormat.length() && COLOR_CHARS.contains(toFormat.charAt(i + 1))) {
                     StringBuilder stringBuilder = new StringBuilder(toFormat);
                     stringBuilder.insert(i, close);
                     toFormat = stringBuilder.toString();
