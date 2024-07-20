@@ -52,6 +52,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.craftbukkit.v1_20_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_20_R1.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftContainer;
@@ -68,6 +69,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.lang.reflect.Field;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
@@ -320,6 +322,11 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     public double getBase(Player player, Attribute attribute) {
         CraftPlayer craftPlayer = (CraftPlayer) player;
         return craftPlayer.getAttribute(attribute).getDefaultValue();
+    }
+
+    @Override
+    public Player dummyPlayer() {
+        return new ServerPlayer(MinecraftServer.getServer(), ((CraftWorld) Bukkit.getWorlds().get(0)).getHandle(), new GameProfile(UUID.randomUUID(), "dummy")).getBukkitEntity();
     }
 
     public String toGson(Component component) {
