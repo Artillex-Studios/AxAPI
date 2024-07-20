@@ -50,12 +50,14 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.craftbukkit.v1_19_R3.CraftServer;
 import org.bukkit.craftbukkit.v1_19_R3.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftContainer;
 import org.bukkit.craftbukkit.v1_19_R3.util.CraftLocation;
 import org.bukkit.craftbukkit.v1_19_R3.util.CraftMagicNumbers;
+import org.bukkit.craftbukkit.v1_19_R3.util.CraftNamespacedKey;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -312,6 +314,12 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     @Override
     public DebugMarker marker(Color color, String message, int duration, int transparency, Location location) {
         return new com.artillexstudios.axapi.nms.v1_19_R3.utils.DebugMarker(color, message, duration, transparency, location);
+    }
+
+    @Override
+    public double getBase(Attribute attribute) {
+        return BuiltInRegistries.ATTRIBUTE
+                .get(CraftNamespacedKey.toMinecraft(attribute.getKey())).getDefaultValue();
     }
 
     public String toGson(Component component) {

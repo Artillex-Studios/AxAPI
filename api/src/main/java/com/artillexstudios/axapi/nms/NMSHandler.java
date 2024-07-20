@@ -18,6 +18,7 @@ import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -76,4 +77,6 @@ public interface NMSHandler {
     void sendMessage(Player player, Component message);
 
     DebugMarker marker(Color color, String message, int duration, int transparency, Location location);
+
+    double getBase(Attribute attribute);
 }

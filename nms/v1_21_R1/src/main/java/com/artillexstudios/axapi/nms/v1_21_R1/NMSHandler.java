@@ -47,7 +47,9 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.craftbukkit.CraftServer;
+import org.bukkit.craftbukkit.attribute.CraftAttribute;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.craftbukkit.inventory.CraftContainer;
@@ -301,6 +303,11 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     @Override
     public DebugMarker marker(Color color, String message, int duration, int transparency, Location location) {
         return new com.artillexstudios.axapi.nms.v1_21_R1.utils.DebugMarker(color, message, duration, transparency, location);
+    }
+
+    @Override
+    public double getBase(Attribute attribute) {
+        return CraftAttribute.bukkitToMinecraft(attribute).getDefaultValue();
     }
 
     private Channel getChannel(Connection connection) {
