@@ -13,7 +13,6 @@ import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.PotionContents;
@@ -165,7 +164,7 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
             @Override
             public void apply(Object item, Component component) {
                 ItemStack itemStack = (ItemStack) item;
-                if (component == null || PlainTextComponentSerializer.plainText().serialize(component).isBlank()) {
+                if (component == null) {
                     itemStack.remove(net.minecraft.core.component.DataComponents.CUSTOM_NAME);
                     return;
                 }
@@ -189,7 +188,7 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
             @Override
             public void apply(Object item, Component component) {
                 ItemStack itemStack = (ItemStack) item;
-                if (component == null || PlainTextComponentSerializer.plainText().serialize(component).isBlank()) {
+                if (component == null) {
                     itemStack.remove(net.minecraft.core.component.DataComponents.ITEM_NAME);
                     return;
                 }

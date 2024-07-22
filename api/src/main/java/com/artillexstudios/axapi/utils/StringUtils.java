@@ -26,7 +26,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class StringUtils {
-    private static final Pattern HEX_PATTERN = Pattern.compile("(?<=&#)[0-9a-fA-F]{6}|(?<=#)[0-9a-fA-F]{6}");
+    private static final Pattern HEX_PATTERN = Pattern.compile("&#([0-9a-fA-F]{6})");
     private static final Pattern LEGACY_CLEANUP = Pattern.compile("&[a-fA-F0-9x]");
     private static final Pattern UNUSUAL_LEGACY_HEX_PATTERN = Pattern.compile("&x&([a-fA-F0-9])&([a-fA-F0-9])&([a-fA-F0-9])&([a-fA-F0-9])&([a-fA-F0-9])&([a-fA-F0-9])");
     private static final FastFieldAccessor TEXT = FastFieldAccessor.forClassField(Matcher.class, "text");
@@ -69,6 +69,10 @@ public class StringUtils {
     }
 
     public static Component format(@NotNull String input, @NotNull TagResolver... resolvers) {
+        if (FeatureFlags.USE_LEGACY_HEX_FORMATTER.get()) {
+            return LEGACY_COMPONENT_SERIALIZER.deserialize(formatToString(input, resolvers)).applyFallbackStyle(TextDecoration.ITALIC.withState(false));
+        }
+
         // I will probably have to improve the performance of this code by a large margin...
         String formatted = COLOR_CACHE.get(input, str -> {
             String toFormat = str.replace('\u00a7', '&');
@@ -79,7 +83,7 @@ public class StringUtils {
             toFormat = replaceLegacyFormat(toFormat, "&o", "<i>", "</i>");
             toFormat = replaceLegacyFormat(toFormat, "&k", "<obf>", "</obf>");
 
-            toFormat = replaceAll(HEX_PATTERN.matcher(toFormat), fo -> "<#" + fo.group(0) + ">").replace("&#", "");
+            toFormat = replaceAll(HEX_PATTERN.matcher(toFormat), fo -> "<#" + fo.group(1) + ">");
             toFormat = replaceAll(UNUSUAL_LEGACY_HEX_PATTERN.matcher(toFormat), fo -> "<#" + fo.group(0) + fo.group(1) + fo.group(2) + fo.group(3) + fo.group(4) + fo.group(5) + ">");
             toFormat = replaceAll(UNUSUAL_LEGACY_HEX_PATTERN.matcher(toFormat), fo -> "");
 
@@ -100,6 +104,11 @@ public class StringUtils {
     }
 
     public static String formatToString(@NotNull String string, @NotNull TagResolver... resolvers) {
+        if (FeatureFlags.USE_LEGACY_HEX_FORMATTER.get()) {
+            String changed = string.replace("§", "&");
+            return ChatColor.translateAlternateColorCodes('&', legacyHexFormat(LEGACY_COMPONENT_SERIALIZER.serialize(MINI_MESSAGE.deserialize(changed, resolvers))));
+        }
+
         return LegacyTranslator.flatten(format(string, resolvers));
     }
 
@@ -168,6 +177,23 @@ public class StringUtils {
         }
 
         return toFormat;
+    }
+
+    // Thanks! https://www.spigotmc.org/threads/hex-color-code-translate.449748/
+    public static String legacyHexFormat(String message) {
+        Matcher matcher = HEX_PATTERN.matcher(message);
+        StringBuffer builder = new StringBuffer(message.length() + 4 * 8);
+
+        while (matcher.find()) {
+            String group = matcher.group(1);
+            matcher.appendReplacement(builder, ChatColor.COLOR_CHAR + "x"
+                    + ChatColor.COLOR_CHAR + group.charAt(0) + ChatColor.COLOR_CHAR + group.charAt(1)
+                    + ChatColor.COLOR_CHAR + group.charAt(2) + ChatColor.COLOR_CHAR + group.charAt(3)
+                    + ChatColor.COLOR_CHAR + group.charAt(4) + ChatColor.COLOR_CHAR + group.charAt(5)
+            );
+        }
+
+        return matcher.appendTail(builder).toString();
     }
 
     public static String replaceAll(@NotNull Matcher matcher, @NotNull Function<MatchResult, String> replacer) {

@@ -22,6 +22,7 @@ public class YamlUtils {
         for (String suggestion : suggestions) {
             Bukkit.getConsoleSender().sendMessage(StringUtils.formatToString("<color:#ff0000> - <white>" + suggestion));
         }
+
         return false;
     }
 }

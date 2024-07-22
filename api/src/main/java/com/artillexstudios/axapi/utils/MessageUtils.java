@@ -36,9 +36,9 @@ public class MessageUtils {
         }
 
         if (sender instanceof Player) {
-            NMSHandlers.getNmsHandler().sendMessage((Player) sender, StringUtils.format(prefix +message, resolvers));
+            NMSHandlers.getNmsHandler().sendMessage((Player) sender, StringUtils.format(prefix + message, resolvers));
         } else {
-            sender.sendMessage(StringUtils.formatToString(message, resolvers));
+            sender.sendMessage(StringUtils.formatToString(prefix + message, resolvers));
         }
     }
 

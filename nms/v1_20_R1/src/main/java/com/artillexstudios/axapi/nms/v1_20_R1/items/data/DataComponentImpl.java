@@ -12,7 +12,6 @@ import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.google.common.base.Preconditions;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.IntTag;
@@ -216,7 +215,7 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
             public void apply(Object item, Component component) {
                 ItemStack itemStack = (ItemStack) item;
                 net.minecraft.nbt.CompoundTag tag = itemStack.getOrCreateTag();
-                if (component == null || PlainTextComponentSerializer.plainText().serialize(component).isBlank()) {
+                if (component == null) {
                     setDisplayTag(tag, "Name", null);
                     return;
                 }
@@ -254,7 +253,7 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
             public void apply(Object item, Component component) {
                 ItemStack itemStack = (ItemStack) item;
                 net.minecraft.nbt.CompoundTag tag = itemStack.getOrCreateTag();
-                if (component == null || PlainTextComponentSerializer.plainText().serialize(component).isBlank()) {
+                if (component == null) {
                     setDisplayTag(tag, "Name", null);
                     return;
                 }
