@@ -4,6 +4,7 @@ import com.artillexstudios.axapi.gui.SignInput;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.component.DataComponentImpl;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
+import com.artillexstudios.axapi.loot.LootTable;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
 import com.artillexstudios.axapi.selection.ParallelBlockSetter;
 import com.artillexstudios.axapi.selection.BlockSetter;
@@ -13,6 +14,7 @@ import com.artillexstudios.axapi.utils.BossBar;
 import com.artillexstudios.axapi.utils.DebugMarker;
 import com.artillexstudios.axapi.utils.Pair;
 import com.artillexstudios.axapi.utils.Title;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -81,4 +83,6 @@ public interface NMSHandler {
     double getBase(Player player, Attribute attribute);
 
     Player dummyPlayer();
+
+    LootTable lootTable(Key key);
 }

@@ -3,6 +3,7 @@ package com.artillexstudios.axapi.nms.v1_20_R1;
 import com.artillexstudios.axapi.gui.SignInput;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.component.DataComponentImpl;
+import com.artillexstudios.axapi.loot.LootTable;
 import com.artillexstudios.axapi.nms.v1_20_R1.packet.PacketListener;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
 import com.artillexstudios.axapi.selection.BlockSetter;
@@ -20,6 +21,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Dynamic;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.core.BlockPos;
@@ -327,6 +329,11 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     @Override
     public Player dummyPlayer() {
         return new ServerPlayer(MinecraftServer.getServer(), ((CraftWorld) Bukkit.getWorlds().get(0)).getHandle(), new GameProfile(UUID.randomUUID(), "dummy")).getBukkitEntity();
+    }
+
+    @Override
+    public LootTable lootTable(Key key) {
+        return new com.artillexstudios.axapi.nms.v1_20_R1.loot.LootTable(key);
     }
 
     public String toGson(Component component) {
