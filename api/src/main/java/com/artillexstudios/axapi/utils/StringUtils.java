@@ -27,7 +27,6 @@ import java.util.regex.Pattern;
 
 public class StringUtils {
     private static final Pattern HEX_PATTERN = Pattern.compile("&#([0-9a-fA-F]{6})");
-    private static final Pattern LEGACY_CLEANUP = Pattern.compile("&[a-fA-F0-9x]");
     private static final Pattern UNUSUAL_LEGACY_HEX_PATTERN = Pattern.compile("&x&([a-fA-F0-9])&([a-fA-F0-9])&([a-fA-F0-9])&([a-fA-F0-9])&([a-fA-F0-9])&([a-fA-F0-9])");
     private static final FastFieldAccessor TEXT = FastFieldAccessor.forClassField(Matcher.class, "text");
     private static final ObjectImmutableList<Pair<String, String>> COLOR_FORMATS = ObjectImmutableList.of(
@@ -70,6 +69,8 @@ public class StringUtils {
 
     public static Component format(@NotNull String input, @NotNull TagResolver... resolvers) {
         if (FeatureFlags.USE_LEGACY_HEX_FORMATTER.get()) {
+            input = ItemBuilder.toTagResolver(input, resolvers);
+
             return LEGACY_COMPONENT_SERIALIZER.deserialize(formatToString(input, resolvers)).applyFallbackStyle(TextDecoration.ITALIC.withState(false));
         }
 
@@ -109,7 +110,7 @@ public class StringUtils {
             return ChatColor.translateAlternateColorCodes('&', legacyHexFormat(LEGACY_COMPONENT_SERIALIZER.serialize(MINI_MESSAGE.deserialize(changed, resolvers))));
         }
 
-        return LegacyTranslator.flatten(format(string, resolvers));
+        return LEGACY_COMPONENT_SERIALIZER.serialize(format(string, resolvers));
     }
 
     public static String formatToString(@NotNull String string, @NotNull Map<String, String> replacements) {
