@@ -22,7 +22,7 @@ public class SignInput {
         this.listener = listener;
 
         Location location = player.getLocation().clone();
-        this.location = location.clone().set(location.getX(), location.getBlockY() + 4, location.getZ());
+        this.location = location.clone().add(0, 4, 0);
     }
 
     public void open() {
