@@ -4,14 +4,16 @@ import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
 import com.artillexstudios.axapi.reflection.FastFieldAccessor;
 import com.artillexstudios.axapi.utils.Version;
+import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrays;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ReferenceSets;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import java.util.List;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -19,98 +21,106 @@ public final class EntityTracker {
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     private final ReentrantReadWriteLock.ReadLock readLock = lock.readLock();
     private final ReentrantReadWriteLock.WriteLock writeLock = lock.writeLock();
-    private final Int2ObjectMap<TrackedEntity> entityMap = new Int2ObjectOpenHashMap<>();
+    private final Int2ObjectMap<TrackedEntity> entityMap = new Int2ObjectLinkedOpenHashMap<>();
     private final FastFieldAccessor accessor = FastFieldAccessor.forClassField(String.format("com.artillexstudios.axapi.nms.%s.entity.PacketEntity", Version.getServerVersion().nmsVersion), "tracker");
 
     public PacketEntity getById(int id) {
-        readLock.lock();
+        this.readLock.lock();
         try {
-            TrackedEntity entity = entityMap.get(id);
+            TrackedEntity entity = this.entityMap.get(id);
             return entity == null ? null : entity.entity;
         } finally {
-            readLock.unlock();
+            this.readLock.unlock();
         }
     }
 
     public void addEntity(PacketEntity entity) {
         TrackedEntity trackedEntity = new TrackedEntity(entity);
-        accessor.set(entity, trackedEntity);
+        this.accessor.set(entity, trackedEntity);
 
-        writeLock.lock();
+        this.writeLock.lock();
         try {
-            entityMap.put(entity.id(), trackedEntity);
+            this.entityMap.put(entity.id(), trackedEntity);
 
             trackedEntity.updateTracking(trackedEntity.getPlayersInTrackingRange());
         } finally {
-            writeLock.unlock();
+            this.writeLock.unlock();
         }
     }
 
     public void removeEntity(PacketEntity entity) {
-        writeLock.lock();
+        this.writeLock.lock();
         try {
-            TrackedEntity trackedEntity = entityMap.remove(entity.id());
+            TrackedEntity trackedEntity = this.entityMap.remove(entity.id());
 
             if (trackedEntity != null) {
                 trackedEntity.broadcastRemove();
             }
 
-            accessor.set(entity, null);
+            this.accessor.set(entity, null);
         } finally {
-            writeLock.unlock();
+            this.writeLock.unlock();
         }
     }
 
     public void untrackFor(Player player) {
-        readLock.lock();
+        this.readLock.lock();
         try {
-            for (Int2ObjectMap.Entry<TrackedEntity> value : entityMap.int2ObjectEntrySet()) {
+            for (Int2ObjectMap.Entry<TrackedEntity> value : this.entityMap.int2ObjectEntrySet()) {
                 TrackedEntity tracker = value.getValue();
                 tracker.untrack(player);
             }
         } finally {
-            readLock.unlock();
+            this.readLock.unlock();
         }
     }
 
     public void process() {
-        readLock.lock();
+        this.readLock.lock();
         try {
-            for (TrackedEntity entity : entityMap.values()) {
+            for (TrackedEntity entity : this.entityMap.values()) {
                 entity.updateTracking(entity.getPlayersInTrackingRange());
                 entity.entity.sendChanges();
             }
         } finally {
-            readLock.unlock();
+            this.readLock.unlock();
         }
     }
 
     public static class TrackedEntity {
         public final Set<Player> seenBy = ReferenceSets.synchronize(new ReferenceOpenHashSet<>());
         private final PacketEntity entity;
-        private List<Player> lastTrackerCandidates;
+        private final World world;
+        private Player[] lastTrackerCandidates;
 
         public TrackedEntity(PacketEntity entity) {
             this.entity = entity;
+            this.world = this.entity.location().getWorld();
         }
 
-        public void updateTracking(List<Player> newTrackerCandidates) {
-            List<Player> oldTrackerCandidates = this.lastTrackerCandidates;
+        public void updateTracking(Player[] newTrackerCandidates) {
+            Player[] oldTrackerCandidates = this.lastTrackerCandidates;
             this.lastTrackerCandidates = newTrackerCandidates;
 
-            Location location = new Location(entity.location().getWorld(), 0, 0, 0);
+            Location location = null;
             if (newTrackerCandidates != null) {
+                location = new Location(this.entity.location().getWorld(), 0, 0, 0);
+
                 for (Player raw : newTrackerCandidates) {
                     this.updatePlayer(raw, raw.getLocation(location));
                 }
             }
 
-            if (oldTrackerCandidates != null && oldTrackerCandidates.equals(newTrackerCandidates)) {
+            if (oldTrackerCandidates != null && Arrays.equals(oldTrackerCandidates, newTrackerCandidates)) {
                 return;
             }
 
-            for (Player player : seenBy) {
-                if (newTrackerCandidates == null || !newTrackerCandidates.contains(player)) {
+            if (location == null) {
+                location = new Location(this.entity.location().getWorld(), 0, 0, 0);
+            }
+
+            for (Player player : this.seenBy) {
+                if (newTrackerCandidates == null || ObjectArrays.binarySearch(newTrackerCandidates, player) < 0) {
                     this.updatePlayer(player, player.getLocation(location));
                 }
             }
@@ -123,27 +133,29 @@ public final class EntityTracker {
             boolean flag = d1 <= 32 * 32;
 
 
-            if (flag && !entity.canSee(player)) {
+            if (flag && !this.entity.canSee(player)) {
                 flag = false;
             }
 
             if (flag) {
                 if (this.seenBy.add(player)) {
-                    entity.addPairing(player);
+                    this.entity.addPairing(player);
                 }
             } else if (this.seenBy.remove(player)) {
-                entity.removePairing(player);
+                this.entity.removePairing(player);
             }
         }
 
         public void untrack(Player player) {
-            if (!this.seenBy.remove(player)) return;
+            if (!this.seenBy.remove(player)) {
+                return;
+            }
 
-            entity.removePairing(player);
+            this.entity.removePairing(player);
         }
 
-        public List<Player> getPlayersInTrackingRange() {
-            return entity.location().getWorld().getPlayers();
+        public Player[] getPlayersInTrackingRange() {
+            return NMSHandlers.getNmsHandler().players(this.world);
         }
 
         public void broadcast(Object packet) {
@@ -154,7 +166,7 @@ public final class EntityTracker {
 
         public void broadcastRemove() {
             for (Player player : this.seenBy) {
-                entity.removePairing(player);
+                this.entity.removePairing(player);
             }
         }
     }

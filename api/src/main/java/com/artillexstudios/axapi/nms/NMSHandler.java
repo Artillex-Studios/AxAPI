@@ -28,6 +28,8 @@ import org.bukkit.inventory.ItemStack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 public interface NMSHandler {
     Logger log = LoggerFactory.getLogger(NMSHandler.class);
     String PACKET_HANDLER = "packet_handler";
@@ -85,4 +87,6 @@ public interface NMSHandler {
     Player dummyPlayer();
 
     LootTable lootTable(Key key);
+
+    Player[] players(World world);
 }

@@ -46,7 +46,7 @@ public abstract class AxPlugin extends JavaPlugin {
 
         if (hasNMSHandler) {
             if (tracker != null) {
-                Executors.newScheduledThreadPool(FeatureFlags.PACKET_ENTITY_TRACKER_THREADS.get(), new ThreadFactoryBuilder().setUncaughtExceptionHandler((thread, exception) -> log.error("Thread {} threw an uncaught exception!", thread, exception)).build()).scheduleAtFixedRate(() -> {
+                Executors.newScheduledThreadPool(FeatureFlags.PACKET_ENTITY_TRACKER_THREADS.get(), new ThreadFactoryBuilder().setNameFormat(this.getName() + "-EntityTracker-%s").setUncaughtExceptionHandler((thread, exception) -> log.error("Thread {} threw an uncaught exception!", thread, exception)).build()).scheduleAtFixedRate(() -> {
                     try {
                         tracker.process();
                     } catch (Exception exception) {

@@ -6,6 +6,7 @@ import com.artillexstudios.axapi.items.component.DataComponentImpl;
 import com.artillexstudios.axapi.loot.LootTable;
 import com.artillexstudios.axapi.nms.v1_19_R2.packet.PacketListener;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
+import com.artillexstudios.axapi.reflection.FastFieldAccessor;
 import com.artillexstudios.axapi.selection.BlockSetter;
 import com.artillexstudios.axapi.selection.ParallelBlockSetter;
 import com.artillexstudios.axapi.serializers.Serializer;
@@ -40,6 +41,7 @@ import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
 import net.minecraft.network.protocol.game.ClientboundOpenSignEditorPacket;
 import net.minecraft.network.protocol.game.ClientboundSystemChatPacket;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.entity.Entity;
@@ -67,12 +69,15 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
+    private static final FastFieldAccessor ELEMENT_DATA = FastFieldAccessor.forClassField(ArrayList.class, "elementData");
     private final String AXAPI_HANDLER;
     private Field channelField;
     private AtomicInteger entityCounter;
@@ -328,6 +333,23 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     @Override
     public LootTable lootTable(Key key) {
         return new com.artillexstudios.axapi.nms.v1_19_R2.loot.LootTable(key);
+    }
+
+    @Override
+    public Player[] players(World world) {
+        CraftWorld craftWorld = (CraftWorld) world;
+        ServerLevel level = craftWorld.getHandle();
+        List<ServerPlayer> players = level.players();
+        Object[] serverPlayers = ELEMENT_DATA.get(players);
+
+        int size = serverPlayers.length;
+        Player[] array = new Player[size];
+        for (int i = 0; i < size; i++) {
+            ServerPlayer serverPlayer = (ServerPlayer) serverPlayers[i];
+            array[i] = serverPlayer.getBukkitEntity();
+        }
+
+        return array;
     }
 
     public String toGson(Component component) {
