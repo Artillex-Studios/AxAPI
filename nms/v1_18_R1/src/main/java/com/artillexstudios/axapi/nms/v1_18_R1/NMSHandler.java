@@ -22,6 +22,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Dynamic;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
@@ -337,24 +338,24 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     }
 
     @Override
-    public Player[] players(World world) {
+    public List<Player> players(World world) {
         CraftWorld craftWorld = (CraftWorld) world;
         ServerLevel level = craftWorld.getHandle();
         List<ServerPlayer> players = level.players();
         Object[] serverPlayers = ELEMENT_DATA.get(players);
 
         int size = serverPlayers.length;
-        Player[] array = new Player[size];
+        List<Player> playerList = new ObjectArrayList<>(size);
         for (int i = 0; i < size; i++) {
             ServerPlayer serverPlayer = (ServerPlayer) serverPlayers[i];
             if (serverPlayer == null) {
                 continue;
             }
 
-            array[i] = serverPlayer.getBukkitEntity();
+            playerList.add(serverPlayer.getBukkitEntity());
         }
 
-        return array;
+        return playerList;
     }
 
     public String toGson(Component component) {

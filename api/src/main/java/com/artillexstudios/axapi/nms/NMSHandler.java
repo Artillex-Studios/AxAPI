@@ -88,5 +88,5 @@ public interface NMSHandler {
 
     LootTable lootTable(Key key);
 
-    Player[] players(World world);
+    List<Player> players(World world);
 }

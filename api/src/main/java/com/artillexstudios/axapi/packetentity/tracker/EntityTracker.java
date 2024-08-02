@@ -14,6 +14,9 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -91,15 +94,15 @@ public final class EntityTracker {
         public final Set<Player> seenBy = ReferenceSets.synchronize(new ReferenceOpenHashSet<>());
         private final PacketEntity entity;
         private final World world;
-        private Player[] lastTrackerCandidates;
+        private List<Player> lastTrackerCandidates;
 
         public TrackedEntity(PacketEntity entity) {
             this.entity = entity;
             this.world = this.entity.location().getWorld();
         }
 
-        public void updateTracking(Player[] newTrackerCandidates) {
-            Player[] oldTrackerCandidates = this.lastTrackerCandidates;
+        public void updateTracking(List<Player> newTrackerCandidates) {
+            List<Player> oldTrackerCandidates = this.lastTrackerCandidates;
             this.lastTrackerCandidates = newTrackerCandidates;
 
             Location location = null;
@@ -111,7 +114,7 @@ public final class EntityTracker {
                 }
             }
 
-            if (oldTrackerCandidates != null && Arrays.equals(oldTrackerCandidates, newTrackerCandidates)) {
+            if (oldTrackerCandidates != null && Objects.equals(this.lastTrackerCandidates, newTrackerCandidates)) {
                 return;
             }
 
@@ -120,7 +123,7 @@ public final class EntityTracker {
             }
 
             for (Player player : this.seenBy) {
-                if (newTrackerCandidates == null || ObjectArrays.binarySearch(newTrackerCandidates, player) < 0) {
+                if (newTrackerCandidates == null || !newTrackerCandidates.contains(player)) {
                     this.updatePlayer(player, player.getLocation(location));
                 }
             }
@@ -131,7 +134,6 @@ public final class EntityTracker {
             double dz = location.getZ() - this.entity.location().getZ();
             double d1 = dx * dx + dz * dz;
             boolean flag = d1 <= 32 * 32;
-
 
             if (flag && !this.entity.canSee(player)) {
                 flag = false;
@@ -154,7 +156,7 @@ public final class EntityTracker {
             this.entity.removePairing(player);
         }
 
-        public Player[] getPlayersInTrackingRange() {
+        public List<Player> getPlayersInTrackingRange() {
             return NMSHandlers.getNmsHandler().players(this.world);
         }
 
