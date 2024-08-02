@@ -58,7 +58,6 @@ import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.craftbukkit.v1_20_R3.CraftServer;
 import org.bukkit.craftbukkit.v1_20_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_20_R3.attribute.CraftAttribute;
 import org.bukkit.craftbukkit.v1_20_R3.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftContainer;
@@ -353,6 +352,9 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
         Player[] array = new Player[size];
         for (int i = 0; i < size; i++) {
             ServerPlayer serverPlayer = (ServerPlayer) serverPlayers[i];
+            if (serverPlayer == null) {
+                continue;
+            }
             array[i] = serverPlayer.getBukkitEntity();
         }
 

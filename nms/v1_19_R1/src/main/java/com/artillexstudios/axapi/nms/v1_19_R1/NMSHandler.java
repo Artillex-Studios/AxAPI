@@ -346,6 +346,10 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
         Player[] array = new Player[size];
         for (int i = 0; i < size; i++) {
             ServerPlayer serverPlayer = (ServerPlayer) serverPlayers[i];
+            if (serverPlayer == null) {
+                continue;
+            }
+
             array[i] = serverPlayer.getBukkitEntity();
         }
 
