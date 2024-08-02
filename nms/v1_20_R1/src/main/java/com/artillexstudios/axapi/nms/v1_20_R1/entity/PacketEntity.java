@@ -36,6 +36,7 @@ import net.minecraft.network.protocol.game.VecDeltaCodec;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
@@ -331,6 +332,14 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
         this.tracker.broadcast(new ClientboundSetPassengersPacket(buf));
         buf.release();
         this.riddenEntityId = -1;
+    }
+
+    @Override
+    public void rotate(float yaw, float pitch) {
+        this.location.setYaw(yaw);
+        this.location.setPitch(pitch);
+
+        this.tracker.broadcast(new ClientboundMoveEntityPacket.Rot(this.id, (byte) Mth.floor(yaw * 256.0F / 360.0F), (byte) Mth.floor(pitch * 256.0F / 360.0F), true));
     }
 
     @Override

@@ -76,5 +76,7 @@ public interface PacketEntity {
 
     void unRide(int entityId);
 
+    void rotate(float yaw, float pitch);
+
     void update();
 }
