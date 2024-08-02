@@ -1,5 +1,8 @@
 package com.artillexstudios.axapi.nms.v1_19_R3.items.nbt;
 
+import com.artillexstudios.axapi.items.nbt.Tag;
+import net.minecraft.nbt.ListTag;
+
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -12,8 +15,8 @@ public class CompoundTag implements com.artillexstudios.axapi.items.nbt.Compound
     }
 
     @Override
-    public void put(String key, com.artillexstudios.axapi.items.nbt.CompoundTag tag) {
-        parent.put(key, (net.minecraft.nbt.CompoundTag) tag.getParent());
+    public void put(String key, Tag tag) {
+        parent.put(key, tag.getParent() instanceof net.minecraft.nbt.CompoundTag compoundTag ? compoundTag : (ListTag) tag.getParent());
     }
 
     @Override
@@ -163,6 +166,11 @@ public class CompoundTag implements com.artillexstudios.axapi.items.nbt.Compound
     @Override
     public com.artillexstudios.axapi.items.nbt.CompoundTag getCompound(String key) {
         return new CompoundTag(parent.getCompound(key));
+    }
+
+    @Override
+    public com.artillexstudios.axapi.items.nbt.ListTag getList(String key) {
+        return new com.artillexstudios.axapi.nms.v1_19_R3.items.nbt.ListTag(parent.getList(key, 10));
     }
 
     @Override

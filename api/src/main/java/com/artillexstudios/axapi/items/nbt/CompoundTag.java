@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-public interface CompoundTag {
+public interface CompoundTag extends Tag {
 
     static CompoundTag create() {
         return NMSHandlers.getNmsHandler().newTag();
     }
 
-    void put(String key, CompoundTag tag);
+    void put(String key, Tag tag);
 
     void putByte(String key, byte value);
 
@@ -72,6 +72,8 @@ public interface CompoundTag {
 
     CompoundTag getCompound(String key);
 
+    ListTag getList(String key);
+
     boolean getBoolean(String key);
 
     void remove(String key);
@@ -79,6 +81,4 @@ public interface CompoundTag {
     boolean isEmpty();
 
     Set<String> getAllKeys();
-
-    Object getParent();
 }
