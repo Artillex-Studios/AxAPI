@@ -71,6 +71,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     private boolean visibleByDefault = true;
     private int riddenEntityId = -1;
     private Consumer<PacketEntityInteractEvent> interactConsumer;
+    private boolean hasInvertedVisibility = false;
 
     public PacketEntity(EntityType entityType, Location location) {
         this.id = NMSHandlers.getNmsHandler().nextEntityId();
@@ -137,8 +138,13 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     public void hide(Player player) {
         if (this.visibleByDefault) {
             this.invertedVisibilityEntities.add(player);
+            this.hasInvertedVisibility = true;
         } else {
             this.invertedVisibilityEntities.remove(player);
+
+            if (this.invertedVisibilityEntities.isEmpty()) {
+                this.hasInvertedVisibility = false;
+            }
         }
     }
 
@@ -146,8 +152,13 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     public void show(Player player) {
         if (this.visibleByDefault) {
             this.invertedVisibilityEntities.remove(player);
+
+            if (this.invertedVisibilityEntities.isEmpty()) {
+                this.hasInvertedVisibility = false;
+            }
         } else {
             this.invertedVisibilityEntities.add(player);
+            this.hasInvertedVisibility = true;
         }
     }
 
@@ -288,6 +299,10 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     // TODO: Reimplement predicates here
     @Override
     public boolean canSee(Player player) {
+        if (!this.hasInvertedVisibility) {
+            return true;
+        }
+
         return this.visibleByDefault ^ this.invertedVisibilityEntities.contains(player);
     }
 
