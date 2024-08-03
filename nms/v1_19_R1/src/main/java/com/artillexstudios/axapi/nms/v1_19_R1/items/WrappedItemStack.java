@@ -15,7 +15,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
     private final org.bukkit.inventory.ItemStack bukkitStack;
 
     public WrappedItemStack(org.bukkit.inventory.ItemStack itemStack) {
-        this.parent = itemStack.getType().isAir() ? ItemStack.EMPTY : CraftItemStack.asNMSCopy(itemStack);
+        this.parent = itemStack.getType().isAir() ? ItemStack.EMPTY : itemStack instanceof CraftItemStack ? HANDLE_ACCESSOR.get(itemStack) : CraftItemStack.asNMSCopy(itemStack);
         bukkitStack = itemStack;
     }
 

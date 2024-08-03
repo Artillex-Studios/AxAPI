@@ -78,7 +78,9 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
         }
 
         if (CraftItemStack.class.isAssignableFrom(bukkitStack.getClass())) {
-            parent.setTag(tag);
+            CraftItemStack craftItemStack = (CraftItemStack) bukkitStack;
+            ItemStack handle = HANDLE_ACCESSOR.get(craftItemStack);
+            handle.setTag(tag);
         } else {
             parent.setTag(tag);
             org.bukkit.inventory.ItemStack bukkitItem = CraftItemStack.asCraftMirror(parent);
