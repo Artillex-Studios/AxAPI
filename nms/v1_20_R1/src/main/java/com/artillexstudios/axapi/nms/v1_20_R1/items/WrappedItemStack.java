@@ -15,7 +15,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
     private final org.bukkit.inventory.ItemStack bukkitStack;
 
     public WrappedItemStack(org.bukkit.inventory.ItemStack itemStack) {
-        this.parent = itemStack.getType().isAir() ? ItemStack.EMPTY : CraftItemStack.asNMSCopy(itemStack);
+        this.parent = itemStack.getType().isAir() ? ItemStack.EMPTY : itemStack instanceof CraftItemStack ? HANDLE_ACCESSOR.get(itemStack) : CraftItemStack.asNMSCopy(itemStack);
         bukkitStack = itemStack;
     }
 
@@ -78,9 +78,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
         }
 
         if (CraftItemStack.class.isAssignableFrom(bukkitStack.getClass())) {
-            CraftItemStack craftItemStack = (CraftItemStack) bukkitStack;
-            ItemStack handle = HANDLE_ACCESSOR.get(craftItemStack);
-            handle.setTag(tag);
+            parent.setTag(tag);
         } else {
             parent.setTag(tag);
             org.bukkit.inventory.ItemStack bukkitItem = CraftItemStack.asCraftMirror(parent);
