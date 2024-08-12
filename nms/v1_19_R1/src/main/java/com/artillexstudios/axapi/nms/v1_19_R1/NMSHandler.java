@@ -61,7 +61,6 @@ import org.bukkit.craftbukkit.v1_19_R1.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftContainer;
 import org.bukkit.craftbukkit.v1_19_R1.util.CraftMagicNumbers;
-import org.bukkit.craftbukkit.v1_19_R1.util.CraftNamespacedKey;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -71,6 +70,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -341,17 +341,24 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
         CraftWorld craftWorld = (CraftWorld) world;
         ServerLevel level = craftWorld.getHandle();
         List<ServerPlayer> players = level.players();
-        Object[] serverPlayers = ELEMENT_DATA.get(players);
-
-        int size = serverPlayers.length;
+        int size = players.size();
         List<Player> playerList = new ObjectArrayList<>(size);
-        for (int i = 0; i < size; i++) {
-            ServerPlayer serverPlayer = (ServerPlayer) serverPlayers[i];
-            if (serverPlayer == null) {
-                continue;
-            }
 
-            playerList.add(serverPlayer.getBukkitEntity());
+        if (players instanceof ArrayList<ServerPlayer> arrayList) {
+            Object[] serverPlayers = ELEMENT_DATA.get(arrayList);
+
+            for (int i = 0; i < size; i++) {
+                ServerPlayer serverPlayer = (ServerPlayer) serverPlayers[i];
+                if (serverPlayer == null) {
+                    continue;
+                }
+
+                playerList.add(serverPlayer.getBukkitEntity());
+            }
+        } else if (players instanceof LinkedList<ServerPlayer> linkedList) {
+            for (ServerPlayer serverPlayer : linkedList.toArray(new ServerPlayer[0])) {
+                playerList.add(serverPlayer.getBukkitEntity());
+            }
         }
 
         return playerList;

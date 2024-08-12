@@ -1,8 +1,8 @@
 package com.artillexstudios.axapi.utils;
 
 import com.artillexstudios.axapi.nms.NMSHandlers;
+import com.artillexstudios.axapi.reflection.FastMethodInvoker;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.Arrays;
@@ -10,17 +10,17 @@ import java.util.Collections;
 import java.util.List;
 
 public enum Version {
-    v1_21(766, "v1_21_R1", Collections.singletonList("1.21")),
+    v1_21(767, "v1_21_R1", Arrays.asList("1.21", "1.21.1")),
     v1_20_4(766, "v1_20_R4", Arrays.asList("1.20.5", "1.20.6")),
     v1_20_3(765, "v1_20_R3", Arrays.asList("1.20.3", "1.20.4")),
     v1_20_2(764, "v1_20_R2", Collections.singletonList("1.20.2")),
-    v1_20_1(763, "v1_20_R1", Arrays.asList("1.20.1", "1.20")),
+    v1_20_1(763, "v1_20_R1", Arrays.asList("1.20", "1.20.1")),
     v1_19_3(762, "v1_19_R3", Collections.singletonList("1.19.4")),
     v1_19_2(761, "v1_19_R2", Collections.singletonList("1.19.3")),
     v1_19_1(760, "v1_19_R1", Arrays.asList("1.19.1", "1.19.2")),
     v1_19(759, "v1_19_R1", Collections.singletonList("1.19")),
     v1_18_2(758, "v1_18_R2", Collections.singletonList("1.18.2")),
-    v1_18(757, "v1_18_R1", Arrays.asList("1.18.1", "1.18")),
+    v1_18(757, "v1_18_R1", Arrays.asList("1.18", "1.18.1")),
     v1_17_1(756, "v1_17_R2", Collections.singletonList("1.17.1")),
     v1_17(755, "v1_17_R1", Collections.singletonList("1.17")),
     v1_16_5(754, "v1_16_R3", Collections.singletonList("1.16.5")),
@@ -30,13 +30,15 @@ public enum Version {
     private static Version serverVersion;
 
     static {
-        final String serverVersion = Bukkit.getServer().getBukkitVersion().split("-")[0];
+        final FastMethodInvoker methodInvoker = FastMethodInvoker.create("net.minecraft.SharedConstants", "c");
+        final int protocolVersion = methodInvoker.invoke(null);
 
         for (Version value : values()) {
             versionMap.put(value.protocolId, value);
 
-            if (value.versions.contains(serverVersion)) {
+            if (value.protocolId == protocolVersion) {
                 Version.serverVersion = value;
+                break;
             }
         }
 

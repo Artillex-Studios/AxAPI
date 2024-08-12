@@ -107,6 +107,7 @@ public class StringUtils {
     public static String formatToString(@NotNull String string, @NotNull TagResolver... resolvers) {
         if (FeatureFlags.USE_LEGACY_HEX_FORMATTER.get()) {
             String changed = string.replace("§", "&");
+            changed = ItemBuilder.toTagResolver(changed, resolvers);
             return ChatColor.translateAlternateColorCodes('&', legacyHexFormat(LEGACY_COMPONENT_SERIALIZER.serialize(MINI_MESSAGE.deserialize(changed, resolvers))));
         }
 
