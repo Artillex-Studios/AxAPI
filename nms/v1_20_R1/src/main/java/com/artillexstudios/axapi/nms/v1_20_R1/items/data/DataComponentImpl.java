@@ -20,6 +20,7 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import org.bukkit.Color;
@@ -664,12 +665,21 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
             public void apply(Object item, DyedColor dyedColor) {
                 ItemStack itemStack = (ItemStack) item;
                 net.minecraft.nbt.CompoundTag tag = itemStack.getOrCreateTag();
-                if (dyedColor == null) {
-                    tag.remove("Color");
-                    return;
-                }
+                if (itemStack.getItem() == Items.LEATHER_BOOTS || itemStack.getItem() == Items.LEATHER_LEGGINGS || itemStack.getItem() == Items.LEATHER_CHESTPLATE || itemStack.getItem() == Items.LEATHER_HELMET) {
+                    if (dyedColor == null) {
+                        tag.remove("Color");
+                        return;
+                    }
 
-                setDisplayTag(tag, "Color", IntTag.valueOf(dyedColor.rgb()));
+                    setDisplayTag(tag, "Color", IntTag.valueOf(dyedColor.rgb()));
+                } else {
+                    if (dyedColor == null) {
+                        tag.remove("CustomPotionColor");
+                        return;
+                    }
+
+                    tag.putInt("CustomPotionColor", dyedColor.rgb());
+                }
             }
 
             @Override
@@ -680,7 +690,11 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
                     return new DyedColor(Color.fromRGB(0), true);
                 }
 
-                return new DyedColor(Color.fromRGB(tag.getInt("Color")), hasItemFlag(tag, ItemFlag.HIDE_DYE));
+                if (itemStack.getItem() == Items.LEATHER_BOOTS || itemStack.getItem() == Items.LEATHER_LEGGINGS || itemStack.getItem() == Items.LEATHER_CHESTPLATE || itemStack.getItem() == Items.LEATHER_HELMET) {
+                    return new DyedColor(Color.fromRGB(tag.getInt("Color")), hasItemFlag(tag, ItemFlag.HIDE_DYE));
+                } else {
+                    return new DyedColor(Color.fromRGB(tag.getInt("CustomPotionColor")), hasItemFlag(tag, ItemFlag.HIDE_DYE));
+                }
             }
         };
     }
