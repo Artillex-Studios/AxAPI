@@ -3,18 +3,16 @@ package com.artillexstudios.axapi.packetentity.tracker;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
 import com.artillexstudios.axapi.reflection.FastFieldAccessor;
+import com.artillexstudios.axapi.utils.PaperUtils;
 import com.artillexstudios.axapi.utils.Version;
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrays;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ReferenceSets;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -26,6 +24,7 @@ public final class EntityTracker {
     private final ReentrantReadWriteLock.WriteLock writeLock = lock.writeLock();
     private final Int2ObjectMap<TrackedEntity> entityMap = new Int2ObjectLinkedOpenHashMap<>();
     private final FastFieldAccessor accessor = FastFieldAccessor.forClassField(String.format("com.artillexstudios.axapi.nms.%s.entity.PacketEntity", Version.getServerVersion().nmsVersion), "tracker");
+    private static final boolean folia = PaperUtils.isFolia();
 
     public PacketEntity getById(int id) {
         this.readLock.lock();
@@ -157,7 +156,7 @@ public final class EntityTracker {
         }
 
         public List<Player> getPlayersInTrackingRange() {
-            return NMSHandlers.getNmsHandler().players(this.world);
+            return folia ? this.world.getPlayers() : NMSHandlers.getNmsHandler().players(this.world);
         }
 
         public void broadcast(Object packet) {
