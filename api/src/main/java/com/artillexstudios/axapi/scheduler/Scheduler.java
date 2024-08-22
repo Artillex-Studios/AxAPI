@@ -65,5 +65,7 @@ public interface Scheduler {
 
     boolean isOwnedByCurrentRegion(Location location);
 
+    boolean isGlobalTickThread();
+
     void cancelAll();
 }

@@ -20,6 +20,7 @@ public class FoliaScheduler implements Scheduler {
 
     @Override
     public void run(Consumer<ScheduledTask> task) {
+        Bukkit.isGlobalTickThread();
         Bukkit.getGlobalRegionScheduler().run(this.plugin, (a) -> task.accept(new FoliaScheduledTask(a)));
     }
 
@@ -146,6 +147,11 @@ public class FoliaScheduler implements Scheduler {
     @Override
     public boolean isOwnedByCurrentRegion(Location location) {
         return Bukkit.isOwnedByCurrentRegion(location);
+    }
+
+    @Override
+    public boolean isGlobalTickThread() {
+        return Bukkit.isGlobalTickThread();
     }
 
     @Override

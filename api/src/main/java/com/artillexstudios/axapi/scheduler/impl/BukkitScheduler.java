@@ -147,6 +147,11 @@ public class BukkitScheduler implements Scheduler {
     }
 
     @Override
+    public boolean isGlobalTickThread() {
+        return Bukkit.isPrimaryThread();
+    }
+
+    @Override
     public void cancelAll() {
         Bukkit.getScheduler().cancelTasks(this.plugin);
     }
