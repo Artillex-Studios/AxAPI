@@ -78,5 +78,7 @@ public interface PacketEntity {
 
     void rotate(float yaw, float pitch);
 
+    void rotateHead(float yaw);
+
     void update();
 }

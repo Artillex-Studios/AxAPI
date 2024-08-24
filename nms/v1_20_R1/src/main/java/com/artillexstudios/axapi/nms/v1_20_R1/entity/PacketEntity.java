@@ -28,6 +28,7 @@ import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
+import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
@@ -72,6 +73,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     private int riddenEntityId = -1;
     private Consumer<PacketEntityInteractEvent> interactConsumer;
     private boolean hasInvertedVisibility = false;
+    private float yHeadRot = 0;
 
     public PacketEntity(EntityType entityType, Location location) {
         this.id = NMSHandlers.getNmsHandler().nextEntityId();
@@ -293,6 +295,12 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
             buf.release();
         }
 
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        buf.writeVarInt(this.id);
+        buf.writeByte((byte) Mth.floor(this.yHeadRot * 256.0F / 360.0F));
+        list.add(new ClientboundRotateHeadPacket(buf));
+        buf.release();
+
         serverPlayer.connection.send(new ClientboundBundlePacket(list));
     }
 
@@ -355,6 +363,18 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
         this.location.setPitch(pitch);
 
         this.tracker.broadcast(new ClientboundMoveEntityPacket.Rot(this.id, (byte) Mth.floor(yaw * 256.0F / 360.0F), (byte) Mth.floor(pitch * 256.0F / 360.0F), true));
+    }
+
+    @Override
+    public void rotateHead(float yaw) {
+        this.yHeadRot = yaw;
+
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        buf.writeVarInt(this.id);
+        buf.writeByte((byte) Mth.floor(yaw * 256.0F / 360.0F));
+        ClientboundRotateHeadPacket packet = new ClientboundRotateHeadPacket(buf);
+        this.tracker.broadcast(packet);
+        buf.release();
     }
 
     @Override

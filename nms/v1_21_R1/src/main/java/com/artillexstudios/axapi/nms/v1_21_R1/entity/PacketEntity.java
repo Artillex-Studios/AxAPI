@@ -19,8 +19,10 @@ import com.artillexstudios.axapi.utils.placeholder.Placeholder;
 import com.artillexstudios.axapi.utils.placeholder.StaticPlaceholder;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
+import io.netty.buffer.Unpooled;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.core.NonNullList;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -28,6 +30,7 @@ import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
+import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.protocol.game.VecDeltaCodec;
@@ -36,6 +39,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
@@ -71,6 +75,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     private int riddenEntityId = -1;
     private Consumer<PacketEntityInteractEvent> interactConsumer;
     private boolean hasInvertedVisibility = false;
+    private float yHeadRot = 0;
 
     public PacketEntity(EntityType entityType, Location location) {
         this.id = NMSHandlers.getNmsHandler().nextEntityId();
@@ -277,6 +282,12 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
             list.add(ClientboundSetPassengersWrapper.createNew(this.riddenEntityId, new int[]{this.id}));
         }
 
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        buf.writeVarInt(this.id);
+        buf.writeByte((byte) Mth.floor(this.yHeadRot * 256.0F / 360.0F));
+        list.add(ClientboundRotateHeadPacket.STREAM_CODEC.decode(buf));
+        buf.release();
+
         serverPlayer.connection.send(new ClientboundBundlePacket(list));
     }
 
@@ -310,7 +321,6 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
 
     @Override
     public void ride(int entityId) {
-        this.unRide(this.riddenEntityId);
         this.riddenEntityId = entityId;
         this.tracker.broadcast(ClientboundSetPassengersWrapper.createNew(this.riddenEntityId, new int[]{this.id}));
     }
@@ -331,6 +341,18 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
         this.location.setPitch(pitch);
 
         this.tracker.broadcast(new ClientboundMoveEntityPacket.Rot(this.id, (byte) Mth.floor(yaw * 256.0F / 360.0F), (byte) Mth.floor(pitch * 256.0F / 360.0F), true));
+    }
+
+    @Override
+    public void rotateHead(float yaw) {
+        this.yHeadRot = yaw;
+
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        buf.writeVarInt(this.id);
+        buf.writeByte((byte) Mth.floor(yaw * 256.0F / 360.0F));
+        ClientboundRotateHeadPacket packet = ClientboundRotateHeadPacket.STREAM_CODEC.decode(buf);
+        this.tracker.broadcast(packet);
+        buf.release();
     }
 
     @Override
