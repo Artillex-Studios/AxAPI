@@ -6,6 +6,7 @@ import com.artillexstudios.axapi.gui.SignInput;
 import com.artillexstudios.axapi.items.PacketItemModifier;
 import com.artillexstudios.axapi.nms.v1_20_R4.items.WrappedItemStack;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
+import com.artillexstudios.axapi.reflection.FastFieldAccessor;
 import com.artillexstudios.axapi.reflection.FastMethodInvoker;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.mojang.datafixers.util.Pair;
@@ -21,6 +22,7 @@ import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
+import net.minecraft.network.protocol.game.ClientboundMerchantOffersPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
@@ -30,6 +32,8 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.trading.MerchantOffer;
+import net.minecraft.world.item.trading.MerchantOffers;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
@@ -48,6 +52,7 @@ import java.util.List;
 public class PacketListener extends ChannelDuplexHandler {
     private static final Logger log = LoggerFactory.getLogger(PacketListener.class);
     private static final FastMethodInvoker methodInvoker = FastMethodInvoker.create("net.minecraft.network.protocol.game.PacketPlayInUseEntity", "a", FriendlyByteBuf.class);
+    private static final FastFieldAccessor merchantAccessor = FastFieldAccessor.forClassField(ClientboundMerchantOffersPacket.class, "c");
     private final Player player;
 
     public PacketListener(Player player) {
@@ -195,6 +200,25 @@ public class PacketListener extends ChannelDuplexHandler {
                             }
                         }
                     }
+                }
+
+                super.write(ctx, msg, promise);
+            }
+            case ClientboundMerchantOffersPacket packet -> {
+                if (PacketItemModifier.isListening()) {
+                    MerchantOffers offers = new MerchantOffers();
+                    for (MerchantOffer offer : packet.getOffers()) {
+                        MerchantOffer newOffer = offer.copy();
+
+                        PacketItemModifier.callModify(new WrappedItemStack(newOffer.baseCostA.itemStack()), player, PacketItemModifier.Context.MERCHANT_OFFER);
+                        newOffer.costB.ifPresent(cost -> {
+                            PacketItemModifier.callModify(new WrappedItemStack(cost.itemStack()), player, PacketItemModifier.Context.MERCHANT_OFFER);
+                        });
+                        PacketItemModifier.callModify(new WrappedItemStack(newOffer.result), player, PacketItemModifier.Context.MERCHANT_OFFER);
+                        offers.add(newOffer);
+                    }
+
+                    merchantAccessor.set(packet, offers);
                 }
 
                 super.write(ctx, msg, promise);

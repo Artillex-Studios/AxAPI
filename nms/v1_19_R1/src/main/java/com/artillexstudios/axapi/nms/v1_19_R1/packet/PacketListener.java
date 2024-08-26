@@ -6,6 +6,7 @@ import com.artillexstudios.axapi.gui.SignInput;
 import com.artillexstudios.axapi.items.PacketItemModifier;
 import com.artillexstudios.axapi.nms.v1_19_R1.items.WrappedItemStack;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
+import com.artillexstudios.axapi.reflection.FastFieldAccessor;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.mojang.datafixers.util.Pair;
 import io.netty.buffer.Unpooled;
@@ -17,6 +18,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
+import net.minecraft.network.protocol.game.ClientboundMerchantOffersPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
@@ -26,6 +28,8 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.trading.MerchantOffer;
+import net.minecraft.world.item.trading.MerchantOffers;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_19_R1.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
@@ -42,6 +46,7 @@ import java.util.List;
 
 public class PacketListener extends ChannelDuplexHandler {
     private static final Logger log = LoggerFactory.getLogger(PacketListener.class);
+    private static final FastFieldAccessor merchantAccessor = FastFieldAccessor.forClassField(ClientboundMerchantOffersPacket.class, "b");
     private final Player player;
 
     public PacketListener(Player player) {
@@ -156,6 +161,25 @@ public class PacketListener extends ChannelDuplexHandler {
                         PacketItemModifier.callModify(wrapped, player, PacketItemModifier.Context.DROPPED_ITEM);
                     }
                 }
+            }
+
+            super.write(ctx, msg, promise);
+        } else if (msg instanceof ClientboundMerchantOffersPacket packet) {
+            if (PacketItemModifier.isListening()) {
+                MerchantOffers offers = new MerchantOffers();
+                for (MerchantOffer offer : packet.getOffers()) {
+                    MerchantOffer newOffer = new MerchantOffer(offer.createTag());
+                    PacketItemModifier.callModify(new WrappedItemStack(newOffer.baseCostA), player, PacketItemModifier.Context.MERCHANT_OFFER);
+
+                    if (!newOffer.costB.isEmpty()) {
+                        PacketItemModifier.callModify(new WrappedItemStack(newOffer.costB), player, PacketItemModifier.Context.MERCHANT_OFFER);
+                    }
+
+                    PacketItemModifier.callModify(new WrappedItemStack(newOffer.result), player, PacketItemModifier.Context.MERCHANT_OFFER);
+                    offers.add(newOffer);
+                }
+
+                merchantAccessor.set(packet, offers);
             }
 
             super.write(ctx, msg, promise);

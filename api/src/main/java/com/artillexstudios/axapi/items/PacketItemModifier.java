@@ -41,6 +41,7 @@ public class PacketItemModifier {
         SET_SLOT,
         SET_CONTENTS,
         EQUIPMENT,
-        DROPPED_ITEM
+        DROPPED_ITEM,
+        MERCHANT_OFFER
     }
 }
