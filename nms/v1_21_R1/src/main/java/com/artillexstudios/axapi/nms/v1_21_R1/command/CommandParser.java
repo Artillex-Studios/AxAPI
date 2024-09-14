@@ -131,7 +131,7 @@ public class CommandParser {
                     counter++;
                 }
 
-                literal.then(l);
+                literal = literal.then(l);
             }
         }
 
