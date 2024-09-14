@@ -91,5 +91,7 @@ public interface NMSHandler {
 
     List<Player> players(World world);
 
-    void registerCommand(RegisterableCommand command);
+    default void registerCommand(RegisterableCommand command) {
+
+    }
 }
