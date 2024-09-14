@@ -1,5 +1,7 @@
 package com.artillexstudios.axapi.nms.v1_21_R1;
 
+import com.artillexstudios.axapi.commands.RegisterableCommand;
+import com.artillexstudios.axapi.commands.arguments.ArgumentType;
 import com.artillexstudios.axapi.gui.SignInput;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.component.DataComponentImpl;
@@ -358,6 +360,15 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
         }
 
         return playerList;
+    }
+
+    @Override
+    public void registerCommand(RegisterableCommand command) {
+
+    }
+
+    public void registerArgumentType(ArgumentType<?> type) {
+        // TODO:
     }
 
     private Channel getChannel(Connection connection) {

@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.nms;
 
+import com.artillexstudios.axapi.commands.RegisterableCommand;
 import com.artillexstudios.axapi.gui.SignInput;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.component.DataComponentImpl;
@@ -89,4 +90,6 @@ public interface NMSHandler {
     LootTable lootTable(Key key);
 
     List<Player> players(World world);
+
+    void registerCommand(RegisterableCommand command);
 }
