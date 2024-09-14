@@ -18,6 +18,8 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.world.entity.Entity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -28,6 +30,7 @@ import java.util.function.Function;
 public class CommandParser {
     private static final IdentityArrayMap<ArgumentType<?>, Pair<com.mojang.brigadier.arguments.ArgumentType<?>, Function<Pair<CommandContext<CommandSourceStack>, String>, Object>>> arguments = new IdentityArrayMap<>();
     private static final IdentityArrayMap<Class<?>, Function<Object, Object>> transformers = new IdentityArrayMap<>();
+    private static final Logger log = LoggerFactory.getLogger(CommandParser.class);
 
     static {
         arguments.put(Arguments.ENTITY, Pair.of(EntityArgument.entity(), s -> {
@@ -103,20 +106,24 @@ public class CommandParser {
 
             for (String s : subCommand.aliases()) {
                 ArgumentBuilder<CommandSourceStack, ?> l = Commands.literal(s);
+                ArgumentBuilder<CommandSourceStack, ?> last = l;
 
                 List<CommandArgument> args = subCommand.arguments();
                 int counter = 0;
                 for (CommandArgument argument : args) {
                     RequiredArgumentBuilder<CommandSourceStack, ?> arg = Commands.argument(argument.name(), arguments.get(argument.type()).getFirst());
 
-                    if (counter == args.size() - 1) {
+                    counter++;
+                    if (counter == args.size()) {
                         arg.executes(stack -> {
                             Method method = subCommand.method();
                             Object[] arguments = new Object[method.getParameterCount()];
                             arguments[0] = transformers.get(stack.getSource().getClass()).apply(stack.getSource());
                             int i = 1;
                             for (CommandArgument a : subCommand.arguments()) {
+                                log.info("Argument type: {}", a.type().getClass());
                                 Object returned = CommandParser.arguments.get(a.type()).getSecond().apply(Pair.of(stack, a.name()));
+                                log.info("Returned class type: {}", returned.getClass());
                                 arguments[i] = transformers.get(returned.getClass()).apply(returned);
                                 i++;
                             }
@@ -126,9 +133,8 @@ public class CommandParser {
                         });
                     }
 
-                    l.then(arg);
-                    l = arg;
-                    counter++;
+                    last.then(arg);
+                    last = arg;
                 }
 
                 literal = literal.then(l);
