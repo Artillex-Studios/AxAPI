@@ -3,6 +3,7 @@ package com.artillexstudios.axapi.commands;
 import com.artillexstudios.axapi.commands.arguments.Arguments;
 import com.artillexstudios.axapi.commands.exception.NotCommandException;
 import com.artillexstudios.axapi.nms.NMSHandlers;
+import org.bukkit.command.CommandSender;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -16,7 +17,8 @@ public class Commands {
         Object instance;
         try {
             instance = commandClass.getDeclaredConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                 NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
 
@@ -38,7 +40,14 @@ public class Commands {
     }
 
     private static void handleMethod(Method method, List<CommandArgument> arguments) {
-        for (Parameter parameter : method.getParameters()) {
+        Parameter[] parameters = method.getParameters();
+        for (int i = 0; i < parameters.length; i++) {
+            Parameter parameter = parameters[i];
+            if (i == 0 && CommandSender.class.isAssignableFrom(parameter.getType())) {
+                System.out.println("SKIPPING!");
+                continue;
+            }
+
             Named name = parameter.getAnnotation(Named.class);
             arguments.add(new CommandArgument(Arguments.parse(parameter), name != null ? name.value() : parameter.getName()));
         }
