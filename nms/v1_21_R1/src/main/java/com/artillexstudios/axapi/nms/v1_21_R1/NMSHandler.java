@@ -374,9 +374,6 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
         Commands commands = MinecraftServer.getServer().getCommands();
         LiteralCommandNode<CommandSourceStack> node = CommandParser.parse(command).build();
         commands.getDispatcher().getRoot().addChild(node);
-
-        VanillaCommandWrapper wrapper = new VanillaCommandWrapper(commands, node);
-        ((CraftServer) Bukkit.getServer()).getCommandMap().register(AxPlugin.getPlugin(AxPlugin.class).getName(), wrapper);
     }
 
     public void registerArgumentType(ArgumentType<?> type) {

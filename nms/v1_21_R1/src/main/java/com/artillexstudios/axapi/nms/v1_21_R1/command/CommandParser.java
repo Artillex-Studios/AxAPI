@@ -86,7 +86,7 @@ public class CommandParser {
 
         for (SubCommand subCommand : command.subCommands()) {
             if (subCommand.noArgs()) {
-                literal.executes(stack -> {
+                literal = literal.executes(stack -> {
                     Method method = subCommand.method();
                     if (method.getParameterCount() == 0) {
                         MethodInvoker.invoke(method, subCommand.instance());
@@ -103,32 +103,35 @@ public class CommandParser {
 
             for (String s : subCommand.aliases()) {
                 ArgumentBuilder<CommandSourceStack, ?> l = Commands.literal(s);
-                literal.then(l);
 
-                RequiredArgumentBuilder<CommandSourceStack, ?> last = null;
-                for (CommandArgument argument : subCommand.arguments()) {
+                List<CommandArgument> args = subCommand.arguments();
+                int counter = 0;
+                for (CommandArgument argument : args) {
                     RequiredArgumentBuilder<CommandSourceStack, ?> arg = Commands.argument(argument.name(), arguments.get(argument.type()).getFirst());
-                    last = arg;
+
+                    if (counter == args.size() - 1) {
+                        arg.executes(stack -> {
+                            Method method = subCommand.method();
+                            Object[] arguments = new Object[method.getParameterCount()];
+                            arguments[0] = transformers.get(stack.getSource().getClass()).apply(stack.getSource());
+                            int i = 1;
+                            for (CommandArgument a : subCommand.arguments()) {
+                                Object returned = CommandParser.arguments.get(a.type()).getSecond().apply(Pair.of(stack, a.name()));
+                                arguments[i] = transformers.get(returned.getClass()).apply(returned);
+                                i++;
+                            }
+
+                            MethodInvoker.invoke(method, subCommand.instance(), arguments);
+                            return 1;
+                        });
+                    }
+
                     l.then(arg);
                     l = arg;
+                    counter++;
                 }
 
-                if (last != null) {
-                    last.executes(stack -> {
-                        Method method = subCommand.method();
-                        Object[] arguments = new Object[method.getParameterCount()];
-                        arguments[0] = transformers.get(stack.getSource().getClass()).apply(stack.getSource());
-                        int i = 1;
-                        for (CommandArgument argument : subCommand.arguments()) {
-                            Object returned = CommandParser.arguments.get(argument.type()).getSecond().apply(Pair.of(stack, argument.name()));
-                            arguments[i] = transformers.get(returned.getClass()).apply(returned);
-                            i++;
-                        }
-
-                        MethodInvoker.invoke(method, subCommand.instance(), arguments);
-                        return 1;
-                    });
-                }
+                literal.then(l);
             }
         }
 
