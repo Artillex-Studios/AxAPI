@@ -1,6 +1,5 @@
 package com.artillexstudios.axapi.nms.v1_21_R1.command;
 
-import com.artillexstudios.axapi.collections.IdentityArrayMap;
 import com.artillexstudios.axapi.commands.CommandArgument;
 import com.artillexstudios.axapi.commands.RegisterableCommand;
 import com.artillexstudios.axapi.commands.SubCommand;
@@ -68,6 +67,7 @@ public class CommandParser {
         arguments.put(Arguments.GREEDY, Pair.of(StringArgumentType.greedyString(), s -> StringArgumentType.getString(s.getKey(), s.getSecond())));
 
         transformers.put(CommandSourceStack.class, stack -> ((CommandSourceStack) stack).getBukkitSender());
+        transformers.put(String.class, string -> string);
         transformers.put(Entity.class, entity -> ((Entity) entity).getBukkitEntity());
         transformers.put(ServerPlayer.class, entity -> ((ServerPlayer) entity).getBukkitEntity());
         transformers.put(Collection.class, collection -> {
@@ -125,8 +125,8 @@ public class CommandParser {
                             for (CommandArgument a : subCommand.arguments()) {
                                 log.info("Argument type: {}", a.type().getClass());
                                 Object returned = CommandParser.arguments.get(a.type()).getSecond().apply(Pair.of(stack, a.name()));
-                                log.info("Returned class type: {}", returned.getClass());
-                                arguments[i] = transformers.get(returned.getClass()).apply(returned);
+                                log.info("Returned class type: {}", returned == null ? null : returned.getClass());
+                                arguments[i] = returned == null ? null : transformers.get(returned.getClass()).apply(returned);
                                 i++;
                             }
 
