@@ -109,13 +109,16 @@ public class CommandParser {
                 List<CommandArgument> args = subCommand.arguments();
                 int counter = 0;
                 for (CommandArgument argument : args) {
-                    RequiredArgumentBuilder<CommandSourceStack, ?> arg = Commands.argument(argument.name(), arguments.get(argument.type()).getFirst());
+                    com.mojang.brigadier.arguments.ArgumentType<?> argType = arguments.get(argument.type()).getFirst();
+                    log.info("Argtype: {};  {}", argType, argument.type());
+                    RequiredArgumentBuilder<CommandSourceStack, ?> arg = Commands.argument(argument.name(), argType);
 
                     counter++;
                     if (counter == args.size()) {
                         arg.executes(stack -> {
                             Method method = subCommand.method();
                             Object[] arguments = new Object[method.getParameterCount()];
+                            log.info("Stack source type: {}", stack.getSource().getClass());
                             arguments[0] = transformers.get(stack.getSource().getClass()).apply(stack.getSource());
                             int i = 1;
                             for (CommandArgument a : subCommand.arguments()) {

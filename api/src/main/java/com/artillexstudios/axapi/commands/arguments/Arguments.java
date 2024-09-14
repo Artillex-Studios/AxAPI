@@ -5,6 +5,8 @@ import com.artillexstudios.axapi.commands.arguments.annotation.GreedyString;
 import com.artillexstudios.axapi.commands.arguments.annotation.Word;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
@@ -19,6 +21,7 @@ public class Arguments {
     public static final ArgumentType<?> STRING = register(String.class, new InternalArgumentType());
     public static final ArgumentType<?> GREEDY = registerAnnotated(GreedyString.class, new InternalArgumentType());
     public static final ArgumentType<?> WORD = registerAnnotated(Word.class, new InternalArgumentType());
+    private static final Logger log = LoggerFactory.getLogger(Arguments.class);
 
     public static ArgumentType<?> register(Class<?> clazz, ArgumentType<?> argumentType) {
         types.put(clazz, argumentType);
@@ -31,16 +34,20 @@ public class Arguments {
     }
 
     public static ArgumentType<?> parse(Parameter parameter) {
+        log.info(parameter.getName());
         ArgumentType<?> type = null;
         for (Annotation annotation : parameter.getAnnotations()) {
+            log.info("Getting for annotation {} class: {}", annotation.annotationType(), annotation.getClass());
             ArgumentType<?> t = annotations.get(annotation.annotationType());
             if (t != null) {
+                log.info("Found argtype {}!", t.getClass());
                 type = t;
                 break;
             }
         }
 
         if (type == null) {
+            log.info("Type is null!");
             type = types.get(parameter.getType());
         }
 

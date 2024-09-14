@@ -4,6 +4,8 @@ import com.artillexstudios.axapi.commands.arguments.Arguments;
 import com.artillexstudios.axapi.commands.exception.NotCommandException;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import org.bukkit.command.CommandSender;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -12,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Commands {
+
+    private static final Logger log = LoggerFactory.getLogger(Commands.class);
 
     public static void register(Class<?> commandClass) {
         Object instance;
@@ -44,11 +48,11 @@ public class Commands {
         for (int i = 0; i < parameters.length; i++) {
             Parameter parameter = parameters[i];
             if (i == 0 && CommandSender.class.isAssignableFrom(parameter.getType())) {
-                System.out.println("SKIPPING!");
                 continue;
             }
 
             Named name = parameter.getAnnotation(Named.class);
+            log.info("Parameter: {}", name == null ? parameter.getName() : name.value());
             arguments.add(new CommandArgument(Arguments.parse(parameter), name != null ? name.value() : parameter.getName()));
         }
     }
