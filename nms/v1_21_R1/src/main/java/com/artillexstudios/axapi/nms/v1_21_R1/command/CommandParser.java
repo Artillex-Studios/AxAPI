@@ -17,6 +17,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,32 +38,28 @@ public class CommandParser {
             try {
                 return EntityArgument.getEntity(s.getKey(), s.getSecond());
             } catch (CommandSyntaxException e) {
-                e.printStackTrace();
-                throw new RuntimeException(e);
+                return null;
             }
         }));
         arguments.put(Arguments.ENTITIES, Pair.of(EntityArgument.entities(), s -> {
             try {
                 return EntityArgument.getEntities(s.getKey(), s.getSecond());
             } catch (CommandSyntaxException e) {
-                e.printStackTrace();
-                throw new RuntimeException(e);
+                return null;
             }
         }));
         arguments.put(Arguments.PLAYER, Pair.of(EntityArgument.player(), s -> {
             try {
                 return EntityArgument.getPlayer(s.getKey(), s.getSecond());
             } catch (CommandSyntaxException e) {
-                e.printStackTrace();
-                throw new RuntimeException(e);
+                return null;
             }
         }));
         arguments.put(Arguments.PLAYERS, Pair.of(EntityArgument.players(), s -> {
             try {
                 return EntityArgument.getPlayers(s.getKey(), s.getSecond());
             } catch (CommandSyntaxException e) {
-                e.printStackTrace();
-                throw new RuntimeException(e);
+                return null;
             }
         }));
         arguments.put(Arguments.WORD, Pair.of(StringArgumentType.word(), s -> StringArgumentType.getString(s.getKey(), s.getSecond())));
@@ -71,6 +68,7 @@ public class CommandParser {
 
         transformers.put(CommandSourceStack.class, stack -> ((CommandSourceStack) stack).getBukkitSender());
         transformers.put(Entity.class, entity -> ((Entity) entity).getBukkitEntity());
+        transformers.put(ServerPlayer.class, entity -> ((ServerPlayer) entity).getBukkitEntity());
         transformers.put(Collection.class, collection -> {
             List<Object> l = new ArrayList<>();
             Collection<Object> c = (Collection<Object>) collection;
