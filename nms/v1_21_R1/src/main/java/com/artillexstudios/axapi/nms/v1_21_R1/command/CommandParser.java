@@ -19,6 +19,9 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.world.entity.Entity;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.function.Function;
 
 public class CommandParser {
@@ -60,6 +63,15 @@ public class CommandParser {
 
         transformers.put(CommandSourceStack.class, stack -> ((CommandSourceStack) stack).getBukkitSender());
         transformers.put(Entity.class, entity -> ((Entity) entity).getBukkitEntity());
+        transformers.put(Collection.class, collection -> {
+            List<Object> l = new ArrayList<>();
+            Collection<Object> c = (Collection<Object>) collection;
+            for (Object o : c) {
+                l.add(transformers.get(o.getClass()).apply(o));
+            }
+
+            return l;
+        });
     }
 
     public static LiteralArgumentBuilder<CommandSourceStack> parse(RegisterableCommand command) {
