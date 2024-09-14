@@ -376,7 +376,6 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
         commands.getDispatcher().getRoot().addChild(node);
 
         VanillaCommandWrapper wrapper = new VanillaCommandWrapper(commands, node);
-        wrapper.setAliases(List.of(Arrays.copyOfRange(command.aliases(), 1, command.aliases().length)));
         ((CraftServer) Bukkit.getServer()).getCommandMap().register(AxPlugin.getPlugin(AxPlugin.class).getName(), wrapper);
     }
 

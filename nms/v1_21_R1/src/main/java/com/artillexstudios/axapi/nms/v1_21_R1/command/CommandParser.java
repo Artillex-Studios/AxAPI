@@ -9,6 +9,7 @@ import com.artillexstudios.axapi.commands.arguments.Arguments;
 import com.artillexstudios.axapi.reflection.MethodInvoker;
 import com.artillexstudios.axapi.utils.Pair;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -33,6 +34,7 @@ public class CommandParser {
             try {
                 return EntityArgument.getEntity(s.getKey(), s.getSecond());
             } catch (CommandSyntaxException e) {
+                e.printStackTrace();
                 throw new RuntimeException(e);
             }
         }));
@@ -40,6 +42,7 @@ public class CommandParser {
             try {
                 return EntityArgument.getEntities(s.getKey(), s.getSecond());
             } catch (CommandSyntaxException e) {
+                e.printStackTrace();
                 throw new RuntimeException(e);
             }
         }));
@@ -47,6 +50,7 @@ public class CommandParser {
             try {
                 return EntityArgument.getPlayer(s.getKey(), s.getSecond());
             } catch (CommandSyntaxException e) {
+                e.printStackTrace();
                 throw new RuntimeException(e);
             }
         }));
@@ -54,6 +58,7 @@ public class CommandParser {
             try {
                 return EntityArgument.getPlayers(s.getKey(), s.getSecond());
             } catch (CommandSyntaxException e) {
+                e.printStackTrace();
                 throw new RuntimeException(e);
             }
         }));
@@ -97,28 +102,33 @@ public class CommandParser {
             }
 
             for (String s : subCommand.aliases()) {
-                LiteralArgumentBuilder<CommandSourceStack> l = Commands.literal(s);
+                ArgumentBuilder<CommandSourceStack, ?> l = Commands.literal(s);
                 literal.then(l);
 
+                RequiredArgumentBuilder<CommandSourceStack, ?> last = null;
                 for (CommandArgument argument : subCommand.arguments()) {
                     RequiredArgumentBuilder<CommandSourceStack, ?> arg = Commands.argument(argument.name(), arguments.get(argument.type()).getFirst());
-                    l = l.then(arg);
+                    last = arg;
+                    l.then(arg);
+                    l = arg;
                 }
 
-                l.executes(stack -> {
-                    Method method = subCommand.method();
-                    Object[] arguments = new Object[method.getParameterCount()];
-                    arguments[0] = transformers.get(stack.getSource().getClass()).apply(stack.getSource());
-                    int i = 1;
-                    for (CommandArgument argument : subCommand.arguments()) {
-                        Object returned = CommandParser.arguments.get(argument.type()).getSecond().apply(Pair.of(stack, argument.name()));
-                        arguments[i] = transformers.get(returned.getClass()).apply(returned);
-                        i++;
-                    }
+                if (last != null) {
+                    last.executes(stack -> {
+                        Method method = subCommand.method();
+                        Object[] arguments = new Object[method.getParameterCount()];
+                        arguments[0] = transformers.get(stack.getSource().getClass()).apply(stack.getSource());
+                        int i = 1;
+                        for (CommandArgument argument : subCommand.arguments()) {
+                            Object returned = CommandParser.arguments.get(argument.type()).getSecond().apply(Pair.of(stack, argument.name()));
+                            arguments[i] = transformers.get(returned.getClass()).apply(returned);
+                            i++;
+                        }
 
-                    MethodInvoker.invoke(method, subCommand.instance(), arguments);
-                    return 1;
-                });
+                        MethodInvoker.invoke(method, subCommand.instance(), arguments);
+                        return 1;
+                    });
+                }
             }
         }
 

@@ -1,13 +1,20 @@
 package com.artillexstudios.axapi.collections;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
 public class IdentityArrayMap<K, V> implements Map<K, V> {
+    private static final Object[] EMPTY_ARRAY = new Object[0];
     private Object[] keys;
     private Object[] values;
     private int size;
+
+    public IdentityArrayMap() {
+        this.keys = EMPTY_ARRAY;
+        this.values = EMPTY_ARRAY;
+    }
 
     @Override
     public int size() {
@@ -104,7 +111,7 @@ public class IdentityArrayMap<K, V> implements Map<K, V> {
 
     @Override
     public Set<K> keySet() {
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     @Override
@@ -121,6 +128,10 @@ public class IdentityArrayMap<K, V> implements Map<K, V> {
         Object[] keys = this.keys;
         int i = this.size;
 
+        if (i == keys.length) {
+            return -1;
+        }
+
         while (keys[i] != key) {
             if (i-- == 0) {
                 return -1;
@@ -128,5 +139,14 @@ public class IdentityArrayMap<K, V> implements Map<K, V> {
         }
 
         return i;
+    }
+
+    @Override
+    public String toString() {
+        return "IdentityArrayMap{" +
+                "keys=" + Arrays.toString(keys) +
+                ", values=" + Arrays.toString(values) +
+                ", size=" + size +
+                '}';
     }
 }
