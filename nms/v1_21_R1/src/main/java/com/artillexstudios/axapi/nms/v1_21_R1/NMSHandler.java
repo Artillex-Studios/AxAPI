@@ -1,6 +1,5 @@
 package com.artillexstudios.axapi.nms.v1_21_R1;
 
-import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.commands.RegisterableCommand;
 import com.artillexstudios.axapi.commands.arguments.ArgumentType;
 import com.artillexstudios.axapi.gui.SignInput;

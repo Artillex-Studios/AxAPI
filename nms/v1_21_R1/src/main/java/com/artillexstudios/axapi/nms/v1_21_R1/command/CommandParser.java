@@ -25,12 +25,13 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.function.Function;
 
 public class CommandParser {
-    private static final IdentityArrayMap<ArgumentType<?>, Pair<com.mojang.brigadier.arguments.ArgumentType<?>, Function<Pair<CommandContext<CommandSourceStack>, String>, Object>>> arguments = new IdentityArrayMap<>();
-    private static final IdentityArrayMap<Class<?>, Function<Object, Object>> transformers = new IdentityArrayMap<>();
+    private static final IdentityHashMap<ArgumentType<?>, Pair<com.mojang.brigadier.arguments.ArgumentType<?>, Function<Pair<CommandContext<CommandSourceStack>, String>, Object>>> arguments = new IdentityHashMap<>();
+    private static final IdentityHashMap<Class<?>, Function<Object, Object>> transformers = new IdentityHashMap<>();
     private static final Logger log = LoggerFactory.getLogger(CommandParser.class);
 
     static {
@@ -118,7 +119,7 @@ public class CommandParser {
                         arg.executes(stack -> {
                             Method method = subCommand.method();
                             Object[] arguments = new Object[method.getParameterCount()];
-                            log.info("Stack source type: {}", stack.getSource().getClass());
+                            log.info("Stack source type: {} transformers: {}", stack.getSource().getClass(), transformers);
                             arguments[0] = transformers.get(stack.getSource().getClass()).apply(stack.getSource());
                             int i = 1;
                             for (CommandArgument a : subCommand.arguments()) {
