@@ -53,7 +53,7 @@ public class Commands {
 
             Named name = parameter.getAnnotation(Named.class);
             log.info("Parameter: {}", name == null ? parameter.getName() : name.value());
-            arguments.add(new CommandArgument(Arguments.parse(parameter), name != null ? name.value() : parameter.getName()));
+            arguments.add(new CommandArgument(Arguments.parse(parameter), name != null ? name.value() : parameter.getName(), parameter.getAnnotations()));
         }
     }
 }

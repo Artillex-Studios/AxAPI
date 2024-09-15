@@ -1,57 +1,45 @@
 package com.artillexstudios.axapi.commands.arguments;
 
-import com.artillexstudios.axapi.collections.IdentityArrayMap;
-import com.artillexstudios.axapi.commands.arguments.annotation.GreedyString;
-import com.artillexstudios.axapi.commands.arguments.annotation.Word;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
+import java.util.HashMap;
 
 public class Arguments {
-    private static final IdentityArrayMap<Class<?>, ArgumentType<?>> types = new IdentityArrayMap<>();
-    private static final IdentityArrayMap<Class<? extends Annotation>, ArgumentType<?>> annotations = new IdentityArrayMap<>();
+    private static final HashMap<Class<?>, ArgumentType<?>> types = new HashMap<>();
     public static final ArgumentType<?> PLAYER = register(Player.class, new InternalArgumentType("player"));
     public static final ArgumentType<?> PLAYERS = register(Player[].class, new InternalArgumentType("players"));
     public static final ArgumentType<?> ENTITY = register(Entity.class, new InternalArgumentType("entity"));
     public static final ArgumentType<?> ENTITIES = register(Entity[].class, new InternalArgumentType("entities"));
     public static final ArgumentType<?> STRING = register(String.class, new InternalArgumentType("string"));
-    public static final ArgumentType<?> GREEDY = registerAnnotated(GreedyString.class, new InternalArgumentType("greedy"));
-    public static final ArgumentType<?> WORD = registerAnnotated(Word.class, new InternalArgumentType("word"));
-    private static final Logger log = LoggerFactory.getLogger(Arguments.class);
+    public static final ArgumentType<?> INT = register(int.class, new InternalArgumentType("int"));
+    public static final ArgumentType<?> INTEGER = register(Integer.class, new InternalArgumentType("integer"));
+    public static final ArgumentType<?> DIMENSION = register(World.class, new InternalArgumentType("dimension"));
+    public static final ArgumentType<?> DOUBLE = register(double.class, new InternalArgumentType("double"));
+    public static final ArgumentType<?> DOUBLE_TYPE = register(Double.class, new InternalArgumentType("double_type"));
+    public static final ArgumentType<?> LONG = register(long.class, new InternalArgumentType("long"));
+    public static final ArgumentType<?> LONG_TYPE = register(Long.class, new InternalArgumentType("long_type"));
+    public static final ArgumentType<?> FLOAT = register(float.class, new InternalArgumentType("float"));
+    public static final ArgumentType<?> FLOAT_TYPE = register(Float.class, new InternalArgumentType("float_type"));
+    public static final ArgumentType<?> BOOL = register(boolean.class, new InternalArgumentType("bool"));
+    public static final ArgumentType<?> BOOLEAN = register(Boolean.class, new InternalArgumentType("boolean"));
+    public static final ArgumentType<?> GAMEMODE = register(GameMode.class, new InternalArgumentType("gamemode"));
+    public static final ArgumentType<?> GAME_PROFILE = register(OfflinePlayer.class, new InternalArgumentType("game_profile"));
+    public static final ArgumentType<?> LOCATION = register(Location.class, new InternalArgumentType("location"));
+    public static final ArgumentType<?> BLOCK = register(Block.class, new InternalArgumentType("block"));
 
     public static ArgumentType<?> register(Class<?> clazz, ArgumentType<?> argumentType) {
         types.put(clazz, argumentType);
         return argumentType;
     }
 
-    public static ArgumentType<?> registerAnnotated(Class<? extends Annotation> clazz, ArgumentType<?> argumentType) {
-        annotations.put(clazz, argumentType);
-        return argumentType;
-    }
-
     public static ArgumentType<?> parse(Parameter parameter) {
-        log.info(parameter.getName());
-        ArgumentType<?> type = null;
-        for (Annotation annotation : parameter.getAnnotations()) {
-            log.info("Getting for annotation {} class: {}", annotation.annotationType(), annotation.getClass());
-            ArgumentType<?> t = annotations.get(annotation.annotationType());
-            if (t != null) {
-                log.info("Found argtype {}!", t.getClass());
-                type = t;
-                break;
-            }
-        }
-
-        if (type == null) {
-            log.info("Type is null!");
-            type = types.get(parameter.getType());
-        }
-        log.info("Returning type: {}", type == null ? null : type.toString());
-
-        return type;
+        return types.get(parameter.getType());
     }
 }
