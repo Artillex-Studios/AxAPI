@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.commands;
 
+import com.artillexstudios.axapi.commands.arguments.ArgumentType;
 import com.artillexstudios.axapi.commands.arguments.Arguments;
 import com.artillexstudios.axapi.commands.exception.NotCommandException;
 import com.artillexstudios.axapi.nms.NMSHandlers;
@@ -41,6 +42,10 @@ public class Commands {
         }
 
         NMSHandlers.getNmsHandler().registerCommand(new RegisterableCommand(command.value(), instance, subCommands));
+    }
+
+    public static void registerArgumentType(ArgumentType<?> argumentType) {
+
     }
 
     private static void handleMethod(Method method, List<CommandArgument> arguments) {

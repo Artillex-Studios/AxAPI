@@ -111,7 +111,7 @@ public class CommandParser {
 
         transformers.put(BlockPos.class, (pos, source) -> {
             BlockPos blockPos = (BlockPos) pos;
-            return new Location(source.getBukkitWorld(), blockPos.getX(), blockPos.getY(), blockPos.getZ());
+            return new Location(source.getBukkitWorld(), blockPos.getX(), blockPos.getY(), blockPos.getZ()).getBlock();
         });
         transformers.put(Vec3.class, (vec, source) -> {
             Vec3 vec3 = (Vec3) vec;
@@ -120,24 +120,9 @@ public class CommandParser {
         transformers.put(CommandSourceStack.class, (stack, source) -> ((CommandSourceStack) stack).getBukkitSender());
         transformers.put(GameProfile.class, (profile, source) -> ((CraftServer) Bukkit.getServer()).getOfflinePlayer((GameProfile) profile));
         transformers.put(GameType.class, (type, source) -> GameMode.valueOf(((GameType) type).name()));
-        transformers.put(String.class, (string, stack) -> string);
-        transformers.put(int.class, (i, stack) -> i);
-        transformers.put(long.class, (l, stack) -> l);
-        transformers.put(double.class, (d, stack) -> d);
-        transformers.put(float.class, (f, stack) -> f);
-        transformers.put(boolean.class, (b, stack) -> b);
         transformers.put(Entity.class, (entity, stack) -> ((Entity) entity).getBukkitEntity());
         transformers.put(ServerPlayer.class, (entity, stack) -> ((ServerPlayer) entity).getBukkitEntity());
         transformers.put(ServerLevel.class, (level, stack) -> ((ServerLevel) level).getWorld());
-        transformers.put(Collection.class, (collection, stack) -> {
-            List<Object> l = new ArrayList<>();
-            Collection<Object> c = (Collection<Object>) collection;
-            for (Object o : c) {
-                l.add(transformers.get(o.getClass()).apply(o, stack));
-            }
-
-            return l;
-        });
     }
 
     public static LiteralArgumentBuilder<CommandSourceStack> parse(RegisterableCommand command) {
@@ -167,35 +152,37 @@ public class CommandParser {
 
                 List<CommandArgument> args = subCommand.arguments();
                 int counter = 0;
-                for (CommandArgument argument : args) {
-                    com.mojang.brigadier.arguments.ArgumentType<?> argType = arguments.get(argument.type()).apply(argument).getFirst();
-                    log.info("Argtype: {};  {}", argType, argument.type());
-                    RequiredArgumentBuilder<CommandSourceStack, ?> arg = Commands.argument(argument.name(), argType);
-                    // ---- 00000000 1111111
-                    // /ban <player> (reason)
-                    Optional optional = argument.annotation(Optional.class);
-                    if (optional != null) {
+                for (int i = 0; i < args.size(); i++) {
+                    CommandArgument argument = args.get(i);
 
+                    com.mojang.brigadier.arguments.ArgumentType<?> argType = arguments.get(argument.type()).apply(argument).getFirst();
+                    RequiredArgumentBuilder<CommandSourceStack, ?> arg = Commands.argument(argument.name(), argType);
+
+                    Optional next;
+                    if (i + 1 >= args.size()) {
+                        next = null;
+                    } else {
+                        next = args.get(i + 1).annotation(Optional.class);
                     }
 
                     counter++;
-                    if (counter == args.size() || optional != null) {
-                        if (optional != null) {
-                            // TODO
-                        }
-
+                    if (counter == args.size() || next != null) {
                         arg.executes(stack -> {
                             Method method = subCommand.method();
                             Object[] arguments = new Object[method.getParameterCount()];
                             log.info("Stack source type: {} transformers: {}", stack.getSource().getClass(), transformers);
                             arguments[0] = transform(stack.getSource(), stack.getSource());
-                            int i = 1;
+                            int j = 1;
                             for (CommandArgument a : subCommand.arguments()) {
                                 log.info("Argument type: {}", a.type().getClass());
-                                Object returned = CommandParser.arguments.get(a.type()).apply(a).getSecond().apply(Pair.of(stack, a.name()));
-                                log.info("Returned class type: {}", returned == null ? null : returned.getClass());
-                                arguments[i] = returned == null ? null : transform(returned, stack.getSource());
-                                i++;
+                                try {
+                                    Object returned = CommandParser.arguments.get(a.type()).apply(a).getSecond().apply(Pair.of(stack, a.name()));
+                                    log.info("Returned class type: {}", returned == null ? null : returned.getClass());
+                                    arguments[j] = returned == null ? null : transform(returned, stack.getSource());
+                                    j++;
+                                } catch (Exception exception) {
+                                    break;
+                                }
                             }
 
                             try {
@@ -211,6 +198,7 @@ public class CommandParser {
                     last.then(arg);
                     last = arg;
                 }
+
 
                 literal = literal.then(l);
             }
@@ -229,6 +217,6 @@ public class CommandParser {
             return objects;
         }
 
-        return transformers.get(obj.getClass()).apply(obj, stack);
+        return transformers.getOrDefault(obj.getClass(), (a, b) -> a).apply(obj, stack);
     }
 }
