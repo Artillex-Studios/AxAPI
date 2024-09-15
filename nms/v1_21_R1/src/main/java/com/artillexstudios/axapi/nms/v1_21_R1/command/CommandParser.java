@@ -7,6 +7,7 @@ import com.artillexstudios.axapi.commands.arguments.ArgumentType;
 import com.artillexstudios.axapi.commands.arguments.Arguments;
 import com.artillexstudios.axapi.reflection.MethodInvoker;
 import com.artillexstudios.axapi.utils.Pair;
+import com.artillexstudios.axapi.utils.ThrowingFunction;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -29,39 +30,15 @@ import java.util.List;
 import java.util.function.Function;
 
 public class CommandParser {
-    private static final IdentityHashMap<ArgumentType<?>, Pair<com.mojang.brigadier.arguments.ArgumentType<?>, Function<Pair<CommandContext<CommandSourceStack>, String>, Object>>> arguments = new IdentityHashMap<>();
+    private static final IdentityHashMap<ArgumentType<?>, Pair<com.mojang.brigadier.arguments.ArgumentType<?>, ThrowingFunction<Pair<CommandContext<CommandSourceStack>, String>, Object, CommandSyntaxException>>> arguments = new IdentityHashMap<>();
     private static final IdentityHashMap<Class<?>, Function<Object, Object>> transformers = new IdentityHashMap<>();
     private static final Logger log = LoggerFactory.getLogger(CommandParser.class);
 
     static {
-        arguments.put(Arguments.ENTITY, Pair.of(EntityArgument.entity(), s -> {
-            try {
-                return EntityArgument.getEntity(s.getKey(), s.getSecond());
-            } catch (CommandSyntaxException e) {
-                return null;
-            }
-        }));
-        arguments.put(Arguments.ENTITIES, Pair.of(EntityArgument.entities(), s -> {
-            try {
-                return EntityArgument.getEntities(s.getKey(), s.getSecond());
-            } catch (CommandSyntaxException e) {
-                return null;
-            }
-        }));
-        arguments.put(Arguments.PLAYER, Pair.of(EntityArgument.player(), s -> {
-            try {
-                return EntityArgument.getPlayer(s.getKey(), s.getSecond());
-            } catch (CommandSyntaxException e) {
-                return null;
-            }
-        }));
-        arguments.put(Arguments.PLAYERS, Pair.of(EntityArgument.players(), s -> {
-            try {
-                return EntityArgument.getPlayers(s.getKey(), s.getSecond());
-            } catch (CommandSyntaxException e) {
-                return null;
-            }
-        }));
+        arguments.put(Arguments.ENTITY, Pair.of(EntityArgument.entity(), s -> EntityArgument.getEntity(s.getKey(), s.getSecond())));
+        arguments.put(Arguments.ENTITIES, Pair.of(EntityArgument.entities(), s -> EntityArgument.getEntities(s.getKey(), s.getSecond())));
+        arguments.put(Arguments.PLAYER, Pair.of(EntityArgument.player(), s -> EntityArgument.getPlayer(s.getKey(), s.getSecond())));
+        arguments.put(Arguments.PLAYERS, Pair.of(EntityArgument.players(), s -> EntityArgument.getPlayers(s.getKey(), s.getSecond())));
         arguments.put(Arguments.WORD, Pair.of(StringArgumentType.word(), s -> StringArgumentType.getString(s.getKey(), s.getSecond())));
         arguments.put(Arguments.STRING, Pair.of(StringArgumentType.string(), s -> StringArgumentType.getString(s.getKey(), s.getSecond())));
         arguments.put(Arguments.GREEDY, Pair.of(StringArgumentType.greedyString(), s -> StringArgumentType.getString(s.getKey(), s.getSecond())));
@@ -130,7 +107,12 @@ public class CommandParser {
                                 i++;
                             }
 
-                            MethodInvoker.invoke(method, subCommand.instance(), arguments);
+                            try {
+                                MethodInvoker.invoke(method, subCommand.instance(), arguments);
+                            } catch (Exception exception) {
+                                log.error("An unexpected error occurred while executing command {}", argument, exception);
+                                return 0;
+                            }
                             return 1;
                         });
                     }

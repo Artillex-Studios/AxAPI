@@ -14,13 +14,13 @@ import java.lang.reflect.Parameter;
 public class Arguments {
     private static final IdentityArrayMap<Class<?>, ArgumentType<?>> types = new IdentityArrayMap<>();
     private static final IdentityArrayMap<Class<? extends Annotation>, ArgumentType<?>> annotations = new IdentityArrayMap<>();
-    public static final ArgumentType<?> PLAYER = register(Player.class, new InternalArgumentType());
-    public static final ArgumentType<?> PLAYERS = register(Player[].class, new InternalArgumentType());
-    public static final ArgumentType<?> ENTITY = register(Entity.class, new InternalArgumentType());
-    public static final ArgumentType<?> ENTITIES = register(Entity[].class, new InternalArgumentType());
-    public static final ArgumentType<?> STRING = register(String.class, new InternalArgumentType());
-    public static final ArgumentType<?> GREEDY = registerAnnotated(GreedyString.class, new InternalArgumentType());
-    public static final ArgumentType<?> WORD = registerAnnotated(Word.class, new InternalArgumentType());
+    public static final ArgumentType<?> PLAYER = register(Player.class, new InternalArgumentType("player"));
+    public static final ArgumentType<?> PLAYERS = register(Player[].class, new InternalArgumentType("players"));
+    public static final ArgumentType<?> ENTITY = register(Entity.class, new InternalArgumentType("entity"));
+    public static final ArgumentType<?> ENTITIES = register(Entity[].class, new InternalArgumentType("entities"));
+    public static final ArgumentType<?> STRING = register(String.class, new InternalArgumentType("string"));
+    public static final ArgumentType<?> GREEDY = registerAnnotated(GreedyString.class, new InternalArgumentType("greedy"));
+    public static final ArgumentType<?> WORD = registerAnnotated(Word.class, new InternalArgumentType("word"));
     private static final Logger log = LoggerFactory.getLogger(Arguments.class);
 
     public static ArgumentType<?> register(Class<?> clazz, ArgumentType<?> argumentType) {
@@ -50,6 +50,7 @@ public class Arguments {
             log.info("Type is null!");
             type = types.get(parameter.getType());
         }
+        log.info("Returning type: {}", type == null ? null : type.toString());
 
         return type;
     }
