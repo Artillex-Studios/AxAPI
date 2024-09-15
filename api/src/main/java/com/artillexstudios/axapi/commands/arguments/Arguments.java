@@ -15,6 +15,7 @@ import java.util.HashMap;
 
 public class Arguments {
     private static final HashMap<Class<?>, ArgumentType<?>> types = new HashMap<>();
+    private static final Logger log = LoggerFactory.getLogger(Arguments.class);
     public static final ArgumentType<?> PLAYER = register(Player.class, new InternalArgumentType("player"));
     public static final ArgumentType<?> PLAYERS = register(Player[].class, new InternalArgumentType("players"));
     public static final ArgumentType<?> ENTITY = register(Entity.class, new InternalArgumentType("entity"));
@@ -36,7 +37,6 @@ public class Arguments {
     public static final ArgumentType<?> GAME_PROFILES = register(OfflinePlayer[].class, new InternalArgumentType("game_profiles"));
     public static final ArgumentType<?> LOCATION = register(Location.class, new InternalArgumentType("location"));
     public static final ArgumentType<?> BLOCK = register(Block.class, new InternalArgumentType("block"));
-    private static final Logger log = LoggerFactory.getLogger(Arguments.class);
 
     public static ArgumentType<?> register(Class<?> clazz, ArgumentType<?> argumentType) {
         log.info("Registered new type! {}", argumentType.type());
