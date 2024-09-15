@@ -373,6 +373,10 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
         Commands commands = MinecraftServer.getServer().getCommands();
         LiteralCommandNode<CommandSourceStack> node = CommandParser.parse(command).build();
         commands.getDispatcher().getRoot().addChild(node);
+//        String[] aliases = Arrays.copyOfRange(command.aliases(), 1, command.aliases().length);
+//        for (String alias : aliases) {
+//            commands.getDispatcher().getRoot().addChild(Commands.literal(alias).redirect(node).build());
+//        }
     }
 
     public void registerArgumentType(ArgumentType<?> type) {

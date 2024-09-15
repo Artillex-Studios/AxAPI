@@ -31,6 +31,7 @@ public class Arguments {
     public static final ArgumentType<?> BOOLEAN = register(Boolean.class, new InternalArgumentType("boolean"));
     public static final ArgumentType<?> GAMEMODE = register(GameMode.class, new InternalArgumentType("gamemode"));
     public static final ArgumentType<?> GAME_PROFILE = register(OfflinePlayer.class, new InternalArgumentType("game_profile"));
+    public static final ArgumentType<?> GAME_PROFILES = register(OfflinePlayer[].class, new InternalArgumentType("game_profiles"));
     public static final ArgumentType<?> LOCATION = register(Location.class, new InternalArgumentType("location"));
     public static final ArgumentType<?> BLOCK = register(Block.class, new InternalArgumentType("block"));
 
