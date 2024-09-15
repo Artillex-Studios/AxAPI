@@ -48,14 +48,14 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.IdentityHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class CommandParser {
-    private static final IdentityHashMap<ArgumentType<?>, Function<CommandArgument, Pair<com.mojang.brigadier.arguments.ArgumentType<?>, ThrowingFunction<Pair<CommandContext<CommandSourceStack>, String>, Object, CommandSyntaxException>>>> arguments = new IdentityHashMap<>();
-    private static final IdentityHashMap<Class<?>, BiFunction<Object, CommandSourceStack, Object>> transformers = new IdentityHashMap<>();
+    private static final HashMap<ArgumentType<?>, Function<CommandArgument, Pair<com.mojang.brigadier.arguments.ArgumentType<?>, ThrowingFunction<Pair<CommandContext<CommandSourceStack>, String>, Object, CommandSyntaxException>>>> arguments = new HashMap<>();
+    private static final HashMap<Class<?>, BiFunction<Object, CommandSourceStack, Object>> transformers = new HashMap<>();
     private static final Logger log = LoggerFactory.getLogger(CommandParser.class);
 
     static {
