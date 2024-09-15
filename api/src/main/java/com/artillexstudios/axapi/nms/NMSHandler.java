@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.nms;
 
 import com.artillexstudios.axapi.commands.RegisterableCommand;
+import com.artillexstudios.axapi.commands.arguments.ArgumentType;
 import com.artillexstudios.axapi.gui.SignInput;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.component.DataComponentImpl;
@@ -92,6 +93,10 @@ public interface NMSHandler {
     List<Player> players(World world);
 
     default void registerCommand(RegisterableCommand command) {
+
+    }
+
+    default void registerArgumentType(ArgumentType<?> argumentType) {
 
     }
 }

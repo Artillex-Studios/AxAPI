@@ -16,6 +16,11 @@ class InternalArgumentType implements ArgumentType<Object> {
     }
 
     @Override
+    public Class<Object> type() {
+        return Object.class;
+    }
+
+    @Override
     public String toString() {
         return "InternalArgumentType{" +
                 "id='" + id + '\'' +

@@ -22,7 +22,12 @@ import com.artillexstudios.axapi.utils.Pair;
 import com.artillexstudios.axapi.utils.Title;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.mojang.serialization.Dynamic;
 import io.netty.channel.Channel;
@@ -32,6 +37,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
@@ -60,6 +66,7 @@ import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
@@ -78,11 +85,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
@@ -380,7 +389,27 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     }
 
     public void registerArgumentType(ArgumentType<?> type) {
-        // TODO:
+        CommandParser.register(type, new com.mojang.brigadier.arguments.ArgumentType<>() {
+            @Override
+            public Object parse(StringReader stringReader) throws CommandSyntaxException {
+                try {
+                    return type.parse(new com.artillexstudios.axapi.nms.v1_21_R1.command.StringReader(stringReader));
+                } catch (com.artillexstudios.axapi.commands.exception.CommandSyntaxException e) {
+                    net.minecraft.network.chat.Component message = ComponentSerializer.INSTANCE.toVanilla(e.component());
+                    throw new CommandSyntaxException(new SimpleCommandExceptionType(message), message, e.input(), e.cursor());
+                }
+            }
+
+            @Override
+            public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
+                return context instanceof SharedSuggestionProvider ? SharedSuggestionProvider.suggest(type.listSuggestions(() -> ((CommandSourceStack) context.getSource()).getBukkitSender()), builder) : Suggestions.empty();
+            }
+
+            @Override
+            public Collection<String> getExamples() {
+                return type.getExamples();
+            }
+        });
     }
 
     private Channel getChannel(Connection connection) {

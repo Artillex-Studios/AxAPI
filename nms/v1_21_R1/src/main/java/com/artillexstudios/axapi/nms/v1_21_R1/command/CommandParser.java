@@ -109,6 +109,7 @@ public class CommandParser {
             return Pair.of(ranged == null ? FloatArgumentType.floatArg() : FloatArgumentType.floatArg((float) ranged.min(), (float) ranged.max()), s -> FloatArgumentType.getFloat(s.getKey(), s.getSecond()));
         });
 
+
         transformers.put(BlockPos.class, (pos, source) -> {
             BlockPos blockPos = (BlockPos) pos;
             return new Location(source.getBukkitWorld(), blockPos.getX(), blockPos.getY(), blockPos.getZ()).getBlock();
@@ -123,6 +124,10 @@ public class CommandParser {
         transformers.put(Entity.class, (entity, stack) -> ((Entity) entity).getBukkitEntity());
         transformers.put(ServerPlayer.class, (entity, stack) -> ((ServerPlayer) entity).getBukkitEntity());
         transformers.put(ServerLevel.class, (level, stack) -> ((ServerLevel) level).getWorld());
+    }
+
+    public static void register(ArgumentType<?> arg, com.mojang.brigadier.arguments.ArgumentType<?> internal) {
+        arguments.put(arg, context -> Pair.of(internal, s -> s.getKey().getArgument(s.getSecond(), arg.type())));
     }
 
     public static LiteralArgumentBuilder<CommandSourceStack> parse(RegisterableCommand command) {
@@ -170,7 +175,7 @@ public class CommandParser {
                         arg.executes(stack -> {
                             Method method = subCommand.method();
                             Object[] arguments = new Object[method.getParameterCount()];
-                            log.info("Stack source type: {} transformers: {}", stack.getSource().getClass(), transformers);
+
                             arguments[0] = transform(stack.getSource(), stack.getSource());
                             int j = 1;
                             for (CommandArgument a : subCommand.arguments()) {
@@ -180,7 +185,7 @@ public class CommandParser {
                                     log.info("Returned class type: {}", returned == null ? null : returned.getClass());
                                     arguments[j] = returned == null ? null : transform(returned, stack.getSource());
                                     j++;
-                                } catch (Exception exception) {
+                                } catch (IllegalArgumentException exception) {
                                     break;
                                 }
                             }
