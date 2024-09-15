@@ -23,6 +23,7 @@ import com.artillexstudios.axapi.utils.Title;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
@@ -86,6 +87,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -388,17 +390,13 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
 //        }
     }
 
-    public void registerArgumentType(ArgumentType<?> type) {
+    public void registerArgumentType(ArgumentType<?, ?> type) {
         log.info("RegisterArgumentType NMS: {}", type.type());
+
         CommandParser.register(type, new com.mojang.brigadier.arguments.ArgumentType<>() {
             @Override
             public Object parse(StringReader stringReader) throws CommandSyntaxException {
-                try {
-                    return type.parse(new com.artillexstudios.axapi.nms.v1_21_R1.command.StringReader(stringReader));
-                } catch (com.artillexstudios.axapi.commands.exception.CommandSyntaxException e) {
-                    net.minecraft.network.chat.Component message = ComponentSerializer.INSTANCE.toVanilla(e.component());
-                    throw new CommandSyntaxException(new SimpleCommandExceptionType(message), message, e.input(), e.cursor());
-                }
+                return CommandParser.type(type.internalType()).parse(stringReader);
             }
 
             @Override
@@ -408,7 +406,7 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
 
             @Override
             public Collection<String> getExamples() {
-                return type.getExamples();
+                return Collections.emptyList();
             }
         });
     }

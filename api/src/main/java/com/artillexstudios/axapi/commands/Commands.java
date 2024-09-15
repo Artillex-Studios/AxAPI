@@ -44,7 +44,7 @@ public class Commands {
         NMSHandlers.getNmsHandler().registerCommand(new RegisterableCommand(command.value(), instance, subCommands));
     }
 
-    public static void registerArgumentType(ArgumentType<?> argumentType) {
+    public static void registerArgumentType(ArgumentType<?, ?> argumentType) {
         Arguments.register(argumentType.type(), argumentType);
         NMSHandlers.getNmsHandler().registerArgumentType(argumentType);
     }

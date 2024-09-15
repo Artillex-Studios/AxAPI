@@ -96,7 +96,7 @@ public interface NMSHandler {
 
     }
 
-    default void registerArgumentType(ArgumentType<?> argumentType) {
+    default void registerArgumentType(ArgumentType<?, ?> argumentType) {
 
     }
 }

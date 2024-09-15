@@ -7,11 +7,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CommandArgument {
-    private final ArgumentType<?> type;
+    private final ArgumentType<?, ?> type;
     private final String name;
     private final Map<Class<? extends Annotation>, Annotation> annotations;
 
-    public CommandArgument(ArgumentType<?> type, String name, Annotation[] annotations) {
+    public CommandArgument(ArgumentType<?, ?> type, String name, Annotation[] annotations) {
         this.type = type;
         this.name = name;
 
@@ -29,7 +29,7 @@ public class CommandArgument {
         return annotationClass.cast(annotations.get(annotationClass));
     }
 
-    public ArgumentType<?> type() {
+    public ArgumentType<?, ?> type() {
         return type;
     }
 

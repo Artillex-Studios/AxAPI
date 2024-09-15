@@ -1,9 +1,8 @@
 package com.artillexstudios.axapi.commands.arguments;
 
-import com.artillexstudios.axapi.commands.StringReader;
 import com.artillexstudios.axapi.commands.exception.CommandSyntaxException;
 
-class InternalArgumentType implements ArgumentType<Object> {
+class InternalArgumentType implements ArgumentType<Object, Object> {
     private final String id;
 
     protected InternalArgumentType(String id) {
@@ -11,13 +10,18 @@ class InternalArgumentType implements ArgumentType<Object> {
     }
 
     @Override
-    public Object parse(StringReader var1) throws CommandSyntaxException {
+    public Object parse(Object var1) throws CommandSyntaxException {
         return null;
     }
 
     @Override
     public Class<Object> type() {
         return Object.class;
+    }
+
+    @Override
+    public ArgumentType<?, ?> internalType() {
+        return null;
     }
 
     @Override

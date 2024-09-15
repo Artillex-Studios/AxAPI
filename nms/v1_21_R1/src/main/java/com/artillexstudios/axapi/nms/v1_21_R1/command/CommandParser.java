@@ -10,6 +10,7 @@ import com.artillexstudios.axapi.commands.arguments.annotation.Optional;
 import com.artillexstudios.axapi.commands.arguments.annotation.Ranged;
 import com.artillexstudios.axapi.commands.arguments.annotation.Word;
 import com.artillexstudios.axapi.reflection.MethodInvoker;
+import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.Pair;
 import com.artillexstudios.axapi.utils.ThrowingFunction;
 import com.mojang.authlib.GameProfile;
@@ -24,6 +25,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.DimensionArgument;
@@ -45,6 +47,7 @@ import org.bukkit.craftbukkit.CraftServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,7 +57,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class CommandParser {
-    private static final HashMap<ArgumentType<?>, Function<CommandArgument, Pair<com.mojang.brigadier.arguments.ArgumentType<?>, ThrowingFunction<Pair<CommandContext<CommandSourceStack>, String>, Object, CommandSyntaxException>>>> arguments = new HashMap<>();
+    private static final HashMap<ArgumentType<?, ?>, Function<CommandArgument, Pair<com.mojang.brigadier.arguments.ArgumentType<?>, ThrowingFunction<Pair<CommandContext<CommandSourceStack>, String>, Object, CommandSyntaxException>>>> arguments = new HashMap<>();
     private static final HashMap<Class<?>, BiFunction<Object, CommandSourceStack, Object>> transformers = new HashMap<>();
     private static final Logger log = LoggerFactory.getLogger(CommandParser.class);
 
@@ -126,10 +129,14 @@ public class CommandParser {
         transformers.put(ServerLevel.class, (level, stack) -> ((ServerLevel) level).getWorld());
     }
 
-    public static void register(ArgumentType<?> arg, com.mojang.brigadier.arguments.ArgumentType<?> internal) {
+    public static void register(ArgumentType<?, ?> arg, com.mojang.brigadier.arguments.ArgumentType<?> internal) {
         log.info("Registration: {}", arg.type());
         arguments.put(arg, context -> Pair.of(internal, s -> s.getKey().getArgument(s.getSecond(), arg.type())));
         log.info("Arguments: {}", arguments);
+    }
+
+    public static com.mojang.brigadier.arguments.ArgumentType<?> type(ArgumentType<?, ?> internal) {
+        return arguments.get(internal).apply(new CommandArgument(null, "", new Annotation[0])).getKey();
     }
 
     public static LiteralArgumentBuilder<CommandSourceStack> parse(RegisterableCommand command) {
@@ -162,8 +169,8 @@ public class CommandParser {
                 for (int i = 0; i < args.size(); i++) {
                     CommandArgument argument = args.get(i);
 
-                    com.mojang.brigadier.arguments.ArgumentType<?> argType = arguments.get(argument.type()).apply(argument).getFirst();
-                    RequiredArgumentBuilder<CommandSourceStack, ?> arg = Commands.argument(argument.name(), argType);
+                    com.mojang.brigadier.arguments.ArgumentType<?> argType = arguments.get(argument.type().internalType() != null ? argument.type().internalType() : argument.type()).apply(argument).getFirst();
+                    RequiredArgumentBuilder<CommandSourceStack, ?> arg = Commands.argument(argument.name(), argType).suggests(arguments.get(argument.type()).apply(argument).getFirst()::listSuggestions);
 
                     Optional next;
                     if (i + 1 >= args.size()) {
@@ -183,8 +190,14 @@ public class CommandParser {
                             for (CommandArgument a : subCommand.arguments()) {
                                 log.info("Argument type: {}", a.type().getClass());
                                 try {
-                                    Object returned = CommandParser.arguments.get(a.type()).apply(a).getSecond().apply(Pair.of(stack, a.name()));
+                                    Object returned = CommandParser.arguments.get(a.type().internalType() != null ? a.type().internalType() : a.type()).apply(a).getSecond().apply(Pair.of(stack, a.name()));
                                     log.info("Returned class type: {}", returned == null ? null : returned.getClass());
+                                    try {
+                                        returned = a.type().parse(returned);
+                                    } catch (com.artillexstudios.axapi.commands.exception.CommandSyntaxException e) {
+                                        net.minecraft.network.chat.Component message = ComponentSerializer.INSTANCE.toVanilla(e.component());
+                                        throw new CommandSyntaxException(new SimpleCommandExceptionType(message), message, e.input(), e.cursor());
+                                    }
                                     arguments[j] = returned == null ? null : transform(returned, stack.getSource());
                                     j++;
                                 } catch (IllegalArgumentException exception) {
