@@ -7,6 +7,8 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Parameter;
 import java.util.HashMap;
@@ -34,8 +36,10 @@ public class Arguments {
     public static final ArgumentType<?> GAME_PROFILES = register(OfflinePlayer[].class, new InternalArgumentType("game_profiles"));
     public static final ArgumentType<?> LOCATION = register(Location.class, new InternalArgumentType("location"));
     public static final ArgumentType<?> BLOCK = register(Block.class, new InternalArgumentType("block"));
+    private static final Logger log = LoggerFactory.getLogger(Arguments.class);
 
     public static ArgumentType<?> register(Class<?> clazz, ArgumentType<?> argumentType) {
+        log.info("Registered new type! {}", argumentType.type());
         types.put(clazz, argumentType);
         return argumentType;
     }

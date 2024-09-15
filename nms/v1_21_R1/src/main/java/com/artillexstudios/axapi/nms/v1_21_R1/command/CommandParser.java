@@ -127,7 +127,9 @@ public class CommandParser {
     }
 
     public static void register(ArgumentType<?> arg, com.mojang.brigadier.arguments.ArgumentType<?> internal) {
+        log.info("Registration: {}", arg.type());
         arguments.put(arg, context -> Pair.of(internal, s -> s.getKey().getArgument(s.getSecond(), arg.type())));
+        log.info("Arguments: {}", arguments);
     }
 
     public static LiteralArgumentBuilder<CommandSourceStack> parse(RegisterableCommand command) {

@@ -389,6 +389,7 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     }
 
     public void registerArgumentType(ArgumentType<?> type) {
+        log.info("RegisterArgumentType NMS: {}", type.type());
         CommandParser.register(type, new com.mojang.brigadier.arguments.ArgumentType<>() {
             @Override
             public Object parse(StringReader stringReader) throws CommandSyntaxException {
