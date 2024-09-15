@@ -45,7 +45,7 @@ public class Commands {
     }
 
     public static void registerArgumentType(ArgumentType<?> argumentType) {
-        Arguments.register(argumentType.getClass(), argumentType);
+        Arguments.register(argumentType.type(), argumentType);
         NMSHandlers.getNmsHandler().registerArgumentType(argumentType);
     }
 
