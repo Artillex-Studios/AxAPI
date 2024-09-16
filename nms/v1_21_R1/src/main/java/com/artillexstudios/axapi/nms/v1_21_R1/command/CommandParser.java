@@ -27,9 +27,9 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import com.mojang.brigadier.suggestion.Suggestions;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.DimensionArgument;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.GameModeArgument;
@@ -51,10 +51,10 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -138,7 +138,7 @@ public class CommandParser {
     }
 
     public static com.mojang.brigadier.arguments.ArgumentType<?> type(ArgumentType<?, ?> internal) {
-        return arguments.get(internal).apply(new CommandArgument(null, "", new Annotation[0])).getKey();
+        return arguments.get(internal).apply(new CommandArgument(null, "", new Annotation[0], null)).getKey();
     }
 
     public static LiteralArgumentBuilder<CommandSourceStack> parse(RegisterableCommand command) {
@@ -173,12 +173,9 @@ public class CommandParser {
 
                     com.mojang.brigadier.arguments.ArgumentType<?> argType = arguments.get(argument.type().internalType() != null ? argument.type().internalType() : argument.type()).apply(argument).getFirst();
                     RequiredArgumentBuilder<CommandSourceStack, ?> arg = Commands.argument(argument.name(), argType).suggests((a, b) -> {
-                        try {
-                            log.info("Suggestions: {}", arguments.get(argument.type()).apply(argument).getFirst().listSuggestions(a, b));
-                        } catch (Exception exception) {
-                            log.error("Uncaught exception!", exception);
-                        }
-                        return SharedSuggestionProvider.suggest(List.of("oreo", "bruh", "cookies"), b);
+                        CompletableFuture<Suggestions> sugg = arguments.get(argument.type()).apply(argument).getFirst().listSuggestions(a, b);
+                        log.info("Suggestions!");
+                        return sugg;
                     });
 
                     Optional next;
@@ -190,6 +187,10 @@ public class CommandParser {
 
                     counter++;
                     if (counter == args.size() || next != null) {
+                        if (next != null) {
+                            log.info("Next is not null: {}", argument.name());
+                        }
+
                         arg.executes(stack -> {
                             Method method = subCommand.method();
                             Object[] arguments = new Object[method.getParameterCount()];
@@ -209,6 +210,7 @@ public class CommandParser {
                                         net.minecraft.network.chat.Component message = ComponentSerializer.INSTANCE.toVanilla(e.component());
                                         throw new CommandSyntaxException(new SimpleCommandExceptionType(message), message, e.input(), e.cursor());
                                     }
+
                                     arguments[j] = returned == null ? null : transform(returned, stack.getSource());
                                     j++;
                                 } catch (IllegalArgumentException exception) {
@@ -238,12 +240,23 @@ public class CommandParser {
         return literal;
     }
 
-    // TODO: Transform from a class to a different class where we have from and to aswell.
     private static Object transform(Object obj, CommandSourceStack stack) {
         if (obj instanceof Collection<?> collection) {
-            List<Object> objects = new ArrayList<>(collection.size());
+            Object[] objects = new Object[collection.size()];
+            int i = 0;
             for (Object o : collection) {
-                objects.add(transform(o, stack));
+                objects[i] = (transform(o, stack));
+                i++;
+            }
+
+            return objects;
+        } else if (obj.getClass().isArray()) {
+            Object[] os = ((Object[]) obj);
+            Object[] objects = new Object[os.length];
+            int i = 0;
+            for (Object o : os) {
+                objects[i] = (transform(o, stack));
+                i++;
             }
 
             return objects;

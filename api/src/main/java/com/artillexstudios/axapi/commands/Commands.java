@@ -44,7 +44,7 @@ public class Commands {
         NMSHandlers.getNmsHandler().registerCommand(new RegisterableCommand(command.value(), instance, subCommands));
     }
 
-    public static void registerArgumentType(ArgumentType<Object, Object> argumentType) {
+    public static <T, Z> void registerArgumentType(ArgumentType<T, Z> argumentType) {
         Arguments.register(argumentType.type(), argumentType);
         NMSHandlers.getNmsHandler().registerArgumentType(argumentType);
     }
@@ -59,7 +59,7 @@ public class Commands {
 
             Named name = parameter.getAnnotation(Named.class);
             log.info("Parameter: {}", name == null ? parameter.getName() : name.value());
-            arguments.add(new CommandArgument(Arguments.parse(parameter), name != null ? name.value() : parameter.getName(), parameter.getAnnotations()));
+            arguments.add(new CommandArgument(Arguments.parse(parameter), name != null ? name.value() : parameter.getName(), parameter.getAnnotations(), parameter.getType()));
         }
     }
 }

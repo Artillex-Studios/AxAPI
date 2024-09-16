@@ -9,11 +9,13 @@ import java.util.Map;
 public class CommandArgument {
     private final ArgumentType<Object, Object> type;
     private final String name;
+    private final Class<?> inputType;
     private final Map<Class<? extends Annotation>, Annotation> annotations;
 
-    public CommandArgument(ArgumentType<Object, Object> type, String name, Annotation[] annotations) {
+    public CommandArgument(ArgumentType<Object, Object> type, String name, Annotation[] annotations, Class<?> inputType) {
         this.type = type;
         this.name = name;
+        this.inputType = inputType;
 
         this.annotations = new HashMap<>();
         for (int i = 0; i < annotations.length; i++) {
@@ -31,6 +33,10 @@ public class CommandArgument {
 
     public ArgumentType<Object, Object> type() {
         return type;
+    }
+
+    public Class<?> inputType() {
+        return inputType;
     }
 
     public String name() {

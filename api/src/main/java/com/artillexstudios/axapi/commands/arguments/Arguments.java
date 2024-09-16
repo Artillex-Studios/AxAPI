@@ -14,7 +14,7 @@ import java.lang.reflect.Parameter;
 import java.util.HashMap;
 
 public class Arguments {
-    private static final HashMap<Class<?>, ArgumentType<Object, Object>> types = new HashMap<>();
+    private static final HashMap<Class<?>, ArgumentType<?, ?>> types = new HashMap<>();
     private static final Logger log = LoggerFactory.getLogger(Arguments.class);
     public static final ArgumentType<?, ?> PLAYER = register(Player.class, new InternalArgumentType("player"));
     public static final ArgumentType<?, ?> PLAYERS = register(Player[].class, new InternalArgumentType("players"));
@@ -38,13 +38,13 @@ public class Arguments {
     public static final ArgumentType<?, ?> LOCATION = register(Location.class, new InternalArgumentType("location"));
     public static final ArgumentType<?, ?> BLOCK = register(Block.class, new InternalArgumentType("block"));
 
-    public static ArgumentType<?, ?> register(Class<?> clazz, ArgumentType<Object, Object> argumentType) {
+    public static <T, Z> ArgumentType<T, Z> register(Class<?> clazz, ArgumentType<T, Z> argumentType) {
         log.info("Registered new type! {}", argumentType.type());
         types.put(clazz, argumentType);
         return argumentType;
     }
 
-    public static ArgumentType<Object, Object> parse(Parameter parameter) {
-        return types.get(parameter.getType());
+    public static <T, Z> ArgumentType<T, Z> parse(Parameter parameter) {
+        return (ArgumentType<T, Z>) types.get(parameter.getType());
     }
 }
