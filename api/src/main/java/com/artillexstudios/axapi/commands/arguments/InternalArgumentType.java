@@ -2,7 +2,7 @@ package com.artillexstudios.axapi.commands.arguments;
 
 import com.artillexstudios.axapi.commands.exception.CommandSyntaxException;
 
-class InternalArgumentType implements ArgumentType<Object, Object> {
+public class InternalArgumentType implements ArgumentType<Object, Object> {
     private final String id;
 
     protected InternalArgumentType(String id) {
@@ -20,7 +20,7 @@ class InternalArgumentType implements ArgumentType<Object, Object> {
     }
 
     @Override
-    public ArgumentType<?, ?> internalType() {
+    public ArgumentType<?, Object> internalType() {
         return null;
     }
 

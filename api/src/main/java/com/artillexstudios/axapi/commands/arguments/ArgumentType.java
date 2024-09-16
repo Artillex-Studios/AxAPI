@@ -7,11 +7,11 @@ import java.util.stream.Stream;
 
 public interface ArgumentType<T, Z> {
 
-    T parse(Object from) throws CommandSyntaxException;
+    T parse(Z from) throws CommandSyntaxException;
 
     Class<T> type();
 
-    ArgumentType<?, ?> internalType();
+    ArgumentType<?, Z> internalType();
 
     default Stream<String> listSuggestions(CommandContext context) {
         return Stream.empty();

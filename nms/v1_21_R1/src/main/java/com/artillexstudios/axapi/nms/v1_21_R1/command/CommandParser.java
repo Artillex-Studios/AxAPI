@@ -5,6 +5,7 @@ import com.artillexstudios.axapi.commands.RegisterableCommand;
 import com.artillexstudios.axapi.commands.SubCommand;
 import com.artillexstudios.axapi.commands.arguments.ArgumentType;
 import com.artillexstudios.axapi.commands.arguments.Arguments;
+import com.artillexstudios.axapi.commands.arguments.InternalArgumentType;
 import com.artillexstudios.axapi.commands.arguments.annotation.GreedyString;
 import com.artillexstudios.axapi.commands.arguments.annotation.Optional;
 import com.artillexstudios.axapi.commands.arguments.annotation.Ranged;
@@ -28,6 +29,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.DimensionArgument;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.GameModeArgument;
@@ -170,7 +172,14 @@ public class CommandParser {
                     CommandArgument argument = args.get(i);
 
                     com.mojang.brigadier.arguments.ArgumentType<?> argType = arguments.get(argument.type().internalType() != null ? argument.type().internalType() : argument.type()).apply(argument).getFirst();
-                    RequiredArgumentBuilder<CommandSourceStack, ?> arg = Commands.argument(argument.name(), argType).suggests(arguments.get(argument.type()).apply(argument).getFirst()::listSuggestions);
+                    RequiredArgumentBuilder<CommandSourceStack, ?> arg = Commands.argument(argument.name(), argType).suggests((a, b) -> {
+                        try {
+                            log.info("Suggestions: {}", arguments.get(argument.type()).apply(argument).getFirst().listSuggestions(a, b));
+                        } catch (Exception exception) {
+                            log.error("Uncaught exception!", exception);
+                        }
+                        return SharedSuggestionProvider.suggest(List.of("oreo", "bruh", "cookies"), b);
+                    });
 
                     Optional next;
                     if (i + 1 >= args.size()) {
@@ -193,7 +202,9 @@ public class CommandParser {
                                     Object returned = CommandParser.arguments.get(a.type().internalType() != null ? a.type().internalType() : a.type()).apply(a).getSecond().apply(Pair.of(stack, a.name()));
                                     log.info("Returned class type: {}", returned == null ? null : returned.getClass());
                                     try {
-                                        returned = a.type().parse(returned);
+                                        if (!(a.type() instanceof InternalArgumentType)) {
+                                            returned = a.type().parse(returned);
+                                        }
                                     } catch (com.artillexstudios.axapi.commands.exception.CommandSyntaxException e) {
                                         net.minecraft.network.chat.Component message = ComponentSerializer.INSTANCE.toVanilla(e.component());
                                         throw new CommandSyntaxException(new SimpleCommandExceptionType(message), message, e.input(), e.cursor());
@@ -227,6 +238,7 @@ public class CommandParser {
         return literal;
     }
 
+    // TODO: Transform from a class to a different class where we have from and to aswell.
     private static Object transform(Object obj, CommandSourceStack stack) {
         if (obj instanceof Collection<?> collection) {
             List<Object> objects = new ArrayList<>(collection.size());
