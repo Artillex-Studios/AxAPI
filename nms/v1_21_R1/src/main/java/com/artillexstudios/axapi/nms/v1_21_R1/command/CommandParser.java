@@ -10,6 +10,7 @@ import com.artillexstudios.axapi.commands.arguments.annotation.GreedyString;
 import com.artillexstudios.axapi.commands.arguments.annotation.Optional;
 import com.artillexstudios.axapi.commands.arguments.annotation.Ranged;
 import com.artillexstudios.axapi.commands.arguments.annotation.Word;
+import com.artillexstudios.axapi.commands.exception.NotCommandException;
 import com.artillexstudios.axapi.reflection.MethodInvoker;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.Pair;
@@ -30,6 +31,7 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.DimensionArgument;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.GameModeArgument;
@@ -45,6 +47,7 @@ import net.minecraft.world.phys.Vec3;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.CraftServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -145,6 +148,14 @@ public class CommandParser {
         String alias = command.aliases()[0];
         LiteralArgumentBuilder<CommandSourceStack> literal = Commands.literal(alias);
 
+        for (Class<?> declaredClass : command.instance().getClass().getDeclaredClasses()) {
+            try {
+                literal.then(parse(com.artillexstudios.axapi.commands.Commands.parse(declaredClass)));
+            } catch (NotCommandException ignored) {
+
+            }
+        }
+
         for (SubCommand subCommand : command.subCommands()) {
             if (subCommand.noArgs()) {
                 literal = literal.executes(stack -> {
@@ -173,9 +184,13 @@ public class CommandParser {
 
                     com.mojang.brigadier.arguments.ArgumentType<?> argType = arguments.get(argument.type().internalType() != null ? argument.type().internalType() : argument.type()).apply(argument).getFirst();
                     RequiredArgumentBuilder<CommandSourceStack, ?> arg = Commands.argument(argument.name(), argType).suggests((a, b) -> {
-                        CompletableFuture<Suggestions> sugg = arguments.get(argument.type()).apply(argument).getFirst().listSuggestions(a, b);
                         log.info("Suggestions!");
-                        return sugg;
+                        return SharedSuggestionProvider.suggest(argument.type().listSuggestions(new com.artillexstudios.axapi.commands.CommandContext() {
+                            @Override
+                            public CommandSender getSender() {
+                                return a.getSource().getBukkitSender();
+                            }
+                        }), b);
                     });
 
                     Optional next;

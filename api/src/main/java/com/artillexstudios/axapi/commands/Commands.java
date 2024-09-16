@@ -15,10 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Commands {
-
     private static final Logger log = LoggerFactory.getLogger(Commands.class);
 
-    public static void register(Class<?> commandClass) {
+    public static RegisterableCommand parse(Class<?> commandClass) {
         Object instance;
         try {
             instance = commandClass.getDeclaredConstructor().newInstance();
@@ -41,7 +40,11 @@ public class Commands {
             subCommands.add(new SubCommand(subCommand == null ? null : subCommand.value(), instance, method, arguments, noArgs != null));
         }
 
-        NMSHandlers.getNmsHandler().registerCommand(new RegisterableCommand(command.value(), instance, subCommands));
+        return new RegisterableCommand(command.value(), instance, subCommands);
+    }
+
+    public static void register(Class<?> commandClass) {
+        NMSHandlers.getNmsHandler().registerCommand(parse(commandClass));
     }
 
     public static <T, Z> void registerArgumentType(ArgumentType<T, Z> argumentType) {
