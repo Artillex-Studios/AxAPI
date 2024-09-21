@@ -28,7 +28,6 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import com.mojang.brigadier.suggestion.Suggestions;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -57,7 +56,6 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -183,21 +181,26 @@ public class CommandParser {
                     CommandArgument argument = args.get(i);
 
                     com.mojang.brigadier.arguments.ArgumentType<?> argType = arguments.get(argument.type().internalType() != null ? argument.type().internalType() : argument.type()).apply(argument).getFirst();
-                    RequiredArgumentBuilder<CommandSourceStack, ?> arg = Commands.argument(argument.name(), argType).suggests((a, b) -> {
-                        log.info("Suggestions!");
-                        return SharedSuggestionProvider.suggest(argument.type().listSuggestions(new com.artillexstudios.axapi.commands.CommandContext() {
-                            @Override
-                            public CommandSender getSender() {
-                                return a.getSource().getBukkitSender();
-                            }
-                        }), b);
-                    });
+                    RequiredArgumentBuilder<CommandSourceStack, ?> arg = Commands.argument(argument.name(), argType);
+                    if (argument.type().internalType() != null) {
+                        arg.suggests((a, b) -> {
+                            log.info("Suggestions!");
+                            return SharedSuggestionProvider.suggest(argument.type().listSuggestions(new com.artillexstudios.axapi.commands.CommandContext() {
+                                @Override
+                                public CommandSender getSender() {
+                                    return a.getSource().getBukkitSender();
+                                }
+                            }), b);
+                        });
+                    }
 
                     Optional next;
                     if (i + 1 >= args.size()) {
                         next = null;
+                        log.info("Out of bounds {}", argument.name());
                     } else {
                         next = args.get(i + 1).annotation(Optional.class);
+                        log.info("Optional {}", args.get(i + 1).name());
                     }
 
                     counter++;
