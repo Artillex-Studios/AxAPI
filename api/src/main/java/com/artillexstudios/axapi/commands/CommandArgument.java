@@ -1,12 +1,15 @@
 package com.artillexstudios.axapi.commands;
 
 import com.artillexstudios.axapi.commands.arguments.ArgumentType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
 
 public class CommandArgument {
+    private static final Logger log = LoggerFactory.getLogger(CommandArgument.class);
     private final ArgumentType<Object, Object> type;
     private final String name;
     private final Class<?> inputType;
@@ -28,6 +31,7 @@ public class CommandArgument {
     }
 
     public <T extends Annotation> T annotation(Class<T> annotationClass) {
+        log.info("Annotations: {}", annotations);
         return annotationClass.cast(annotations.get(annotationClass));
     }
 

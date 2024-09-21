@@ -2,6 +2,7 @@ package com.artillexstudios.axapi.packetentity.meta.serializer;
 
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.utils.ParticleArguments;
+import com.artillexstudios.axapi.utils.Vector3f;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Particle;
 import org.bukkit.entity.Pose;
@@ -30,4 +31,17 @@ public final class Accessors {
     public static final EntityDataAccessor<Integer> AREA_EFFECT_CLOUD_COLOR = EntityDataSerializers.INT.createAccessor(9);
     public static final EntityDataAccessor<Boolean> AREA_EFFECT_CLOUD_POINT = EntityDataSerializers.BOOLEAN.createAccessor(10);
     public static final EntityDataAccessor<ParticleArguments> AREA_EFFECT_CLOUD_PARTICLE = EntityDataSerializers.PARTICLE.createAccessor(11);
+    public static final EntityDataAccessor<Integer> INTERPOLATION_DELAY = EntityDataSerializers.INT.createAccessor(8);
+    public static final EntityDataAccessor<Integer> TRANSFORMATION_INTERPOLATION_DURATION = EntityDataSerializers.INT.createAccessor(9);
+    public static final EntityDataAccessor<Integer> POSITION_INTERPOLATION_DURATION = EntityDataSerializers.INT.createAccessor(10);
+    public static final EntityDataAccessor<Vector3f> TRANSLATION = EntityDataSerializers.VECTOR3.createAccessor(11);
+    public static final EntityDataAccessor<Vector3f> SCALE = EntityDataSerializers.VECTOR3.createAccessor(12);
+    public static final EntityDataAccessor<Byte> BILLBOARD_CONSTRAINT = EntityDataSerializers.BYTE.createAccessor(15);
+    public static final EntityDataAccessor<Integer> BRIGHTNESS_OVERRIDE = EntityDataSerializers.INT.createAccessor(16);
+    public static final EntityDataAccessor<Float> VIEW_RANGE = EntityDataSerializers.FLOAT.createAccessor(17);
+    public static final EntityDataAccessor<Float> SHADOW_RADIUS = EntityDataSerializers.FLOAT.createAccessor(18);
+    public static final EntityDataAccessor<Float> SHADOW_STRENGTH = EntityDataSerializers.FLOAT.createAccessor(19);
+    public static final EntityDataAccessor<Float> WIDTH = EntityDataSerializers.FLOAT.createAccessor(20);
+    public static final EntityDataAccessor<Float> HEIGHT = EntityDataSerializers.FLOAT.createAccessor(21);
+    public static final EntityDataAccessor<Integer> GLOW_COLOR_OVERRIDE = EntityDataSerializers.INT.createAccessor(22);
 }

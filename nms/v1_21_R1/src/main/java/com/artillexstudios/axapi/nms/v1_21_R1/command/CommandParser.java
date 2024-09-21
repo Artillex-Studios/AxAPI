@@ -186,7 +186,7 @@ public class CommandParser {
                     }
 
                     Optional next;
-                    if (i + 1 > args.size()) {
+                    if (i + 1 >= args.size()) {
                         next = null;
                         log.info("Out of bounds {}", argument.name());
                     } else {
@@ -194,12 +194,12 @@ public class CommandParser {
                         log.info("Optional {}", args.get(i + 1).name());
                     }
 
+                    if (next != null) {
+                        log.info("Next is not null: {}", argument.name());
+                    }
+
                     counter++;
                     if (counter == args.size() || next != null) {
-                        if (next != null) {
-                            log.info("Next is not null: {}", argument.name());
-                        }
-
                         arg.executes(stack -> {
                             Method method = subCommand.method();
                             Object[] arguments = new Object[method.getParameterCount()];
@@ -245,6 +245,8 @@ public class CommandParser {
                 literal = literal.then(l);
             }
         }
+
+        log.info("Tree: {}", literal);
 
         return literal;
     }
