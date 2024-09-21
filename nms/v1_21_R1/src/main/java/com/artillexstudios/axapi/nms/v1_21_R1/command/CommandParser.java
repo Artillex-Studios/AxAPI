@@ -188,7 +188,9 @@ public class CommandParser {
                     Optional next;
                     if (i + 1 >= args.size()) {
                         next = null;
-                        log.info("Out of bounds {}", argument.name());
+                        if (i == args.size() - 1) {
+                            next = args.get(i).annotation(Optional.class);
+                        }
                     } else {
                         next = args.get(i + 1).annotation(Optional.class);
                         log.info("Optional {}", args.get(i + 1).name());
