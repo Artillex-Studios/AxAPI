@@ -46,7 +46,6 @@ import net.minecraft.world.phys.Vec3;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.CraftServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -183,19 +182,11 @@ public class CommandParser {
                     com.mojang.brigadier.arguments.ArgumentType<?> argType = arguments.get(argument.type().internalType() != null ? argument.type().internalType() : argument.type()).apply(argument).getFirst();
                     RequiredArgumentBuilder<CommandSourceStack, ?> arg = Commands.argument(argument.name(), argType);
                     if (argument.type().internalType() != null) {
-                        arg.suggests((a, b) -> {
-                            log.info("Suggestions!");
-                            return SharedSuggestionProvider.suggest(argument.type().listSuggestions(new com.artillexstudios.axapi.commands.CommandContext() {
-                                @Override
-                                public CommandSender getSender() {
-                                    return a.getSource().getBukkitSender();
-                                }
-                            }), b);
-                        });
+                        arg.suggests((a, b) -> SharedSuggestionProvider.suggest(argument.type().listSuggestions(() -> a.getSource().getBukkitSender()), b));
                     }
 
                     Optional next;
-                    if (i + 1 >= args.size()) {
+                    if (i + 1 > args.size()) {
                         next = null;
                         log.info("Out of bounds {}", argument.name());
                     } else {
