@@ -90,8 +90,4 @@ public interface NMSHandler {
     LootTable lootTable(Key key);
 
     List<Player> players(World world);
-
-    default void printUsefulData(BlockBreakEvent event) {
-
-    }
 }

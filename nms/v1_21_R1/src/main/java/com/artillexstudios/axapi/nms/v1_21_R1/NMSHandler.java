@@ -7,7 +7,6 @@ import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.loot.LootTable;
 import com.artillexstudios.axapi.nms.v1_21_R1.packet.PacketListener;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
-import com.artillexstudios.axapi.reflection.ClassUtils;
 import com.artillexstudios.axapi.reflection.FastFieldAccessor;
 import com.artillexstudios.axapi.selection.BlockSetter;
 import com.artillexstudios.axapi.selection.ParallelBlockSetter;
@@ -48,9 +47,6 @@ import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.chunk.LevelChunkSection;
-import net.minecraft.world.level.chunk.PalettedContainer;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -68,14 +64,11 @@ import org.bukkit.craftbukkit.util.CraftMagicNumbers;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -365,53 +358,6 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
         }
 
         return playerList;
-    }
-
-    private static final FastFieldAccessor dataAccessor = FastFieldAccessor.forClassField(PalettedContainer.class, "d");
-    private static final FastFieldAccessor strategy = FastFieldAccessor.forClassField(PalettedContainer.class, "e");
-    private static final Method configuration = ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$c").getRecordComponents()[0].getAccessor();
-    private static final Method storage = ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$c").getRecordComponents()[1].getAccessor();
-    private static final Method plt = ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$c").getRecordComponents()[2].getAccessor();
-    private static final Method factory = ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$a").getRecordComponents()[0].getAccessor();
-    private static final Method bits = ClassUtils.INSTANCE.getClass("net.minecraft.world.level.chunk.DataPaletteBlock$a").getRecordComponents()[1].getAccessor();
-
-    @Override
-    public void printUsefulData(BlockBreakEvent event) {
-        CraftWorld cw = (CraftWorld) event.getBlock().getLocation().getWorld();
-        LevelChunk levelChunk = cw.getHandle().getChunk(event.getBlock().getLocation().getBlockX() >> 4, event.getBlock().getLocation().getBlockX() >> 4);
-        LevelChunkSection section = levelChunk.getSection(levelChunk.getSectionIndex(event.getBlock().getLocation().getBlockY()));
-        log.info("Section: {}", section);
-        log.info("State data: {}", section.getStates().data);
-        log.info("State registry: {}", section.getStates().registry);
-        Object data = section.getStates().data;
-        Object st;
-        Object pt;
-        Object cf;
-        Object fact;
-        Object bit;
-        try {
-            storage.setAccessible(true);
-            plt.setAccessible(true);
-            configuration.setAccessible(true);
-            factory.setAccessible(true);
-            bits.setAccessible(true);
-
-            st = storage.invoke(data);
-            pt = plt.invoke(data);
-            cf = configuration.invoke(data);
-            fact = factory.invoke(cf);
-            bit = bits.invoke(cf);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            log.error("Error", e);
-            throw new RuntimeException(e);
-        }
-
-        log.info("Storage class: {}", st.getClass());
-        log.info("Palette class: {}", pt.getClass());
-        log.info("Strategy: {}", strategy.get(section.getStates()).getClass());
-        log.info("Configuration class: {}", cf.getClass());
-        log.info("Factory class: {}", fact.getClass());
-        log.info("Bits: {}", bit);
     }
 
     private Channel getChannel(Connection connection) {
