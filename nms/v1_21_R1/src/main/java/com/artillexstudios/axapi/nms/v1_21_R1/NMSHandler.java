@@ -383,7 +383,7 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
         log.info("Section: {}", section);
         log.info("State data: {}", section.getStates().data);
         log.info("State registry: {}", section.getStates().registry);
-        Object data = dataAccessor.get(section.getStates().data);
+        Object data = section.getStates().data;
         Object st;
         Object pt;
         Object cf;
