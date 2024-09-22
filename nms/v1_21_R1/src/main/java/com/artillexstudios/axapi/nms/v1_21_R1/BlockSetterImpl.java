@@ -66,11 +66,13 @@ public class BlockSetterImpl implements BlockSetter {
 
     @Override
     public void finalise() {
-        relight();
-
         for (ChunkPos chunk : chunks) {
-            sendUpdatePacket(level.getChunk(chunk.x, chunk.z));
+            LevelChunk levelChunk = level.getChunk(chunk.x, chunk.z);
+            levelChunk.setUnsaved(true);
+            sendUpdatePacket(levelChunk);
         }
+
+        relight();
 
         chunks.clear();
     }

@@ -196,11 +196,13 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
 
                 thisChunk.thenAccept((ignored) -> MinecraftServer.getServer().submit(() -> {
                     var lightEngine = level.chunkSource.getLightEngine();
+                    levelChunk.setUnsaved(true);
+                    sendUpdatePacket(levelChunk);
                     lightEngine.starlight$serverRelightChunks(Sets.newHashSet(levelChunk.getPos()), c -> {
                     }, c -> {
                     });
 
-                    sendUpdatePacket(levelChunk);
+
                 }));
 
                 chunkTasks.add(thisChunk);
