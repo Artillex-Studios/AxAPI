@@ -23,6 +23,7 @@ import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.slf4j.Logger;
@@ -89,4 +90,8 @@ public interface NMSHandler {
     LootTable lootTable(Key key);
 
     List<Player> players(World world);
+
+    default void printUsefulData(BlockBreakEvent event) {
+
+    }
 }
