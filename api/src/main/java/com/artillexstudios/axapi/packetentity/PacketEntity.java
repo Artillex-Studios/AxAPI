@@ -43,6 +43,10 @@ public interface PacketEntity {
 
     int id();
 
+    int viewDistanceSquared();
+
+    void viewDistance(int blocks);
+
     /**
      * Adds the entity into our tracker
      */

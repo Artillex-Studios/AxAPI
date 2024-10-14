@@ -74,6 +74,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     private Consumer<PacketEntityInteractEvent> interactConsumer;
     private boolean hasInvertedVisibility = false;
     private float yHeadRot = 0;
+    private int viewDistanceSquared = 32 * 32;
 
     public PacketEntity(EntityType entityType, Location location) {
         this.id = NMSHandlers.getNmsHandler().nextEntityId();
@@ -126,6 +127,16 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     @Override
     public int id() {
         return this.id;
+    }
+
+    @Override
+    public int viewDistanceSquared() {
+        return this.viewDistanceSquared;
+    }
+
+    @Override
+    public void viewDistance(int blocks) {
+        this.viewDistanceSquared = blocks * blocks;
     }
 
     @Override
@@ -308,7 +319,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     @Override
     public boolean canSee(Player player) {
         if (!this.hasInvertedVisibility) {
-            return true;
+            return this.visibleByDefault;
         }
 
         return this.visibleByDefault ^ this.invertedVisibilityEntities.contains(player);

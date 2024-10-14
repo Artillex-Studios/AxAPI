@@ -132,7 +132,7 @@ public final class EntityTracker {
             double dx = location.getX() - this.entity.location().getX();
             double dz = location.getZ() - this.entity.location().getZ();
             double d1 = dx * dx + dz * dz;
-            boolean flag = d1 <= 32 * 32;
+            boolean flag = d1 <= this.entity.viewDistanceSquared();
 
             if (flag && !this.entity.canSee(player)) {
                 flag = false;
