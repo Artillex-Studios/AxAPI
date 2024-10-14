@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.placeholders;
 
+import com.artillexstudios.axapi.utils.LogUtils;
 import com.artillexstudios.axapi.utils.Pair;
 import com.artillexstudios.axapi.utils.functions.ThrowingFunction;
 
@@ -15,8 +16,14 @@ public final class Placeholders {
     private static final HashMap<String, ThrowingFunction<Context, String, ParameterNotInContextException>> internalOfflinePlayers = new HashMap<>();
     private static final HashMap<String, ThrowingFunction<Context, String, ParameterNotInContextException>> internalOnlinePlayers = new HashMap<>();
     private static final IdentityHashMap<Class<?>, Pair<Class<?>, ThrowingFunction<Object, Object, ParameterNotInContextException>>> transformers = new IdentityHashMap<>();
+    private static boolean locked = false;
 
     public static <T, Z> void registerTransformer(Class<T> fromClazz, Class<Z> toClazz, ThrowingFunction<T, Z, ParameterNotInContextException> transformer) {
+        if (locked) {
+            LogUtils.error("Placeholder registration has already been locked!");
+            return;
+        }
+
         transformers.put(toClazz, Pair.of(fromClazz, (ThrowingFunction<Object, Object, ParameterNotInContextException>) transformer));
     }
 
@@ -54,6 +61,11 @@ public final class Placeholders {
     }
 
     public static void register(String placeholder, ThrowingFunction<Context, String, ParameterNotInContextException> function, ParseContext context, ResolutionType resolutionType) {
+        if (locked) {
+            LogUtils.error("Placeholder registration has already been locked!");
+            return;
+        }
+
         if (context == ParseContext.PLACEHOLDER_API || context == ParseContext.BOTH) {
             if (resolutionType == ResolutionType.ONLINE) {
                 placeholderAPIOnlinePlayers.put(placeholder, function);
@@ -131,6 +143,15 @@ public final class Placeholders {
         }
 
         return placeholders;
+    }
+
+    public static void lock() {
+        if (locked) {
+            LogUtils.error("Placeholder registration has already been locked!");
+            return;
+        }
+
+        locked = true;
     }
 
     static IdentityHashMap<Class<?>, Pair<Class<?>, ThrowingFunction<Object, Object, ParameterNotInContextException>>> transformers() {

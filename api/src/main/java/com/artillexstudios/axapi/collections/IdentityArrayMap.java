@@ -9,6 +9,12 @@ public class IdentityArrayMap<K, V> implements Map<K, V> {
     private Object[] values;
     private int size;
 
+    public IdentityArrayMap() {
+        this.size = 0;
+        this.keys = new Object[0];
+        this.values = new Object[0];
+    }
+
     @Override
     public int size() {
         return this.size;
