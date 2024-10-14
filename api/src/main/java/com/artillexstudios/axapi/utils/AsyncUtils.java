@@ -1,6 +1,5 @@
 package com.artillexstudios.axapi.utils;
 
-
 import com.artillexstudios.axapi.AxPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -10,21 +9,25 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class AsyncUtils {
     private static final Logger log = LoggerFactory.getLogger(AsyncUtils.class);
-    private static ExecutorService executorService;
+    private static ScheduledExecutorService executorService;
 
     public static void setup(int poolSize) {
-        executorService = Executors.newFixedThreadPool(Math.max(1, poolSize), new ThreadFactory() {
+        executorService = Executors.newScheduledThreadPool(Math.max(1, poolSize), new ThreadFactory() {
             private final AtomicInteger counter = new AtomicInteger(1);
 
             @Override
             public Thread newThread(@NotNull Runnable runnable) {
-                return new Thread(null, runnable, AxPlugin.getPlugin(AxPlugin.class).getName() + "-Async-Processor-Thread-" + counter.getAndIncrement());
+                Thread thread = new Thread(null, runnable, AxPlugin.getPlugin(AxPlugin.class).getName() + "-Async-Processor-Thread-" + counter.getAndIncrement());
+                thread.setUncaughtExceptionHandler((t, exception) -> LogUtils.error("An uncaught error occurred on thread {}!", t, exception));
+                return thread;
             }
         });
     }
@@ -50,6 +53,14 @@ public final class AsyncUtils {
 
     public static Future<?> submit(Runnable runnable) {
         return executorService.submit(runnable);
+    }
+
+    public static ScheduledFuture<?> scheduleAtFixedRate(Runnable runnable, long initDelay, long period, TimeUnit timeUnit) {
+        return executorService.scheduleAtFixedRate(runnable, initDelay, period, timeUnit);
+    }
+
+    public static ScheduledFuture<?> runLater(Runnable runnable, long delay, TimeUnit timeUnit) {
+        return executorService.schedule(runnable, delay, timeUnit);
     }
 
     public static ExecutorService executor() {

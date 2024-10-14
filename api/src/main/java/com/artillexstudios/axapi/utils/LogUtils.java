@@ -1,52 +1,69 @@
 package com.artillexstudios.axapi.utils;
 
-import com.artillexstudios.axapi.AxPlugin;
-import org.bukkit.plugin.Plugin;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
+public final class LogUtils {
+    private static final StackWalker STACK_WALKER = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
+    private static final FileLogger logger = new FileLogger("logs");
 
-public class LogUtils {
-    private static final Plugin INSTANCE = AxPlugin.getPlugin(AxPlugin.class);
-    private static final Path LOGS_PATH = INSTANCE.getDataFolder().toPath().resolve("logs/");
-    private static final Logger log = LoggerFactory.getLogger(LogUtils.class);
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("[HH:mm:ss]");
+    public static void debug(String message) {
+        LoggerFactory.getLogger(STACK_WALKER.getCallerClass()).info(message);
+        logger.log(message);
+    }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static void log(String log) {
-        ZonedDateTime time = ZonedDateTime.now(ZoneId.systemDefault());
+    public static void debug(String message, Object object) {
+        LoggerFactory.getLogger(STACK_WALKER.getCallerClass()).info(message, object);
 
-        String date = time.format(DATE_FORMAT);
-        Path logPath = LOGS_PATH.resolve(date + ".log");
-        File logFile = logPath.toFile();
+        String formatted = org.apache.commons.lang.StringUtils.replace(message, "{}", object == null ? "null" : object.toString(), 1);
+        logger.log(formatted);
+    }
 
-        if (!logFile.getParentFile().exists()) {
-            logFile.getParentFile().mkdir();
+    public static void debug(String message, Object object, Object object2) {
+        LoggerFactory.getLogger(STACK_WALKER.getCallerClass()).info(message, object, object2);
+
+        String formatted = org.apache.commons.lang.StringUtils.replace(message, "{}", object == null ? "null" : object.toString(), 1);
+        formatted = org.apache.commons.lang.StringUtils.replace(formatted, "{}", object2 == null ? "null" : object2.toString(), 1);
+        logger.log(formatted);
+    }
+
+    public static void debug(String message, Object object, Object object2, Object object3) {
+        LoggerFactory.getLogger(STACK_WALKER.getCallerClass()).info(message, object, object2, object3);
+
+        String formatted = org.apache.commons.lang.StringUtils.replace(message, "{}", object == null ? "null" : object.toString(), 1);
+        formatted = org.apache.commons.lang.StringUtils.replace(formatted, "{}", object2 == null ? "null" : object2.toString(), 1);
+        formatted = org.apache.commons.lang.StringUtils.replace(formatted, "{}", object3 == null ? "null" : object3.toString(), 1);
+        logger.log(formatted);
+    }
+
+    public static void debug(String message, Object object, Object object2, Object object3, Object object4) {
+        LoggerFactory.getLogger(STACK_WALKER.getCallerClass()).info(message, object, object2, object3, object4);
+
+        String formatted = org.apache.commons.lang.StringUtils.replace(message, "{}", object == null ? "null" : object.toString(), 1);
+        formatted = org.apache.commons.lang.StringUtils.replace(formatted, "{}", object2 == null ? "null" : object2.toString(), 1);
+        formatted = org.apache.commons.lang.StringUtils.replace(formatted, "{}", object3 == null ? "null" : object3.toString(), 1);
+        formatted = org.apache.commons.lang.StringUtils.replace(formatted, "{}", object4 == null ? "null" : object4.toString(), 1);
+        logger.log(formatted);
+    }
+
+    public static void debug(String message, Object... arguments) {
+        LoggerFactory.getLogger(STACK_WALKER.getCallerClass()).info(message, arguments);
+
+        String formatted = message;
+        for (Object argument : arguments) {
+            formatted = org.apache.commons.lang.StringUtils.replace(formatted, "{}", argument == null ? "null" : argument.toString(), 1);
         }
+        logger.log(formatted);
+    }
 
-        try {
-            logFile.createNewFile();
-        } catch (IOException exception) {
-            LogUtils.log.error("An unexpected error occurred while creating new file!", exception);
-        }
+    public static void warn(String message, Object... arguments) {
+        LoggerFactory.getLogger(STACK_WALKER.getCallerClass()).warn(message, arguments);
+    }
 
-        String formattedTime = TIME_FORMAT.format(time);
-        try (FileWriter fileWriter = new FileWriter(logFile, true); PrintWriter printWriter = new PrintWriter(fileWriter)) {
-            printWriter.print("[" + formattedTime + "] ");
-            printWriter.println(log);
-        } catch (IOException exception) {
-            LogUtils.log.error("An unexpected error occurred while writing to log file!", exception);
-        }
+    public static void error(String message, Object... arguments) {
+        LoggerFactory.getLogger(STACK_WALKER.getCallerClass()).error(message, arguments);
+    }
+
+    public static void info(String message, Object... arguments) {
+        LoggerFactory.getLogger(STACK_WALKER.getCallerClass()).info(message, arguments);
     }
 }

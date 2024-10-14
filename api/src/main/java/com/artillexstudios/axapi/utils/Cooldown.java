@@ -41,7 +41,7 @@ public class Cooldown<T> {
     public void remove(T key) {
         doHouseKeeping();
 
-        cooldowns.remove(key);
+        cooldowns.removeLong(key);
     }
 
     private void doHouseKeeping() {
