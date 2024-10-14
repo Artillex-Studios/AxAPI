@@ -5,14 +5,14 @@ import java.util.Map;
 import java.util.Set;
 
 public class IdentityArrayMap<K, V> implements Map<K, V> {
+    private static final Object[] EMPTY_ARRAY = new Object[0];
     private Object[] keys;
     private Object[] values;
     private int size;
 
     public IdentityArrayMap() {
-        this.size = 0;
-        this.keys = new Object[0];
-        this.values = new Object[0];
+        this.keys = EMPTY_ARRAY;
+        this.values = EMPTY_ARRAY;
     }
 
     @Override
@@ -110,7 +110,7 @@ public class IdentityArrayMap<K, V> implements Map<K, V> {
 
     @Override
     public Set<K> keySet() {
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     @Override
@@ -126,6 +126,10 @@ public class IdentityArrayMap<K, V> implements Map<K, V> {
     private int findKey(Object key) {
         Object[] keys = this.keys;
         int i = this.size;
+
+        if (i == keys.length) {
+            return -1;
+        }
 
         while (keys[i] != key) {
             if (i-- == 0) {
