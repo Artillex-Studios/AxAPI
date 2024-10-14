@@ -1,0 +1,139 @@
+package com.artillexstudios.axapi.placeholders;
+
+import com.artillexstudios.axapi.utils.Pair;
+import com.artillexstudios.axapi.utils.functions.ThrowingFunction;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+
+public final class Placeholders {
+    private static final HashMap<String, ThrowingFunction<Context, String, ParameterNotInContextException>> placeholderAPIOfflinePlayers = new HashMap<>();
+    private static final HashMap<String, ThrowingFunction<Context, String, ParameterNotInContextException>> placeholderAPIOnlinePlayers = new HashMap<>();
+    private static final HashMap<String, ThrowingFunction<Context, String, ParameterNotInContextException>> internalOfflinePlayers = new HashMap<>();
+    private static final HashMap<String, ThrowingFunction<Context, String, ParameterNotInContextException>> internalOnlinePlayers = new HashMap<>();
+    private static final IdentityHashMap<Class<?>, Pair<Class<?>, ThrowingFunction<Object, Object, ParameterNotInContextException>>> transformers = new IdentityHashMap<>();
+
+    public static <T, Z> void registerTransformer(Class<T> fromClazz, Class<Z> toClazz, ThrowingFunction<T, Z, ParameterNotInContextException> transformer) {
+        transformers.put(toClazz, Pair.of(fromClazz, (ThrowingFunction<Object, Object, ParameterNotInContextException>) transformer));
+    }
+
+    public static void register(String placeholder, ThrowingFunction<Context, String, ParameterNotInContextException> function) {
+        register(placeholder, function, ParseContext.BOTH);
+    }
+
+    public static List<String> placeholders(ParseContext context) {
+        List<String> placeholders = new ArrayList<>();
+        if (context == ParseContext.PLACEHOLDER_API || context == ParseContext.BOTH) {
+            for (String s : placeholderAPIOnlinePlayers.keySet()) {
+                placeholders.add("%axteams_" + s + "%");
+            }
+
+            for (String s : placeholderAPIOfflinePlayers.keySet()) {
+                placeholders.add("%axteams_" + s + "%");
+            }
+        }
+
+        if (context == ParseContext.INTERNAL || context == ParseContext.BOTH) {
+            for (String s : internalOfflinePlayers.keySet()) {
+                placeholders.add("%" + s + "%");
+            }
+
+            for (String s : internalOnlinePlayers.keySet()) {
+                placeholders.add("%" + s + "%");
+            }
+        }
+
+        return placeholders;
+    }
+
+    public static void register(String placeholder, ThrowingFunction<Context, String, ParameterNotInContextException> function, ParseContext context) {
+        register(placeholder, function, context, ResolutionType.OFFLINE);
+    }
+
+    public static void register(String placeholder, ThrowingFunction<Context, String, ParameterNotInContextException> function, ParseContext context, ResolutionType resolutionType) {
+        if (context == ParseContext.PLACEHOLDER_API || context == ParseContext.BOTH) {
+            if (resolutionType == ResolutionType.ONLINE) {
+                placeholderAPIOnlinePlayers.put(placeholder, function);
+            } else {
+                placeholderAPIOfflinePlayers.put(placeholder, function);
+            }
+        }
+
+        if (context == ParseContext.INTERNAL || context == ParseContext.BOTH) {
+            placeholder = "%" + placeholder + "%";
+            if (resolutionType == ResolutionType.ONLINE) {
+                internalOnlinePlayers.put(placeholder, function);
+            } else {
+                internalOfflinePlayers.put(placeholder, function);
+            }
+        }
+    }
+
+    public static String parse(String string, Context.Builder builder) {
+        HashMap<String, ThrowingFunction<Context, String, ParameterNotInContextException>> inContext = match(builder);
+        Context context = builder.build();
+
+        if (builder.context() == ParseContext.PLACEHOLDER_API) {
+            if (builder.resolutionType() == ResolutionType.ONLINE) {
+                for (Map.Entry<String, ThrowingFunction<Context, String, ParameterNotInContextException>> entry : placeholderAPIOnlinePlayers.entrySet()) {
+                    if (entry.getKey().equals(string)) {
+                        try {
+                            return entry.getValue().apply(context);
+                        } catch (ParameterNotInContextException exception) {
+                            return string;
+                        }
+                    }
+                }
+            } else {
+                for (Map.Entry<String, ThrowingFunction<Context, String, ParameterNotInContextException>> entry : placeholderAPIOfflinePlayers.entrySet()) {
+                    if (entry.getKey().equals(string)) {
+                        try {
+                            return entry.getValue().apply(context);
+                        } catch (ParameterNotInContextException exception) {
+                            return string;
+                        }
+                    }
+                }
+            }
+
+            return string;
+        }
+
+        for (Map.Entry<String, ThrowingFunction<Context, String, ParameterNotInContextException>> entry : inContext.entrySet()) {
+            try {
+                string = string.replace(entry.getKey(), entry.getValue().apply(context));
+            } catch (ParameterNotInContextException ignored) {
+            }
+        }
+
+        return string;
+    }
+
+    private static HashMap<String, ThrowingFunction<Context, String, ParameterNotInContextException>> match(Context.Builder builder) {
+        HashMap<String, ThrowingFunction<Context, String, ParameterNotInContextException>> placeholders = new HashMap<>();
+        if (builder.context() == ParseContext.PLACEHOLDER_API || builder.context() == ParseContext.BOTH) {
+            if (builder.resolutionType() == ResolutionType.ONLINE) {
+                placeholders.putAll(placeholderAPIOnlinePlayers);
+            } else {
+                placeholders.putAll(placeholderAPIOfflinePlayers);
+            }
+        }
+
+        if (builder.context() == ParseContext.INTERNAL || builder.context() == ParseContext.BOTH) {
+            if (builder.resolutionType() == ResolutionType.ONLINE) {
+                placeholders.putAll(internalOnlinePlayers);
+            } else {
+                placeholders.putAll(internalOfflinePlayers);
+            }
+        }
+
+        return placeholders;
+    }
+
+    static IdentityHashMap<Class<?>, Pair<Class<?>, ThrowingFunction<Object, Object, ParameterNotInContextException>>> transformers() {
+        return transformers;
+    }
+}

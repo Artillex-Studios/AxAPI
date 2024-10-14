@@ -8,6 +8,7 @@ import com.artillexstudios.axapi.hologram.Holograms;
 import com.artillexstudios.axapi.items.component.DataComponents;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.packetentity.tracker.EntityTracker;
+import com.artillexstudios.axapi.placeholders.PlaceholderAPIHook;
 import com.artillexstudios.axapi.scheduler.Scheduler;
 import com.artillexstudios.axapi.utils.FeatureFlags;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -109,6 +110,10 @@ public abstract class AxPlugin extends JavaPlugin {
         }
 
         enable();
+
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            new PlaceholderAPIHook().register();
+        }
     }
 
     public void enable() {
