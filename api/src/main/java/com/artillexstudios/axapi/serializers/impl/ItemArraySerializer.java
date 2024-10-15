@@ -3,6 +3,7 @@ package com.artillexstudios.axapi.serializers.impl;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.serializers.Serializer;
+import com.artillexstudios.axapi.utils.LogUtils;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
@@ -26,9 +27,14 @@ public class ItemArraySerializer implements Serializer<ItemStack[], byte[]> {
                 continue;
             }
 
-            byte[] serialized = WrappedItemStack.wrap(item).serialize();
-            outputStream.writeShort(serialized.length);
-            outputStream.write(serialized);
+            try {
+                byte[] serialized = WrappedItemStack.wrap(item).serialize();
+                outputStream.writeShort(serialized.length);
+                outputStream.write(serialized);
+            } catch (IllegalArgumentException exception) {
+                LogUtils.error("An unexpected error occurred while serializing itemstack of type {}. Item: {} SNBT: {}", item.getType(), item, WrappedItemStack.wrap(item).toSNBT(), exception);
+                outputStream.writeShort(0);
+            }
         }
 
         return outputStream.toByteArray();
