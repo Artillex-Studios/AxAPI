@@ -6,8 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -20,14 +18,12 @@ public final class AsyncUtils {
     private static ScheduledExecutorService executorService;
 
     public static void setup(int poolSize) {
-        executorService = Executors.newScheduledThreadPool(Math.max(1, poolSize), new ThreadFactory() {
+        executorService = new ExceptionReportingScheduledThreadPool(Math.max(1, poolSize), new ThreadFactory() {
             private final AtomicInteger counter = new AtomicInteger(1);
 
             @Override
             public Thread newThread(@NotNull Runnable runnable) {
-                Thread thread = new Thread(null, runnable, AxPlugin.getPlugin(AxPlugin.class).getName() + "-Async-Processor-Thread-" + counter.getAndIncrement());
-                thread.setUncaughtExceptionHandler((t, exception) -> LogUtils.error("An uncaught error occurred on thread {}!", t, exception));
-                return thread;
+                return new Thread(null, runnable, AxPlugin.getPlugin(AxPlugin.class).getName() + "-Async-Processor-Thread-" + counter.getAndIncrement());
             }
         });
     }
@@ -63,7 +59,7 @@ public final class AsyncUtils {
         return executorService.schedule(runnable, delay, timeUnit);
     }
 
-    public static ExecutorService executor() {
+    public static ScheduledExecutorService executor() {
         return executorService;
     }
 
@@ -72,7 +68,7 @@ public final class AsyncUtils {
             executorService.shutdown();
             executorService.awaitTermination(1, TimeUnit.MINUTES);
         } catch (InterruptedException exception) {
-            log.error("An unexpected error occurred while stopping DataHandler!", exception);
+            log.error("An unexpected error occurred while stopping AsyncUtils!", exception);
         }
     }
 }
