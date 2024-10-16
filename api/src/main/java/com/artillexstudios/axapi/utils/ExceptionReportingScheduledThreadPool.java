@@ -25,7 +25,7 @@ public class ExceptionReportingScheduledThreadPool extends ScheduledThreadPoolEx
                 } catch (InterruptedException exception) {
                     throw new RuntimeException(exception);
                 } catch (ExecutionException exception) {
-                    LogUtils.error("An uncaught exception occurred on thread {}!", Thread.currentThread().getName(), exception);
+                    LogUtils.error("An uncaught exception occurred on thread {}!", Thread.currentThread().getName(), exception.getCause());
                 }
             }
         }
