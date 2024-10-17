@@ -12,7 +12,6 @@ import com.artillexstudios.axapi.placeholders.PlaceholderAPIHook;
 import com.artillexstudios.axapi.placeholders.Placeholders;
 import com.artillexstudios.axapi.scheduler.Scheduler;
 import com.artillexstudios.axapi.utils.FeatureFlags;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -25,7 +24,6 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ConcurrentModificationException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -48,23 +46,7 @@ public abstract class AxPlugin extends JavaPlugin {
 
         if (hasNMSHandler) {
             if (tracker != null) {
-                Executors.newScheduledThreadPool(FeatureFlags.PACKET_ENTITY_TRACKER_THREADS.get(), new ThreadFactoryBuilder().setNameFormat(this.getName() + "-EntityTracker-%s").setUncaughtExceptionHandler((thread, exception) -> log.error("Thread {} threw an uncaught exception!", thread, exception)).build()).scheduleAtFixedRate(() -> {
-                    try {
-                        tracker.process();
-                    } catch (Exception exception) {
-                        if (exception instanceof ConcurrentModificationException) {
-                            // There's something weird with the entity tracker after the server starts up.
-                            // Nothing blew up yet, so I guess the error is safe to ignore...
-                            // If something blows up, I'm not the person to blame!
-                            // (But people don't like seeing errors, so this is the solution until I find out what causes the tracker to throw a CME)
-                            //
-                            // Please don't hunt me for this, I didn't want to do it.
-                            return;
-                        }
-
-                        log.error("An unexpected error occurred while processing packet entities via the tracker!", exception);
-                    }
-                }, 0, 50, TimeUnit.MILLISECONDS);
+                tracker.startTicking();
             }
 
             Bukkit.getPluginManager().registerEvents(new Listener() {
@@ -113,7 +95,7 @@ public abstract class AxPlugin extends JavaPlugin {
         enable();
 
         Placeholders.lock();
-        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+        if (FeatureFlags.PLACEHOLDER_API_HOOK.get() && Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new PlaceholderAPIHook().register();
         }
     }
@@ -166,6 +148,8 @@ public abstract class AxPlugin extends JavaPlugin {
         for (Player player : Bukkit.getOnlinePlayers()) {
             NMSHandlers.getNmsHandler().uninjectPlayer(player);
         }
+
+        tracker.shutdown();
     }
 
     public void disable() {

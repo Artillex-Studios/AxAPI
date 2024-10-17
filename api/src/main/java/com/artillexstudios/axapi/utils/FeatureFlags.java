@@ -14,6 +14,8 @@ public class FeatureFlags {
     public static final Flag<Integer> PACKET_ENTITY_TRACKER_THREADS = new Flag<>(3);
     public static final Flag<Long> HOLOGRAM_UPDATE_TICKS = new Flag<>(0L);
     public static final Flag<List<Pattern>> PLACEHOLDER_PATTERNS = new Flag<>(new ArrayList<>(Arrays.asList(Pattern.compile("%.+%"), Pattern.compile("<.+>"))));
+    public static final Flag<Boolean> PLACEHOLDER_API_HOOK = new Flag<>(false);
+    public static final Flag<String> PLACEHOLDER_API_IDENTIFIER = new Flag<>("");
 
     public static class Flag<T> {
         private T value;

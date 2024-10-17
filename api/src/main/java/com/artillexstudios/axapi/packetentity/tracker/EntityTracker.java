@@ -1,10 +1,15 @@
 package com.artillexstudios.axapi.packetentity.tracker;
 
+import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
 import com.artillexstudios.axapi.reflection.FastFieldAccessor;
+import com.artillexstudios.axapi.utils.ExceptionReportingScheduledThreadPool;
+import com.artillexstudios.axapi.utils.FeatureFlags;
+import com.artillexstudios.axapi.utils.LogUtils;
 import com.artillexstudios.axapi.utils.PaperUtils;
 import com.artillexstudios.axapi.utils.Version;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
@@ -12,27 +17,69 @@ import it.unimi.dsi.fastutil.objects.ReferenceSets;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.StampedLock;
 
 public final class EntityTracker {
-    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-    private final ReentrantReadWriteLock.ReadLock readLock = lock.readLock();
-    private final ReentrantReadWriteLock.WriteLock writeLock = lock.writeLock();
+    private static final boolean folia = PaperUtils.isFolia();
+    private final StampedLock lock = new StampedLock();
     private final Int2ObjectMap<TrackedEntity> entityMap = new Int2ObjectLinkedOpenHashMap<>();
     private final FastFieldAccessor accessor = FastFieldAccessor.forClassField(String.format("com.artillexstudios.axapi.nms.%s.entity.PacketEntity", Version.getServerVersion().nmsVersion), "tracker");
-    private static final boolean folia = PaperUtils.isFolia();
+    private final JavaPlugin instance = AxPlugin.getPlugin(AxPlugin.class);
+    private ScheduledExecutorService service;
+
+    public void startTicking() {
+        this.shutdown();
+        this.service = new ExceptionReportingScheduledThreadPool(FeatureFlags.PACKET_ENTITY_TRACKER_THREADS.get(), new ThreadFactoryBuilder().setNameFormat(this.instance.getName() + "-EntityTracker-%s").build());
+        this.service.scheduleAtFixedRate(() -> {
+            try {
+                this.process();
+            } catch (Exception exception) {
+                if (exception instanceof ConcurrentModificationException) {
+                    // There's something weird with the entity tracker after the server starts up.
+                    // Nothing blew up yet, so I guess the error is safe to ignore...
+                    // If something blows up, I'm not the person to blame!
+                    // (But people don't like seeing errors, so this is the solution until I find out what causes the tracker to throw a CME)
+                    //
+                    // Please don't hunt me for this, I didn't want to do it.
+                    if (FeatureFlags.DEBUG.get()) {
+                        LogUtils.error("Caught ConcurrentModificationException when processing packet entities!", exception);
+                    }
+                    return;
+                }
+
+                LogUtils.error("An unexpected error occurred while processing packet entities via the tracker!", exception);
+            }
+        }, 0, 50, TimeUnit.MILLISECONDS);
+    }
+
+    public void shutdown() {
+        if (this.service == null) {
+            return;
+        }
+
+        this.service.shutdown();
+        try {
+            this.service.awaitTermination(30, TimeUnit.SECONDS);
+        } catch (InterruptedException exception) {
+            LogUtils.error("Failed to shut down EntityTracker service!", exception);
+        }
+    }
 
     public PacketEntity getById(int id) {
-        this.readLock.lock();
+        long stamp = this.lock.readLock();
         try {
             TrackedEntity entity = this.entityMap.get(id);
             return entity == null ? null : entity.entity;
         } finally {
-            this.readLock.unlock();
+            this.lock.unlockRead(stamp);
         }
     }
 
@@ -40,18 +87,18 @@ public final class EntityTracker {
         TrackedEntity trackedEntity = new TrackedEntity(entity);
         this.accessor.set(entity, trackedEntity);
 
-        this.writeLock.lock();
+        long stamp = this.lock.writeLock();
         try {
             this.entityMap.put(entity.id(), trackedEntity);
 
             trackedEntity.updateTracking(trackedEntity.getPlayersInTrackingRange());
         } finally {
-            this.writeLock.unlock();
+            this.lock.unlockWrite(stamp);
         }
     }
 
     public void removeEntity(PacketEntity entity) {
-        this.writeLock.lock();
+        long stamp = this.lock.writeLock();
         try {
             TrackedEntity trackedEntity = this.entityMap.remove(entity.id());
 
@@ -61,31 +108,31 @@ public final class EntityTracker {
 
             this.accessor.set(entity, null);
         } finally {
-            this.writeLock.unlock();
+            this.lock.unlockWrite(stamp);
         }
     }
 
     public void untrackFor(Player player) {
-        this.readLock.lock();
+        long stamp = this.lock.readLock();
         try {
             for (Int2ObjectMap.Entry<TrackedEntity> value : this.entityMap.int2ObjectEntrySet()) {
                 TrackedEntity tracker = value.getValue();
                 tracker.untrack(player);
             }
         } finally {
-            this.readLock.unlock();
+            this.lock.unlockRead(stamp);
         }
     }
 
     public void process() {
-        this.readLock.lock();
+        long stamp = this.lock.readLock();
         try {
             for (TrackedEntity entity : this.entityMap.values()) {
                 entity.updateTracking(entity.getPlayersInTrackingRange());
                 entity.entity.sendChanges();
             }
         } finally {
-            this.readLock.unlock();
+            this.lock.unlockRead(stamp);
         }
     }
 

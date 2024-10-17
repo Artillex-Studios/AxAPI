@@ -1,6 +1,8 @@
 package com.artillexstudios.axapi.placeholders;
 
 import com.artillexstudios.axapi.AxPlugin;
+import com.artillexstudios.axapi.utils.FeatureFlags;
+import com.artillexstudios.axapi.utils.LogUtils;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -9,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Locale;
 
 public final class PlaceholderAPIHook extends PlaceholderExpansion {
     private static final JavaPlugin plugin = AxPlugin.getPlugin(AxPlugin.class);
@@ -21,7 +24,14 @@ public final class PlaceholderAPIHook extends PlaceholderExpansion {
     @NotNull
     @Override
     public String getIdentifier() {
-        return "axteams";
+        String identifier = FeatureFlags.PLACEHOLDER_API_IDENTIFIER.get();
+        if (identifier.isBlank()) {
+            String pluginName = plugin.getName().toLowerCase(Locale.ENGLISH);
+            LogUtils.error("PlaceholderAPI identifier is not set up! Please set it! Defaulting to {}", pluginName);
+            return pluginName;
+        }
+
+        return identifier;
     }
 
     @NotNull
