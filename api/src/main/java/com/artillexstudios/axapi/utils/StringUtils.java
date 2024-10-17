@@ -89,7 +89,7 @@ public class StringUtils {
             toFormat = replaceAll(UNUSUAL_LEGACY_HEX_PATTERN.matcher(toFormat), fo -> "");
 
             for (Pair<String, String> placeholder : COLOR_FORMATS) {
-                toFormat = toFormat.replace(placeholder.getFirst(), placeholder.getSecond());
+                toFormat = toFormat.replace(placeholder.first(), placeholder.second());
             }
 
             toFormat = ItemBuilder.toTagResolver(toFormat, resolvers);

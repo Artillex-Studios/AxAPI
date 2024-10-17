@@ -65,7 +65,7 @@ public class Hologram {
 
     public void addLines(List<Pair<String, HologramLine.Type>> lines) {
         for (Pair<String, HologramLine.Type> line : lines) {
-            addLine(line.getFirst(), line.getSecond());
+            addLine(line.first(), line.second());
         }
     }
 

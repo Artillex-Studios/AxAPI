@@ -40,8 +40,8 @@ public final class Context {
                 throw EXCEPTION;
             }
 
-            Object resolved = resolve(pair.getFirst());
-            obj = (T) pair.getSecond().apply(resolved);
+            Object resolved = resolve(pair.first());
+            obj = (T) pair.second().apply(resolved);
         }
 
         return obj;

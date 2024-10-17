@@ -6,24 +6,7 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-public class LootParams {
-    private final World world;
-    private final Map<LootContextParam<?>, Object> params;
-    private final LootContextParamSets sets;
-
-    public LootParams(World world, Map<LootContextParam<?>, Object> params, LootContextParamSets sets) {
-        this.world = world;
-        this.params = params;
-        this.sets = sets;
-    }
-
-    public World world() {
-        return this.world;
-    }
-
-    public LootContextParamSets sets() {
-        return this.sets;
-    }
+public record LootParams(World world, Map<LootContextParam<?>, Object> params, LootContextParamSets sets) {
 
     public <T> T param(LootContextParam<T> parameter) {
         T obj = (T) this.params.get(parameter);
@@ -32,10 +15,6 @@ public class LootParams {
         }
 
         return obj;
-    }
-
-    public Map<LootContextParam<?>, Object> params() {
-        return this.params;
     }
 
     public static final class Builder {
