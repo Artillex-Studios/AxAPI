@@ -21,14 +21,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 public abstract class AxPlugin extends JavaPlugin {
-    private static final Logger log = LoggerFactory.getLogger(AxPlugin.class);
     public static EntityTracker tracker;
     private static boolean hasNMSHandler;
 
@@ -76,15 +70,7 @@ public abstract class AxPlugin extends JavaPlugin {
             }, this);
 
             if (FeatureFlags.HOLOGRAM_UPDATE_TICKS.get() > 0) {
-                Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-                    Holograms.getMap(map -> {
-                        map.forEach((id, line) -> {
-                            if (!line.hasPlaceholders()) return;
-
-                            line.update();
-                        });
-                    });
-                }, 0, FeatureFlags.HOLOGRAM_UPDATE_TICKS.get() * 50, TimeUnit.MILLISECONDS);
+                Holograms.startTicking();
             }
         }
 
@@ -150,6 +136,7 @@ public abstract class AxPlugin extends JavaPlugin {
         }
 
         tracker.shutdown();
+        Holograms.shutdown();
     }
 
     public void disable() {
