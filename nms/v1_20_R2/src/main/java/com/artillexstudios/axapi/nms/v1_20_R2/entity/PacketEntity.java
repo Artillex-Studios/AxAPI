@@ -328,7 +328,6 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     @Override
     public void remove() {
         AxPlugin.tracker.removeEntity(this);
-        this.location = null;
     }
 
     @Override

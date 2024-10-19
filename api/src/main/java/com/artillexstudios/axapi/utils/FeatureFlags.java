@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class FeatureFlags {
+public final class FeatureFlags {
     public static final Flag<Boolean> PACKET_ENTITY_TRACKER_ENABLED = new Flag<>(false);
     public static final Flag<Boolean> DEBUG = new Flag<>(false);
     public static final Flag<Boolean> USE_LEGACY_HEX_FORMATTER = new Flag<>(false);
@@ -30,7 +30,7 @@ public class FeatureFlags {
         }
 
         public T get() {
-            return value;
+            return this.value;
         }
     }
 }
