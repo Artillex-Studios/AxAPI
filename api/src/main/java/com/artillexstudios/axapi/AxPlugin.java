@@ -135,7 +135,9 @@ public abstract class AxPlugin extends JavaPlugin {
             NMSHandlers.getNmsHandler().uninjectPlayer(player);
         }
 
-        tracker.shutdown();
+        if (tracker != null) {
+            tracker.shutdown();
+        }
         Holograms.shutdown();
     }
 
