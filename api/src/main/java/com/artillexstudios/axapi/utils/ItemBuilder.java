@@ -7,6 +7,7 @@ import com.artillexstudios.axapi.items.component.ItemEnchantments;
 import com.artillexstudios.axapi.items.component.ItemLore;
 import com.artillexstudios.axapi.items.component.ProfileProperties;
 import com.artillexstudios.axapi.items.component.Unbreakable;
+import com.artillexstudios.axapi.items.component.Unit;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.google.common.collect.Lists;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
@@ -64,6 +65,13 @@ public class ItemBuilder {
         Optional.ofNullable(map.get("enchants")).ifPresent(enchants -> addEnchants(createEnchantmentsMap((List<String>) enchants)));
         Optional.ofNullable(map.get("potion")).ifPresent(potion -> setPotion((String) potion));
         Optional.ofNullable(map.get("unbreakable")).ifPresent(unbreakable -> stack.set(DataComponents.unbreakable(), new Unbreakable(!flags.contains(ItemFlag.HIDE_UNBREAKABLE))));
+
+        try {
+            if (this.flags.contains(ItemFlag.HIDE_POTION_EFFECTS)) {
+                stack.set(DataComponents.hideAdditionalTooltip(), Unit.INSTANCE);
+            }
+        } catch (Exception ignored) {
+        }
     }
 
     public ItemBuilder(Map<Object, Object> map, Map<String, String> replacements) {
