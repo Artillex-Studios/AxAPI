@@ -189,6 +189,8 @@ public class HologramLine {
                 break;
             }
         }
+
+        Holograms.put(packetEntity.id(), this);
     }
 
     public void event(Consumer<PacketEntityInteractEvent> event) {
@@ -211,8 +213,6 @@ public class HologramLine {
         if (!page.isFirstPage()) {
             packetEntity.setVisibleByDefault(false);
         }
-
-        Holograms.put(packetEntity.id(), this);
     }
 
     public void teleport(Location location) {
