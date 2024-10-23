@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.placeholders;
 
+import com.artillexstudios.axapi.utils.FeatureFlags;
 import com.artillexstudios.axapi.utils.LogUtils;
 import com.artillexstudios.axapi.utils.Pair;
 import com.artillexstudios.axapi.utils.functions.ThrowingFunction;
@@ -35,11 +36,11 @@ public final class Placeholders {
         List<String> placeholders = new ArrayList<>();
         if (context == ParseContext.PLACEHOLDER_API || context == ParseContext.BOTH) {
             for (String s : placeholderAPIOnlinePlayers.keySet()) {
-                placeholders.add("%axteams_" + s + "%");
+                placeholders.add("%" + FeatureFlags.PLACEHOLDER_API_IDENTIFIER + "_" + s + "%");
             }
 
             for (String s : placeholderAPIOfflinePlayers.keySet()) {
-                placeholders.add("%axteams_" + s + "%");
+                placeholders.add("%" + FeatureFlags.PLACEHOLDER_API_IDENTIFIER + "_" + s + "%");
             }
         }
 
