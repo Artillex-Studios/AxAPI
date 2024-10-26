@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 public enum Version {
+    v1_21_2(768, "v1_21_R2", Arrays.asList("1.21.2", "1.21.3")),
     v1_21(767, "v1_21_R1", Arrays.asList("1.21", "1.21.1")),
     v1_20_4(766, "v1_20_R4", Arrays.asList("1.20.5", "1.20.6")),
     v1_20_3(765, "v1_20_R3", Arrays.asList("1.20.3", "1.20.4")),
@@ -66,14 +67,14 @@ public enum Version {
     }
 
     public boolean isNewerThan(Version version) {
-        return protocolId > version.protocolId;
+        return this.protocolId > version.protocolId;
     }
 
     public boolean isNewerThanOrEqualTo(Version version) {
-        return protocolId >= version.protocolId;
+        return this.protocolId >= version.protocolId;
     }
 
     public boolean isOlderThan(Version version) {
-        return protocolId < version.protocolId;
+        return this.protocolId < version.protocolId;
     }
 }
