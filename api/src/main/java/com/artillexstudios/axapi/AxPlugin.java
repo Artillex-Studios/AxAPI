@@ -24,10 +24,9 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class AxPlugin extends JavaPlugin {
     public static EntityTracker tracker;
-    private static boolean hasNMSHandler;
 
     public AxPlugin() {
-        updateFlags();
+        this.updateFlags();
     }
 
     public void updateFlags() {
@@ -36,49 +35,54 @@ public abstract class AxPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        if (!NMSHandlers.British.initialise(this)) {
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
+
+        DataComponents.setDataComponentImpl(NMSHandlers.getNmsHandler().dataComponents());
         Scheduler.scheduler.init(this);
 
-        if (hasNMSHandler) {
-            if (tracker != null) {
-                tracker.startTicking();
+        if (FeatureFlags.PACKET_ENTITY_TRACKER_ENABLED.get()) {
+            tracker = new EntityTracker();
+            tracker.startTicking();
+        }
+
+        Bukkit.getPluginManager().registerEvents(new Listener() {
+            @EventHandler
+            public void onPlayerQuitEvent(@NotNull final PlayerQuitEvent event) {
+                NMSHandlers.getNmsHandler().uninjectPlayer(event.getPlayer());
             }
 
-            Bukkit.getPluginManager().registerEvents(new Listener() {
-                @EventHandler
-                public void onPlayerQuitEvent(@NotNull final PlayerQuitEvent event) {
-                    NMSHandlers.getNmsHandler().uninjectPlayer(event.getPlayer());
-                }
-
-                @EventHandler
-                public void onPlayerJoinEvent(@NotNull final PlayerJoinEvent event) {
-                    NMSHandlers.getNmsHandler().injectPlayer(event.getPlayer());
-                }
-
-                @EventHandler
-                public void onPacketEntityInteractEvent(@NotNull final PacketEntityInteractEvent event) {
-                    event.getPacketEntity().callInteract(event);
-                }
-
-                @EventHandler
-                public void onPlayerChangedWorldEvent(@NotNull final PlayerChangedWorldEvent event) {
-                    if (tracker == null) {
-                        return;
-                    }
-
-                    tracker.untrackFor(event.getPlayer());
-                }
-            }, this);
-
-            if (FeatureFlags.HOLOGRAM_UPDATE_TICKS.get() > 0) {
-                Holograms.startTicking();
+            @EventHandler
+            public void onPlayerJoinEvent(@NotNull final PlayerJoinEvent event) {
+                NMSHandlers.getNmsHandler().injectPlayer(event.getPlayer());
             }
+
+            @EventHandler
+            public void onPacketEntityInteractEvent(@NotNull final PacketEntityInteractEvent event) {
+                event.getPacketEntity().callInteract(event);
+            }
+
+            @EventHandler
+            public void onPlayerChangedWorldEvent(@NotNull final PlayerChangedWorldEvent event) {
+                if (tracker == null) {
+                    return;
+                }
+
+                tracker.untrackFor(event.getPlayer());
+            }
+        }, this);
+
+        if (FeatureFlags.HOLOGRAM_UPDATE_TICKS.get() > 0) {
+            Holograms.startTicking();
         }
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             NMSHandlers.getNmsHandler().injectPlayer(player);
         }
 
-        enable();
+        this.enable();
 
         Placeholders.lock();
         if (FeatureFlags.PLACEHOLDER_API_HOOK.get() && Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
@@ -109,17 +113,13 @@ public abstract class AxPlugin extends JavaPlugin {
                 .relocate("com{}github{}benmanes", "com.artillexstudios.axapi.libs.caffeine")
                 .build();
 
-        libraryManager.setLogLevel(LogLevel.DEBUG);
+        if (FeatureFlags.DEBUG.get()) {
+            libraryManager.setLogLevel(LogLevel.DEBUG);
+        }
         libraryManager.loadLibrary(commonsMath);
         libraryManager.loadLibrary(caffeine);
 
-        hasNMSHandler = NMSHandlers.British.initialise(this);
-        DataComponents.setDataComponentImpl(NMSHandlers.getNmsHandler().dataComponents());
-
-        load();
-        if (hasNMSHandler && FeatureFlags.PACKET_ENTITY_TRACKER_ENABLED.get()) {
-            tracker = new EntityTracker();
-        }
+        this.load();
     }
 
     public void load() {
@@ -128,7 +128,7 @@ public abstract class AxPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        disable();
+        this.disable();
         Scheduler.get().cancelAll();
 
         for (Player player : Bukkit.getOnlinePlayers()) {
@@ -151,7 +151,7 @@ public abstract class AxPlugin extends JavaPlugin {
 
     public long reloadWithTime() {
         long start = System.currentTimeMillis();
-        reload();
+        this.reload();
 
         return System.currentTimeMillis() - start;
     }

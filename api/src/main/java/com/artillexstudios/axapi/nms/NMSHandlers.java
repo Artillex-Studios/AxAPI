@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.nms;
 
+import com.artillexstudios.axapi.utils.LogUtils;
 import com.artillexstudios.axapi.utils.Version;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -9,23 +10,27 @@ public class NMSHandlers {
     // Do not mix with innit, bruv!
     private static boolean init(JavaPlugin plugin) {
         Version version = Version.getServerVersion();
+        if (version == Version.UNKNOWN) {
+            LogUtils.warn("Could not load plugin {} due to version mismatch! Found protocol version {} which is unsupported!", plugin.getName(), Version.protocolVersion());
+            return false;
+        }
 
-        if (nmsHandler == null) {
-            try {
-                nmsHandler = (NMSHandler) Class.forName(String.format("com.artillexstudios.axapi.nms.%s.NMSHandler", version.nmsVersion)).getConstructor(JavaPlugin.class).newInstance(plugin);
-            } catch (Exception exception) {
-                return false;
-            }
+        if (nmsHandler != null) {
+            LogUtils.warn("NMS support has already been enabled!");
+            return false;
+        }
+
+        try {
+            nmsHandler = (NMSHandler) Class.forName("com.artillexstudios.axapi.nms.%s.NMSHandler".formatted(version.nmsVersion)).getConstructor(JavaPlugin.class).newInstance(plugin);
+        } catch (Exception exception) {
+            LogUtils.warn("Could not enable NMSHandler due to an internal exception while loading NMSHandler!", exception);
+            return false;
         }
 
         return true;
     }
 
     public static NMSHandler getNmsHandler() {
-        if (nmsHandler == null) {
-            throw new RuntimeException("NMSHandler has not been initialised! This could be due to incorrect usage, or unsupported NMS version!");
-        }
-
         return nmsHandler;
     }
 

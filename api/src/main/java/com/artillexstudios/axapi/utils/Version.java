@@ -29,6 +29,7 @@ public enum Version {
 
     private static final Int2ObjectArrayMap<Version> versionMap = new Int2ObjectArrayMap<>();
     private static Version serverVersion;
+    private static int protocolVersion;
 
     static {
         final FastMethodInvoker methodInvoker = FastMethodInvoker.create("net.minecraft.SharedConstants", "c");
@@ -46,6 +47,8 @@ public enum Version {
         if (Version.serverVersion == null) {
             Version.serverVersion = UNKNOWN;
         }
+
+        Version.protocolVersion = protocolVersion;
     }
 
     public final List<String> versions;
@@ -64,6 +67,10 @@ public enum Version {
 
     public static Version getServerVersion() {
         return serverVersion;
+    }
+
+    public static int protocolVersion() {
+        return protocolVersion;
     }
 
     public boolean isNewerThan(Version version) {
