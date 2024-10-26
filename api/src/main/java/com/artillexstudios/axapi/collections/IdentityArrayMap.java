@@ -15,6 +15,11 @@ public class IdentityArrayMap<K, V> implements Map<K, V> {
         this.values = EMPTY_ARRAY;
     }
 
+    public IdentityArrayMap(int size) {
+        this.keys = new Object[size];
+        this.values = new Object[size];
+    }
+
     @Override
     public int size() {
         return this.size;
