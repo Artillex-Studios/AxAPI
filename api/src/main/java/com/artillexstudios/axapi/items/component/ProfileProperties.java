@@ -31,27 +31,6 @@ public class ProfileProperties {
         return properties;
     }
 
-    public static class Property {
-        private final String name;
-        private final String value;
-        private final String signature;
-
-        public Property(String name, String value, String signature) {
-            this.name = name;
-            this.value = value;
-            this.signature = signature;
-        }
-
-        public String signature() {
-            return signature;
-        }
-
-        public String value() {
-            return value;
-        }
-
-        public String name() {
-            return name;
-        }
+    public record Property(String name, String value, String signature) {
     }
 }

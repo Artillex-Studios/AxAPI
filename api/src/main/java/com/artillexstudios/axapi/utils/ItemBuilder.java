@@ -321,6 +321,7 @@ public class ItemBuilder {
 
     public ItemBuilder setTextureValue(String texture) {
         ProfileProperties properties = new ProfileProperties(NIL_UUID, "axapi");
+        texture = StringUtils.formatToString(toTagResolver(texture), this.resolvers);
         properties.put("textures", new ProfileProperties.Property("textures", texture, null));
         stack.set(DataComponents.profile(), properties);
         return this;
