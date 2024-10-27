@@ -19,6 +19,14 @@ public final class Context {
         return builder(ParseContext.BOTH, ResolutionType.OFFLINE);
     }
 
+    public static Builder builder(ParseContext context) {
+        return builder(context, ResolutionType.OFFLINE);
+    }
+
+    public static Builder builder(ResolutionType resolutionType) {
+        return builder(ParseContext.BOTH, resolutionType);
+    }
+
     public static Builder builder(ParseContext context, ResolutionType resolutionType) {
         return new Builder(context, resolutionType);
     }
@@ -52,7 +60,7 @@ public final class Context {
         private final ParseContext context;
         private final ResolutionType resolutionType;
 
-        public Builder(ParseContext context, ResolutionType resolutionType) {
+        private Builder(ParseContext context, ResolutionType resolutionType) {
             this.context = context;
             this.resolutionType = resolutionType;
         }

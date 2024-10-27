@@ -32,6 +32,21 @@ public final class Placeholders {
         register(placeholder, function, ParseContext.BOTH);
     }
 
+    public static Map<String, String> asMap(Context.Builder context) {
+        List<String> placeholders = placeholders(context.context());
+        Map<String, String> replacements = new HashMap<>(placeholders.size());
+        for (String placeholder : placeholders) {
+             String output = Placeholders.parse(placeholder, context);
+             if (output == null || output.equals(placeholder)) {
+                 continue;
+             }
+
+             replacements.put(placeholder, output);
+        }
+
+        return replacements;
+    }
+
     public static List<String> placeholders(ParseContext context) {
         List<String> placeholders = new ArrayList<>();
         if (context == ParseContext.PLACEHOLDER_API || context == ParseContext.BOTH) {
