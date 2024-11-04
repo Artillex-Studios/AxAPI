@@ -47,6 +47,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.bukkit.Bukkit;
@@ -58,6 +60,7 @@ import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.craftbukkit.v1_18_R2.CraftServer;
 import org.bukkit.craftbukkit.v1_18_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_18_R2.attribute.CraftAttributeMap;
 import org.bukkit.craftbukkit.v1_18_R2.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_18_R2.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_18_R2.inventory.CraftContainer;
@@ -84,6 +87,7 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     private final String AXAPI_HANDLER;
     private Field channelField;
     private AtomicInteger entityCounter;
+    private FastFieldAccessor attributeSupplierAccessor;
 
     public NMSHandler(JavaPlugin plugin) {
         AXAPI_HANDLER = "axapi_handler_" + plugin.getName().toLowerCase(Locale.ENGLISH);
@@ -94,6 +98,7 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
             Field entityIdField = Entity.class.getDeclaredField("c");
             entityIdField.setAccessible(true);
             entityCounter = (AtomicInteger) entityIdField.get(null);
+            attributeSupplierAccessor = FastFieldAccessor.forClassField(AttributeMap.class, "d");
         } catch (Exception exception) {
             log.error("An exception occurred while initializing NMSHandler!", exception);
         }
@@ -325,7 +330,10 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     @Override
     public double getBase(Player player, Attribute attribute) {
         CraftPlayer craftPlayer = (CraftPlayer) player;
-        return craftPlayer.getAttribute(attribute).getDefaultValue();
+        ServerPlayer serverPlayer = craftPlayer.getHandle();
+        AttributeMap map = serverPlayer.getAttributes();
+        AttributeSupplier supplier = attributeSupplierAccessor.get(map);
+        return supplier.getBaseValue(CraftAttributeMap.toMinecraft(attribute));
     }
 
     @Override
