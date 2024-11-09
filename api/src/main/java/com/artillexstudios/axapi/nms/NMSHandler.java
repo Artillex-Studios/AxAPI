@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.nms;
 
+import com.artillexstudios.axapi.gui.AnvilInput;
 import com.artillexstudios.axapi.gui.SignInput;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.component.DataComponentImpl;
@@ -90,4 +91,8 @@ public interface NMSHandler {
     LootTable lootTable(Key key);
 
     List<Player> players(World world);
+
+    default void openAnvilInput(AnvilInput anvilInput) {
+
+    }
 }

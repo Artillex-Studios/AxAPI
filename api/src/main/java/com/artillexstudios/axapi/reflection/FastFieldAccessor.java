@@ -138,7 +138,7 @@ public class FastFieldAccessor {
     public byte getByte(Object object) {
         return unsafe.getByte(object, fieldOffset);
     }
-    
+
     public void setAny(Object object, Object value) {
         if (field.getType() == Boolean.TYPE) {
             setBoolean(object, (Boolean) value);

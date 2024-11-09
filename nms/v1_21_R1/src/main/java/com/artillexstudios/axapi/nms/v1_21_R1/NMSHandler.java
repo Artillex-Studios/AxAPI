@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.nms.v1_21_R1;
 
+import com.artillexstudios.axapi.gui.AnvilInput;
 import com.artillexstudios.axapi.gui.SignInput;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.component.DataComponentImpl;
@@ -48,6 +49,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.AnvilMenu;
+import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.bukkit.Bukkit;
@@ -367,6 +371,25 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
         }
 
         return playerList;
+    }
+
+    @Override
+    public void openAnvilInput(AnvilInput anvilInput) {
+        Player player = anvilInput.player();
+        player.closeInventory();
+        CraftPlayer craftPlayer = (CraftPlayer) player;
+        ServerPlayer serverPlayer = craftPlayer.getHandle();
+        Location location = anvilInput.location();
+        AnvilMenu anvilMenu = new AnvilMenu(serverPlayer.nextContainerCounter(), serverPlayer.getInventory(), ContainerLevelAccess.create(((CraftWorld) location.getWorld()).getHandle(), new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ())));
+        anvilMenu.checkReachable = false;
+        anvilMenu.setTitle(ComponentSerializer.INSTANCE.toVanilla(anvilInput.title()));
+
+        Inventory inventory = ((AbstractContainerMenu) anvilMenu).getBukkitView().getTopInventory();
+        inventory.setItem(0, anvilInput.itemStack().toBukkit());
+
+        sendPacket(player, new ClientboundOpenScreenPacket(anvilMenu.containerId, anvilMenu.getType(), anvilMenu.getTitle()));
+        serverPlayer.containerMenu = anvilMenu;
+        serverPlayer.initMenu(anvilMenu);
     }
 
     private Channel getChannel(Connection connection) {
