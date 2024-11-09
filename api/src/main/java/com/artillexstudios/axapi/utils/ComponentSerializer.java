@@ -27,6 +27,11 @@ public enum ComponentSerializer {
             .expireAfterAccess(Duration.ofSeconds(20))
             .scheduler(Scheduler.systemScheduler())
             .build();
+    private final Cache<String, Component> gsonCache = Caffeine.newBuilder()
+            .maximumSize(200)
+            .expireAfterAccess(Duration.ofSeconds(20))
+            .scheduler(Scheduler.systemScheduler())
+            .build();
 
     public <T> T toVanilla(Component component) {
         return (T) componentCache.get(component, serializer::deserialize);
@@ -87,7 +92,9 @@ public enum ComponentSerializer {
     }
 
     public Component fromGson(String string) {
-        return GsonComponentSerializer.gson().deserialize(string);
+        return gsonCache.get(string, s -> {
+            return GsonComponentSerializer.gson().deserialize(s);
+        });
     }
 
     public List<Component> fromGsonList(List<String> list) {
