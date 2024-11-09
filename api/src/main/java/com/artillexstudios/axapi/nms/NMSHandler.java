@@ -92,7 +92,5 @@ public interface NMSHandler {
 
     List<Player> players(World world);
 
-    default void openAnvilInput(AnvilInput anvilInput) {
-
-    }
+    void openAnvilInput(AnvilInput anvilInput);
 }
