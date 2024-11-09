@@ -36,12 +36,12 @@ public final class Placeholders {
         List<String> placeholders = placeholders(context.context());
         Map<String, String> replacements = new HashMap<>(placeholders.size());
         for (String placeholder : placeholders) {
-             String output = Placeholders.parse(placeholder, context);
-             if (output == null || output.equals(placeholder)) {
-                 continue;
-             }
+            String output = Placeholders.parse(placeholder, context);
+            if (output == null || output.equals(placeholder)) {
+                continue;
+            }
 
-             replacements.put(placeholder, output);
+            replacements.put(placeholder, output);
         }
 
         return replacements;
@@ -51,22 +51,17 @@ public final class Placeholders {
         List<String> placeholders = new ArrayList<>();
         if (context == ParseContext.PLACEHOLDER_API || context == ParseContext.BOTH) {
             for (String s : placeholderAPIOnlinePlayers.keySet()) {
-                placeholders.add("%" + FeatureFlags.PLACEHOLDER_API_IDENTIFIER + "_" + s + "%");
+                placeholders.add("%" + FeatureFlags.PLACEHOLDER_API_IDENTIFIER.get() + "_" + s + "%");
             }
 
             for (String s : placeholderAPIOfflinePlayers.keySet()) {
-                placeholders.add("%" + FeatureFlags.PLACEHOLDER_API_IDENTIFIER + "_" + s + "%");
+                placeholders.add("%" + FeatureFlags.PLACEHOLDER_API_IDENTIFIER.get() + "_" + s + "%");
             }
         }
 
         if (context == ParseContext.INTERNAL || context == ParseContext.BOTH) {
-            for (String s : internalOfflinePlayers.keySet()) {
-                placeholders.add("%" + s + "%");
-            }
-
-            for (String s : internalOnlinePlayers.keySet()) {
-                placeholders.add("%" + s + "%");
-            }
+            placeholders.addAll(internalOfflinePlayers.keySet());
+            placeholders.addAll(internalOnlinePlayers.keySet());
         }
 
         return placeholders;
@@ -128,6 +123,30 @@ public final class Placeholders {
             }
 
             return string;
+        } else if (builder.context() == ParseContext.BOTH) {
+            if (builder.resolutionType() == ResolutionType.ONLINE) {
+                for (Map.Entry<String, ThrowingFunction<Context, String, ParameterNotInContextException>> entry : placeholderAPIOnlinePlayers.entrySet()) {
+                    if (entry.getKey().equals(string)) {
+                        try {
+                            string = entry.getValue().apply(context);
+                            break;
+                        } catch (ParameterNotInContextException exception) {
+                            break;
+                        }
+                    }
+                }
+            } else {
+                for (Map.Entry<String, ThrowingFunction<Context, String, ParameterNotInContextException>> entry : placeholderAPIOfflinePlayers.entrySet()) {
+                    if (entry.getKey().equals(string)) {
+                        try {
+                            string = entry.getValue().apply(context);
+                            break;
+                        } catch (ParameterNotInContextException exception) {
+                            break;
+                        }
+                    }
+                }
+            }
         }
 
         for (Map.Entry<String, ThrowingFunction<Context, String, ParameterNotInContextException>> entry : inContext.entrySet()) {
