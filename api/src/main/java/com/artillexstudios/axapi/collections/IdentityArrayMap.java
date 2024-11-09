@@ -1,7 +1,11 @@
 package com.artillexstudios.axapi.collections;
 
+import java.util.AbstractSet;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 public class IdentityArrayMap<K, V> implements Map<K, V> {
@@ -115,17 +119,73 @@ public class IdentityArrayMap<K, V> implements Map<K, V> {
 
     @Override
     public Set<K> keySet() {
-        return null;
+        return (Set<K>) Set.of(this.keys);
     }
 
     @Override
     public Collection<V> values() {
-        throw new UnsupportedOperationException();
+        return (Collection<V>) List.of(this.values);
     }
 
     @Override
     public Set<Entry<K, V>> entrySet() {
-        throw new UnsupportedOperationException();
+        return new AbstractSet<>() {
+            @Override
+            public Iterator<Entry<K, V>> iterator() {
+                return new Iterator<>() {
+                    private int index = 0;
+
+                    @Override
+                    public boolean hasNext() {
+                        return this.index < IdentityArrayMap.this.size;
+                    }
+
+                    @Override
+                    public Entry<K, V> next() {
+                        if (!hasNext()) {
+                            throw new NoSuchElementException();
+                        }
+
+                        return new Entry<>() {
+                            private final int currentIndex = index++;
+
+                            @Override
+                            public K getKey() {
+                                return (K) IdentityArrayMap.this.keys[currentIndex];
+                            }
+
+                            @Override
+                            public V getValue() {
+                                return (V) IdentityArrayMap.this.values[currentIndex];
+                            }
+
+                            @Override
+                            public V setValue(V value) {
+                                V old = (V) IdentityArrayMap.this.values[currentIndex];
+                                IdentityArrayMap.this.values[currentIndex] = value;
+                                return old;
+                            }
+                        };
+                    }
+
+                    @Override
+                    public void remove() {
+                        if (this.index < 0) {
+                            throw new IllegalStateException();
+                        }
+
+                        IdentityArrayMap.this.remove(IdentityArrayMap.this.keys[this.index - 1]);
+                        this.index--;
+                    }
+                };
+            }
+
+
+            @Override
+            public int size() {
+                return IdentityArrayMap.this.size;
+            }
+        };
     }
 
     private int findKey(Object key) {
