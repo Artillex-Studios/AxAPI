@@ -10,8 +10,6 @@ import com.artillexstudios.axapi.utils.LogUtils;
 import com.artillexstudios.axapi.utils.PaperUtils;
 import com.artillexstudios.axapi.utils.Version;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ReferenceSets;
 import org.bukkit.Location;
@@ -23,14 +21,13 @@ import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.StampedLock;
 
 public final class EntityTracker {
     private static final boolean folia = PaperUtils.isFolia();
-    private final StampedLock lock = new StampedLock();
-    private final Int2ObjectMap<TrackedEntity> entityMap = new Int2ObjectLinkedOpenHashMap<>();
+    private final ConcurrentHashMap<Integer, TrackedEntity> entityMap = new ConcurrentHashMap<>();
     private final FastFieldAccessor accessor = FastFieldAccessor.forClassField(String.format("com.artillexstudios.axapi.nms.%s.entity.PacketEntity", Version.getServerVersion().nmsVersion), "tracker");
     private final JavaPlugin instance = AxPlugin.getPlugin(AxPlugin.class);
     private ScheduledExecutorService service;
@@ -74,65 +71,39 @@ public final class EntityTracker {
     }
 
     public PacketEntity getById(int id) {
-        long stamp = this.lock.readLock();
-        try {
-            TrackedEntity entity = this.entityMap.get(id);
-            return entity == null ? null : entity.entity;
-        } finally {
-            this.lock.unlockRead(stamp);
-        }
+        TrackedEntity entity = this.entityMap.get(id);
+        return entity == null ? null : entity.entity;
     }
 
     public void addEntity(PacketEntity entity) {
         TrackedEntity trackedEntity = new TrackedEntity(entity);
         this.accessor.set(entity, trackedEntity);
 
-        long stamp = this.lock.writeLock();
-        try {
-            this.entityMap.put(entity.id(), trackedEntity);
+        this.entityMap.put(entity.id(), trackedEntity);
 
-            trackedEntity.updateTracking(trackedEntity.getPlayersInTrackingRange());
-        } finally {
-            this.lock.unlockWrite(stamp);
-        }
+        trackedEntity.updateTracking(trackedEntity.getPlayersInTrackingRange());
     }
 
     public void removeEntity(PacketEntity entity) {
-        long stamp = this.lock.writeLock();
-        try {
-            TrackedEntity trackedEntity = this.entityMap.remove(entity.id());
+        TrackedEntity trackedEntity = this.entityMap.remove(entity.id());
 
-            if (trackedEntity != null) {
-                trackedEntity.broadcastRemove();
-            }
-
-            this.accessor.set(entity, null);
-        } finally {
-            this.lock.unlockWrite(stamp);
+        if (trackedEntity != null) {
+            trackedEntity.broadcastRemove();
         }
+
+        this.accessor.set(entity, null);
     }
 
     public void untrackFor(Player player) {
-        long stamp = this.lock.readLock();
-        try {
-            for (Int2ObjectMap.Entry<TrackedEntity> value : this.entityMap.int2ObjectEntrySet()) {
-                TrackedEntity tracker = value.getValue();
-                tracker.untrack(player);
-            }
-        } finally {
-            this.lock.unlockRead(stamp);
+        for (EntityTracker.TrackedEntity tracker : this.entityMap.values()) {
+            tracker.untrack(player);
         }
     }
 
     public void process() {
-        long stamp = this.lock.readLock();
-        try {
-            for (TrackedEntity entity : this.entityMap.values()) {
-                entity.updateTracking(entity.getPlayersInTrackingRange());
-                entity.entity.sendChanges();
-            }
-        } finally {
-            this.lock.unlockRead(stamp);
+        for (TrackedEntity entity : this.entityMap.values()) {
+            entity.updateTracking(entity.getPlayersInTrackingRange());
+            entity.entity.sendChanges();
         }
     }
 
