@@ -16,13 +16,20 @@ import com.artillexstudios.axapi.utils.ActionBar;
 import com.artillexstudios.axapi.utils.BossBar;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.DebugMarker;
+import com.artillexstudios.axapi.utils.LogUtils;
 import com.artillexstudios.axapi.utils.Pair;
 import com.artillexstudios.axapi.utils.Title;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Dynamic;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.ChannelOutboundHandlerAdapter;
+import io.netty.channel.ChannelPromise;
+import io.netty.handler.codec.ByteToMessageCodec;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
@@ -144,7 +151,22 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
         }
 
         channel.eventLoop().submit(() -> {
-            channel.pipeline().addBefore(PACKET_HANDLER, AXAPI_HANDLER, new PacketListener(player));
+//            channel.pipeline().addBefore(PACKET_HANDLER, AXAPI_HANDLER, new PacketListener(player));
+            channel.pipeline().addBefore(PACKET_HANDLER, AXAPI_HANDLER, new ByteToMessageCodec<Packet<?>>() {
+
+                @Override
+                protected void encode(ChannelHandlerContext channelHandlerContext, Packet<?> packet, ByteBuf byteBuf) throws Exception {
+                    LogUtils.info("Sending packet of class: {}  with data: {}", packet.getClass(), byteBuf.toString());
+                    channelHandlerContext.write(packet);
+                }
+
+                @Override
+                protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
+                    LogUtils.info("Incoming packet of class with data: {}. List: {}", byteBuf.toString(), list);
+                    list.add(byteBuf.retainedSlice(0, byteBuf.readableBytes()));
+                }
+            });
+
         });
     }
 
