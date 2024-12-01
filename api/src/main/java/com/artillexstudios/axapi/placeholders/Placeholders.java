@@ -1,6 +1,6 @@
 package com.artillexstudios.axapi.placeholders;
 
-import com.artillexstudios.axapi.utils.FeatureFlags;
+import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.LogUtils;
 import com.artillexstudios.axapi.utils.Pair;
 import com.artillexstudios.axapi.utils.functions.ThrowingFunction;

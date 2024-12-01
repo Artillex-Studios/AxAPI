@@ -2,8 +2,8 @@ package com.artillexstudios.axapi.hologram;
 
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.utils.ExceptionReportingScheduledThreadPool;
-import com.artillexstudios.axapi.utils.FeatureFlags;
 import com.artillexstudios.axapi.utils.LogUtils;
+import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import org.bukkit.plugin.java.JavaPlugin;

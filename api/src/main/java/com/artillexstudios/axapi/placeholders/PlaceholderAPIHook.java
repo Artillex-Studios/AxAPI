@@ -1,7 +1,7 @@
 package com.artillexstudios.axapi.placeholders;
 
 import com.artillexstudios.axapi.AxPlugin;
-import com.artillexstudios.axapi.utils.FeatureFlags;
+import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.LogUtils;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;

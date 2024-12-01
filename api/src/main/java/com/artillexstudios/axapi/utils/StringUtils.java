@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.utils;
 
 import com.artillexstudios.axapi.reflection.FastFieldAccessor;
+import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import it.unimi.dsi.fastutil.chars.CharImmutableList;

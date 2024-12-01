@@ -8,6 +8,7 @@ import com.artillexstudios.axapi.nms.v1_19_R2.items.WrappedItemStack;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
 import com.artillexstudios.axapi.reflection.FastFieldAccessor;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
+import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.mojang.datafixers.util.Pair;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelDuplexHandler;
@@ -15,7 +16,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
@@ -191,7 +191,7 @@ public class PacketListener extends ChannelDuplexHandler {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        if (com.artillexstudios.axapi.utils.FeatureFlags.DEBUG.get()) {
+        if (FeatureFlags.DEBUG.get()) {
             log.error("An unhandled exception occurred on ctx {}!", ctx, cause);
         }
 
