@@ -1,4 +1,4 @@
-package com.artillexstudios.axapi.items.component;
+package com.artillexstudios.axapi.items.component.type;
 
 import com.google.common.collect.Lists;
 import net.kyori.adventure.text.Component;
@@ -8,7 +8,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 
 import java.util.List;
 
-public class ItemLore {
+public final class ItemLore {
     private static final Style DEFAULT_STYLE = Style.empty().color(NamedTextColor.DARK_PURPLE).decorate(TextDecoration.ITALIC);
     private final List<Component> lines;
     private final List<Component> styledLines;

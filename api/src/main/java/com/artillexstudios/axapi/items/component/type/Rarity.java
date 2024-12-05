@@ -1,4 +1,4 @@
-package com.artillexstudios.axapi.items.component;
+package com.artillexstudios.axapi.items.component.type;
 
 import net.kyori.adventure.text.format.NamedTextColor;
 

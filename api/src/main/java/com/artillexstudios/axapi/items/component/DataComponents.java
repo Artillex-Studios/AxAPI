@@ -1,6 +1,15 @@
 package com.artillexstudios.axapi.items.component;
 
+import com.artillexstudios.axapi.items.component.type.CustomModelData;
+import com.artillexstudios.axapi.items.component.type.DyedColor;
+import com.artillexstudios.axapi.items.component.type.ItemEnchantments;
+import com.artillexstudios.axapi.items.component.type.ItemLore;
+import com.artillexstudios.axapi.items.component.type.ProfileProperties;
+import com.artillexstudios.axapi.items.component.type.Rarity;
+import com.artillexstudios.axapi.items.component.type.Unbreakable;
+import com.artillexstudios.axapi.items.component.type.Unit;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.potion.PotionType;
@@ -36,6 +45,10 @@ public class DataComponents {
         return dataComponentImpl.itemName();
     }
 
+    public static DataComponent<Key> itemModel() {
+        return dataComponentImpl.itemModel();
+    }
+
     public static DataComponent<ItemLore> lore() {
         return dataComponentImpl.lore();
     }
@@ -48,7 +61,7 @@ public class DataComponents {
         return dataComponentImpl.enchantments();
     }
 
-    public static DataComponent<Integer> customModelData() {
+    public static DataComponent<CustomModelData> customModelData() {
         return dataComponentImpl.customModelData();
     }
 

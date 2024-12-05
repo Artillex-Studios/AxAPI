@@ -1,11 +1,11 @@
-package com.artillexstudios.axapi.items.component;
+package com.artillexstudios.axapi.items.component.type;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 
 import java.util.UUID;
 
-public class ProfileProperties {
+public final class ProfileProperties {
     private final Multimap<String, Property> properties = LinkedHashMultimap.create();
     private final UUID uuid;
     private final String name;
@@ -16,11 +16,11 @@ public class ProfileProperties {
     }
 
     public UUID uuid() {
-        return uuid;
+        return this.uuid;
     }
 
     public String name() {
-        return name;
+        return this.name;
     }
 
     public void put(String key, Property property) {
@@ -28,9 +28,10 @@ public class ProfileProperties {
     }
 
     public Multimap<String, Property> properties() {
-        return properties;
+        return this.properties;
     }
 
     public record Property(String name, String value, String signature) {
+
     }
 }

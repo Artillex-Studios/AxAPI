@@ -1,15 +1,17 @@
 package com.artillexstudios.axapi.nms.v1_20_R3.items.data;
 
 import com.artillexstudios.axapi.items.component.DataComponent;
-import com.artillexstudios.axapi.items.component.DyedColor;
-import com.artillexstudios.axapi.items.component.ItemEnchantments;
-import com.artillexstudios.axapi.items.component.ItemLore;
-import com.artillexstudios.axapi.items.component.ProfileProperties;
-import com.artillexstudios.axapi.items.component.Rarity;
-import com.artillexstudios.axapi.items.component.Unbreakable;
-import com.artillexstudios.axapi.items.component.Unit;
+import com.artillexstudios.axapi.items.component.type.CustomModelData;
+import com.artillexstudios.axapi.items.component.type.DyedColor;
+import com.artillexstudios.axapi.items.component.type.ItemEnchantments;
+import com.artillexstudios.axapi.items.component.type.ItemLore;
+import com.artillexstudios.axapi.items.component.type.ProfileProperties;
+import com.artillexstudios.axapi.items.component.type.Rarity;
+import com.artillexstudios.axapi.items.component.type.Unbreakable;
+import com.artillexstudios.axapi.items.component.type.Unit;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
@@ -272,6 +274,11 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
     }
 
     @Override
+    public DataComponent<Key> itemModel() {
+        throw new UnsupportedOperationException("Your server version does not support this feature!");
+    }
+
+    @Override
     public DataComponent<ItemLore> lore() {
         return new DataComponent<>() {
 
@@ -380,26 +387,30 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
     }
 
     @Override
-    public DataComponent<Integer> customModelData() {
+    public DataComponent<com.artillexstudios.axapi.items.component.type.CustomModelData> customModelData() {
         return new DataComponent<>() {
 
             @Override
-            public void apply(Object item, Integer integer) {
+            public void apply(Object item, com.artillexstudios.axapi.items.component.type.CustomModelData modelData) {
                 ItemStack itemStack = (ItemStack) item;
                 net.minecraft.nbt.CompoundTag tag = itemStack.getOrCreateTag();
-                if (integer == null || integer == 0) {
+                if (modelData == null || modelData.floats().isEmpty()) {
                     tag.remove("CustomModelData");
                     return;
                 }
 
-                tag.putInt("CustomModelData", integer);
+                tag.putInt("CustomModelData", modelData.floats().get(0).intValue());
             }
 
             @Override
-            public Integer get(Object item) {
+            public com.artillexstudios.axapi.items.component.type.CustomModelData get(Object item) {
                 ItemStack itemStack = (ItemStack) item;
                 net.minecraft.nbt.CompoundTag tag = itemStack.getTag();
-                return tag == null ? 0 : tag.getInt("CustomModelData");
+                if (tag == null) {
+                    return new CustomModelData(List.of(), List.of(), List.of(), List.of());
+                }
+
+                return new com.artillexstudios.axapi.items.component.type.CustomModelData(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(List.of(((Integer) tag.getInt("CustomModelData")).floatValue())), new ArrayList<>());
             }
         };
     }

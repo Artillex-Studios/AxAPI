@@ -1,19 +1,21 @@
 package com.artillexstudios.axapi.nms.v1_20_R4.items.data;
 
 import com.artillexstudios.axapi.items.component.DataComponent;
-import com.artillexstudios.axapi.items.component.DyedColor;
-import com.artillexstudios.axapi.items.component.ItemEnchantments;
-import com.artillexstudios.axapi.items.component.ItemLore;
-import com.artillexstudios.axapi.items.component.ProfileProperties;
-import com.artillexstudios.axapi.items.component.Rarity;
-import com.artillexstudios.axapi.items.component.Unbreakable;
-import com.artillexstudios.axapi.items.component.Unit;
+import com.artillexstudios.axapi.items.component.type.DyedColor;
+import com.artillexstudios.axapi.items.component.type.ItemEnchantments;
+import com.artillexstudios.axapi.items.component.type.ItemLore;
+import com.artillexstudios.axapi.items.component.type.ProfileProperties;
+import com.artillexstudios.axapi.items.component.type.Rarity;
+import com.artillexstudios.axapi.items.component.type.Unbreakable;
+import com.artillexstudios.axapi.items.component.type.Unit;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.component.CustomData;
@@ -206,6 +208,11 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
     }
 
     @Override
+    public DataComponent<Key> itemModel() {
+        throw new UnsupportedOperationException("Your server version does not support this feature!");
+    }
+
+    @Override
     public DataComponent<ItemLore> lore() {
         return new DataComponent<>() {
 
@@ -292,24 +299,24 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
     }
 
     @Override
-    public DataComponent<Integer> customModelData() {
+    public DataComponent<com.artillexstudios.axapi.items.component.type.CustomModelData> customModelData() {
         return new DataComponent<>() {
 
             @Override
-            public void apply(Object item, Integer integer) {
+            public void apply(Object item, com.artillexstudios.axapi.items.component.type.CustomModelData modelData) {
                 ItemStack itemStack = (ItemStack) item;
-                if (integer == null || integer == 0) {
+                if (modelData == null || modelData.floats().isEmpty()) {
                     itemStack.remove(net.minecraft.core.component.DataComponents.CUSTOM_MODEL_DATA);
                     return;
                 }
 
-                itemStack.set(net.minecraft.core.component.DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(integer));
+                itemStack.set(net.minecraft.core.component.DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(modelData.floats().getFirst().intValue()));
             }
 
             @Override
-            public Integer get(Object item) {
+            public com.artillexstudios.axapi.items.component.type.CustomModelData get(Object item) {
                 ItemStack itemStack = (ItemStack) item;
-                return itemStack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_MODEL_DATA, CustomModelData.DEFAULT).value();
+                return new com.artillexstudios.axapi.items.component.type.CustomModelData(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(List.of(((Integer) itemStack.getOrDefault(DataComponents.CUSTOM_MODEL_DATA, CustomModelData.DEFAULT).value()).floatValue())), new ArrayList<>());
             }
         };
     }
@@ -486,7 +493,7 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
 
                 vanilla.entrySet().forEach(e -> enchants.put(CraftEnchantment.minecraftToBukkit(e.getKey().value()), e.getIntValue()));
 
-                return new com.artillexstudios.axapi.items.component.ItemEnchantments(enchants, vanilla.showInTooltip);
+                return new ItemEnchantments(enchants, vanilla.showInTooltip);
             }
         };
     }

@@ -2,15 +2,17 @@ package com.artillexstudios.axapi.utils;
 
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.component.DataComponents;
-import com.artillexstudios.axapi.items.component.DyedColor;
-import com.artillexstudios.axapi.items.component.ItemEnchantments;
-import com.artillexstudios.axapi.items.component.ItemLore;
-import com.artillexstudios.axapi.items.component.ProfileProperties;
-import com.artillexstudios.axapi.items.component.Unbreakable;
-import com.artillexstudios.axapi.items.component.Unit;
+import com.artillexstudios.axapi.items.component.type.CustomModelData;
+import com.artillexstudios.axapi.items.component.type.DyedColor;
+import com.artillexstudios.axapi.items.component.type.ItemEnchantments;
+import com.artillexstudios.axapi.items.component.type.ItemLore;
+import com.artillexstudios.axapi.items.component.type.ProfileProperties;
+import com.artillexstudios.axapi.items.component.type.Unbreakable;
+import com.artillexstudios.axapi.items.component.type.Unit;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.google.common.collect.Lists;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
@@ -49,26 +51,33 @@ public class ItemBuilder {
 
         String snbt;
         if ((snbt = (String) map.get("snbt")) != null) {
-            stack = NMSHandlers.getNmsHandler().wrapItem(snbt);
+            this.stack = NMSHandlers.getNmsHandler().wrapItem(snbt);
         } else {
-            stack = WrappedItemStack.wrap(new ItemStack(getMaterial(type)));
+            this.stack = WrappedItemStack.wrap(new ItemStack(getMaterial(type)));
         }
         Optional.ofNullable(map.get("item-flags")).ifPresent(flags -> this.flags.addAll(getItemFlags((List<String>) flags)));
 
-        Optional.ofNullable(map.get("name")).ifPresent(name -> this.setName((String) name, resolvers));
+        Optional.ofNullable(map.get("name")).ifPresent(name -> this.setName((String) name, this.resolvers));
         Optional.ofNullable(map.get("color")).ifPresent(color -> this.setColor((String) color));
         Optional.ofNullable(map.get("texture")).ifPresent(string -> this.setTextureValue((String) string));
-        Optional.ofNullable(map.get("custom-model-data")).ifPresent(number -> this.setCustomModelData((int) number));
+        Optional.ofNullable(map.get("custom-model-data")).ifPresent(number -> {
+            if (number instanceof Integer num) {
+                this.legacyModelData(num);
+            } else if (number instanceof Map<?, ?> model) {
+                this.customModelData((Map<Object, Object>) model);
+            }
+        });
         Optional.ofNullable(map.get("amount")).ifPresent(amount -> stack.setAmount((int) amount));
         Optional.ofNullable(map.get("glow")).ifPresent(glow -> this.glow((boolean) glow));
-        Optional.ofNullable(map.get("lore")).ifPresent(lore -> this.setLore((List<String>) lore, resolvers));
-        Optional.ofNullable(map.get("enchants")).ifPresent(enchants -> addEnchants(createEnchantmentsMap((List<String>) enchants)));
-        Optional.ofNullable(map.get("potion")).ifPresent(potion -> setPotion((String) potion));
-        Optional.ofNullable(map.get("unbreakable")).ifPresent(unbreakable -> stack.set(DataComponents.unbreakable(), new Unbreakable(!flags.contains(ItemFlag.HIDE_UNBREAKABLE))));
+        Optional.ofNullable(map.get("lore")).ifPresent(lore -> this.setLore((List<String>) lore, this.resolvers));
+        Optional.ofNullable(map.get("enchants")).ifPresent(enchants -> this.addEnchants(createEnchantmentsMap((List<String>) enchants)));
+        Optional.ofNullable(map.get("potion")).ifPresent(potion -> this.setPotion((String) potion));
+        Optional.ofNullable(map.get("unbreakable")).ifPresent(unbreakable -> this.stack.set(DataComponents.unbreakable(), new Unbreakable(!this.flags.contains(ItemFlag.HIDE_UNBREAKABLE))));
+        Optional.ofNullable(map.get("item-model")).ifPresent(model -> this.stack.set(DataComponents.itemModel(), Key.key((String) model)));
 
         try {
             if (this.flags.contains(ItemFlag.HIDE_POTION_EFFECTS)) {
-                stack.set(DataComponents.hideAdditionalTooltip(), Unit.INSTANCE);
+                this.stack.set(DataComponents.hideAdditionalTooltip(), Unit.INSTANCE);
             }
         } catch (Exception ignored) {
         }
@@ -292,8 +301,17 @@ public class ItemBuilder {
         return this;
     }
 
-    public ItemBuilder setCustomModelData(Integer modelData) {
-        stack.set(DataComponents.customModelData(), modelData);
+    public ItemBuilder legacyModelData(Integer modelData) {
+        stack.set(DataComponents.customModelData(), new CustomModelData(List.of(), List.of(), modelData == null ? List.of() : List.of(modelData.floatValue()), List.of()));
+        return this;
+    }
+
+    public ItemBuilder customModelData(Map<Object, Object> modelData) {
+        stack.set(DataComponents.customModelData(), new CustomModelData((List<String>) modelData.getOrDefault("strings", List.of()), (List<Boolean>) modelData.getOrDefault("flags", List.of()), (List<Float>) modelData.getOrDefault("floats", List.of()), Lists.transform((List<String>) modelData.getOrDefault("colors", List.of()), a -> {
+            String[] rgb = a.replace(" ", "").split(",");
+            Color color = Color.fromRGB(Integer.parseInt(rgb[0]), Integer.parseInt(rgb[1]), Integer.parseInt(rgb[2]));
+            return color.asRGB();
+        })));
         return this;
     }
 
@@ -355,9 +373,12 @@ public class ItemBuilder {
             }
 
             map.put("amount", stack.getAmount());
-            int modelData = stack.get(DataComponents.customModelData());
-            if (modelData != 0) {
-                map.put("custom-model-data", stack.get(DataComponents.customModelData()));
+            CustomModelData modelData = stack.get(DataComponents.customModelData());
+            if (!modelData.floats().isEmpty() && modelData.colors().isEmpty() && modelData.flags().isEmpty() && modelData.strings().isEmpty()) {
+                int data = modelData.floats().get(0).intValue();
+                if (data != 0) {
+                    map.put("custom-model-data", data);
+                }
             }
 
             ProfileProperties profileProperties = stack.get(DataComponents.profile());

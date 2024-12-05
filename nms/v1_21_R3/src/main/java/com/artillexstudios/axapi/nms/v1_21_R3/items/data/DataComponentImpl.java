@@ -1,6 +1,7 @@
-package com.artillexstudios.axapi.nms.v1_21_R2.items.data;
+package com.artillexstudios.axapi.nms.v1_21_R3.items.data;
 
 import com.artillexstudios.axapi.items.component.DataComponent;
+import com.artillexstudios.axapi.items.component.type.CustomModelData;
 import com.artillexstudios.axapi.items.component.type.DyedColor;
 import com.artillexstudios.axapi.items.component.type.ItemEnchantments;
 import com.artillexstudios.axapi.items.component.type.ItemLore;
@@ -16,10 +17,10 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.component.CustomData;
-import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.component.ResolvableProfile;
 import org.bukkit.Color;
@@ -31,7 +32,6 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.potion.PotionType;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +59,7 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
             public CompoundTag get(Object item) {
                 ItemStack itemStack = (ItemStack) item;
 
-                return new com.artillexstudios.axapi.nms.v1_21_R2.items.nbt.CompoundTag(itemStack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA, CustomData.of(new net.minecraft.nbt.CompoundTag())).copyTag());
+                return new com.artillexstudios.axapi.nms.v1_21_R3.items.nbt.CompoundTag(itemStack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA, CustomData.of(new net.minecraft.nbt.CompoundTag())).copyTag());
             }
         };
     }
@@ -210,7 +210,26 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
 
     @Override
     public DataComponent<Key> itemModel() {
-        throw new UnsupportedOperationException("Your server version does not support this feature!");
+        return new DataComponent<>() {
+
+            @Override
+            public void apply(Object item, Key key) {
+                ItemStack itemStack = (ItemStack) item;
+                if (key == null) {
+                    itemStack.remove(DataComponents.ITEM_MODEL);
+                    return;
+                }
+
+                itemStack.set(DataComponents.ITEM_MODEL, ResourceLocation.fromNamespaceAndPath(key.namespace(), key.value()));
+            }
+
+            @Override
+            public Key get(Object item) {
+                ItemStack itemStack = (ItemStack) item;
+                ResourceLocation resourceLocation = itemStack.get(net.minecraft.core.component.DataComponents.ITEM_MODEL);
+                return resourceLocation == null ? null : Key.key(resourceLocation.getNamespace(), resourceLocation.getPath());
+            }
+        };
     }
 
     @Override
@@ -300,24 +319,29 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
     }
 
     @Override
-    public DataComponent<com.artillexstudios.axapi.items.component.type.CustomModelData> customModelData() {
+    public DataComponent<CustomModelData> customModelData() {
         return new DataComponent<>() {
 
             @Override
-            public void apply(Object item, com.artillexstudios.axapi.items.component.type.CustomModelData modelData) {
+            public void apply(Object item, CustomModelData modelData) {
                 ItemStack itemStack = (ItemStack) item;
-                if (modelData == null || modelData.floats().isEmpty()) {
+                if (modelData == null) {
                     itemStack.remove(net.minecraft.core.component.DataComponents.CUSTOM_MODEL_DATA);
                     return;
                 }
 
-                itemStack.set(net.minecraft.core.component.DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(modelData.floats().getFirst().intValue()));
+                itemStack.set(net.minecraft.core.component.DataComponents.CUSTOM_MODEL_DATA, new net.minecraft.world.item.component.CustomModelData(modelData.floats(), modelData.flags(), modelData.strings(), modelData.colors()));
             }
 
             @Override
-            public com.artillexstudios.axapi.items.component.type.CustomModelData get(Object item) {
+            public CustomModelData get(Object item) {
                 ItemStack itemStack = (ItemStack) item;
-                return new com.artillexstudios.axapi.items.component.type.CustomModelData(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(List.of(((Integer) itemStack.getOrDefault(DataComponents.CUSTOM_MODEL_DATA, CustomModelData.DEFAULT).value()).floatValue())), new ArrayList<>());
+                net.minecraft.world.item.component.CustomModelData data = itemStack.get(net.minecraft.core.component.DataComponents.CUSTOM_MODEL_DATA);
+                if (data == null) {
+                    return null;
+                }
+
+                return new CustomModelData(data.strings(), data.flags(), data.floats(), data.colors());
             }
         };
     }
