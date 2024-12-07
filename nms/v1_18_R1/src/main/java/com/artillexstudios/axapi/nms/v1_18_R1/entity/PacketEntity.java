@@ -7,6 +7,7 @@ import com.artillexstudios.axapi.hologram.HologramLine;
 import com.artillexstudios.axapi.hologram.Holograms;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.nms.NMSHandlers;
+import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
 import com.artillexstudios.axapi.packetentity.meta.EntityMeta;
 import com.artillexstudios.axapi.packetentity.meta.EntityMetaFactory;
 import com.artillexstudios.axapi.packetentity.meta.Metadata;
@@ -210,9 +211,9 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
                     buf.release();
                 } else {
                     FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-                    for (Player player : this.tracker.seenBy) {
+                    for (ServerPlayerWrapper player : this.tracker.seenBy) {
                         buf.writeVarInt(this.id);
-                        SynchedEntityData.pack(translate(player, line, dirty), buf);
+                        SynchedEntityData.pack(translate(player.wrapped(), line, dirty), buf);
                         NMSHandlers.getNmsHandler().sendPacket(player, new ClientboundSetEntityDataPacket(buf));
                         buf.clear();
                     }
@@ -405,9 +406,9 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
         }
 
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-        for (Player player : this.tracker.seenBy) {
+        for (ServerPlayerWrapper player : this.tracker.seenBy) {
             buf.writeVarInt(this.id);
-            SynchedEntityData.pack(translate(player, line, transformed), buf);
+            SynchedEntityData.pack(translate(player.wrapped(), line, transformed), buf);
             NMSHandlers.getNmsHandler().sendPacket(player, new ClientboundSetEntityDataPacket(buf));
             buf.clear();
         }

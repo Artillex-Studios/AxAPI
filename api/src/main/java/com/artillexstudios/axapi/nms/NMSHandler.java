@@ -6,6 +6,7 @@ import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.component.DataComponentImpl;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.loot.LootTable;
+import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
 import com.artillexstudios.axapi.selection.ParallelBlockSetter;
 import com.artillexstudios.axapi.selection.BlockSetter;
@@ -71,6 +72,8 @@ public interface NMSHandler {
 
     void sendPacket(Player player, Object packet);
 
+    void sendPacket(ServerPlayerWrapper player, Object packet);
+
     default ParallelBlockSetter newParallelSetter(World world) {
         return null;
     }
@@ -89,7 +92,9 @@ public interface NMSHandler {
 
     LootTable lootTable(Key key);
 
-    List<Player> players(World world);
+    List<ServerPlayerWrapper> players(World world);
 
     void openAnvilInput(AnvilInput anvilInput);
+
+    ServerPlayerWrapper wrapper(Player player);
 }

@@ -9,6 +9,7 @@ import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.nms.v1_21_R1.packet.ClientboundSetPassengersWrapper;
 import com.artillexstudios.axapi.nms.v1_21_R1.packet.ClientboundTeleportEntityWrapper;
+import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
 import com.artillexstudios.axapi.packetentity.meta.EntityMeta;
 import com.artillexstudios.axapi.packetentity.meta.EntityMetaFactory;
 import com.artillexstudios.axapi.packetentity.meta.Metadata;
@@ -208,8 +209,8 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
                 if (line == null || !line.hasPlaceholders()) {
                     this.tracker.broadcast(new ClientboundSetEntityDataPacket(this.id, dirty));
                 } else {
-                    for (Player player : this.tracker.seenBy) {
-                        NMSHandlers.getNmsHandler().sendPacket(player, new ClientboundSetEntityDataPacket(this.id, this.translate(player, line, dirty)));
+                    for (ServerPlayerWrapper player : this.tracker.seenBy) {
+                        NMSHandlers.getNmsHandler().sendPacket(player, new ClientboundSetEntityDataPacket(this.id, this.translate(player.wrapped(), line, dirty)));
                     }
                 }
             }
@@ -373,8 +374,8 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
             return;
         }
 
-        for (Player player : this.tracker.seenBy) {
-            NMSHandlers.getNmsHandler().sendPacket(player, new ClientboundSetEntityDataPacket(this.id, translate(player, line, transformed)));
+        for (ServerPlayerWrapper player : this.tracker.seenBy) {
+            NMSHandlers.getNmsHandler().sendPacket(player, new ClientboundSetEntityDataPacket(this.id, translate(player.wrapped(), line, transformed)));
         }
     }
 

@@ -6,6 +6,7 @@ import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.component.DataComponentImpl;
 import com.artillexstudios.axapi.loot.LootTable;
 import com.artillexstudios.axapi.nms.v1_19_R3.packet.PacketListener;
+import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
 import com.artillexstudios.axapi.reflection.FastFieldAccessor;
 import com.artillexstudios.axapi.selection.BlockSetter;
@@ -305,6 +306,12 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     }
 
     @Override
+    public void sendPacket(ServerPlayerWrapper player, Object packet) {
+        ServerPlayer serverPlayer = ((ServerPlayer) player.asMinecraft());
+        serverPlayer.connection.send((Packet<?>) packet);
+    }
+
+    @Override
     public ParallelBlockSetter newParallelSetter(World world) {
         return new ParallelBlockSetterImpl(world);
     }
@@ -355,12 +362,12 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     }
 
     @Override
-    public List<Player> players(World world) {
+    public List<ServerPlayerWrapper> players(World world) {
         CraftWorld craftWorld = (CraftWorld) world;
         ServerLevel level = craftWorld.getHandle();
         List<ServerPlayer> players = level.players();
         int size = players.size();
-        List<Player> playerList = new ObjectArrayList<>(size);
+        List<ServerPlayerWrapper> playerList = new ObjectArrayList<>(size);
 
         if (players instanceof ArrayList<ServerPlayer> arrayList) {
             Object[] serverPlayers = ELEMENT_DATA.get(arrayList);
@@ -371,11 +378,11 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
                     continue;
                 }
 
-                playerList.add(serverPlayer.getBukkitEntity());
+                playerList.add(new com.artillexstudios.axapi.nms.v1_19_R3.wrapper.ServerPlayerWrapper(serverPlayer));
             }
         } else if (players instanceof LinkedList<ServerPlayer> linkedList) {
             for (ServerPlayer serverPlayer : linkedList.toArray(new ServerPlayer[0])) {
-                playerList.add(serverPlayer.getBukkitEntity());
+                playerList.add(new com.artillexstudios.axapi.nms.v1_19_R3.wrapper.ServerPlayerWrapper(serverPlayer));
             }
         }
 
@@ -399,6 +406,11 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
         sendPacket(player, new ClientboundOpenScreenPacket(anvilMenu.containerId, anvilMenu.getType(), anvilMenu.getTitle()));
         serverPlayer.containerMenu = anvilMenu;
         serverPlayer.initMenu(anvilMenu);
+    }
+
+    @Override
+    public ServerPlayerWrapper wrapper(Player player) {
+        return new com.artillexstudios.axapi.nms.v1_19_R3.wrapper.ServerPlayerWrapper(player);
     }
 
     public String toGson(Component component) {
