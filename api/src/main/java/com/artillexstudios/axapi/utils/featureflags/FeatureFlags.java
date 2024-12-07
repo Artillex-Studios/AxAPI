@@ -1,12 +1,13 @@
 package com.artillexstudios.axapi.utils.featureflags;
 
 import com.artillexstudios.axapi.AxPlugin;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
 public final class FeatureFlags {
-    private static final AxPlugin plugin = AxPlugin.getPlugin(AxPlugin.class);
+    private static final JavaPlugin plugin = AxPlugin.getProvidingPlugin(AxPlugin.class);
     public static final BooleanFlag PACKET_ENTITY_TRACKER_ENABLED = new BooleanFlag(plugin.getName() + "enableEntityTracker", false);
     public static final BooleanFlag DEBUG = new BooleanFlag(plugin.getName() + "debug", false);
     public static final BooleanFlag USE_LEGACY_HEX_FORMATTER = new BooleanFlag(plugin.getName() + "useLegacyHexFormat", false);
