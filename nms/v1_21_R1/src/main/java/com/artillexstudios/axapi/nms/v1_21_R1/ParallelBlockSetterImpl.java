@@ -108,7 +108,7 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
 
         // It's a chunk with zerobitstorage, we need to replace it with a simplebitstorage
         if (storageClass == ZeroBitStorage.class) {
-            statesAccessor.set(toSection, new PalettedContainer<>(Block.BLOCK_STATE_REGISTRY, Blocks.AIR.defaultBlockState(), PalettedContainer.Strategy.SECTION_STATES, presetBlockStates));
+            statesAccessor.set(toSection, new PalettedContainer<>(Block.BLOCK_STATE_REGISTRY, Blocks.AIR.defaultBlockState(), PalettedContainer.Strategy.SECTION_STATES));
         }
     }
 
