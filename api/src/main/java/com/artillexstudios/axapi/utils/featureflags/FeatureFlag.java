@@ -6,7 +6,7 @@ public abstract class FeatureFlag<T> {
 
     public FeatureFlag(String property, T def) {
         this.def = def;
-        this.value = this.transform(System.getProperty(property));
+        this.value = this.transform(property.isBlank() ? "" :System.getProperty(property));
     }
 
     public final T get() {
