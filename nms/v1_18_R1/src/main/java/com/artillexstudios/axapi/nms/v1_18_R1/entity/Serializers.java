@@ -5,7 +5,6 @@ import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataSerializ
 import com.artillexstudios.axapi.reflection.FastFieldAccessor;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.ParticleArguments;
-import com.mojang.math.Vector3d;
 import com.mojang.math.Vector3f;
 import net.minecraft.core.Rotations;
 import net.minecraft.core.particles.ParticleOptions;
@@ -13,7 +12,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.ItemStack;
-import org.bukkit.Particle;
 import org.bukkit.craftbukkit.v1_18_R1.CraftParticle;
 import org.bukkit.util.EulerAngle;
 
@@ -180,7 +178,7 @@ public class Serializers {
 
 
     public static <T, Z> Transformer<Z> transformer(EntityDataAccessor<T> accessor) {
-        return (Transformer<Z>) typeTransformers.get(accessor.serializers().type);
+        return (Transformer<Z>) typeTransformers.get(accessor.serializers().type());
     }
 
     public interface Transformer<Z> {

@@ -11,7 +11,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.ItemStack;
-import org.bukkit.Particle;
 import org.bukkit.craftbukkit.v1_20_R1.CraftParticle;
 import org.bukkit.util.EulerAngle;
 import org.joml.Vector3f;
@@ -180,7 +179,7 @@ public class Serializers {
 
 
     public static <T, Z> Transformer<Z> transformer(EntityDataAccessor<T> accessor) {
-        return (Transformer<Z>) typeTransformers.get(accessor.serializers().type);
+        return (Transformer<Z>) typeTransformers.get(accessor.serializers().type());
     }
 
     public interface Transformer<Z> {

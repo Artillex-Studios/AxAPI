@@ -10,7 +10,9 @@ import com.artillexstudios.axapi.utils.LogUtils;
 import com.artillexstudios.axapi.utils.PaperUtils;
 import com.artillexstudios.axapi.utils.Version;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
+import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -19,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
@@ -80,7 +83,7 @@ public final class EntityTracker {
 
         this.entityMap.put(entity.id(), trackedEntity);
 
-        trackedEntity.updateTracking(trackedEntity.getPlayersInTrackingRange());
+        trackedEntity.updateTracking(TrackedEntity.getPlayersInWorld(entity.location().getWorld()));
     }
 
     public void removeEntity(PacketEntity entity) {
@@ -100,8 +103,12 @@ public final class EntityTracker {
     }
 
     public void process() {
+        // We can safely keep a cache of players in the worlds, as we can spare tracking a new player a tick later
+        // This also reduces the strain on the GC as less objects are wasted (ServerPlayerWrapper)
+        Map<World, List<ServerPlayerWrapper>> tracking = new Object2ObjectLinkedOpenHashMap<>();
         for (TrackedEntity entity : this.entityMap.values()) {
-            entity.updateTracking(entity.getPlayersInTrackingRange());
+            entity.preTick();
+            entity.updateTracking(tracking.computeIfAbsent(entity.world, TrackedEntity::getPlayersInWorld));
             if (entity.hasViewers()) {
                 entity.entity.sendChanges();
             }
@@ -113,10 +120,29 @@ public final class EntityTracker {
         private final PacketEntity entity;
         private final World world;
         private List<ServerPlayerWrapper> lastTrackerCandidates;
+        private boolean hasViewers = false;
 
         public TrackedEntity(PacketEntity entity) {
             this.entity = entity;
             this.world = this.entity.location().getWorld();
+        }
+
+        public static List<ServerPlayerWrapper> getPlayersInWorld(World world) {
+            if (world == null) {
+                return ImmutableList.of();
+            }
+
+            if (folia) {
+                List<Player> players = world.getPlayers();
+                List<ServerPlayerWrapper> wrapper = new ArrayList<>(players.size());
+                for (Player player : players) {
+                    wrapper.add(ServerPlayerWrapper.wrap(player));
+                }
+
+                return wrapper;
+            }
+
+            return NMSHandlers.getNmsHandler().players(world);
         }
 
         public void updateTracking(@NotNull List<ServerPlayerWrapper> newTrackerCandidates) {
@@ -149,6 +175,7 @@ public final class EntityTracker {
             }
 
             if (flag) {
+                this.hasViewers = true;
                 if (this.seenBy.add(player)) {
                     this.entity.addPairing(player.wrapped());
                 }
@@ -165,20 +192,6 @@ public final class EntityTracker {
             this.entity.removePairing(player.wrapped());
         }
 
-        public List<ServerPlayerWrapper> getPlayersInTrackingRange() {
-            if (folia) {
-                List<Player> players = this.world.getPlayers();
-                List<ServerPlayerWrapper> wrapper = new ArrayList<>(players.size());
-                for (Player player : players) {
-                    wrapper.add(ServerPlayerWrapper.wrap(player));
-                }
-
-                return wrapper;
-            }
-
-            return NMSHandlers.getNmsHandler().players(this.world);
-        }
-
         public void broadcast(Object packet) {
             for (ServerPlayerWrapper player : this.seenBy) {
                 NMSHandlers.getNmsHandler().sendPacket(player, packet);
@@ -191,8 +204,12 @@ public final class EntityTracker {
             }
         }
 
+        public void preTick() {
+            this.hasViewers = false;
+        }
+
         public boolean hasViewers() {
-            return !this.seenBy.isEmpty();
+            return this.hasViewers;
         }
     }
 }

@@ -179,7 +179,7 @@ public class Serializers {
 
 
     public static <T, Z> Transformer<Z> transformer(EntityDataAccessor<T> accessor) {
-        return (Transformer<Z>) typeTransformers.get(accessor.serializers().type);
+        return (Transformer<Z>) typeTransformers.get(accessor.serializers().type());
     }
 
     public interface Transformer<Z> {

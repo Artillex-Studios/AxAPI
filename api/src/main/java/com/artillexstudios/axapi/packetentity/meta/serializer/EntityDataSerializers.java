@@ -4,16 +4,14 @@ import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.utils.ParticleArguments;
 import com.artillexstudios.axapi.utils.Vector3f;
 import net.kyori.adventure.text.Component;
-import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.bukkit.Location;
-import org.bukkit.Particle;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Pose;
 import org.bukkit.util.EulerAngle;
 
 import java.util.Optional;
 
-public final class EntityDataSerializers<T> {
+public record EntityDataSerializers<T>(com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataSerializers.Type type) {
     public static final EntityDataSerializers<Byte> BYTE = new EntityDataSerializers<>(Type.BYTE);
     public static final EntityDataSerializers<Integer> INT = new EntityDataSerializers<>(Type.INT);
     public static final EntityDataSerializers<Float> FLOAT = new EntityDataSerializers<>(Type.FLOAT);
@@ -29,12 +27,6 @@ public final class EntityDataSerializers<T> {
     public static final EntityDataSerializers<Optional<Location>> OPTIONAL_LOCATION = new EntityDataSerializers<>(Type.OPTIONAL_LOCATION);
     public static final EntityDataSerializers<Pose> POSE = new EntityDataSerializers<>(Type.POSE);
     public static final EntityDataSerializers<Vector3f> VECTOR3 = new EntityDataSerializers<>(Type.VECTOR3);
-
-    public final Type type;
-
-    public EntityDataSerializers(Type type) {
-        this.type = type;
-    }
 
     public EntityDataAccessor<T> createAccessor(int id) {
         return new EntityDataAccessor<>(id, this);
