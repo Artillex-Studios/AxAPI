@@ -3,7 +3,6 @@ package com.artillexstudios.axapi.hologram;
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.utils.ExceptionReportingScheduledThreadPool;
 import com.artillexstudios.axapi.utils.LogUtils;
-import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -30,7 +29,7 @@ public class Holograms {
                     line.update();
                 });
             });
-        }, 0, FeatureFlags.HOLOGRAM_UPDATE_TICKS.get() * 50, TimeUnit.MILLISECONDS);
+        }, 0, AxPlugin.flags().HOLOGRAM_UPDATE_TICKS.get() * 50, TimeUnit.MILLISECONDS);
     }
 
     public static void shutdown() {

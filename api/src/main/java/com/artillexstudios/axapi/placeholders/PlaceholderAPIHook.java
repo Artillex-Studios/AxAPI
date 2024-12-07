@@ -1,7 +1,6 @@
 package com.artillexstudios.axapi.placeholders;
 
 import com.artillexstudios.axapi.AxPlugin;
-import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.LogUtils;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
@@ -24,7 +23,7 @@ public final class PlaceholderAPIHook extends PlaceholderExpansion {
     @NotNull
     @Override
     public String getIdentifier() {
-        String identifier = FeatureFlags.PLACEHOLDER_API_IDENTIFIER.get();
+        String identifier = AxPlugin.flags().PLACEHOLDER_API_IDENTIFIER.get();
         if (identifier.isBlank()) {
             String pluginName = plugin.getName().toLowerCase(Locale.ENGLISH);
             LogUtils.error("PlaceholderAPI identifier is not set up! Please set it! Defaulting to {}", pluginName);

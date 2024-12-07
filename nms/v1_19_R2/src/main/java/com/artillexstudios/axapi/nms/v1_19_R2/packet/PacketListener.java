@@ -8,7 +8,6 @@ import com.artillexstudios.axapi.nms.v1_19_R2.items.WrappedItemStack;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
 import com.artillexstudios.axapi.reflection.FastFieldAccessor;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
-import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.mojang.datafixers.util.Pair;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelDuplexHandler;
@@ -191,7 +190,7 @@ public class PacketListener extends ChannelDuplexHandler {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        if (FeatureFlags.DEBUG.get()) {
+        if (AxPlugin.flags().DEBUG.get()) {
             log.error("An unhandled exception occurred on ctx {}!", ctx, cause);
         }
 

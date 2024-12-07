@@ -26,12 +26,14 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class AxPlugin extends JavaPlugin {
     public static EntityTracker tracker;
+    private static FeatureFlags flags;
 
     public AxPlugin() {
-        this.updateFlags();
+        flags = new FeatureFlags(this);
+        this.updateFlags(flags);
     }
 
-    public void updateFlags() {
+    public void updateFlags(FeatureFlags flags) {
 
     }
 
@@ -45,7 +47,7 @@ public abstract class AxPlugin extends JavaPlugin {
         DataComponents.setDataComponentImpl(NMSHandlers.getNmsHandler().dataComponents());
         Scheduler.scheduler.init(this);
 
-        if (FeatureFlags.PACKET_ENTITY_TRACKER_ENABLED.get()) {
+        if (flags.PACKET_ENTITY_TRACKER_ENABLED.get()) {
             tracker = new EntityTracker();
             tracker.startTicking();
         }
@@ -77,7 +79,7 @@ public abstract class AxPlugin extends JavaPlugin {
         }, this);
         Bukkit.getPluginManager().registerEvents(new AnvilListener(), this);
 
-        if (FeatureFlags.HOLOGRAM_UPDATE_TICKS.get() > 0) {
+        if (flags.HOLOGRAM_UPDATE_TICKS.get() > 0) {
             Holograms.startTicking();
         }
 
@@ -88,7 +90,7 @@ public abstract class AxPlugin extends JavaPlugin {
         this.enable();
 
         Placeholders.lock();
-        if (FeatureFlags.PLACEHOLDER_API_HOOK.get() && Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+        if (flags.PLACEHOLDER_API_HOOK.get() && Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new PlaceholderAPIHook().register();
         }
     }
@@ -116,7 +118,7 @@ public abstract class AxPlugin extends JavaPlugin {
                 .relocate("com{}github{}benmanes", "com.artillexstudios.axapi.libs.caffeine")
                 .build();
 
-        if (FeatureFlags.DEBUG.get()) {
+        if (flags.DEBUG.get()) {
             libraryManager.setLogLevel(LogLevel.DEBUG);
         }
         libraryManager.loadLibrary(commonsMath);
@@ -157,5 +159,9 @@ public abstract class AxPlugin extends JavaPlugin {
         this.reload();
 
         return System.currentTimeMillis() - start;
+    }
+
+    public static FeatureFlags flags() {
+        return flags;
     }
 }

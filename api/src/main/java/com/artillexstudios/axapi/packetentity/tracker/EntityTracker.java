@@ -9,7 +9,6 @@ import com.artillexstudios.axapi.utils.ExceptionReportingScheduledThreadPool;
 import com.artillexstudios.axapi.utils.LogUtils;
 import com.artillexstudios.axapi.utils.PaperUtils;
 import com.artillexstudios.axapi.utils.Version;
-import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
@@ -36,7 +35,7 @@ public final class EntityTracker {
 
     public void startTicking() {
         this.shutdown();
-        this.service = new ExceptionReportingScheduledThreadPool(FeatureFlags.PACKET_ENTITY_TRACKER_THREADS.get(), new ThreadFactoryBuilder().setNameFormat(this.instance.getName() + "-EntityTracker-%s").build());
+        this.service = new ExceptionReportingScheduledThreadPool(AxPlugin.flags().PACKET_ENTITY_TRACKER_THREADS.get(), new ThreadFactoryBuilder().setNameFormat(this.instance.getName() + "-EntityTracker-%s").build());
         this.service.scheduleAtFixedRate(() -> {
             try {
                 this.process();
@@ -48,7 +47,7 @@ public final class EntityTracker {
                     // (But people don't like seeing errors, so this is the solution until I find out what causes the tracker to throw a CME)
                     //
                     // Please don't hunt me for this, I didn't want to do it.
-                    if (FeatureFlags.DEBUG.get()) {
+                    if (AxPlugin.flags().DEBUG.get()) {
                         LogUtils.error("Caught ConcurrentModificationException when processing packet entities!", exception);
                     }
                     return;

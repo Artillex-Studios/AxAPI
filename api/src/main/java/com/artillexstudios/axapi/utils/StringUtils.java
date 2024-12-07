@@ -1,7 +1,7 @@
 package com.artillexstudios.axapi.utils;
 
+import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.reflection.FastFieldAccessor;
-import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import it.unimi.dsi.fastutil.chars.CharImmutableList;
@@ -69,7 +69,7 @@ public class StringUtils {
     }
 
     public static Component format(@NotNull String input, @NotNull TagResolver... resolvers) {
-        if (FeatureFlags.USE_LEGACY_HEX_FORMATTER.get()) {
+        if (AxPlugin.flags().USE_LEGACY_HEX_FORMATTER.get()) {
             input = ItemBuilder.toTagResolver(input, resolvers);
 
             return LEGACY_COMPONENT_SERIALIZER.deserialize(formatToString(input, resolvers)).applyFallbackStyle(TextDecoration.ITALIC.withState(false));
@@ -106,7 +106,7 @@ public class StringUtils {
     }
 
     public static String formatToString(@NotNull String string, @NotNull TagResolver... resolvers) {
-        if (FeatureFlags.USE_LEGACY_HEX_FORMATTER.get()) {
+        if (AxPlugin.flags().USE_LEGACY_HEX_FORMATTER.get()) {
             String changed = string.replace("§", "&");
             changed = ItemBuilder.toTagResolver(changed, resolvers);
             return ChatColor.translateAlternateColorCodes('&', legacyHexFormat(LEGACY_COMPONENT_SERIALIZER.serialize(MINI_MESSAGE.deserialize(changed, resolvers))));

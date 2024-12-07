@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.hologram;
 
+import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.collections.ThreadSafeList;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.nms.NMSHandlers;
@@ -8,7 +9,6 @@ import com.artillexstudios.axapi.packetentity.meta.EntityMeta;
 import com.artillexstudios.axapi.packetentity.meta.entity.ArmorStandMeta;
 import com.artillexstudios.axapi.packetentity.meta.entity.ItemEntityMeta;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
-import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axapi.utils.placeholder.Placeholder;
 import com.artillexstudios.axapi.utils.placeholder.StaticPlaceholder;
@@ -84,7 +84,7 @@ public class HologramLine {
                             }
                         }
 
-                        for (Pattern pattern : FeatureFlags.PLACEHOLDER_PATTERNS.get()) {
+                        for (Pattern pattern : AxPlugin.flags().PLACEHOLDER_PATTERNS.get()) {
                             Matcher matcher = pattern.matcher(content);
                             if (matcher.find()) {
                                 hasPlaceholders = true;
@@ -148,7 +148,7 @@ public class HologramLine {
                         }
                     }
 
-                    for (Pattern pattern : FeatureFlags.PLACEHOLDER_PATTERNS.get()) {
+                    for (Pattern pattern : AxPlugin.flags().PLACEHOLDER_PATTERNS.get()) {
                         Matcher matcher = pattern.matcher(reference.get());
                         if (matcher.find()) {
                             hasPlaceholders = true;
