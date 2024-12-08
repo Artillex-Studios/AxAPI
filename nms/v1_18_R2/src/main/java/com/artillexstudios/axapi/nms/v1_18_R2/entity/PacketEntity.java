@@ -210,14 +210,14 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
                     this.tracker.broadcast(new ClientboundSetEntityDataPacket(buf));
                     buf.release();
                 } else {
-                    FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-                    for (ServerPlayerWrapper player : this.tracker.seenBy) {
-                        buf.writeVarInt(this.id);
-                        SynchedEntityData.pack(translate(player.wrapped(), line, dirty), buf);
-                        NMSHandlers.getNmsHandler().sendPacket(player, new ClientboundSetEntityDataPacket(buf));
-                        buf.clear();
-                    }
-                    buf.release();
+//                    FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+//                    for (ServerPlayerWrapper player : this.tracker.seenBy) {
+//                        buf.writeVarInt(this.id);
+//                        SynchedEntityData.pack(translate(player.wrapped(), line, dirty), buf);
+//                        NMSHandlers.getNmsHandler().sendPacket(player, new ClientboundSetEntityDataPacket(buf));
+//                        buf.clear();
+//                    }
+//                    buf.release();
                 }
             }
         }
@@ -405,14 +405,14 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
             return;
         }
 
-        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-        for (ServerPlayerWrapper player : this.tracker.seenBy) {
-            buf.writeVarInt(this.id);
-            SynchedEntityData.pack(translate(player.wrapped(), line, transformed), buf);
-            NMSHandlers.getNmsHandler().sendPacket(player, new ClientboundSetEntityDataPacket(buf));
-            buf.clear();
-        }
-        buf.release();
+//        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+//        for (ServerPlayerWrapper player : this.tracker.seenBy) {
+//            buf.writeVarInt(this.id);
+//            SynchedEntityData.pack(translate(player.wrapped(), line, transformed), buf);
+//            NMSHandlers.getNmsHandler().sendPacket(player, new ClientboundSetEntityDataPacket(buf));
+//            buf.clear();
+//        }
+//        buf.release();
     }
 
     private List<SynchedEntityData.DataItem<?>> translate(Player player, HologramLine line, List<SynchedEntityData.DataItem<?>> values) {

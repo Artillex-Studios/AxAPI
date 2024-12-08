@@ -213,13 +213,13 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
                 if (line == null || !line.hasPlaceholders()) {
                     this.tracker.broadcast(new ClientboundSetEntityDataPacket(this.id, dirty));
                 } else {
-                    for (Object player : this.tracker.seenBy/* RawObjectOpenHashSet.rawSet(this.tracker.seenBy)*/) {
+                    for (Player player : this.tracker.seenBy/* RawObjectOpenHashSet.rawSet(this.tracker.seenBy)*/) {
                         if (player == null) {
                             continue;
                         }
 
-                        LogUtils.warn("SendChanges {} for user {}", this.id, ((ServerPlayerWrapper) player).wrapped().getName());
-                        NMSHandlers.getNmsHandler().sendPacket(((ServerPlayerWrapper) player), new ClientboundSetEntityDataPacket(this.id, this.translate(((ServerPlayerWrapper) player).wrapped(), line, dirty)));
+                        LogUtils.warn("SendChanges {} for user {}", this.id, player.getName());
+                        NMSHandlers.getNmsHandler().sendPacket(player, new ClientboundSetEntityDataPacket(this.id, this.translate(player, line, dirty)));
                     }
                 }
             }
@@ -383,13 +383,13 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
             return;
         }
 
-        for (Object player : this.tracker.seenBy /*RawObjectOpenHashSet.rawSet(this.tracker.seenBy)*/) {
+        for (Player player : this.tracker.seenBy /*RawObjectOpenHashSet.rawSet(this.tracker.seenBy)*/) {
             if (player == null) {
                 continue;
             }
 
-            LogUtils.warn("Updating {} for user {}", this.id, ((ServerPlayerWrapper) player).wrapped().getName());
-            NMSHandlers.getNmsHandler().sendPacket(((ServerPlayerWrapper) player), new ClientboundSetEntityDataPacket(this.id, translate(((ServerPlayerWrapper) player).wrapped(), line, transformed)));
+            LogUtils.warn("Updating {} for user {}", this.id, player.getName());
+            NMSHandlers.getNmsHandler().sendPacket(player, new ClientboundSetEntityDataPacket(this.id, translate(player, line, transformed)));
         }
     }
 

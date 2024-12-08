@@ -209,9 +209,9 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
                 if (line == null || !line.hasPlaceholders()) {
                     this.tracker.broadcast(new ClientboundSetEntityDataPacket(this.id, dirty));
                 } else {
-                    for (ServerPlayerWrapper player : this.tracker.seenBy) {
-                        NMSHandlers.getNmsHandler().sendPacket(player, new ClientboundSetEntityDataPacket(this.id, this.translate(player.wrapped(), line, dirty)));
-                    }
+//                    for (ServerPlayerWrapper player : this.tracker.seenBy) {
+//                        NMSHandlers.getNmsHandler().sendPacket(player, new ClientboundSetEntityDataPacket(this.id, this.translate(player.wrapped(), line, dirty)));
+//                    }
                 }
             }
         }
@@ -374,9 +374,9 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
             return;
         }
 
-        for (ServerPlayerWrapper player : this.tracker.seenBy) {
-            NMSHandlers.getNmsHandler().sendPacket(player, new ClientboundSetEntityDataPacket(this.id, translate(player.wrapped(), line, transformed)));
-        }
+//        for (ServerPlayerWrapper player : this.tracker.seenBy) {
+//            NMSHandlers.getNmsHandler().sendPacket(player, new ClientboundSetEntityDataPacket(this.id, translate(player.wrapped(), line, transformed)));
+//        }
     }
 
     private List<SynchedEntityData.DataValue<?>> translate(Player player, HologramLine line, List<SynchedEntityData.DataValue<?>> values) {

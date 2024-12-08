@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import it.unimi.dsi.fastutil.objects.ObjectSets;
+import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -173,7 +174,7 @@ public final class EntityTracker {
             this.lastTrackerCandidates = newTrackerCandidates;
 
             for (ServerPlayerWrapper raw : newTrackerCandidates) {
-                this.updatePlayer(raw.wrapped());
+                this.updatePlayer(raw);
             }
 
             if (oldTrackerCandidates != null && oldTrackerCandidates.size() == newTrackerCandidates.size() && oldTrackerCandidates.equals(newTrackerCandidates)) {
@@ -181,37 +182,37 @@ public final class EntityTracker {
             }
 
             for (Player player : this.seenBy.toArray(new Player[0])) {
-//                if (newTrackerCandidates.isEmpty() || !newTrackerCandidates.contains(player)) {
-                    this.updatePlayer(player);
-//                }
+                ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(player);
+                if (newTrackerCandidates.isEmpty() || !newTrackerCandidates.contains(wrapper)) {
+                    this.updatePlayer(wrapper);
+                }
             }
         }
 
-        public void updatePlayer(Player player) {
-            ServerPlayerWrapper wrapped = ServerPlayerWrapper.wrap(player);
-            int dx = (int) wrapped.getX() - (int) this.entity.location().getX();
-            int dz = (int) wrapped.getZ() - (int) this.entity.location().getZ();
+        public void updatePlayer(ServerPlayerWrapper player) {
+            int dx = (int) player.getX() - (int) this.entity.location().getX();
+            int dz = (int) player.getZ() - (int) this.entity.location().getZ();
             int d1 = dx * dx + dz * dz;
             boolean flag = d1 <= this.entity.viewDistanceSquared();
 
-            if (flag && !this.entity.canSee(player)) {
+            if (flag && !this.entity.canSee(player.wrapped())) {
                 flag = false;
             }
 
             if (flag) {
                 this.hasViewers = true;
-                if (this.seenBy.add(player)) {
-                    LogUtils.warn("Tracking start for player {}, {} seenby: {}", player.getName(), this.entity.id(), this.seenBy);
-                    this.entity.addPairing(player);
+                if (this.seenBy.add(player.wrapped())) {
+                    LogUtils.warn("Tracking start for player {}, {} seenby: {}", player.wrapped().getName(), this.entity.id(), this.seenBy);
+                    this.entity.addPairing(player.wrapped());
                 }
-            } else if (this.seenBy.remove(player)) {
-                LogUtils.warn("Tracking end for player {}, {} seenby: {}", player.getName(), this.entity.id(), this.seenBy);
-                this.entity.removePairing(player);
+            } else if (this.seenBy.remove(player.wrapped())) {
+                LogUtils.warn("Tracking end for player {}, {} seenby: {}", player.wrapped().getName(), this.entity.id(), this.seenBy);
+                this.entity.removePairing(player.wrapped());
             }
         }
 
         public void untrack(ServerPlayerWrapper player) {
-            if (!this.seenBy.remove(player)) {
+            if (!this.seenBy.remove(player.wrapped())) {
                 return;
             }
 
@@ -220,15 +221,13 @@ public final class EntityTracker {
         }
 
         public void broadcast(Object packet) {
-            for (Player player : this.seenBy) {
+            this.seenBy.forEach(player -> {
                 NMSHandlers.getNmsHandler().sendPacket(player, packet);
-            }
+            });
         }
 
         public void broadcastRemove() {
-            for (Player player : this.seenBy) {
-                this.entity.removePairing(player);
-            }
+            this.seenBy.forEach(this.entity::removePairing);
         }
 
         public void preTick() {
