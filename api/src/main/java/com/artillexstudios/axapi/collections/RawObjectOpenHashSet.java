@@ -1,12 +1,12 @@
 package com.artillexstudios.axapi.collections;
 
 import com.artillexstudios.axapi.reflection.FastFieldAccessor;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
-import it.unimi.dsi.fastutil.objects.ObjectSets;
 
-public class RawObjectOpenHashSet<K> extends ObjectOpenHashSet<K> {
+public class RawObjectOpenHashSet<K> extends ObjectArraySet<K> {
     private static final FastFieldAccessor accessor = FastFieldAccessor.forClassField("it.unimi.dsi.fastutil.objects.ObjectCollections$SynchronizedCollection", "collection");
+
     public RawObjectOpenHashSet() {
         super();
     }
@@ -15,8 +15,14 @@ public class RawObjectOpenHashSet<K> extends ObjectOpenHashSet<K> {
         super(capacity);
     }
 
-    public RawObjectOpenHashSet(final int capacity, final float loadFactor) {
-        super(capacity, loadFactor);
+    public static <E> Object[] rawSet(ObjectSet<E> set) {
+        RawObjectOpenHashSet<E> rawSet = accessor.get(set);
+        return rawSet.rawSet();
+    }
+
+    @Override
+    public boolean remove(Object k) {
+        return super.remove(k);
     }
 
     @Override
@@ -25,11 +31,6 @@ public class RawObjectOpenHashSet<K> extends ObjectOpenHashSet<K> {
     }
 
     public Object[] rawSet() {
-        return this.key;
-    }
-
-    public static <E> Object[] rawSet(ObjectSet<E> set) {
-        RawObjectOpenHashSet<E> rawSet = accessor.get(set);
-        return rawSet.rawSet();
+        return this.a;
     }
 }

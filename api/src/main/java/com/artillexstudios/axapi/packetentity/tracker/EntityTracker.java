@@ -219,6 +219,7 @@ public final class EntityTracker {
                 return;
             }
 
+            LogUtils.warn("Forceful untrack!");
             this.entity.removePairing(player.wrapped());
         }
 

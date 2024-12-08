@@ -56,6 +56,12 @@ public abstract class AxPlugin extends JavaPlugin {
             @EventHandler
             public void onPlayerQuitEvent(@NotNull final PlayerQuitEvent event) {
                 NMSHandlers.getNmsHandler().uninjectPlayer(event.getPlayer());
+
+                if (tracker == null) {
+                    return;
+                }
+
+                tracker.untrackFor(ServerPlayerWrapper.wrap(event.getPlayer()));
             }
 
             @EventHandler

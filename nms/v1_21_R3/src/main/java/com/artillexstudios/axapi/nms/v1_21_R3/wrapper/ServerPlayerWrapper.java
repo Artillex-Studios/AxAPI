@@ -64,6 +64,7 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
             return true;
         }
 
+        this.update();
         return Objects.equals(this.wrapped, that.wrapped);
     }
 
