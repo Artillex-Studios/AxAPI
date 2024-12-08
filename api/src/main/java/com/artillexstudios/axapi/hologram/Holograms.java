@@ -26,6 +26,7 @@ public class Holograms {
                         return;
                     }
 
+                    LogUtils.warn("Updating line with id {}!", id);
                     line.update();
                 });
             });

@@ -16,6 +16,7 @@ import com.artillexstudios.axapi.packetentity.meta.EntityMetaFactory;
 import com.artillexstudios.axapi.packetentity.meta.Metadata;
 import com.artillexstudios.axapi.packetentity.tracker.EntityTracker;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
+import com.artillexstudios.axapi.utils.LogUtils;
 import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axapi.utils.placeholder.Placeholder;
 import com.artillexstudios.axapi.utils.placeholder.StaticPlaceholder;
@@ -217,6 +218,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
                             continue;
                         }
 
+                        LogUtils.warn("SendChanges {} for user {}", this.id, ((ServerPlayerWrapper) player).wrapped().getName());
                         NMSHandlers.getNmsHandler().sendPacket(((ServerPlayerWrapper) player), new ClientboundSetEntityDataPacket(this.id, this.translate(((ServerPlayerWrapper) player).wrapped(), line, dirty)));
                     }
                 }
@@ -386,6 +388,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
                 continue;
             }
 
+            LogUtils.warn("Updating {} for user {}", this.id, ((ServerPlayerWrapper) player).wrapped().getName());
             NMSHandlers.getNmsHandler().sendPacket(((ServerPlayerWrapper) player), new ClientboundSetEntityDataPacket(this.id, translate(((ServerPlayerWrapper) player).wrapped(), line, transformed)));
         }
     }

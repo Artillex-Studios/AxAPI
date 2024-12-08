@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import it.unimi.dsi.fastutil.objects.ObjectSets;
+import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -117,22 +118,24 @@ public final class EntityTracker {
 //        }
 
         for (int i = 0; i < AxPlugin.flags().PACKET_ENTITY_TRACKER_THREADS.get(); i++) {
-            while (true) {
-                TrackedEntity tracked;
-                synchronized (iterator) {
-                    if (!iterator.hasNext()) {
-                        break;
+            this.service.execute(() -> {
+                while (true) {
+                    TrackedEntity tracked;
+                    synchronized (iterator) {
+                        if (!iterator.hasNext()) {
+                            break;
+                        }
+
+                        tracked = iterator.next();
                     }
 
-                    tracked = iterator.next();
+                    tracked.preTick();
+                    tracked.updateTracking(tracking.computeIfAbsent(tracked.world, TrackedEntity::getPlayersInWorld));
+                    if (tracked.hasViewers()) {
+                        tracked.entity.sendChanges();
+                    }
                 }
-
-                tracked.preTick();
-                tracked.updateTracking(tracking.computeIfAbsent(tracked.world, TrackedEntity::getPlayersInWorld));
-                if (tracked.hasViewers()) {
-                    tracked.entity.sendChanges();
-                }
-            }
+            });
         }
     }
 
@@ -178,9 +181,9 @@ public final class EntityTracker {
                 return;
             }
 
-            for (ServerPlayerWrapper player : this.seenBy.toArray(new ServerPlayerWrapper[0])) {
-                if (newTrackerCandidates.isEmpty() || !newTrackerCandidates.contains(player)) {
-                    this.updatePlayer(player);
+            for (Object player : RawObjectOpenHashSet.rawSet(this.seenBy)) {
+                if (newTrackerCandidates.isEmpty() || !newTrackerCandidates.contains((ServerPlayerWrapper) player)) {
+                    this.updatePlayer((ServerPlayerWrapper) player);
                 }
             }
         }
@@ -198,9 +201,11 @@ public final class EntityTracker {
             if (flag) {
                 this.hasViewers = true;
                 if (this.seenBy.add(player)) {
+                    LogUtils.warn("Tracking start for player {}, {} seenby: {}", player.wrapped().getName(), this.entity.id(), this.seenBy);
                     this.entity.addPairing(player.wrapped());
                 }
             } else if (this.seenBy.remove(player)) {
+                LogUtils.warn("Tracking end for player {}, {} seenby: {}", player.wrapped().getName(), this.entity.id(), this.seenBy);
                 this.entity.removePairing(player.wrapped());
             }
         }
