@@ -182,6 +182,10 @@ public final class EntityTracker {
             }
 
             for (Object player : RawObjectOpenHashSet.rawSet(this.seenBy)) {
+                if (player == null) {
+                    continue;
+                }
+
                 if (newTrackerCandidates.isEmpty() || !newTrackerCandidates.contains((ServerPlayerWrapper) player)) {
                     this.updatePlayer((ServerPlayerWrapper) player);
                 }
