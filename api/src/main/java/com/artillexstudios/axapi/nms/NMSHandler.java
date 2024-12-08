@@ -96,5 +96,5 @@ public interface NMSHandler {
 
     void openAnvilInput(AnvilInput anvilInput);
 
-    ServerPlayerWrapper wrapper(Player player);
+    ServerPlayerWrapper wrapper(Object player);
 }

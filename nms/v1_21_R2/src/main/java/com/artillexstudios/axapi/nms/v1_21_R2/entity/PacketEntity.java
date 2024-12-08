@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.nms.v1_21_R2.entity;
 
 import com.artillexstudios.axapi.AxPlugin;
+import com.artillexstudios.axapi.collections.RawReferenceOpenHashSet;
 import com.artillexstudios.axapi.collections.ThreadSafeList;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.hologram.HologramLine;
@@ -209,9 +210,14 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
                 if (line == null || !line.hasPlaceholders()) {
                     this.tracker.broadcast(new ClientboundSetEntityDataPacket(this.id, dirty));
                 } else {
-//                    for (ServerPlayerWrapper player : this.tracker.seenBy) {
-//                        NMSHandlers.getNmsHandler().sendPacket(player, new ClientboundSetEntityDataPacket(this.id, this.translate(player.wrapped(), line, dirty)));
-//                    }
+                    for (Object player : RawReferenceOpenHashSet.rawSet(this.tracker.seenBy)) {
+                        if (player == null) {
+                            continue;
+                        }
+
+                        ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(player);
+                        NMSHandlers.getNmsHandler().sendPacket(wrapper, new ClientboundSetEntityDataPacket(this.id, this.translate(wrapper.wrapped(), line, dirty)));
+                    }
                 }
             }
         }
@@ -374,9 +380,14 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
             return;
         }
 
-//        for (ServerPlayerWrapper player : this.tracker.seenBy) {
-//            NMSHandlers.getNmsHandler().sendPacket(player, new ClientboundSetEntityDataPacket(this.id, translate(player.wrapped(), line, transformed)));
-//        }
+        for (Object player : RawReferenceOpenHashSet.rawSet(this.tracker.seenBy)) {
+            if (player == null) {
+                continue;
+            }
+
+            ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(player);
+            NMSHandlers.getNmsHandler().sendPacket(wrapper, new ClientboundSetEntityDataPacket(this.id, this.translate(wrapper.wrapped(), line, transformed)));
+        }
     }
 
     private List<SynchedEntityData.DataValue<?>> translate(Player player, HologramLine line, List<SynchedEntityData.DataValue<?>> values) {

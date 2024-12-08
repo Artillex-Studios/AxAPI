@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.nms.v1_18_R2.entity;
 
 import com.artillexstudios.axapi.AxPlugin;
+import com.artillexstudios.axapi.collections.RawReferenceOpenHashSet;
 import com.artillexstudios.axapi.collections.ThreadSafeList;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.hologram.HologramLine;
@@ -210,14 +211,19 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
                     this.tracker.broadcast(new ClientboundSetEntityDataPacket(buf));
                     buf.release();
                 } else {
-//                    FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-//                    for (ServerPlayerWrapper player : this.tracker.seenBy) {
-//                        buf.writeVarInt(this.id);
-//                        SynchedEntityData.pack(translate(player.wrapped(), line, dirty), buf);
-//                        NMSHandlers.getNmsHandler().sendPacket(player, new ClientboundSetEntityDataPacket(buf));
-//                        buf.clear();
-//                    }
-//                    buf.release();
+                    FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+                    for (Object player : RawReferenceOpenHashSet.rawSet(this.tracker.seenBy)) {
+                        if (player == null) {
+                            continue;
+                        }
+
+                        ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(player);
+                        buf.writeVarInt(this.id);
+                        SynchedEntityData.pack(this.translate(wrapper.wrapped(), line, dirty), buf);
+                        NMSHandlers.getNmsHandler().sendPacket(wrapper, new ClientboundSetEntityDataPacket(buf));
+                        buf.clear();
+                    }
+                    buf.release();
                 }
             }
         }
@@ -405,14 +411,19 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
             return;
         }
 
-//        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-//        for (ServerPlayerWrapper player : this.tracker.seenBy) {
-//            buf.writeVarInt(this.id);
-//            SynchedEntityData.pack(translate(player.wrapped(), line, transformed), buf);
-//            NMSHandlers.getNmsHandler().sendPacket(player, new ClientboundSetEntityDataPacket(buf));
-//            buf.clear();
-//        }
-//        buf.release();
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        for (Object player : RawReferenceOpenHashSet.rawSet(this.tracker.seenBy)) {
+            if (player == null) {
+                continue;
+            }
+
+            ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(player);
+            buf.writeVarInt(this.id);
+            SynchedEntityData.pack(this.translate(wrapper.wrapped(), line, transformed), buf);
+            NMSHandlers.getNmsHandler().sendPacket(wrapper, new ClientboundSetEntityDataPacket(buf));
+            buf.clear();
+        }
+        buf.release();
     }
 
     private List<SynchedEntityData.DataItem<?>> translate(Player player, HologramLine line, List<SynchedEntityData.DataItem<?>> values) {

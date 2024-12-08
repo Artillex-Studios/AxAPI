@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.packetentity.tracker;
 
 import com.artillexstudios.axapi.AxPlugin;
+import com.artillexstudios.axapi.collections.RawReferenceOpenHashSet;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
@@ -12,7 +13,9 @@ import com.artillexstudios.axapi.utils.Version;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ReferenceSet;
 import it.unimi.dsi.fastutil.objects.ReferenceSets;
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -20,10 +23,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -106,16 +109,13 @@ public final class EntityTracker {
     public void process() {
         // We can safely keep a cache of players in the worlds, as we can spare tracking a new player a tick later
         // This also reduces the strain on the GC as less objects are wasted (ServerPlayerWrapper)
-        Map<World, List<ServerPlayerWrapper>> tracking = new ConcurrentHashMap<>();
-        Iterator<TrackedEntity> iterator = this.entityMap.values().iterator();
-//        for (TrackedEntity tracked : ) {
-//            tracked.preTick();
-//            tracked.updateTracking(tracking.computeIfAbsent(tracked.world, TrackedEntity::getPlayersInWorld));
-//            if (tracked.hasViewers()) {
-//                tracked.entity.sendChanges();
-//            }
-//        }
+        // We are only ever reading from this map, so thread safety doesn't matter
+        Map<World, List<ServerPlayerWrapper>> tracking = new HashMap<>((int) Math.ceil(Bukkit.getWorlds().size() / (double) 0.75f));
+        for (World world : Bukkit.getWorlds()) {
+            tracking.put(world, TrackedEntity.getPlayersInWorld(world));
+        }
 
+        Iterator<TrackedEntity> iterator = this.entityMap.values().iterator();
         for (int i = 0; i < AxPlugin.flags().PACKET_ENTITY_TRACKER_THREADS.get(); i++) {
             this.service.execute(() -> {
                 while (true) {
@@ -129,7 +129,7 @@ public final class EntityTracker {
                     }
 
                     tracked.preTick();
-                    tracked.updateTracking(tracking.computeIfAbsent(tracked.world, TrackedEntity::getPlayersInWorld));
+                    tracked.updateTracking(tracking.get(tracked.world));
                     if (tracked.hasViewers()) {
                         tracked.entity.sendChanges();
                     }
@@ -139,7 +139,7 @@ public final class EntityTracker {
     }
 
     public static class TrackedEntity {
-        public final Set<Player> seenBy = ReferenceSets.synchronize(new ReferenceOpenHashSet<>());
+        public final ReferenceSet<Object> seenBy = ReferenceSets.synchronize(new ReferenceOpenHashSet<>());
         private final PacketEntity entity;
         private final World world;
         private List<ServerPlayerWrapper> lastTrackerCandidates;
@@ -180,7 +180,7 @@ public final class EntityTracker {
                 return;
             }
 
-            for (Player player : this.seenBy.toArray(new Player[0])) {
+            for (Object player : RawReferenceOpenHashSet.rawSet(this.seenBy)) {
                 ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(player);
                 if (newTrackerCandidates.isEmpty() || !newTrackerCandidates.contains(wrapper)) {
                     this.updatePlayer(wrapper);
@@ -200,33 +200,32 @@ public final class EntityTracker {
 
             if (flag) {
                 this.hasViewers = true;
-                if (this.seenBy.add(player.wrapped())) {
-                    LogUtils.warn("Tracking start for player {}, {} seenby: {}", player.wrapped().getName(), this.entity.id(), this.seenBy);
+                if (this.seenBy.add(player.asMinecraft())) {
                     this.entity.addPairing(player.wrapped());
                 }
-            } else if (this.seenBy.remove(player.wrapped())) {
-                LogUtils.warn("Tracking end for player {}, {} seenby: {}", player.wrapped().getName(), this.entity.id(), this.seenBy);
+            } else if (this.seenBy.remove(player.asMinecraft())) {
                 this.entity.removePairing(player.wrapped());
             }
         }
 
         public void untrack(ServerPlayerWrapper player) {
-            if (!this.seenBy.remove(player.wrapped())) {
+            if (!this.seenBy.remove(player.asMinecraft())) {
                 return;
             }
 
-            LogUtils.warn("Forceful untrack!");
             this.entity.removePairing(player.wrapped());
         }
 
         public void broadcast(Object packet) {
             this.seenBy.forEach(player -> {
-                NMSHandlers.getNmsHandler().sendPacket(player, packet);
+                NMSHandlers.getNmsHandler().sendPacket(ServerPlayerWrapper.wrap(player), packet);
             });
         }
 
         public void broadcastRemove() {
-            this.seenBy.forEach(this.entity::removePairing);
+            this.seenBy.forEach(player -> {
+                this.entity.removePairing(ServerPlayerWrapper.wrap(player).wrapped());
+            });
         }
 
         public void preTick() {

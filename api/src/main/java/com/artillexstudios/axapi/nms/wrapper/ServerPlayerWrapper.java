@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 
 public interface ServerPlayerWrapper extends Wrapper<Player> {
 
-    static ServerPlayerWrapper wrap(Player player) {
+    static ServerPlayerWrapper wrap(Object player) {
         return NMSHandlers.getNmsHandler().wrapper(player);
     }
 

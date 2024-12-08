@@ -403,8 +403,14 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     }
 
     @Override
-    public ServerPlayerWrapper wrapper(Player player) {
-        return new com.artillexstudios.axapi.nms.v1_19_R2.wrapper.ServerPlayerWrapper(player);
+    public ServerPlayerWrapper wrapper(Object player) {
+        if (player instanceof ServerPlayer sp) {
+            return new com.artillexstudios.axapi.nms.v1_19_R2.wrapper.ServerPlayerWrapper(sp);
+        } else if (player instanceof Player pl) {
+            return new com.artillexstudios.axapi.nms.v1_19_R2.wrapper.ServerPlayerWrapper(pl);
+        }
+
+        return null;
     }
 
     public String toGson(Component component) {
