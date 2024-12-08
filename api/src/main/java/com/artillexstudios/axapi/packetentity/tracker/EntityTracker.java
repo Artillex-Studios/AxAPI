@@ -180,6 +180,10 @@ public final class EntityTracker {
             }
 
             for (Object player : RawReferenceOpenHashSet.rawSet(this.seenBy)) {
+                if (player == null) {
+                    continue;
+                }
+
                 ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(player);
                 if (newTrackerCandidates.isEmpty() || !newTrackerCandidates.contains(wrapper)) {
                     this.updatePlayer(wrapper);
