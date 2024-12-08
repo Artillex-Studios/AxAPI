@@ -2,6 +2,7 @@ package com.artillexstudios.axapi.collections;
 
 import com.artillexstudios.axapi.reflection.FastFieldAccessor;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import it.unimi.dsi.fastutil.objects.ObjectSets;
 
 public class RawObjectOpenHashSet<K> extends ObjectOpenHashSet<K> {
@@ -27,7 +28,7 @@ public class RawObjectOpenHashSet<K> extends ObjectOpenHashSet<K> {
         return this.key;
     }
 
-    public static <E> E[] rawSet(ObjectSets.SynchronizedSet<E> set) {
+    public static <E> E[] rawSet(ObjectSet<E> set) {
         RawObjectOpenHashSet<E> rawSet = accessor.get(set);
         return rawSet.rawSet();
     }
