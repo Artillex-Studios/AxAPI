@@ -139,7 +139,7 @@ public final class EntityTracker {
     }
 
     public static class TrackedEntity {
-        public final ObjectSet<ServerPlayerWrapper> seenBy = ObjectSets.synchronize(new RawObjectOpenHashSet<>());
+        public final ObjectSet<Player> seenBy = ObjectSets.synchronize(new RawObjectOpenHashSet<>());
         private final PacketEntity entity;
         private final World world;
         private List<ServerPlayerWrapper> lastTrackerCandidates;
@@ -173,39 +173,40 @@ public final class EntityTracker {
             this.lastTrackerCandidates = newTrackerCandidates;
 
             for (ServerPlayerWrapper raw : newTrackerCandidates) {
-                this.updatePlayer(raw);
+                this.updatePlayer(raw.wrapped());
             }
 
             if (oldTrackerCandidates != null && oldTrackerCandidates.size() == newTrackerCandidates.size() && oldTrackerCandidates.equals(newTrackerCandidates)) {
                 return;
             }
 
-            for (ServerPlayerWrapper player : this.seenBy.toArray(new ServerPlayerWrapper[0])) {
-                if (newTrackerCandidates.isEmpty() || !newTrackerCandidates.contains(player)) {
+            for (Player player : this.seenBy.toArray(new Player[0])) {
+//                if (newTrackerCandidates.isEmpty() || !newTrackerCandidates.contains(player)) {
                     this.updatePlayer(player);
-                }
+//                }
             }
         }
 
-        public void updatePlayer(ServerPlayerWrapper player) {
-            int dx = (int) player.getX() - (int) this.entity.location().getX();
-            int dz = (int) player.getZ() - (int) this.entity.location().getZ();
+        public void updatePlayer(Player player) {
+            ServerPlayerWrapper wrapped = ServerPlayerWrapper.wrap(player);
+            int dx = (int) wrapped.getX() - (int) this.entity.location().getX();
+            int dz = (int) wrapped.getZ() - (int) this.entity.location().getZ();
             int d1 = dx * dx + dz * dz;
             boolean flag = d1 <= this.entity.viewDistanceSquared();
 
-            if (flag && !this.entity.canSee(player.wrapped())) {
+            if (flag && !this.entity.canSee(player)) {
                 flag = false;
             }
 
             if (flag) {
                 this.hasViewers = true;
                 if (this.seenBy.add(player)) {
-                    LogUtils.warn("Tracking start for player {}, {} seenby: {}", player.wrapped().getName(), this.entity.id(), this.seenBy);
-                    this.entity.addPairing(player.wrapped());
+                    LogUtils.warn("Tracking start for player {}, {} seenby: {}", player.getName(), this.entity.id(), this.seenBy);
+                    this.entity.addPairing(player);
                 }
             } else if (this.seenBy.remove(player)) {
-                LogUtils.warn("Tracking end for player {}, {} seenby: {}", player.wrapped().getName(), this.entity.id(), this.seenBy);
-                this.entity.removePairing(player.wrapped());
+                LogUtils.warn("Tracking end for player {}, {} seenby: {}", player.getName(), this.entity.id(), this.seenBy);
+                this.entity.removePairing(player);
             }
         }
 
@@ -219,14 +220,14 @@ public final class EntityTracker {
         }
 
         public void broadcast(Object packet) {
-            for (ServerPlayerWrapper player : this.seenBy) {
+            for (Player player : this.seenBy) {
                 NMSHandlers.getNmsHandler().sendPacket(player, packet);
             }
         }
 
         public void broadcastRemove() {
-            for (ServerPlayerWrapper player : this.seenBy) {
-                this.entity.removePairing(player.wrapped());
+            for (Player player : this.seenBy) {
+                this.entity.removePairing(player);
             }
         }
 
