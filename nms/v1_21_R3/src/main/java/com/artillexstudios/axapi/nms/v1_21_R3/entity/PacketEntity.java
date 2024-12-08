@@ -213,7 +213,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
                 if (line == null || !line.hasPlaceholders()) {
                     this.tracker.broadcast(new ClientboundSetEntityDataPacket(this.id, dirty));
                 } else {
-                    for (Object player : RawObjectOpenHashSet.rawSet(this.tracker.seenBy)) {
+                    for (Object player : this.tracker.seenBy/* RawObjectOpenHashSet.rawSet(this.tracker.seenBy)*/) {
                         if (player == null) {
                             continue;
                         }
@@ -383,7 +383,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
             return;
         }
 
-        for (Object player : RawObjectOpenHashSet.rawSet(this.tracker.seenBy)) {
+        for (Object player : this.tracker.seenBy /*RawObjectOpenHashSet.rawSet(this.tracker.seenBy)*/) {
             if (player == null) {
                 continue;
             }
