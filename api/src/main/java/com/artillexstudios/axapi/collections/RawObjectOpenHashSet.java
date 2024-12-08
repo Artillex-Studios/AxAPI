@@ -24,11 +24,11 @@ public class RawObjectOpenHashSet<K> extends ObjectOpenHashSet<K> {
         return (RawObjectOpenHashSet<K>) super.clone();
     }
 
-    public K[] rawSet() {
+    public Object[] rawSet() {
         return this.key;
     }
 
-    public static <E> E[] rawSet(ObjectSet<E> set) {
+    public static <E> Object[] rawSet(ObjectSet<E> set) {
         RawObjectOpenHashSet<E> rawSet = accessor.get(set);
         return rawSet.rawSet();
     }
