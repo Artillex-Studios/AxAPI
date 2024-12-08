@@ -307,7 +307,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder customModelData(Map<Object, Object> modelData) {
-        stack.set(DataComponents.customModelData(), new CustomModelData((List<String>) modelData.getOrDefault("strings", List.of()), (List<Boolean>) modelData.getOrDefault("flags", List.of()), (List<Float>) modelData.getOrDefault("floats", List.of()), Lists.transform((List<String>) modelData.getOrDefault("colors", List.of()), a -> {
+        stack.set(DataComponents.customModelData(), new CustomModelData((List<String>) modelData.getOrDefault("strings", List.of()), (List<Boolean>) modelData.getOrDefault("flags", List.of()), Lists.transform((List<Number>) modelData.getOrDefault("floats", List.of()), num -> num.floatValue()), Lists.transform((List<String>) modelData.getOrDefault("colors", List.of()), a -> {
             String[] rgb = a.replace(" ", "").split(",");
             Color color = Color.fromRGB(Integer.parseInt(rgb[0]), Integer.parseInt(rgb[1]), Integer.parseInt(rgb[2]));
             return color.asRGB();

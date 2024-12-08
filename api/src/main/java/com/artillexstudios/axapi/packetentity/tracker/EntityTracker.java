@@ -12,6 +12,8 @@ import com.artillexstudios.axapi.utils.Version;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ReferenceSets;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -109,13 +111,14 @@ public final class EntityTracker {
             entity.preTick();
             entity.updateTracking(tracking.computeIfAbsent(entity.world, TrackedEntity::getPlayersInWorld));
             if (entity.hasViewers()) {
+                LogUtils.warn("Entity has viewers!");
                 entity.entity.sendChanges();
             }
         }
     }
 
     public static class TrackedEntity {
-        public final Set<ServerPlayerWrapper> seenBy = ConcurrentHashMap.newKeySet();
+        public final Set<ServerPlayerWrapper> seenBy = ReferenceSets.synchronize(new ReferenceOpenHashSet<>());
         private final PacketEntity entity;
         private final World world;
         private List<ServerPlayerWrapper> lastTrackerCandidates;
@@ -153,6 +156,7 @@ public final class EntityTracker {
             }
 
             if (oldTrackerCandidates != null && oldTrackerCandidates.size() == newTrackerCandidates.size() && oldTrackerCandidates.equals(newTrackerCandidates)) {
+                LogUtils.warn("Returning in tracker");
                 return;
             }
 
@@ -176,9 +180,11 @@ public final class EntityTracker {
             if (flag) {
                 this.hasViewers = true;
                 if (this.seenBy.add(player)) {
+                    LogUtils.warn("Tracking start for user {}!", player.wrapped().getName());
                     this.entity.addPairing(player.wrapped());
                 }
             } else if (this.seenBy.remove(player)) {
+                LogUtils.warn("Untracking for user {}!", player.wrapped().getName());
                 this.entity.removePairing(player.wrapped());
             }
         }
