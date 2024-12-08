@@ -32,11 +32,13 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
 
     @Override
     public Player wrapped() {
-        if (this.wrapped == null) {
-            this.wrapped = this.serverPlayer.getBukkitEntity();
+        Player wrapped = this.wrapped;
+        if (wrapped == null) {
+            wrapped = this.serverPlayer.getBukkitEntity();
+            this.wrapped = wrapped;
         }
 
-        return this.wrapped;
+        return wrapped;
     }
 
     @Override

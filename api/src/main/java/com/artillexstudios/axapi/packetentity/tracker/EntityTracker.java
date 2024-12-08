@@ -111,7 +111,6 @@ public final class EntityTracker {
             entity.preTick();
             entity.updateTracking(tracking.computeIfAbsent(entity.world, TrackedEntity::getPlayersInWorld));
             if (entity.hasViewers()) {
-                LogUtils.warn("Entity has viewers!");
                 entity.entity.sendChanges();
             }
         }
@@ -156,7 +155,6 @@ public final class EntityTracker {
             }
 
             if (oldTrackerCandidates != null && oldTrackerCandidates.size() == newTrackerCandidates.size() && oldTrackerCandidates.equals(newTrackerCandidates)) {
-                LogUtils.warn("Returning in tracker");
                 return;
             }
 
@@ -180,11 +178,9 @@ public final class EntityTracker {
             if (flag) {
                 this.hasViewers = true;
                 if (this.seenBy.add(player)) {
-                    LogUtils.warn("Tracking start for user {}!", player.wrapped().getName());
                     this.entity.addPairing(player.wrapped());
                 }
             } else if (this.seenBy.remove(player)) {
-                LogUtils.warn("Untracking for user {}!", player.wrapped().getName());
                 this.entity.removePairing(player.wrapped());
             }
         }
