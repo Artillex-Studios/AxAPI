@@ -264,14 +264,12 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
 
     @Override
     public void removePairing(Player player) {
-        LogUtils.warn("rem.pa. called!");
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
         serverPlayer.connection.send(new ClientboundRemoveEntitiesPacket(this.id));
     }
 
     @Override
     public void addPairing(Player player) {
-        LogUtils.warn("Addpairing called!");
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
         ArrayList<Packet<? super ClientGamePacketListener>> list = new ArrayList<>();
 
