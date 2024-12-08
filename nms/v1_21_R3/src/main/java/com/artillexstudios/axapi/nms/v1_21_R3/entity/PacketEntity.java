@@ -218,7 +218,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
                             continue;
                         }
 
-                        LogUtils.warn("SendChanges {} for user {}", this.id, player.getName());
+//                        LogUtils.warn("SendChanges {} for user {}", this.id, player.getName());
                         NMSHandlers.getNmsHandler().sendPacket(player, new ClientboundSetEntityDataPacket(this.id, this.translate(player, line, dirty)));
                     }
                 }
@@ -264,12 +264,14 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
 
     @Override
     public void removePairing(Player player) {
+        LogUtils.warn("rem.pa. called!");
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
         serverPlayer.connection.send(new ClientboundRemoveEntitiesPacket(this.id));
     }
 
     @Override
     public void addPairing(Player player) {
+        LogUtils.warn("Addpairing called!");
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
         ArrayList<Packet<? super ClientGamePacketListener>> list = new ArrayList<>();
 
@@ -388,7 +390,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
                 continue;
             }
 
-            LogUtils.warn("Updating {} for user {}", this.id, player.getName());
+//            LogUtils.warn("Updating {} for user {}", this.id, player.getName());
             NMSHandlers.getNmsHandler().sendPacket(player, new ClientboundSetEntityDataPacket(this.id, translate(player, line, transformed)));
         }
     }
