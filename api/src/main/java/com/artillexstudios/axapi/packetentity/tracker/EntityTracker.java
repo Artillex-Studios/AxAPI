@@ -12,7 +12,6 @@ import com.artillexstudios.axapi.utils.PaperUtils;
 import com.artillexstudios.axapi.utils.Version;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ReferenceSet;
 import it.unimi.dsi.fastutil.objects.ReferenceSets;
 import org.bukkit.Bukkit;
@@ -139,7 +138,7 @@ public final class EntityTracker {
     }
 
     public static class TrackedEntity {
-        public final ReferenceSet<Object> seenBy = ReferenceSets.synchronize(new ReferenceOpenHashSet<>());
+        public final ReferenceSet<Object> seenBy = ReferenceSets.synchronize(new RawReferenceOpenHashSet<>());
         private final PacketEntity entity;
         private final World world;
         private List<ServerPlayerWrapper> lastTrackerCandidates;
