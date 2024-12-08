@@ -176,9 +176,9 @@ public final class EntityTracker {
                 this.updatePlayer(raw);
             }
 
-            if (oldTrackerCandidates != null && oldTrackerCandidates.size() == newTrackerCandidates.size() && oldTrackerCandidates.equals(newTrackerCandidates)) {
-                return;
-            }
+//            if (oldTrackerCandidates != null && oldTrackerCandidates.size() == newTrackerCandidates.size() && oldTrackerCandidates.equals(newTrackerCandidates)) {
+//                return;
+//            }
 
             for (ServerPlayerWrapper player : this.seenBy.toArray(new ServerPlayerWrapper[0])) {
                 if (newTrackerCandidates.isEmpty() || !newTrackerCandidates.contains(player)) {
