@@ -14,7 +14,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import it.unimi.dsi.fastutil.objects.ObjectSets;
-import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -181,13 +180,9 @@ public final class EntityTracker {
                 return;
             }
 
-            for (Object player : RawObjectOpenHashSet.rawSet(this.seenBy)) {
-                if (player == null) {
-                    continue;
-                }
-
-                if (newTrackerCandidates.isEmpty() || !newTrackerCandidates.contains((ServerPlayerWrapper) player)) {
-                    this.updatePlayer((ServerPlayerWrapper) player);
+            for (ServerPlayerWrapper player : this.seenBy.toArray(new ServerPlayerWrapper[0])) {
+                if (newTrackerCandidates.isEmpty() || !newTrackerCandidates.contains(player)) {
+                    this.updatePlayer(player);
                 }
             }
         }
@@ -224,15 +219,15 @@ public final class EntityTracker {
         }
 
         public void broadcast(Object packet) {
-            this.seenBy.forEach(player -> {
+            for (ServerPlayerWrapper player : this.seenBy) {
                 NMSHandlers.getNmsHandler().sendPacket(player, packet);
-            });
+            }
         }
 
         public void broadcastRemove() {
-            this.seenBy.forEach(player -> {
+            for (ServerPlayerWrapper player : this.seenBy) {
                 this.entity.removePairing(player.wrapped());
-            });
+            }
         }
 
         public void preTick() {
