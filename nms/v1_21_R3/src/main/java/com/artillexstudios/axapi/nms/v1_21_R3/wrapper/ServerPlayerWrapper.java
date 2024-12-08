@@ -60,12 +60,13 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
             return false;
         }
 
-        if (that.serverPlayer != null && (that.serverPlayer == this.serverPlayer || Objects.equals(this.serverPlayer, that.serverPlayer))) {
+        this.update();
+        that.update();
+        if (Objects.equals(this.serverPlayer, that.serverPlayer)) {
             return true;
         }
 
-        this.update();
-        return Objects.equals(this.wrapped, that.wrapped);
+        return this.wrapped.getUniqueId().equals(that.wrapped.getUniqueId());
     }
 
     @Override
