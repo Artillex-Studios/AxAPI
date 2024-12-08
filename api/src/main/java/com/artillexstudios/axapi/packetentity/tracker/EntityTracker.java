@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.packetentity.tracker;
 
 import com.artillexstudios.axapi.AxPlugin;
+import com.artillexstudios.axapi.collections.RawObjectOpenHashSet;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
@@ -11,7 +12,7 @@ import com.artillexstudios.axapi.utils.PaperUtils;
 import com.artillexstudios.axapi.utils.Version;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import it.unimi.dsi.fastutil.objects.ObjectSets;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -20,9 +21,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -106,19 +107,37 @@ public final class EntityTracker {
         // We can safely keep a cache of players in the worlds, as we can spare tracking a new player a tick later
         // This also reduces the strain on the GC as less objects are wasted (ServerPlayerWrapper)
         Map<World, List<ServerPlayerWrapper>> tracking = new ConcurrentHashMap<>();
-        for (TrackedEntity tracked : this.entityMap.values()) {
-            this.service.execute(() -> {
+        Iterator<TrackedEntity> iterator = this.entityMap.values().iterator();
+//        for (TrackedEntity tracked : ) {
+//            tracked.preTick();
+//            tracked.updateTracking(tracking.computeIfAbsent(tracked.world, TrackedEntity::getPlayersInWorld));
+//            if (tracked.hasViewers()) {
+//                tracked.entity.sendChanges();
+//            }
+//        }
+
+        for (int i = 0; i < AxPlugin.flags().PACKET_ENTITY_TRACKER_THREADS.get(); i++) {
+            while (true) {
+                TrackedEntity tracked;
+                synchronized (iterator) {
+                    if (!iterator.hasNext()) {
+                        break;
+                    }
+
+                    tracked = iterator.next();
+                }
+
                 tracked.preTick();
                 tracked.updateTracking(tracking.computeIfAbsent(tracked.world, TrackedEntity::getPlayersInWorld));
                 if (tracked.hasViewers()) {
                     tracked.entity.sendChanges();
                 }
-            });
+            }
         }
     }
 
     public static class TrackedEntity {
-        public final Set<ServerPlayerWrapper> seenBy = ObjectSets.synchronize(new ObjectOpenHashSet<>());
+        public final ObjectSet<ServerPlayerWrapper> seenBy = ObjectSets.synchronize(new RawObjectOpenHashSet<>());
         private final PacketEntity entity;
         private final World world;
         private List<ServerPlayerWrapper> lastTrackerCandidates;
@@ -195,15 +214,15 @@ public final class EntityTracker {
         }
 
         public void broadcast(Object packet) {
-            for (ServerPlayerWrapper player : this.seenBy) {
+            this.seenBy.forEach(player -> {
                 NMSHandlers.getNmsHandler().sendPacket(player, packet);
-            }
+            });
         }
 
         public void broadcastRemove() {
-            for (ServerPlayerWrapper player : this.seenBy) {
+            this.seenBy.forEach(player -> {
                 this.entity.removePairing(player.wrapped());
-            }
+            });
         }
 
         public void preTick() {
