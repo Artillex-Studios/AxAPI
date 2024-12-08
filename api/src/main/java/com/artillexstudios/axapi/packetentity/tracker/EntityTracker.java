@@ -1,7 +1,6 @@
 package com.artillexstudios.axapi.packetentity.tracker;
 
 import com.artillexstudios.axapi.AxPlugin;
-import com.artillexstudios.axapi.collections.RawObjectOpenHashSet;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
@@ -12,9 +11,8 @@ import com.artillexstudios.axapi.utils.PaperUtils;
 import com.artillexstudios.axapi.utils.Version;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
-import it.unimi.dsi.fastutil.objects.ObjectSets;
-import org.bukkit.Server;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ReferenceSets;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -25,6 +23,7 @@ import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -140,7 +139,7 @@ public final class EntityTracker {
     }
 
     public static class TrackedEntity {
-        public final ObjectSet<Player> seenBy = ObjectSets.synchronize(new RawObjectOpenHashSet<>());
+        public final Set<Player> seenBy = ReferenceSets.synchronize(new ReferenceOpenHashSet<>());
         private final PacketEntity entity;
         private final World world;
         private List<ServerPlayerWrapper> lastTrackerCandidates;
