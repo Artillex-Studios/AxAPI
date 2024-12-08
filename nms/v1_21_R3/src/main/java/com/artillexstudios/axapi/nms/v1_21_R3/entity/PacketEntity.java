@@ -213,6 +213,10 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
                     this.tracker.broadcast(new ClientboundSetEntityDataPacket(this.id, dirty));
                 } else {
                     for (Object player : RawObjectOpenHashSet.rawSet(this.tracker.seenBy)) {
+                        if (player == null) {
+                            continue;
+                        }
+
                         NMSHandlers.getNmsHandler().sendPacket(((ServerPlayerWrapper) player), new ClientboundSetEntityDataPacket(this.id, this.translate(((ServerPlayerWrapper) player).wrapped(), line, dirty)));
                     }
                 }
@@ -378,6 +382,10 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
         }
 
         for (Object player : RawObjectOpenHashSet.rawSet(this.tracker.seenBy)) {
+            if (player == null) {
+                continue;
+            }
+
             NMSHandlers.getNmsHandler().sendPacket(((ServerPlayerWrapper) player), new ClientboundSetEntityDataPacket(this.id, translate(((ServerPlayerWrapper) player).wrapped(), line, transformed)));
         }
     }
