@@ -4,8 +4,6 @@ import net.minecraft.server.level.ServerPlayer;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
-import java.util.Objects;
-
 public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper {
     private Player wrapped;
     private ServerPlayer serverPlayer;
@@ -60,18 +58,11 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
             return false;
         }
 
-        this.update();
-        that.update();
-        if (Objects.equals(this.serverPlayer, that.serverPlayer)) {
-            return true;
-        }
-
-        return this.wrapped.getUniqueId().equals(that.wrapped.getUniqueId());
+        return this.wrapped().equals(that.wrapped());
     }
 
     @Override
     public int hashCode() {
-        this.update();
-        return Objects.hashCode(this.serverPlayer);
+        return this.wrapped().hashCode();
     }
 }
