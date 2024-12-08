@@ -4,18 +4,16 @@ import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.utils.ExceptionReportingScheduledThreadPool;
 import com.artillexstudios.axapi.utils.LogUtils;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 
 public class Holograms {
     private static final JavaPlugin plugin = AxPlugin.getPlugin(AxPlugin.class);
-    private static final Int2ObjectLinkedOpenHashMap<HologramLine> linesMap = new Int2ObjectLinkedOpenHashMap<>();
-    private static final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+    private static final ConcurrentHashMap<Integer, HologramLine> linesMap = new ConcurrentHashMap<>();
     private static ScheduledExecutorService hologramUpdater;
 
     public static void startTicking() {
@@ -24,7 +22,9 @@ public class Holograms {
         hologramUpdater.scheduleAtFixedRate(() -> {
             Holograms.getMap(map -> {
                 map.forEach((id, line) -> {
-                    if (!line.hasPlaceholders()) return;
+                    if (!line.hasPlaceholders()) {
+                        return;
+                    }
 
                     line.update();
                 });
@@ -44,38 +44,18 @@ public class Holograms {
     }
 
     public static void put(int entityId, HologramLine line) {
-        lock.writeLock().lock();
-        try {
-            linesMap.put(entityId, line);
-        } finally {
-            lock.writeLock().unlock();
-        }
+        linesMap.put(entityId, line);
     }
 
     public static void remove(int entityId) {
-        lock.writeLock().lock();
-        try {
-            linesMap.remove(entityId);
-        } finally {
-            lock.writeLock().unlock();
-        }
+        linesMap.remove(entityId);
     }
 
     public static HologramLine byId(int entityId) {
-        lock.readLock().lock();
-        try {
-            return linesMap.get(entityId);
-        } finally {
-            lock.readLock().unlock();
-        }
+        return linesMap.get(entityId);
     }
 
-    public static void getMap(Consumer<Int2ObjectLinkedOpenHashMap<HologramLine>> map) {
-        lock.readLock().lock();
-        try {
-            map.accept(linesMap);
-        } finally {
-            lock.readLock().unlock();
-        }
+    public static void getMap(Consumer<ConcurrentHashMap<Integer, HologramLine>> map) {
+        map.accept(linesMap);
     }
 }

@@ -11,9 +11,8 @@ import com.artillexstudios.axapi.utils.PaperUtils;
 import com.artillexstudios.axapi.utils.Version;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ReferenceSets;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSets;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -106,18 +105,20 @@ public final class EntityTracker {
     public void process() {
         // We can safely keep a cache of players in the worlds, as we can spare tracking a new player a tick later
         // This also reduces the strain on the GC as less objects are wasted (ServerPlayerWrapper)
-        Map<World, List<ServerPlayerWrapper>> tracking = new Object2ObjectLinkedOpenHashMap<>();
-        for (TrackedEntity entity : this.entityMap.values()) {
-            entity.preTick();
-            entity.updateTracking(tracking.computeIfAbsent(entity.world, TrackedEntity::getPlayersInWorld));
-            if (entity.hasViewers()) {
-                entity.entity.sendChanges();
-            }
+        Map<World, List<ServerPlayerWrapper>> tracking = new ConcurrentHashMap<>();
+        for (TrackedEntity tracked : this.entityMap.values()) {
+            this.service.execute(() -> {
+                tracked.preTick();
+                tracked.updateTracking(tracking.computeIfAbsent(tracked.world, TrackedEntity::getPlayersInWorld));
+                if (tracked.hasViewers()) {
+                    tracked.entity.sendChanges();
+                }
+            });
         }
     }
 
     public static class TrackedEntity {
-        public final Set<ServerPlayerWrapper> seenBy = ReferenceSets.synchronize(new ReferenceOpenHashSet<>());
+        public final Set<ServerPlayerWrapper> seenBy = ObjectSets.synchronize(new ObjectOpenHashSet<>());
         private final PacketEntity entity;
         private final World world;
         private List<ServerPlayerWrapper> lastTrackerCandidates;
@@ -166,10 +167,10 @@ public final class EntityTracker {
         }
 
         public void updatePlayer(ServerPlayerWrapper player) {
-            float dx = (float) player.getX() - (float) this.entity.location().getX();
-            float dz = (float) player.getZ() - (float) this.entity.location().getZ();
-            float d1 = dx * dx + dz * dz;
-            boolean flag = (int) d1 <= this.entity.viewDistanceSquared();
+            int dx = (int) player.getX() - (int) this.entity.location().getX();
+            int dz = (int) player.getZ() - (int) this.entity.location().getZ();
+            int d1 = dx * dx + dz * dz;
+            boolean flag = d1 <= this.entity.viewDistanceSquared();
 
             if (flag && !this.entity.canSee(player.wrapped())) {
                 flag = false;

@@ -60,11 +60,16 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
             return false;
         }
 
+        if (that.serverPlayer != null && (that.serverPlayer == this.serverPlayer || Objects.equals(this.serverPlayer, that.serverPlayer))) {
+            return true;
+        }
+
         return Objects.equals(this.wrapped, that.wrapped);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.wrapped);
+        this.update();
+        return Objects.hashCode(this.serverPlayer);
     }
 }
