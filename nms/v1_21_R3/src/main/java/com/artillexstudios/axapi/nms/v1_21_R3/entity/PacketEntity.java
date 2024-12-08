@@ -18,6 +18,7 @@ import com.artillexstudios.axapi.utils.EquipmentSlot;
 import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axapi.utils.placeholder.Placeholder;
 import com.artillexstudios.axapi.utils.placeholder.StaticPlaceholder;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import io.netty.buffer.Unpooled;
@@ -109,6 +110,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
 
     @Override
     public void teleport(Location location) {
+        Preconditions.checkNotNull(location, "Can't teleport a packetentity to a null location!");
         this.location = location;
         synchronized (this.codec) {
             this.vec3 = new Vec3(location.getX(), location.getY(), location.getZ());
