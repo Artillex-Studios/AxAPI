@@ -46,7 +46,6 @@ public class AreaEffectCloudMeta extends EntityMeta {
 
     @Override
     protected void defineDefaults() {
-        super.defineDefaults();
         this.metadata.define(Accessors.AREA_EFFECT_CLOUD_RADIUS, 0.5f);
         this.metadata.define(Accessors.AREA_EFFECT_CLOUD_COLOR, 0);
         this.metadata.define(Accessors.AREA_EFFECT_CLOUD_POINT, false);

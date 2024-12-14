@@ -13,7 +13,7 @@ public class EntityMeta {
     public EntityMeta(Metadata metadata) {
         this.metadata = metadata;
 
-        this.defineDefaults();
+        this.defineDefaults0();
     }
 
     public void silent(boolean silent) {
@@ -130,12 +130,18 @@ public class EntityMeta {
         return metadata;
     }
 
-    protected void defineDefaults() {
+    private void defineDefaults0() {
         this.metadata.define(Accessors.SHARED_FLAGS, (byte) 0);
         this.metadata.define(Accessors.CUSTOM_NAME, Optional.empty());
         this.metadata.define(Accessors.CUSTOM_NAME_VISIBLE, false);
         this.metadata.define(Accessors.SILENT, false);
         this.metadata.define(Accessors.POSE, Pose.STANDING);
         this.metadata.define(Accessors.HAS_NO_GRAVITY, false);
+
+        this.defineDefaults();
+    }
+
+    protected void defineDefaults() {
+
     }
 }

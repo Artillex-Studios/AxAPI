@@ -105,18 +105,20 @@ public final class Metadata {
     }
 
     public List<DataItem<?>> packDirty() {
+        if (!dirty) {
+            return null;
+        }
+
         List<DataItem<?>> list = null;
 
-        if (dirty) {
-            for (DataItem<?> next : this.items.values()) {
-                if (next.isDirty()) {
-                    next.setDirty(false);
-                    if (list == null) {
-                        list = new ArrayList<>();
-                    }
-
-                    list.add(next.copy());
+        for (DataItem<?> next : this.items.values()) {
+            if (next.isDirty()) {
+                next.setDirty(false);
+                if (list == null) {
+                    list = new ArrayList<>();
                 }
+
+                list.add(next.copy());
             }
         }
 

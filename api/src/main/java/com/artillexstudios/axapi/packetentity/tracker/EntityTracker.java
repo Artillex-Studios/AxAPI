@@ -23,12 +23,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public final class EntityTracker {
     private static final boolean folia = PaperUtils.isFolia();
@@ -116,19 +116,15 @@ public final class EntityTracker {
             tracking.put(world, TrackedEntity.getPlayersInWorld(world));
         }
 
-        Iterator<TrackedEntity> iterator = this.entityMap.values().iterator();
+        AtomicInteger integer = new AtomicInteger();
+        TrackedEntity[] array = this.entityMap.values().toArray(new TrackedEntity[0]);
+        int length = array.length;
         for (int i = 0; i < AxPlugin.flags().PACKET_ENTITY_TRACKER_THREADS.get(); i++) {
             this.service.execute(() -> {
-                while (true) {
-                    TrackedEntity tracked;
-                    synchronized (iterator) {
-                        if (!iterator.hasNext()) {
-                            break;
-                        }
-
-                        tracked = iterator.next();
-                    }
-
+                int l = length;
+                int index;
+                while ((index = integer.getAndIncrement()) < l) {
+                    TrackedEntity tracked = array[index];
                     tracked.preTick();
                     tracked.updateTracking(tracking.get(tracked.world));
                     if (tracked.hasViewers()) {
@@ -174,10 +170,10 @@ public final class EntityTracker {
             this.lastTrackerCandidates = newTrackerCandidates;
 
             for (ServerPlayerWrapper raw : newTrackerCandidates) {
-                this.updatePlayer(raw);
+                this.updatePlayer(raw, false);
             }
 
-            if (oldTrackerCandidates != null && oldTrackerCandidates.size() == newTrackerCandidates.size() && oldTrackerCandidates.equals(newTrackerCandidates)) {
+            if (oldTrackerCandidates != null && oldTrackerCandidates.size() == newTrackerCandidates.size()) {
                 return;
             }
 
@@ -188,27 +184,28 @@ public final class EntityTracker {
 
                 ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(player);
                 if (newTrackerCandidates.isEmpty() || !newTrackerCandidates.contains(wrapper)) {
-                    this.updatePlayer(wrapper);
+                    this.updatePlayer(wrapper, true);
                 }
             }
         }
 
-        public void updatePlayer(ServerPlayerWrapper player) {
-            int dx = (int) player.getX() - (int) this.entity.location().getX();
-            int dz = (int) player.getZ() - (int) this.entity.location().getZ();
-            int d1 = dx * dx + dz * dz;
+        public void updatePlayer(ServerPlayerWrapper player, boolean removeStage) {
+            double dx = player.getX() - this.entity.location().getX();
+            double dz = player.getZ() - this.entity.location().getZ();
+            double d1 = dx * dx + dz * dz;
             boolean flag = d1 <= this.entity.viewDistanceSquared();
 
             if (flag && !this.entity.canSee(player.wrapped())) {
                 flag = false;
+                removeStage = true;
             }
 
-            if (flag) {
+            if (!removeStage && flag) {
                 this.hasViewers = true;
                 if (this.seenBy.add(player.asMinecraft())) {
                     this.entity.addPairing(player.wrapped());
                 }
-            } else if (this.seenBy.remove(player.asMinecraft())) {
+            } else if (removeStage && this.seenBy.remove(player.asMinecraft())) {
                 this.entity.removePairing(player.wrapped());
             }
         }

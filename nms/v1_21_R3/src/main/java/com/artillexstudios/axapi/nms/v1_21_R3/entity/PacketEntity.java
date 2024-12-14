@@ -16,7 +16,6 @@ import com.artillexstudios.axapi.packetentity.meta.EntityMetaFactory;
 import com.artillexstudios.axapi.packetentity.meta.Metadata;
 import com.artillexstudios.axapi.packetentity.tracker.EntityTracker;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
-import com.artillexstudios.axapi.utils.LogUtils;
 import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axapi.utils.placeholder.Placeholder;
 import com.artillexstudios.axapi.utils.placeholder.StaticPlaceholder;
@@ -204,23 +203,22 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
 
     @Override
     public void sendChanges() {
-        if (this.meta.metadata().isDirty()) {
-            List<SynchedEntityData.DataValue<?>> dirty = transform(this.meta.metadata().packDirty());
-            if (dirty != null) {
-                this.trackedValues = transform(this.meta.metadata().getNonDefaultValues());
+        List<Metadata.DataItem<?>> items = this.meta.metadata().packDirty();
+        if (items != null) {
+            List<SynchedEntityData.DataValue<?>> dirty = transform(items);
+            this.trackedValues = transform(this.meta.metadata().getNonDefaultValues());
 
-                HologramLine line = Holograms.byId(this.id);
-                if (line == null || !line.hasPlaceholders()) {
-                    this.tracker.broadcast(new ClientboundSetEntityDataPacket(this.id, dirty));
-                } else {
-                    for (Object player : RawReferenceOpenHashSet.rawSet(this.tracker.seenBy)) {
-                        if (player == null) {
-                            continue;
-                        }
-
-                        ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(player);
-                        NMSHandlers.getNmsHandler().sendPacket(wrapper, new ClientboundSetEntityDataPacket(this.id, this.translate(wrapper.wrapped(), line, dirty)));
+            HologramLine line = Holograms.byId(this.id);
+            if (line == null || !line.hasPlaceholders()) {
+                this.tracker.broadcast(new ClientboundSetEntityDataPacket(this.id, dirty));
+            } else {
+                for (Object player : RawReferenceOpenHashSet.rawSet(this.tracker.seenBy)) {
+                    if (player == null) {
+                        continue;
                     }
+
+                    ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(player);
+                    NMSHandlers.getNmsHandler().sendPacket(wrapper, new ClientboundSetEntityDataPacket(this.id, this.translate(wrapper.wrapped(), line, dirty)));
                 }
             }
         }

@@ -109,7 +109,6 @@ public class ArmorStandMeta extends LivingEntityMeta {
 
     @Override
     protected void defineDefaults() {
-        super.defineDefaults();
         this.metadata.define(Accessors.ARMOR_STAND_DATA, (byte) 0);
         this.metadata.define(Accessors.HEAD_ROTATION, new EulerAngle(0, 0, 0));
         this.metadata.define(Accessors.BODY_ROTATION, new EulerAngle(0, 0, 0));

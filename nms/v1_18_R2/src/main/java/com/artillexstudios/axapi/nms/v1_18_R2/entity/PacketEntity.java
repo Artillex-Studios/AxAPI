@@ -181,9 +181,9 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     @Override
     public void setItem(EquipmentSlot slot, WrappedItemStack item) {
         if (slot.getType() == EquipmentSlot.Type.HAND) {
-            this.handSlots.set(slot.getIndex(), item == null ? ItemStack.EMPTY :  ((com.artillexstudios.axapi.nms.v1_18_R2.items.WrappedItemStack) item).parent);
+            this.handSlots.set(slot.getIndex(), item == null ? ItemStack.EMPTY : ((com.artillexstudios.axapi.nms.v1_18_R2.items.WrappedItemStack) item).parent);
         } else {
-            this.armorSlots.set(slot.getIndex(), item == null ? ItemStack.EMPTY :  ((com.artillexstudios.axapi.nms.v1_18_R2.items.WrappedItemStack) item).parent);
+            this.armorSlots.set(slot.getIndex(), item == null ? ItemStack.EMPTY : ((com.artillexstudios.axapi.nms.v1_18_R2.items.WrappedItemStack) item).parent);
         }
 
         this.itemDirty = true;
@@ -196,35 +196,33 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
 
     @Override
     public void sendChanges() {
-        if (this.meta.metadata().isDirty()) {
-            List<SynchedEntityData.DataItem<?>> dirty = transform(this.meta.metadata().packDirty());
+        List<Metadata.DataItem<?>> items = this.meta.metadata().packDirty();
+        if (items != null) {
+            List<SynchedEntityData.DataItem<?>> dirty = transform(items);
+            this.trackedValues = transform(this.meta.metadata().getNonDefaultValues());
 
-            if (dirty != null) {
-                this.trackedValues = transform(this.meta.metadata().getNonDefaultValues());
+            HologramLine line = Holograms.byId(this.id);
+            if (line == null || !line.hasPlaceholders()) {
+                FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+                buf.writeVarInt(this.id);
+                SynchedEntityData.pack(dirty, buf);
 
-                HologramLine line = Holograms.byId(this.id);
-                if (line == null || !line.hasPlaceholders()) {
-                    FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-                    buf.writeVarInt(this.id);
-                    SynchedEntityData.pack(dirty, buf);
-
-                    this.tracker.broadcast(new ClientboundSetEntityDataPacket(buf));
-                    buf.release();
-                } else {
-                    FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-                    for (Object player : RawReferenceOpenHashSet.rawSet(this.tracker.seenBy)) {
-                        if (player == null) {
-                            continue;
-                        }
-
-                        ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(player);
-                        buf.writeVarInt(this.id);
-                        SynchedEntityData.pack(this.translate(wrapper.wrapped(), line, dirty), buf);
-                        NMSHandlers.getNmsHandler().sendPacket(wrapper, new ClientboundSetEntityDataPacket(buf));
-                        buf.clear();
+                this.tracker.broadcast(new ClientboundSetEntityDataPacket(buf));
+                buf.release();
+            } else {
+                FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+                for (Object player : RawReferenceOpenHashSet.rawSet(this.tracker.seenBy)) {
+                    if (player == null) {
+                        continue;
                     }
-                    buf.release();
+
+                    ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(player);
+                    buf.writeVarInt(this.id);
+                    SynchedEntityData.pack(this.translate(wrapper.wrapped(), line, dirty), buf);
+                    NMSHandlers.getNmsHandler().sendPacket(wrapper, new ClientboundSetEntityDataPacket(buf));
+                    buf.clear();
                 }
+                buf.release();
             }
         }
 

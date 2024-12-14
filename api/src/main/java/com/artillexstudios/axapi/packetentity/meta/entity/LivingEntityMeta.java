@@ -8,9 +8,4 @@ public class LivingEntityMeta extends EntityMeta {
     public LivingEntityMeta(Metadata metadata) {
         super(metadata);
     }
-
-    @Override
-    protected void defineDefaults() {
-        super.defineDefaults();
-    }
 }

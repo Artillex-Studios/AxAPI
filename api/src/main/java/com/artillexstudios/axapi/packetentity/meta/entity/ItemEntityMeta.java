@@ -23,7 +23,6 @@ public class ItemEntityMeta extends EntityMeta {
 
     @Override
     protected void defineDefaults() {
-        super.defineDefaults();
         this.metadata.define(Accessors.ITEM_SLOT, WrappedItemStack.wrap(new ItemStack(Material.AIR)));
     }
 }
