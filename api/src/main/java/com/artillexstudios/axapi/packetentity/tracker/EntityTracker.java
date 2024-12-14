@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.packetentity.tracker;
 
 import com.artillexstudios.axapi.AxPlugin;
+import com.artillexstudios.axapi.collections.IdentityArrayMap;
 import com.artillexstudios.axapi.collections.RawReferenceOpenHashSet;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
@@ -22,7 +23,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -109,7 +109,8 @@ public final class EntityTracker {
         // We can safely keep a cache of players in the worlds, as we can spare tracking a new player a tick later
         // This also reduces the strain on the GC as less objects are wasted (ServerPlayerWrapper)
         // We are only ever reading from this map, so thread safety doesn't matter
-        Map<World, List<ServerPlayerWrapper>> tracking = new HashMap<>((int) Math.ceil(Bukkit.getWorlds().size() / (double) 0.75f));
+        int size = (int) Math.ceil(Bukkit.getWorlds().size() / (double) 0.75f);
+        Map<World, List<ServerPlayerWrapper>> tracking = new IdentityArrayMap<>(size);
         for (World world : Bukkit.getWorlds()) {
             tracking.put(world, TrackedEntity.getPlayersInWorld(world));
         }
