@@ -82,7 +82,7 @@ public final class EntityTracker {
 
     public void addEntity(PacketEntity entity) {
         TrackedEntity trackedEntity = new TrackedEntity(entity);
-        this.accessor.set(entity, trackedEntity);
+        this.accessor.setVolatile(entity, trackedEntity);
 
         this.entityMap.put(entity.id(), trackedEntity);
 

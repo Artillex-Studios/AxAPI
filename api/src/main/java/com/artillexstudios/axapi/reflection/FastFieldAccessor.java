@@ -71,6 +71,10 @@ public class FastFieldAccessor {
         unsafe.putObject(object, fieldOffset, value);
     }
 
+    public <T> void setVolatile(Object object, T value) {
+        unsafe.putObjectVolatile(object, fieldOffset, value);
+    }
+
     public void setInt(Object object, int value) {
         unsafe.putInt(object, fieldOffset, value);
     }
