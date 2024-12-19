@@ -17,6 +17,7 @@ import net.kyori.adventure.text.Component;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.CustomModelData;
@@ -31,10 +32,10 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.potion.PotionType;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 public class DataComponentImpl implements com.artillexstudios.axapi.items.component.DataComponentImpl {
@@ -570,6 +571,13 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
                     return;
                 }
 
+                if (itemStack.is(Items.POTION) || itemStack.is(Items.SPLASH_POTION) || itemStack.is(Items.LINGERING_POTION) || itemStack.is(Items.TIPPED_ARROW)) {
+                    PotionContents contents = itemStack.get(DataComponents.POTION_CONTENTS);
+                    if (contents == null || contents == PotionContents.EMPTY) {
+                        itemStack.set(DataComponents.POTION_CONTENTS, new PotionContents(Optional.empty(), Optional.of(dyedColor.rgb()), List.of(), Optional.empty()));
+                    }
+                }
+
                 itemStack.set(net.minecraft.core.component.DataComponents.DYED_COLOR, new DyedItemColor(dyedColor.rgb(), dyedColor.showInTooltip()));
             }
 
@@ -577,6 +585,13 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
             public DyedColor get(Object item) {
                 ItemStack itemStack = (ItemStack) item;
                 var color = itemStack.get(net.minecraft.core.component.DataComponents.DYED_COLOR);
+                if (itemStack.is(Items.POTION) || itemStack.is(Items.SPLASH_POTION) || itemStack.is(Items.LINGERING_POTION) || itemStack.is(Items.TIPPED_ARROW)) {
+                    PotionContents contents = itemStack.get(DataComponents.POTION_CONTENTS);
+                    if (contents != null && contents != PotionContents.EMPTY) {
+                        return new DyedColor(color == null ? Color.fromRGB(contents.customColor().orElse(0)) : Color.fromRGB(color.rgb()), true);
+                    }
+                }
+
                 return new DyedColor(color == null ? Color.fromRGB(0) : Color.fromRGB(color.rgb()), color == null ? true : color.showInTooltip());
             }
         };
