@@ -11,6 +11,7 @@ import com.artillexstudios.axapi.utils.ExceptionReportingScheduledThreadPool;
 import com.artillexstudios.axapi.utils.LogUtils;
 import com.artillexstudios.axapi.utils.PaperUtils;
 import com.artillexstudios.axapi.utils.Version;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import it.unimi.dsi.fastutil.objects.ReferenceSet;
@@ -96,7 +97,7 @@ public final class EntityTracker {
             trackedEntity.broadcastRemove();
         }
 
-        this.accessor.set(entity, null);
+        this.accessor.setVolatile(entity, null);
     }
 
     public void untrackFor(ServerPlayerWrapper player) {
@@ -153,6 +154,7 @@ public final class EntityTracker {
         private boolean hasViewers = false;
 
         public TrackedEntity(PacketEntity entity) {
+            Preconditions.checkNotNull(entity.location().getWorld(), "Tried to add a TrackedEntity for a PacketEntity in a null world!");
             this.entity = entity;
             this.world = this.entity.location().getWorld();
         }

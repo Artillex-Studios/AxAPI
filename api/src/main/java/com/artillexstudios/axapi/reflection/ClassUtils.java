@@ -20,7 +20,7 @@ public enum ClassUtils {
             try {
                 Class.forName(name, false, this.getClass().getClassLoader());
                 return true;
-            } catch (Exception exception) {
+            } catch (ClassNotFoundException exception) {
                 return false;
             }
         });
