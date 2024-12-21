@@ -125,9 +125,14 @@ public final class EntityTracker {
                 while ((index = integer.getAndIncrement()) < l) {
                     TrackedEntity tracked = array[index];
                     tracked.preTick();
+                    if (tracked.world == null) {
+                        LogUtils.error("Failed to track entity with id {} due to it being in a null world!", tracked.entity.id());
+                        continue;
+                    }
+
                     List<ServerPlayerWrapper> players = tracking.get(tracked.world);
                     if (players == null) {
-                        LogUtils.error("Failed to track entity in world {}, due to tracker players being null! Tracking: {}", tracked.world.getName(), tracking);
+                        LogUtils.error("Failed to track entity with id {} in world {}, due to tracker players being null! Tracking: {}", tracked.entity.id(), tracked.world.getName(), tracking);
                         continue;
                     }
 
