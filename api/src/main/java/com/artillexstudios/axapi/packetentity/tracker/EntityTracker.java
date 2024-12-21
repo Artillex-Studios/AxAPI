@@ -110,8 +110,7 @@ public final class EntityTracker {
         // This also reduces the strain on the GC as less objects are wasted (ServerPlayerWrapper)
         // We are only ever reading from this map, so thread safety doesn't matter
         List<World> worlds = Bukkit.getWorlds();
-        int size = (int) Math.ceil(worlds.size() / (double) 0.75f);
-        Map<World, List<ServerPlayerWrapper>> tracking = new IdentityArrayMap<>(size);
+        Map<World, List<ServerPlayerWrapper>> tracking = new IdentityArrayMap<>(worlds.size() + 1);
         for (World world : worlds) {
             tracking.put(world, TrackedEntity.getPlayersInWorld(world));
         }
