@@ -118,8 +118,6 @@ public final class YamlConfiguration {
     private void updateFields(LinkedHashMap<String, Object> map, String path, Class<? extends ConfigurationPart> original) {
         Class<?> clazz = original;
         do {
-            clazz = clazz.getSuperclass();
-
             for (Field field : clazz.getFields()) {
                 if (Modifier.isFinal(field.getModifiers())) {
                     continue;
@@ -161,6 +159,8 @@ public final class YamlConfiguration {
 
                 this.updateFields(map, path.isEmpty() ? this.keyRenamer.rename(cl.getSimpleName()) : path + "." + this.keyRenamer.rename(cl.getSimpleName()), (Class<? extends ConfigurationPart>) cl);
             }
+
+            clazz = clazz.getSuperclass();
         } while (clazz.getSuperclass() != Object.class);
     }
 
