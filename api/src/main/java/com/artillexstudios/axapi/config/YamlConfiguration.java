@@ -274,11 +274,11 @@ public final class YamlConfiguration {
                 Named named = field.getAnnotation(Named.class);
                 Type type = field.getGenericType();
                 String name = named != null ? named.value() : this.keyRenamer.rename(field.getName());
+                LogUtils.warn(name);
                 try {
                     String path1 = path.isEmpty() ? name : path + "." + name;
-                    Object deserialized = this.holder.serialize(field.get(null), type);
-                    this.set0(map, path1, deserialized);
-                    field.set(null, deserialized);
+                    Object serialized = this.holder.serialize(field.get(null), type);
+                    this.set0(map, path1, serialized);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
