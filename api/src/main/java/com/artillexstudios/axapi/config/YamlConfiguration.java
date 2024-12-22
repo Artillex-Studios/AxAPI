@@ -126,14 +126,15 @@ public final class YamlConfiguration {
                 Type type = field.getGenericType();
                 String name = named != null ? named.value() : this.keyRenamer.rename(field.getName());
                 try {
-                    Object value = this.get(path + "." + name);
+                    String path1 = path.isEmpty() ? name : path + "." + name;
+                    Object value = this.get(path1);
                     if (value == null) {
                         value = field.get(null);
                         this.needsSaving = true;
                     }
 
                     Object deserialized = this.holder.deserialize(value, type);
-                    this.set0(map, path + "." + name, deserialized);
+                    this.set0(map, path1, deserialized);
                     field.set(null, deserialized);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException(e);
