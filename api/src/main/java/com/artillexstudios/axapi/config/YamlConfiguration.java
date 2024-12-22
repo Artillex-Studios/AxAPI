@@ -161,7 +161,7 @@ public final class YamlConfiguration {
             }
 
             clazz = clazz.getSuperclass();
-        } while (clazz.getSuperclass() != Object.class);
+        } while (clazz.getSuperclass() != null && clazz.getSuperclass() != Object.class);
     }
 
     public void move(String path, String newPath) {
