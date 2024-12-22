@@ -108,11 +108,12 @@ public final class YamlConfiguration {
         LinkedHashMap<String, Object> map = new LinkedHashMap<>();
         this.updateFields(map, "", this.clazz);
         LogUtils.warn("Contents: {}", map);
+        this.config = map;
+
         if (this.needsSaving) {
             this.save();
+            this.needsSaving = false;
         }
-
-        this.config = map;
     }
 
     private void updateFields(LinkedHashMap<String, Object> map, String path, Class<? extends ConfigurationPart> original) {
@@ -130,6 +131,7 @@ public final class YamlConfiguration {
                     String path1 = path.isEmpty() ? name : path + "." + name;
                     Object value = this.get(path1);
                     if (value == null) {
+                        LogUtils.warn("Needs saving!");
                         value = field.get(null);
                         this.needsSaving = true;
                     }
@@ -252,6 +254,7 @@ public final class YamlConfiguration {
     }
 
     public void save() {
+        LogUtils.warn("Save called!");
         LinkedHashMap<String, Object> map = new LinkedHashMap<>();
         this.save0(map, "", this.clazz);
         LogUtils.warn("Saving map: {}", map);
