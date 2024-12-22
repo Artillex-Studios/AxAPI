@@ -101,7 +101,7 @@ public final class YamlConfiguration {
             return;
         }
 
-        if (this.runUpdaters()) {
+        if (this.configVersionPath != null && this.runUpdaters()) {
             this.save();
         }
 
@@ -285,7 +285,7 @@ public final class YamlConfiguration {
     }
 
     private boolean runUpdaters() {
-        int configVersion = this.get(this.configVersionPath, int.class);
+        int configVersion = this.get(this.configVersionPath, Integer.class);
         if (configVersion == this.configVersion) {
             // We don't need to update anything
             return false;
