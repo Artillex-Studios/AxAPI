@@ -252,7 +252,42 @@ public final class YamlConfiguration {
     }
 
     public void save() {
-        this.save(this.yaml.dump(this.holder.serialize(this.config, Map.class))); // TODO: verify that this works
+        LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+        this.save0(map, "", this.clazz);
+        this.save(this.yaml.dump(map));
+    }
+
+    private void save0(LinkedHashMap<String, Object> map, String path, Class<? extends ConfigurationPart> original) {
+        Class<?> clazz = original;
+        do {
+            for (Field field : clazz.getFields()) {
+                if (Modifier.isFinal(field.getModifiers())) {
+                    continue;
+                }
+
+                Named named = field.getAnnotation(Named.class);
+                Type type = field.getGenericType();
+                String name = named != null ? named.value() : this.keyRenamer.rename(field.getName());
+                try {
+                    String path1 = path.isEmpty() ? name : path + "." + name;
+                    Object deserialized = this.holder.serialize(field.get(null), type);
+                    this.set0(map, path1, deserialized);
+                    field.set(null, deserialized);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            for (Class<?> cl : clazz.getClasses()) {
+                if (!ConfigurationPart.class.isAssignableFrom(cl)) {
+                    continue;
+                }
+
+                this.updateFields(map, path.isEmpty() ? this.keyRenamer.rename(cl.getSimpleName()) : path + "." + this.keyRenamer.rename(cl.getSimpleName()), (Class<? extends ConfigurationPart>) cl);
+            }
+
+            clazz = clazz.getSuperclass();
+        } while (clazz.getSuperclass() != null && clazz.getSuperclass() != Object.class);
     }
 
     private void save(String stream) {

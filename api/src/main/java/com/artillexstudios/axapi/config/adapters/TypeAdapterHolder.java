@@ -11,6 +11,7 @@ import com.artillexstudios.axapi.config.adapters.primitive.FloatAdapter;
 import com.artillexstudios.axapi.config.adapters.primitive.IntegerAdapter;
 import com.artillexstudios.axapi.config.adapters.primitive.LongAdapter;
 import com.artillexstudios.axapi.config.adapters.primitive.ShortAdapter;
+import com.artillexstudios.axapi.config.adapters.primitive.StringAdapter;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -38,7 +39,7 @@ public final class TypeAdapterHolder {
         this.adapters.put(Integer.class, new IntegerAdapter());
         this.adapters.put(Long.class, new LongAdapter());
         this.adapters.put(Short.class, new ShortAdapter());
-        this.adapters.put(String.class, new ShortAdapter());
+        this.adapters.put(String.class, new StringAdapter());
         this.adapters.put(Enum.class, new EnumAdapter());
 
         this.adapters.put(List.class, new ListAdapter());
