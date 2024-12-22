@@ -308,9 +308,8 @@ public final class YamlConfiguration {
             temp.delete();
             temp.createNewFile();
             try {
-                try (BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(this.path.toFile()))) {
+                try (BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(temp))) {
                     outputStream.write(stream.getBytes(StandardCharsets.UTF_8));
-                    outputStream.flush();
                 }
 
                 try {
