@@ -254,7 +254,10 @@ public final class YamlConfiguration {
     public void save() {
         LinkedHashMap<String, Object> map = new LinkedHashMap<>();
         this.save0(map, "", this.clazz);
-        this.save(this.yaml.dump(map));
+        LogUtils.warn("Saving map: {}", map);
+        String dump = this.yaml.dump(map);
+        LogUtils.warn("Dumped yaml: {}", dump);
+        this.save(dump);
     }
 
     private void save0(LinkedHashMap<String, Object> map, String path, Class<? extends ConfigurationPart> original) {
@@ -304,6 +307,7 @@ public final class YamlConfiguration {
             try {
                 try (BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(this.path.toFile()))) {
                     outputStream.write(stream.getBytes(StandardCharsets.UTF_8));
+                    outputStream.flush();
                 }
 
                 try {
