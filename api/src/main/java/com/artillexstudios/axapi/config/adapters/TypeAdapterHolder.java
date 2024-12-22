@@ -3,7 +3,13 @@ package com.artillexstudios.axapi.config.adapters;
 import com.artillexstudios.axapi.config.adapters.collections.LinkedHashMapAdapter;
 import com.artillexstudios.axapi.config.adapters.collections.ListAdapter;
 import com.artillexstudios.axapi.config.adapters.collections.MapAdapter;
+import com.artillexstudios.axapi.config.adapters.other.BigDecimalAdapter;
+import com.artillexstudios.axapi.config.adapters.other.BigIntegerAdapter;
 import com.artillexstudios.axapi.config.adapters.other.EnumAdapter;
+import com.artillexstudios.axapi.config.adapters.other.ItemStackAdapter;
+import com.artillexstudios.axapi.config.adapters.other.PatternAdapter;
+import com.artillexstudios.axapi.config.adapters.other.UUIDAdapter;
+import com.artillexstudios.axapi.config.adapters.other.WrappedItemStackAdapter;
 import com.artillexstudios.axapi.config.adapters.primitive.BooleanAdapter;
 import com.artillexstudios.axapi.config.adapters.primitive.ByteAdapter;
 import com.artillexstudios.axapi.config.adapters.primitive.DoubleAdapter;
@@ -12,13 +18,19 @@ import com.artillexstudios.axapi.config.adapters.primitive.IntegerAdapter;
 import com.artillexstudios.axapi.config.adapters.primitive.LongAdapter;
 import com.artillexstudios.axapi.config.adapters.primitive.ShortAdapter;
 import com.artillexstudios.axapi.config.adapters.primitive.StringAdapter;
+import com.artillexstudios.axapi.items.WrappedItemStack;
+import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.regex.Pattern;
 
 public final class TypeAdapterHolder {
     private final Map<Class<?>, TypeAdapter<?, ?>> adapters = new HashMap<>();
@@ -41,6 +53,12 @@ public final class TypeAdapterHolder {
         this.adapters.put(Short.class, new ShortAdapter());
         this.adapters.put(String.class, new StringAdapter());
         this.adapters.put(Enum.class, new EnumAdapter());
+        this.adapters.put(Pattern.class, new PatternAdapter());
+        this.adapters.put(WrappedItemStack.class, new WrappedItemStackAdapter());
+        this.adapters.put(ItemStack.class, new ItemStackAdapter());
+        this.adapters.put(BigInteger.class, new BigIntegerAdapter());
+        this.adapters.put(BigDecimal.class, new BigDecimalAdapter());
+        this.adapters.put(UUID.class, new UUIDAdapter());
 
         this.adapters.put(List.class, new ListAdapter());
         this.adapters.put(Map.class, new MapAdapter());

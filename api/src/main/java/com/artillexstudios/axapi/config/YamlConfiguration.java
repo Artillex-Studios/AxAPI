@@ -107,7 +107,6 @@ public final class YamlConfiguration {
 
         LinkedHashMap<String, Object> map = new LinkedHashMap<>();
         this.updateFields(map, "", this.clazz);
-        LogUtils.warn("Contents: {}", map);
         this.config = map;
 
         if (this.needsSaving) {
@@ -131,7 +130,6 @@ public final class YamlConfiguration {
                     String path1 = path.isEmpty() ? name : path + "." + name;
                     Object value = this.get(path1);
                     if (value == null) {
-                        LogUtils.warn("Needs saving!");
                         value = field.get(null);
                         this.needsSaving = true;
                     }
@@ -254,12 +252,9 @@ public final class YamlConfiguration {
     }
 
     public void save() {
-        LogUtils.warn("Save called!");
         LinkedHashMap<String, Object> map = new LinkedHashMap<>();
         this.save0(map, "", this.clazz);
-        LogUtils.warn("Saving map: {}", map);
         String dump = this.yaml.dump(map);
-        LogUtils.warn("Dumped yaml: {}", dump);
         this.save(dump);
     }
 
@@ -282,7 +277,6 @@ public final class YamlConfiguration {
                 Named named = field.getAnnotation(Named.class);
                 Type type = field.getGenericType();
                 String name = named != null ? named.value() : this.keyRenamer.rename(field.getName());
-                LogUtils.warn(name);
                 try {
                     String path1 = path.isEmpty() ? name : path + "." + name;
                     Object serialized = this.holder.serialize(field.get(null), type);
