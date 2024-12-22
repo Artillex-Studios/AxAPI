@@ -266,6 +266,14 @@ public final class YamlConfiguration {
     private void save0(LinkedHashMap<String, Object> map, String path, Class<? extends ConfigurationPart> original) {
         Class<?> clazz = original;
         do {
+            for (Class<?> cl : clazz.getClasses()) {
+                if (!ConfigurationPart.class.isAssignableFrom(cl)) {
+                    continue;
+                }
+
+                this.save0(map, path.isEmpty() ? this.keyRenamer.rename(cl.getSimpleName()) : path + "." + this.keyRenamer.rename(cl.getSimpleName()), (Class<? extends ConfigurationPart>) cl);
+            }
+
             for (Field field : clazz.getFields()) {
                 if (Modifier.isFinal(field.getModifiers())) {
                     continue;
@@ -282,14 +290,6 @@ public final class YamlConfiguration {
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
-            }
-
-            for (Class<?> cl : clazz.getClasses()) {
-                if (!ConfigurationPart.class.isAssignableFrom(cl)) {
-                    continue;
-                }
-
-                this.updateFields(map, path.isEmpty() ? this.keyRenamer.rename(cl.getSimpleName()) : path + "." + this.keyRenamer.rename(cl.getSimpleName()), (Class<? extends ConfigurationPart>) cl);
             }
 
             clazz = clazz.getSuperclass();
