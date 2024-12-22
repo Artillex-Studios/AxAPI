@@ -84,6 +84,8 @@ public final class YamlConfiguration {
             try {
                 if (this.defaults != null) {
                     this.save(new String(this.defaults.readAllBytes(), StandardCharsets.UTF_8));
+                } else {
+                    this.save("");
                 }
             } catch (IOException exception) {
                 LogUtils.error("Failed to read bytes from defaults stream!");
