@@ -94,7 +94,8 @@ public final class YamlConfiguration {
         }
 
         try (BufferedInputStream stream = new BufferedInputStream(new FileInputStream(this.path.toFile())); InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
-            this.config = new LinkedHashMap<>(this.yaml.load(reader));
+            Map<String, Object> read = this.yaml.load(reader);
+            this.config = read == null ? new LinkedHashMap<>() : new LinkedHashMap<>(read);
         } catch (IOException exception) {
             LogUtils.error("An unexpected error occurred while loading yaml file for updating!", exception);
             return;
