@@ -352,7 +352,7 @@ public final class YamlConfiguration {
                         String line = lines[i];
                         if (line.strip().startsWith("#")) {
                             outputStream.write("\n".getBytes(StandardCharsets.UTF_8));
-                            outputStream.write(line.getBytes(StandardCharsets.UTF_8));
+                            outputStream.write(this.toPrettyComment(line).getBytes(StandardCharsets.UTF_8));
                             int j = i + 1;
                             while (j < lines.length) {
                                 String nextLine = lines[j];
@@ -360,7 +360,7 @@ public final class YamlConfiguration {
                                     break;
                                 }
 
-                                outputStream.write(nextLine.getBytes(StandardCharsets.UTF_8));
+                                outputStream.write(this.toPrettyComment(nextLine).getBytes(StandardCharsets.UTF_8));
                                 j++;
                                 i++;
                             }
@@ -385,6 +385,30 @@ public final class YamlConfiguration {
         } catch (IOException exception) {
             LogUtils.error("An unexpected error occurred while saving file!", exception);
         }
+    }
+
+    private String toPrettyComment(String string) {
+        int index = string.indexOf('#');
+        if (index == -1 || index == string.length() - 1) {
+            return string;
+        }
+
+        char ch = string.charAt(index + 1);
+        // Already pretty
+        if (Character.isWhitespace(ch)) {
+            return string;
+        }
+
+        StringBuilder builder = new StringBuilder(string.length());
+        for (int i = 0; i < string.length(); i++) {
+            if (string.charAt(i) == '#') {
+                builder.append('#').append(' ');
+            } else {
+                builder.append(string.charAt(i));
+            }
+        }
+
+        return builder.toString();
     }
 
     private int getLeadingWhiteSpace(String string) {
