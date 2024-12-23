@@ -4,6 +4,7 @@ import com.artillexstudios.axapi.config.adapters.TypeAdapter;
 import com.artillexstudios.axapi.config.adapters.TypeAdapterHolder;
 import com.artillexstudios.axapi.config.annotation.Comment;
 import com.artillexstudios.axapi.config.annotation.ConfigurationPart;
+import com.artillexstudios.axapi.config.annotation.Header;
 import com.artillexstudios.axapi.config.annotation.Named;
 import com.artillexstudios.axapi.config.annotation.PostProcess;
 import com.artillexstudios.axapi.config.renamer.KeyRenamer;
@@ -277,7 +278,17 @@ public final class YamlConfiguration {
         LinkedHashMap<String, Object> map = new LinkedHashMap<>();
         this.save0(map, "", this.clazz);
         StringWriter writer = new StringWriter();
-        this.yaml.serialize(this.map(map, ""), writer);
+        MappingNode mappingNode = this.map(map, "");
+        Header header = this.clazz.getAnnotation(Header.class);
+        if (header != null) {
+            List<CommentLine> lines = new ArrayList<>();
+            for (String string : header.value()) {
+                lines.add(new CommentLine(null, null, string, CommentType.BLOCK));
+            }
+            mappingNode.setBlockComments(lines);
+        }
+
+        this.yaml.serialize(mappingNode, writer);
         this.save(writer.toString());
     }
 
@@ -378,7 +389,6 @@ public final class YamlConfiguration {
             Map.Entry<String, Object> entry = iterator.next();
             key = this.yaml.represent(entry.getKey());
             if (entry.getValue() instanceof Map<?, ?> m) {
-                LogUtils.warn("Mapping path: {}", path.isEmpty() ? entry.getKey() : path + "." + entry.getKey());
                 value = this.map((Map<String, Object>) m, path.isEmpty() ? entry.getKey() : path + "." + entry.getKey());
             } else {
                 value = this.yaml.represent(entry.getValue());
