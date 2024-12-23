@@ -15,7 +15,6 @@ public final class LinkedHashMapAdapter implements TypeAdapter<LinkedHashMap<Str
 
     @Override
     public LinkedHashMap<String, Object> deserialize(TypeAdapterHolder holder, Object input, Type type) {
-        LogUtils.debug("Type: {}, class: {}", type.getTypeName(), type.getClass());
         if (!(type instanceof ParameterizedType parameterizedType)) {
             throw new RuntimeException();
         }

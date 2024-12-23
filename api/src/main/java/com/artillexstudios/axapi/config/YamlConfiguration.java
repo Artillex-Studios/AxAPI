@@ -53,7 +53,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public final class YamlConfiguration {
-    private final LinkedHashMap<String, Object> comments = new LinkedHashMap<>();
+    private final LinkedHashMap<String, Comment> comments = new LinkedHashMap<>();
     private final TypeAdapterHolder holder = new TypeAdapterHolder();
     private final Map<IntIntPair, ConfigurationUpdater> updaters;
     private final Path path;
@@ -324,7 +324,7 @@ public final class YamlConfiguration {
                     String path1 = path.isEmpty() ? name : path + "." + name;
                     Object serialized = this.holder.serialize(field.get(null), type);
                     if (comment != null) {
-                        this.set0(this.comments, path1, comment);
+                        this.comments.put(path1, comment);
                     }
                     this.set0(map, path1, serialized);
                 } catch (IllegalAccessException e) {
@@ -394,7 +394,7 @@ public final class YamlConfiguration {
                 value = this.yaml.represent(entry.getValue());
             }
 
-            Comment comment = (Comment) this.get0(this.comments, path.isEmpty() ? entry.getKey() : path + "." + entry.getKey());
+            Comment comment = this.comments.get(path.isEmpty() ? entry.getKey() : path + "." + entry.getKey());
             if (comment != null) {
                 List<CommentLine> lines = new ArrayList<>();
                 String[] split = comment.value().split("\n");

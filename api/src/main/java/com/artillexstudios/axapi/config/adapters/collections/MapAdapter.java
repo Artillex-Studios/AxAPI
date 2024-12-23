@@ -13,7 +13,6 @@ public final class MapAdapter implements TypeAdapter<Map<String, Object>, Map<St
 
     @Override
     public Map<String, Object> deserialize(TypeAdapterHolder holder, Object input, Type type) {
-        LogUtils.debug("Type: {}, class: {}", type.getTypeName(), type.getClass());
         if (!(type instanceof ParameterizedType parameterizedType)) {
             throw new RuntimeException();
         }
