@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.config;
 
+import com.artillexstudios.axapi.config.adapters.ConfigurationGetter;
 import com.artillexstudios.axapi.config.adapters.TypeAdapter;
 import com.artillexstudios.axapi.config.adapters.TypeAdapterHolder;
 import com.artillexstudios.axapi.config.annotation.Comment;
@@ -25,11 +26,9 @@ import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,13 +48,15 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
-public final class YamlConfiguration {
+public final class YamlConfiguration implements ConfigurationGetter {
     private final LinkedHashMap<String, Comment> comments = new LinkedHashMap<>();
     private final TypeAdapterHolder holder = new TypeAdapterHolder();
     private final Map<IntIntPair, ConfigurationUpdater> updaters;
@@ -84,6 +85,10 @@ public final class YamlConfiguration {
 
     public static YamlConfiguration.Builder of(Path path, Class<? extends ConfigurationPart> clazz) {
         return new Builder(path, clazz);
+    }
+
+    public static YamlConfiguration.Builder of(Path path) {
+        return new Builder(path, null);
     }
 
     public void load() {
@@ -133,6 +138,10 @@ public final class YamlConfiguration {
     }
 
     private void updateFields(LinkedHashMap<String, Object> map, String path, Class<? extends ConfigurationPart> original) {
+        if (this.clazz == null) {
+            return;
+        }
+
         Class<?> clazz = original;
         List<Class<?>> classes = new ArrayList<>();
         do {
@@ -193,6 +202,10 @@ public final class YamlConfiguration {
     }
 
     public void set(String path, Object value) {
+        if (this.clazz == null) {
+            value = this.holder.serialize(value, null);
+        }
+
         this.set0(this.config, path, value);
     }
 
@@ -220,8 +233,17 @@ public final class YamlConfiguration {
         }
     }
 
+    @Override
     public <T> T get(String path, Class<T> clazz) {
+        if (this.clazz == null) {
+            return clazz.cast(this.holder.deserialize(this.get(path), clazz));
+        }
+
         return clazz.cast(this.get(path));
+    }
+
+    public Set<String> keys() {
+        return new HashSet<>(this.config.keySet());
     }
 
     public Object get(String path) {
@@ -296,6 +318,10 @@ public final class YamlConfiguration {
     }
 
     private void save0(LinkedHashMap<String, Object> map, String path, Class<? extends ConfigurationPart> original) {
+        if (this.clazz == null) {
+            return;
+        }
+
         this.comments.clear();
         Class<?> clazz = original;
         List<Class<?>> classes = new ArrayList<>();
@@ -355,7 +381,9 @@ public final class YamlConfiguration {
                         for (int i = 0; i < lines.length; i++) {
                             String line = lines[i];
                             if (line.strip().startsWith("#")) {
-                                writer.println();
+                                if (this.getLeadingWhiteSpace(line) == 0) {
+                                    writer.println();
+                                }
                                 writer.println(this.toPrettyComment(line));
                                 int j = i + 1;
                                 while (j < lines.length) {
