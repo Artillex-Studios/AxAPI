@@ -34,8 +34,11 @@ import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -117,8 +120,15 @@ public final class YamlConfiguration {
 
     private void updateFields(LinkedHashMap<String, Object> map, String path, Class<? extends ConfigurationPart> original) {
         Class<?> clazz = original;
+        List<Class<?>> classes = new ArrayList<>();
         do {
-            for (Field field : clazz.getFields()) {
+            classes.add(clazz);
+            clazz = clazz.getSuperclass();
+        } while (clazz.getSuperclass() != null && clazz.getSuperclass() != Object.class);
+        Collections.reverse(classes);
+
+        for (Class<?> cl : classes) {
+            for (Field field : cl.getFields()) {
                 if (Modifier.isFinal(field.getModifiers())) {
                     continue;
                 }
@@ -142,7 +152,7 @@ public final class YamlConfiguration {
                 }
             }
 
-            for (Method method : clazz.getMethods()) {
+            for (Method method : cl.getMethods()) {
                 if (method.isAnnotationPresent(PostProcess.class)) {
                     try {
                         method.invoke(null);
@@ -152,16 +162,14 @@ public final class YamlConfiguration {
                 }
             }
 
-            for (Class<?> cl : clazz.getClasses()) {
+            for (Class<?> c : cl.getClasses()) {
                 if (!ConfigurationPart.class.isAssignableFrom(cl)) {
                     continue;
                 }
 
-                this.updateFields(map, path.isEmpty() ? this.keyRenamer.rename(cl.getSimpleName()) : path + "." + this.keyRenamer.rename(cl.getSimpleName()), (Class<? extends ConfigurationPart>) cl);
+                this.updateFields(map, path.isEmpty() ? this.keyRenamer.rename(c.getSimpleName()) : path + "." + this.keyRenamer.rename(c.getSimpleName()), (Class<? extends ConfigurationPart>) c);
             }
-
-            clazz = clazz.getSuperclass();
-        } while (clazz.getSuperclass() != null && clazz.getSuperclass() != Object.class);
+        }
     }
 
     public void move(String path, String newPath) {
@@ -260,8 +268,15 @@ public final class YamlConfiguration {
 
     private void save0(LinkedHashMap<String, Object> map, String path, Class<? extends ConfigurationPart> original) {
         Class<?> clazz = original;
+        List<Class<?>> classes = new ArrayList<>();
         do {
-            for (Class<?> cl : clazz.getClasses()) {
+            classes.add(clazz);
+            clazz = clazz.getSuperclass();
+        } while (clazz.getSuperclass() != null && clazz.getSuperclass() != Object.class);
+        Collections.reverse(classes);
+
+        for (Class<?> c : classes) {
+            for (Class<?> cl : c.getClasses()) {
                 if (!ConfigurationPart.class.isAssignableFrom(cl)) {
                     continue;
                 }
@@ -269,7 +284,7 @@ public final class YamlConfiguration {
                 this.save0(map, path.isEmpty() ? this.keyRenamer.rename(cl.getSimpleName()) : path + "." + this.keyRenamer.rename(cl.getSimpleName()), (Class<? extends ConfigurationPart>) cl);
             }
 
-            for (Field field : clazz.getFields()) {
+            for (Field field : c.getFields()) {
                 if (Modifier.isFinal(field.getModifiers())) {
                     continue;
                 }
@@ -280,14 +295,13 @@ public final class YamlConfiguration {
                 try {
                     String path1 = path.isEmpty() ? name : path + "." + name;
                     Object serialized = this.holder.serialize(field.get(null), type);
+                    // TODO: Comment support
                     this.set0(map, path1, serialized);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
             }
-
-            clazz = clazz.getSuperclass();
-        } while (clazz.getSuperclass() != null && clazz.getSuperclass() != Object.class);
+        }
     }
 
     private void save(String stream) {
@@ -320,8 +334,8 @@ public final class YamlConfiguration {
     }
 
     private boolean runUpdaters() {
-        int configVersion = this.get(this.configVersionPath, Integer.class);
-        if (configVersion == this.configVersion) {
+        Integer configVersion = this.get(this.configVersionPath, Integer.class);
+        if (configVersion == null || configVersion == this.configVersion) {
             // We don't need to update anything
             return false;
         }
