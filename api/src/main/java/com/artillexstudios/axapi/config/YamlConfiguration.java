@@ -354,9 +354,7 @@ public final class YamlConfiguration {
                         String[] lines = stream.split("\n");
                         for (int i = 0; i < lines.length; i++) {
                             String line = lines[i];
-                            LogUtils.debug("Writing line: {}", line);
                             if (line.strip().startsWith("#")) {
-                                LogUtils.debug("Oh, it's a comment!");
                                 writer.println();
                                 writer.println(this.toPrettyComment(line));
                                 int j = i + 1;
@@ -370,12 +368,10 @@ public final class YamlConfiguration {
                                     j++;
                                     i++;
                                 }
-                            } else if (i >= 1 && this.getLeadingWhiteSpace(line) < this.getLeadingWhiteSpace(lines[i - 1])) {
-                                LogUtils.debug("Oh, we can make it pretty!");
+                            } else if (i >= 1 && this.getLeadingWhiteSpace(line) < this.getLeadingWhiteSpace(lines[i - 1]) && this.getLeadingWhiteSpace(line) == 0) {
                                 writer.println();
                                 writer.println(line);
                             } else {
-                                LogUtils.debug("Base printing");
                                 writer.println(line);
                             }
                         }
@@ -424,7 +420,8 @@ public final class YamlConfiguration {
     private int getLeadingWhiteSpace(String string) {
         int whiteSpace = 0;
         for (int i = 0; i < string.length(); i++) {
-            if (!Character.isWhitespace(string.charAt(i))) {
+            char ch = string.charAt(i);
+            if (!Character.isWhitespace(ch) && ch != '-') {
                 break;
             }
 
