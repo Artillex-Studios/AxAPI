@@ -26,12 +26,15 @@ import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -346,13 +349,13 @@ public final class YamlConfiguration {
             temp.delete();
             temp.createNewFile();
             try {
-                try (BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(temp))) {
+                try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(temp)))) {
                     String[] lines = stream.split("\n");
                     for (int i = 0; i < lines.length; i++) {
                         String line = lines[i];
                         if (line.strip().startsWith("#")) {
-                            outputStream.write("\n".getBytes(StandardCharsets.UTF_8));
-                            outputStream.write(this.toPrettyComment(line).getBytes(StandardCharsets.UTF_8));
+                            writer.println();
+                            writer.println(this.toPrettyComment(line));
                             int j = i + 1;
                             while (j < lines.length) {
                                 String nextLine = lines[j];
@@ -360,18 +363,19 @@ public final class YamlConfiguration {
                                     break;
                                 }
 
-                                outputStream.write(this.toPrettyComment(nextLine).getBytes(StandardCharsets.UTF_8));
+                                writer.println(this.toPrettyComment(nextLine));
                                 j++;
                                 i++;
                             }
                         } else if (i >= 1 && this.getLeadingWhiteSpace(line) < this.getLeadingWhiteSpace(lines[i - 1])) {
-                            outputStream.write("\n".getBytes(StandardCharsets.UTF_8));
-                            outputStream.write(line.getBytes(StandardCharsets.UTF_8));
+                            writer.println();
+                            writer.println(line);
                         } else {
-                            outputStream.write(line.getBytes(StandardCharsets.UTF_8));
+                            writer.println(line);
                         }
                     }
-                    outputStream.write(stream.getBytes(StandardCharsets.UTF_8));
+
+                    writer.flush();
                 }
 
                 try {
