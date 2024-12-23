@@ -102,7 +102,7 @@ public final class YamlConfiguration {
                 if (this.defaults != null) {
                     this.save(new String(this.defaults.readAllBytes(), StandardCharsets.UTF_8));
                 } else {
-                    this.save("");
+                    this.save(null);
                 }
             } catch (IOException exception) {
                 LogUtils.error("Failed to read bytes from defaults stream!");
@@ -349,33 +349,39 @@ public final class YamlConfiguration {
             temp.delete();
             temp.createNewFile();
             try {
-                try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(temp)))) {
-                    String[] lines = stream.split("\n");
-                    for (int i = 0; i < lines.length; i++) {
-                        String line = lines[i];
-                        if (line.strip().startsWith("#")) {
-                            writer.println();
-                            writer.println(this.toPrettyComment(line));
-                            int j = i + 1;
-                            while (j < lines.length) {
-                                String nextLine = lines[j];
-                                if (!nextLine.strip().startsWith("#")) {
-                                    break;
+                if (stream != null) {
+                    try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(temp)))) {
+                        String[] lines = stream.split("\n");
+                        for (int i = 0; i < lines.length; i++) {
+                            String line = lines[i];
+                            LogUtils.debug("Writing line: {}", line);
+                            if (line.strip().startsWith("#")) {
+                                LogUtils.debug("Oh, it's a comment!");
+                                writer.println();
+                                writer.println(this.toPrettyComment(line));
+                                int j = i + 1;
+                                while (j < lines.length) {
+                                    String nextLine = lines[j];
+                                    if (!nextLine.strip().startsWith("#")) {
+                                        break;
+                                    }
+
+                                    writer.println(this.toPrettyComment(nextLine));
+                                    j++;
+                                    i++;
                                 }
-
-                                writer.println(this.toPrettyComment(nextLine));
-                                j++;
-                                i++;
+                            } else if (i >= 1 && this.getLeadingWhiteSpace(line) < this.getLeadingWhiteSpace(lines[i - 1])) {
+                                LogUtils.debug("Oh, we can make it pretty!");
+                                writer.println();
+                                writer.println(line);
+                            } else {
+                                LogUtils.debug("Base printing");
+                                writer.println(line);
                             }
-                        } else if (i >= 1 && this.getLeadingWhiteSpace(line) < this.getLeadingWhiteSpace(lines[i - 1])) {
-                            writer.println();
-                            writer.println(line);
-                        } else {
-                            writer.println(line);
                         }
-                    }
 
-                    writer.flush();
+                        writer.flush();
+                    }
                 }
 
                 try {
