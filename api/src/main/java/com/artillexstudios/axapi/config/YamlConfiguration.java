@@ -374,10 +374,11 @@ public final class YamlConfiguration {
         List<NodeTuple> nodes = new ArrayList<>();
         Node key;
         Node value;
-        for (Iterator<Map.Entry<String, Object>> iterator = this.config.entrySet().iterator(); iterator.hasNext(); nodes.add(new NodeTuple(key, value))) {
+        for (Iterator<Map.Entry<String, Object>> iterator = map.entrySet().iterator(); iterator.hasNext(); nodes.add(new NodeTuple(key, value))) {
             Map.Entry<String, Object> entry = iterator.next();
             key = this.yaml.represent(entry.getKey());
             if (entry.getValue() instanceof Map<?, ?> m) {
+                LogUtils.warn("Mapping path: {}", path.isEmpty() ? entry.getKey() : path + "." + entry.getKey());
                 value = this.map((Map<String, Object>) m, path.isEmpty() ? entry.getKey() : path + "." + entry.getKey());
             } else {
                 value = this.yaml.represent(entry.getValue());
