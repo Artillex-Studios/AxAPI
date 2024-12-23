@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.config;
 
+import com.artillexstudios.axapi.config.annotation.Comment;
 import com.artillexstudios.axapi.config.annotation.ConfigurationPart;
 import com.artillexstudios.axapi.config.annotation.Header;
 import com.artillexstudios.axapi.config.annotation.Named;
@@ -12,6 +13,7 @@ import org.yaml.snakeyaml.DumperOptions;
 public class ConfigTest implements ConfigurationPart {
 
     @Named("setting")
+    @Comment("oreo")
     public static double value = 0;
     public static int configVersion = 1;
 

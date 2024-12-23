@@ -80,7 +80,7 @@ allprojects {
             exclude group: 'org.yaml', module: 'snakeyaml'
         }
 
-        implementation("dev.dejvokep:boosted-yaml:1.3") {
+        implementation("dev.dejvokep:boosted-yaml:1.3.7") {
             exclude group: 'org.yaml', module: 'snakeyaml'
         }
 
@@ -95,10 +95,10 @@ allprojects {
         compileOnly("me.clip:placeholderapi:2.11.5")
 
 
-        implementation("com.github.Artillex-Studios.Lamp:common:1d02c47a86") {
+        implementation("com.github.Artillex-Studios.Lamp:common:cc49e8a098") {
             exclude group: 'net.kyori', module: 'adventure'
         }
-        implementation("com.github.Artillex-Studios.Lamp:bukkit:1d02c47a86") {
+        implementation("com.github.Artillex-Studios.Lamp:bukkit:cc49e8a098") {
             exclude group: 'net.kyori', module: 'adventure'
         }
     }

@@ -2,6 +2,7 @@ package com.artillexstudios.axapi.config;
 
 import com.artillexstudios.axapi.config.adapters.TypeAdapter;
 import com.artillexstudios.axapi.config.adapters.TypeAdapterHolder;
+import com.artillexstudios.axapi.config.annotation.Comment;
 import com.artillexstudios.axapi.config.annotation.ConfigurationPart;
 import com.artillexstudios.axapi.config.annotation.Named;
 import com.artillexstudios.axapi.config.annotation.PostProcess;
@@ -13,7 +14,13 @@ import it.unimi.dsi.fastutil.ints.IntIntPair;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.comments.CommentLine;
+import org.yaml.snakeyaml.comments.CommentType;
 import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.nodes.MappingNode;
+import org.yaml.snakeyaml.nodes.Node;
+import org.yaml.snakeyaml.nodes.NodeTuple;
+import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.BufferedInputStream;
@@ -24,6 +31,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -37,12 +45,14 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
 public final class YamlConfiguration {
+    private final LinkedHashMap<String, Object> comments = new LinkedHashMap<>();
     private final TypeAdapterHolder holder = new TypeAdapterHolder();
     private final Map<IntIntPair, ConfigurationUpdater> updaters;
     private final Path path;
@@ -211,13 +221,17 @@ public final class YamlConfiguration {
     }
 
     public Object get(String path) {
+        return this.get0(this.config, path);
+    }
+
+    private Object get0(Map<String, Object> map, String path) {
         String[] route = path.split("\\.");
         if (route.length == 1) {
-            return this.config.get(route[0]);
+            return map.get(route[0]);
         }
 
         int i = 0;
-        Map<String, Object> parent = this.config;
+        Map<String, Object> parent = map;
         while (i < route.length) {
             Map<String, Object> node = (Map<String, Object>) parent.get(route[i]);
             if (node == null) {
@@ -262,11 +276,13 @@ public final class YamlConfiguration {
     public void save() {
         LinkedHashMap<String, Object> map = new LinkedHashMap<>();
         this.save0(map, "", this.clazz);
-        String dump = this.yaml.dump(map);
-        this.save(dump);
+        StringWriter writer = new StringWriter();
+        this.yaml.serialize(this.map(map, ""), writer);
+        this.save(writer.toString());
     }
 
     private void save0(LinkedHashMap<String, Object> map, String path, Class<? extends ConfigurationPart> original) {
+        this.comments.clear();
         Class<?> clazz = original;
         List<Class<?>> classes = new ArrayList<>();
         do {
@@ -289,13 +305,16 @@ public final class YamlConfiguration {
                     continue;
                 }
 
+                Comment comment = field.getAnnotation(Comment.class);
                 Named named = field.getAnnotation(Named.class);
                 Type type = field.getGenericType();
                 String name = named != null ? named.value() : this.keyRenamer.rename(field.getName());
                 try {
                     String path1 = path.isEmpty() ? name : path + "." + name;
                     Object serialized = this.holder.serialize(field.get(null), type);
-                    // TODO: Comment support
+                    if (comment != null) {
+                        this.set0(this.comments, path1, comment);
+                    }
                     this.set0(map, path1, serialized);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException(e);
@@ -351,6 +370,37 @@ public final class YamlConfiguration {
         return true;
     }
 
+    private MappingNode map(Map<String, Object> map, String path) {
+        List<NodeTuple> nodes = new ArrayList<>();
+        Node key;
+        Node value;
+        for (Iterator<Map.Entry<String, Object>> iterator = this.config.entrySet().iterator(); iterator.hasNext(); nodes.add(new NodeTuple(key, value))) {
+            Map.Entry<String, Object> entry = iterator.next();
+            key = this.yaml.represent(entry.getKey());
+            if (entry.getValue() instanceof Map<?, ?> m) {
+                value = this.map((Map<String, Object>) m, path.isEmpty() ? entry.getKey() : path + "." + entry.getKey());
+            } else {
+                value = this.yaml.represent(entry.getValue());
+            }
+
+            Comment comment = (Comment) this.get0(this.comments, path.isEmpty() ? entry.getKey() : path + "." + entry.getKey());
+            if (comment != null) {
+                List<CommentLine> lines = new ArrayList<>();
+                String[] split = comment.value().split("\n");
+                for (String string : split) {
+                    lines.add(new CommentLine(null, null, string, comment.type() == Comment.CommentType.BLOCK ? CommentType.BLOCK : CommentType.IN_LINE));
+                }
+                if (comment.type() == Comment.CommentType.BLOCK) {
+                    key.setBlockComments(lines);
+                } else {
+                    key.setInLineComments(lines);
+                }
+            }
+        }
+
+        return new MappingNode(Tag.MAP, nodes, DumperOptions.FlowStyle.BLOCK);
+    }
+
     public static class Builder {
         private final Path path;
         private final Class<? extends ConfigurationPart> clazz;
@@ -366,6 +416,8 @@ public final class YamlConfiguration {
         private Builder(Path path, Class<? extends ConfigurationPart> clazz) {
             this.path = path;
             this.clazz = clazz;
+            this.dumperOptions.setProcessComments(true);
+            this.loaderOptions.setProcessComments(true);
         }
 
         public Builder addUpdater(int fromVersion, int toVersion, ConfigurationUpdater updater) {
