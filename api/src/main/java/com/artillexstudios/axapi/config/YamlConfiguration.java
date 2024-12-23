@@ -347,6 +347,30 @@ public final class YamlConfiguration {
             temp.createNewFile();
             try {
                 try (BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(temp))) {
+                    String[] lines = stream.split("\n");
+                    for (int i = 0; i < lines.length; i++) {
+                        String line = lines[i];
+                        if (line.strip().startsWith("#")) {
+                            outputStream.write("\n".getBytes(StandardCharsets.UTF_8));
+                            outputStream.write(line.getBytes(StandardCharsets.UTF_8));
+                            int j = i + 1;
+                            while (j < lines.length) {
+                                String nextLine = lines[j];
+                                if (!nextLine.strip().startsWith("#")) {
+                                    break;
+                                }
+
+                                outputStream.write(nextLine.getBytes(StandardCharsets.UTF_8));
+                                j++;
+                                i++;
+                            }
+                        } else if (i >= 1 && this.getLeadingWhiteSpace(line) < this.getLeadingWhiteSpace(lines[i - 1])) {
+                            outputStream.write("\n".getBytes(StandardCharsets.UTF_8));
+                            outputStream.write(line.getBytes(StandardCharsets.UTF_8));
+                        } else {
+                            outputStream.write(line.getBytes(StandardCharsets.UTF_8));
+                        }
+                    }
                     outputStream.write(stream.getBytes(StandardCharsets.UTF_8));
                 }
 
@@ -361,6 +385,19 @@ public final class YamlConfiguration {
         } catch (IOException exception) {
             LogUtils.error("An unexpected error occurred while saving file!", exception);
         }
+    }
+
+    private int getLeadingWhiteSpace(String string) {
+        int whiteSpace = 0;
+        for (int i = 0; i < string.length(); i++) {
+            if (!Character.isWhitespace(string.charAt(i))) {
+                break;
+            }
+
+            whiteSpace++;
+        }
+
+        return whiteSpace;
     }
 
     private boolean runUpdaters() {
