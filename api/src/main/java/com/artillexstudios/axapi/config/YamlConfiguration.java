@@ -81,7 +81,7 @@ public final class YamlConfiguration implements ConfigurationGetter {
         this.configVersion = configVersion;
         this.configVersionPath = configVersionPath;
         this.keyRenamer = keyRenamer;
-        this.constructor = new YamlConstructor();
+        this.constructor = new YamlConstructor(loaderOptions);
         this.holder.registerAdapters(adapters);
 
         this.yaml = new Yaml(this.constructor, new Representer(dumperOptions), dumperOptions, loaderOptions);

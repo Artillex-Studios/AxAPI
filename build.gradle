@@ -84,6 +84,7 @@ allprojects {
             exclude group: 'org.yaml', module: 'snakeyaml'
         }
 
+        implementation("org.yaml:snakeyaml:2.2")
         implementation("com.alessiodp.libby:libby-bukkit:2.0.0-SNAPSHOT")
         implementation("net.kyori:adventure-platform-bukkit:4.3.0")
         implementation("net.kyori:adventure-text-minimessage:4.14.0")
@@ -138,6 +139,7 @@ shadowJar {
     relocate('me.neznamy.yamlassist', 'com.artillexstudios.axapi.libs.yamlassist')
     relocate('org.apache.commons.math3', 'com.artillexstudios.axapi.libs.math3')
     relocate('com.github.benmanes', 'com.artillexstudios.axapi.libs.caffeine')
+    relocate('org.yaml.snakeyaml', 'com.artillexstudios.axapi.libs.snakeyaml')
     relocate('com.alessiodp.libby', 'com.artillexstudios.axapi.libs.libby')
     relocate('dev.dejvokep', 'com.artillexstudios.axapi.libs.boostedyaml')
 }
