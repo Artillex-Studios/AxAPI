@@ -6,6 +6,7 @@ import com.artillexstudios.axapi.config.adapters.TypeAdapterHolder;
 import com.artillexstudios.axapi.config.annotation.Comment;
 import com.artillexstudios.axapi.config.annotation.ConfigurationPart;
 import com.artillexstudios.axapi.config.annotation.Header;
+import com.artillexstudios.axapi.config.annotation.Ignored;
 import com.artillexstudios.axapi.config.annotation.Named;
 import com.artillexstudios.axapi.config.annotation.PostProcess;
 import com.artillexstudios.axapi.config.renamer.KeyRenamer;
@@ -248,7 +249,7 @@ public final class YamlConfiguration implements ConfigurationGetter {
 
         for (Class<?> cl : classes) {
             for (Field field : cl.getFields()) {
-                if (Modifier.isFinal(field.getModifiers())) {
+                if (Modifier.isFinal(field.getModifiers()) || field.isAnnotationPresent(Ignored.class)) {
                     continue;
                 }
 
@@ -286,7 +287,9 @@ public final class YamlConfiguration implements ConfigurationGetter {
                     continue;
                 }
 
-                this.updateFields(map, path.isEmpty() ? this.keyRenamer.rename(c.getSimpleName()) : path + "." + this.keyRenamer.rename(c.getSimpleName()), (Class<? extends ConfigurationPart>) c);
+                Named named = c.getAnnotation(Named.class);
+                String name = named == null ? this.keyRenamer.rename(cl.getSimpleName()) : named.value();
+                this.updateFields(map, path.isEmpty() ? name : path + "." + name, (Class<? extends ConfigurationPart>) c);
             }
         }
     }
@@ -436,7 +439,9 @@ public final class YamlConfiguration implements ConfigurationGetter {
                     continue;
                 }
 
-                this.save0(map, path.isEmpty() ? this.keyRenamer.rename(cl.getSimpleName()) : path + "." + this.keyRenamer.rename(cl.getSimpleName()), (Class<? extends ConfigurationPart>) cl);
+                Named named = cl.getAnnotation(Named.class);
+                String name = named == null ? this.keyRenamer.rename(cl.getSimpleName()) : named.value();
+                this.save0(map, path.isEmpty() ? name : path + "." + name, (Class<? extends ConfigurationPart>) cl);
             }
 
             Comment classComment = c.getAnnotation(Comment.class);
@@ -445,7 +450,7 @@ public final class YamlConfiguration implements ConfigurationGetter {
             }
 
             for (Field field : c.getFields()) {
-                if (Modifier.isFinal(field.getModifiers())) {
+                if (Modifier.isFinal(field.getModifiers()) || field.isAnnotationPresent(Ignored.class)) {
                     continue;
                 }
 
