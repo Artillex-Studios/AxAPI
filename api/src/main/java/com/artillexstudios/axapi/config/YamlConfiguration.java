@@ -480,7 +480,7 @@ public final class YamlConfiguration implements ConfigurationGetter {
                         for (int i = 0; i < lines.length; i++) {
                             String line = lines[i];
                             if (line.strip().startsWith("#")) {
-                                if (this.getLeadingWhiteSpace(line) == 0) {
+                                if (this.getLeadingWhiteSpace(line) == 0 && i >= 1) {
                                     writer.println();
                                 }
                                 writer.println(this.toPrettyComment(line));
