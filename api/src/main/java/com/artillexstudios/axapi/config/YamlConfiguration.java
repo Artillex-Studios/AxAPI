@@ -23,6 +23,7 @@ import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.Tag;
+import org.yaml.snakeyaml.reader.UnicodeReader;
 import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.BufferedInputStream;
@@ -118,7 +119,7 @@ public final class YamlConfiguration implements ConfigurationGetter {
             }
         }
 
-        try (BufferedInputStream stream = new BufferedInputStream(new FileInputStream(this.path.toFile())); InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
+        try (BufferedInputStream stream = new BufferedInputStream(new FileInputStream(this.path.toFile())); UnicodeReader reader = new UnicodeReader(stream)) {
             this.config = new LinkedHashMap<>();
             this.load0("", (MappingNode) this.yaml.compose(reader), this.config);
         } catch (IOException exception) {
@@ -387,13 +388,15 @@ public final class YamlConfiguration implements ConfigurationGetter {
         this.save0(map, "", this.clazz);
         StringWriter writer = new StringWriter();
         MappingNode mappingNode = this.map(map, "");
-        Header header = this.clazz.getAnnotation(Header.class);
-        if (header != null) {
-            List<CommentLine> lines = new ArrayList<>();
-            for (String string : header.value()) {
-                lines.add(new CommentLine(null, null, string, CommentType.BLOCK));
+        if (this.clazz != null) {
+            Header header = this.clazz.getAnnotation(Header.class);
+            if (header != null) {
+                List<CommentLine> lines = new ArrayList<>();
+                for (String string : header.value()) {
+                    lines.add(new CommentLine(null, null, string, CommentType.BLOCK));
+                }
+                mappingNode.setBlockComments(lines);
             }
-            mappingNode.setBlockComments(lines);
         }
 
         this.yaml.serialize(mappingNode, writer);
