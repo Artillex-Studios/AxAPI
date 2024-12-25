@@ -18,7 +18,7 @@ import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.comments.CommentLine;
 import org.yaml.snakeyaml.comments.CommentType;
-import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.nodes.AnchorNode;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -67,6 +68,7 @@ public final class YamlConfiguration implements ConfigurationGetter {
     private final int configVersion;
     private final String configVersionPath;
     private final KeyRenamer keyRenamer;
+    private final YamlConstructor constructor;
     private LinkedHashMap<String, Object> config = null;
     private boolean needsSaving = false;
 
@@ -78,9 +80,10 @@ public final class YamlConfiguration implements ConfigurationGetter {
         this.configVersion = configVersion;
         this.configVersionPath = configVersionPath;
         this.keyRenamer = keyRenamer;
+        this.constructor = new YamlConstructor();
         this.holder.registerAdapters(adapters);
 
-        this.yaml = new Yaml(new Constructor(loaderOptions), new Representer(dumperOptions), dumperOptions, loaderOptions);
+        this.yaml = new Yaml(this.constructor, new Representer(dumperOptions), dumperOptions, loaderOptions);
     }
 
     public static YamlConfiguration.Builder of(Path path, Class<? extends ConfigurationPart> clazz) {
@@ -116,8 +119,8 @@ public final class YamlConfiguration implements ConfigurationGetter {
         }
 
         try (BufferedInputStream stream = new BufferedInputStream(new FileInputStream(this.path.toFile())); InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
-            Map<String, Object> read = this.yaml.load(reader);
-            this.config = read == null ? new LinkedHashMap<>() : new LinkedHashMap<>(read);
+            this.config = new LinkedHashMap<>();
+            this.load0("", (MappingNode) this.yaml.compose(reader), this.config);
         } catch (IOException exception) {
             LogUtils.error("An unexpected error occurred while loading yaml file for updating!", exception);
             return;
@@ -135,6 +138,86 @@ public final class YamlConfiguration implements ConfigurationGetter {
             this.save();
             this.needsSaving = false;
         }
+    }
+
+    private void load0(String path, MappingNode node, LinkedHashMap<String, Object> map) {
+        this.constructor.flatten(node);
+
+        for (NodeTuple nodeTuple : node.getValue()) {
+            Node key = nodeTuple.getKeyNode();
+            String keyString = String.valueOf(this.constructor.construct(key));
+            Node value;
+
+            for (value = nodeTuple.getValueNode(); value instanceof AnchorNode anchorNode; value = anchorNode.getRealNode()) {
+
+            }
+
+            String path1 = path.isEmpty() ? keyString : path + "." + keyString;
+            if (value instanceof MappingNode mappingNode) {
+                LinkedHashMap<String, Object> newSection = new LinkedHashMap<>();
+                this.set0(map, keyString, newSection);
+                this.load0(keyString, mappingNode, newSection);
+            } else {
+                this.set0(map, keyString, this.constructor.construct(value));
+            }
+
+            List<CommentLine> blockComments = node.getBlockComments();
+            if (blockComments != null) {
+                StringBuilder commentValue = new StringBuilder();
+                for (CommentLine blockComment : blockComments) {
+                    commentValue.append("\n").append(blockComment.getValue());
+                }
+
+                if (!commentValue.isEmpty()) {
+                    this.comments.put(path1, new Comment() {
+
+                        @Override
+                        public Class<? extends Annotation> annotationType() {
+                            return Comment.class;
+                        }
+
+                        @Override
+                        public String value() {
+                            return commentValue.toString();
+                        }
+
+                        @Override
+                        public CommentType type() {
+                            return CommentType.BLOCK;
+                        }
+                    });
+                }
+            }
+
+            List<CommentLine> inlineComments = node.getInLineComments();
+            if (inlineComments != null) {
+                StringBuilder commentValue = new StringBuilder();
+                for (CommentLine comment : inlineComments) {
+                    commentValue.append("\n").append(comment.getValue());
+                }
+
+                if (!commentValue.isEmpty()) {
+                    this.comments.put(path1, new Comment() {
+
+                        @Override
+                        public Class<? extends Annotation> annotationType() {
+                            return Comment.class;
+                        }
+
+                        @Override
+                        public String value() {
+                            return commentValue.toString();
+                        }
+
+                        @Override
+                        public CommentType type() {
+                            return CommentType.INLINE;
+                        }
+                    });
+                }
+            }
+        }
+
     }
 
     private void updateFields(LinkedHashMap<String, Object> map, String path, Class<? extends ConfigurationPart> original) {
@@ -319,6 +402,7 @@ public final class YamlConfiguration implements ConfigurationGetter {
 
     private void save0(LinkedHashMap<String, Object> map, String path, Class<? extends ConfigurationPart> original) {
         if (this.clazz == null) {
+            map.putAll(this.config);
             return;
         }
 

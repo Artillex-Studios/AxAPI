@@ -12,11 +12,11 @@ public final class ListAdapter implements TypeAdapter<List<Object>, List<Object>
 
     @Override
     public List<Object> deserialize(TypeAdapterHolder holder, Object input, Type type) {
-        if (!(type instanceof ParameterizedType parameterizedType)) {
-            throw new RuntimeException();
+        Type t = null;
+        if (type instanceof ParameterizedType parameterizedType) {
+            t = parameterizedType.getActualTypeArguments()[0];
         }
 
-        Type t = parameterizedType.getActualTypeArguments()[0];
         if (input instanceof List<?> list) {
             List<Object> returning = new ArrayList<>(list.size());
 

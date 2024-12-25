@@ -2,7 +2,6 @@ package com.artillexstudios.axapi.config.adapters.collections;
 
 import com.artillexstudios.axapi.config.adapters.TypeAdapter;
 import com.artillexstudios.axapi.config.adapters.TypeAdapterHolder;
-import com.artillexstudios.axapi.utils.LogUtils;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -13,11 +12,11 @@ public final class MapAdapter implements TypeAdapter<Map<String, Object>, Map<St
 
     @Override
     public Map<String, Object> deserialize(TypeAdapterHolder holder, Object input, Type type) {
-        if (!(type instanceof ParameterizedType parameterizedType)) {
-            throw new RuntimeException();
+        Type t = null;
+        if (type instanceof ParameterizedType parameterizedType) {
+            t = parameterizedType.getActualTypeArguments()[1];
         }
 
-        Type t = parameterizedType.getActualTypeArguments()[1];
         if (input instanceof Map<?, ?> map) {
             HashMap<String, Object> returning = new HashMap<>();
 
