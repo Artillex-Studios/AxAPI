@@ -167,6 +167,7 @@ public final class YamlConfiguration implements ConfigurationGetter {
             }
 
             List<CommentLine> blockComments = value.getBlockComments();
+            LogUtils.debug("Block comments: {}", blockComments);
             if (blockComments != null) {
                 StringBuilder commentValue = new StringBuilder();
                 for (CommentLine blockComment : blockComments) {
@@ -195,6 +196,7 @@ public final class YamlConfiguration implements ConfigurationGetter {
             }
 
             List<CommentLine> inlineComments = value.getInLineComments();
+            LogUtils.debug("Inline comments: {}", inlineComments);
             if (inlineComments != null) {
                 StringBuilder commentValue = new StringBuilder();
                 for (CommentLine comment : inlineComments) {
