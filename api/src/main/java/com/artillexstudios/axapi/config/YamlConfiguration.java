@@ -121,6 +121,7 @@ public final class YamlConfiguration implements ConfigurationGetter {
 
         try (BufferedInputStream stream = new BufferedInputStream(new FileInputStream(this.path.toFile())); UnicodeReader reader = new UnicodeReader(stream)) {
             this.config = new LinkedHashMap<>();
+            LogUtils.debug("Reader: {}", reader.toString());
             this.load0("", (MappingNode) this.yaml.compose(reader), this.config);
         } catch (IOException exception) {
             LogUtils.error("An unexpected error occurred while loading yaml file for updating!", exception);
@@ -143,8 +144,10 @@ public final class YamlConfiguration implements ConfigurationGetter {
 
     private void load0(String path, MappingNode node, LinkedHashMap<String, Object> map) {
         if (node == null) {
+            LogUtils.debug("Load failed");
             return;
         }
+        LogUtils.debug("Loaded");
 
         this.constructor.flatten(node);
 
