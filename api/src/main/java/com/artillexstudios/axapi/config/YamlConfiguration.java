@@ -142,6 +142,10 @@ public final class YamlConfiguration implements ConfigurationGetter {
     }
 
     private void load0(String path, MappingNode node, LinkedHashMap<String, Object> map) {
+        if (node == null) {
+            return;
+        }
+
         this.constructor.flatten(node);
 
         for (NodeTuple nodeTuple : node.getValue()) {
