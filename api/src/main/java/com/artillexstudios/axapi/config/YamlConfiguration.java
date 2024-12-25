@@ -121,7 +121,6 @@ public final class YamlConfiguration implements ConfigurationGetter {
 
         try (BufferedInputStream stream = new BufferedInputStream(new FileInputStream(this.path.toFile())); UnicodeReader reader = new UnicodeReader(stream)) {
             this.config = new LinkedHashMap<>();
-            LogUtils.debug("Reader: {}", reader.toString());
             this.load0("", (MappingNode) this.yaml.compose(reader), this.config);
         } catch (IOException exception) {
             LogUtils.error("An unexpected error occurred while loading yaml file for updating!", exception);
@@ -144,10 +143,8 @@ public final class YamlConfiguration implements ConfigurationGetter {
 
     private void load0(String path, MappingNode node, LinkedHashMap<String, Object> map) {
         if (node == null) {
-            LogUtils.debug("Load failed");
             return;
         }
-        LogUtils.debug("Loaded");
 
         this.constructor.flatten(node);
 
@@ -170,11 +167,14 @@ public final class YamlConfiguration implements ConfigurationGetter {
             }
 
             List<CommentLine> blockComments = key.getBlockComments();
-            LogUtils.debug("Block comments: {}", blockComments);
             if (blockComments != null) {
                 StringBuilder commentValue = new StringBuilder();
-                for (CommentLine blockComment : blockComments) {
-                    commentValue.append("\n").append(blockComment.getValue());
+                for (int i = 0; i < blockComments.size(); i++) {
+                    CommentLine blockComment = blockComments.get(i);
+                    commentValue.append(blockComment.getValue());
+                    if (i + 1 < blockComments.size()) {
+                        commentValue.append('\n');
+                    }
                 }
 
                 if (!commentValue.isEmpty()) {
@@ -199,11 +199,14 @@ public final class YamlConfiguration implements ConfigurationGetter {
             }
 
             List<CommentLine> inlineComments = key.getInLineComments();
-            LogUtils.debug("Inline comments: {}", inlineComments);
             if (inlineComments != null) {
                 StringBuilder commentValue = new StringBuilder();
-                for (CommentLine comment : inlineComments) {
-                    commentValue.append("\n").append(comment.getValue());
+                for (int i = 0; i < inlineComments.size(); i++) {
+                    CommentLine comment = inlineComments.get(i);
+                    commentValue.append(comment.getValue());
+                    if (i + 1 < inlineComments.size()) {
+                        commentValue.append('\n');
+                    }
                 }
 
                 if (!commentValue.isEmpty()) {
