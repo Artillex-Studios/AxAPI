@@ -169,7 +169,7 @@ public final class YamlConfiguration implements ConfigurationGetter {
                 this.set0(map, keyString, this.constructor.construct(value));
             }
 
-            List<CommentLine> blockComments = value.getBlockComments();
+            List<CommentLine> blockComments = key.getBlockComments();
             LogUtils.debug("Block comments: {}", blockComments);
             if (blockComments != null) {
                 StringBuilder commentValue = new StringBuilder();
@@ -198,7 +198,7 @@ public final class YamlConfiguration implements ConfigurationGetter {
                 }
             }
 
-            List<CommentLine> inlineComments = value.getInLineComments();
+            List<CommentLine> inlineComments = key.getInLineComments();
             LogUtils.debug("Inline comments: {}", inlineComments);
             if (inlineComments != null) {
                 StringBuilder commentValue = new StringBuilder();
