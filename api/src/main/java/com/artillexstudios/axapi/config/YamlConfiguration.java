@@ -166,7 +166,7 @@ public final class YamlConfiguration implements ConfigurationGetter {
                 this.set0(map, keyString, this.constructor.construct(value));
             }
 
-            List<CommentLine> blockComments = node.getBlockComments();
+            List<CommentLine> blockComments = value.getBlockComments();
             if (blockComments != null) {
                 StringBuilder commentValue = new StringBuilder();
                 for (CommentLine blockComment : blockComments) {
@@ -194,7 +194,7 @@ public final class YamlConfiguration implements ConfigurationGetter {
                 }
             }
 
-            List<CommentLine> inlineComments = node.getInLineComments();
+            List<CommentLine> inlineComments = value.getInLineComments();
             if (inlineComments != null) {
                 StringBuilder commentValue = new StringBuilder();
                 for (CommentLine comment : inlineComments) {
