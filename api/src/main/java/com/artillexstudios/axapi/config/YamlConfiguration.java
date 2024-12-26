@@ -421,6 +421,9 @@ public final class YamlConfiguration implements ConfigurationGetter {
 
     public void save() {
         LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+        if (this.clazz != null) {
+            this.comments.clear();
+        }
         this.save0(map, "", this.clazz);
         StringWriter writer = new StringWriter();
         MappingNode mappingNode = this.map(map, "");
@@ -445,7 +448,6 @@ public final class YamlConfiguration implements ConfigurationGetter {
             return;
         }
 
-        this.comments.clear();
         Class<?> clazz = original;
         List<Class<?>> classes = new ArrayList<>();
         do {
@@ -455,23 +457,18 @@ public final class YamlConfiguration implements ConfigurationGetter {
         Collections.reverse(classes);
 
         for (Class<?> c : classes) {
-            LogUtils.debug("Saving class {}", c.getSimpleName());
             for (Class<?> cl : c.getClasses()) {
-                LogUtils.debug("Saving sub class {}", cl.getSimpleName());
                 if (!ConfigurationPart.class.isAssignableFrom(cl)) {
-                    LogUtils.debug("Nevermind, is not a configurationpart! ({})", cl.getSimpleName());
                     continue;
                 }
 
                 Named named = cl.getAnnotation(Named.class);
                 String name = named == null ? this.keyRenamer.rename(cl.getSimpleName()) : named.value();
-                LogUtils.debug("Name: {}! ({})", name, cl.getSimpleName());
                 this.save0(map, path.isEmpty() ? name : path + "." + name, (Class<? extends ConfigurationPart>) cl);
             }
 
             Comment classComment = c.getAnnotation(Comment.class);
             if (classComment != null) {
-                LogUtils.debug("Classcomment is not null: {}! Path: {} ({})", classComment.value(), path, c.getSimpleName());
                 this.comments.put(path, classComment);
             }
 
@@ -488,7 +485,6 @@ public final class YamlConfiguration implements ConfigurationGetter {
                     String path1 = path.isEmpty() ? name : path + "." + name;
                     Object serialized = this.holder.serialize(field.get(null), type);
                     if (comment != null) {
-                        LogUtils.debug("Field comment is not null: {}! Path: {} ({})", comment.value(), path1, c.getSimpleName());
                         this.comments.put(path1, comment);
                     }
                     this.set0(map, path1, serialized);
@@ -627,9 +623,7 @@ public final class YamlConfiguration implements ConfigurationGetter {
                 value = this.yaml.represent(entry.getValue());
             }
 
-            LogUtils.debug("Mapping at: {}", path.isEmpty() ? entry.getKey() : path + "." + entry.getKey());
             Comment comment = this.comments.get(path.isEmpty() ? entry.getKey() : path + "." + entry.getKey());
-            LogUtils.debug("Comment at {}: {}", path.isEmpty() ? entry.getKey() : path + "." + entry.getKey(), comment == null ? "no comment" : comment);
             if (comment != null) {
                 List<CommentLine> lines = new ArrayList<>();
                 String[] split = comment.value().split("\n");
