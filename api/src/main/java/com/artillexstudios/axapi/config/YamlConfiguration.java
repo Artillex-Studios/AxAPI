@@ -455,21 +455,24 @@ public final class YamlConfiguration implements ConfigurationGetter {
         Collections.reverse(classes);
 
         for (Class<?> c : classes) {
+            LogUtils.debug("Saving class {}", c.getSimpleName());
             for (Class<?> cl : c.getClasses()) {
+                LogUtils.debug("Saving sub class {}", cl.getSimpleName());
                 if (!ConfigurationPart.class.isAssignableFrom(cl)) {
+                    LogUtils.debug("Nevermind, is not a configurationpart! ({})", cl.getSimpleName());
                     continue;
                 }
 
                 Named named = cl.getAnnotation(Named.class);
                 String name = named == null ? this.keyRenamer.rename(cl.getSimpleName()) : named.value();
+                LogUtils.debug("Name: {}! ({})", name, cl.getSimpleName());
                 this.save0(map, path.isEmpty() ? name : path + "." + name, (Class<? extends ConfigurationPart>) cl);
             }
 
-            Named n = c.getAnnotation(Named.class);
-            String na = n == null ? this.keyRenamer.rename(c.getSimpleName()) : n.value();
             Comment classComment = c.getAnnotation(Comment.class);
             if (classComment != null) {
-                this.comments.put(path.isEmpty() ? na : path + "." + na, classComment);
+                LogUtils.debug("Classcomment is not null: {}! Path: {} ({})", classComment.value(), path, c.getSimpleName());
+                this.comments.put(path, classComment);
             }
 
             for (Field field : c.getFields()) {
@@ -485,6 +488,7 @@ public final class YamlConfiguration implements ConfigurationGetter {
                     String path1 = path.isEmpty() ? name : path + "." + name;
                     Object serialized = this.holder.serialize(field.get(null), type);
                     if (comment != null) {
+                        LogUtils.debug("Field comment is not null: {}! Path: {} ({})", comment.value(), path1, c.getSimpleName());
                         this.comments.put(path1, comment);
                     }
                     this.set0(map, path1, serialized);
