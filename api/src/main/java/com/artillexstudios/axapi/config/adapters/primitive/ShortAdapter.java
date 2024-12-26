@@ -24,7 +24,7 @@ public final class ShortAdapter implements TypeAdapter<Short, Short> {
     private Short validate(Number number) {
         long longValue = number instanceof BigInteger bigInteger ? bigInteger.longValueExact() : number.longValue();
         if (longValue > Short.MAX_VALUE || longValue < Short.MIN_VALUE) {
-            throw new IllegalArgumentException("Short value is not actually a short! Should be between %s and %s, but was %s".formatted(Byte.MIN_VALUE, Byte.MAX_VALUE, longValue));
+            throw new IllegalArgumentException("Short value is not actually a short! Should be between %s and %s, but was %s".formatted(Short.MIN_VALUE, Short.MAX_VALUE, longValue));
         }
 
         return (short) longValue;

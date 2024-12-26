@@ -22,8 +22,8 @@ public final class FloatAdapter implements TypeAdapter<Float, Float> {
 
     private Float validate(Number number) {
         double doubleValue = number.doubleValue();
-        if (doubleValue > (double) Float.MAX_VALUE || doubleValue < (double) Float.MIN_VALUE) {
-            throw new IllegalArgumentException("Float value is not actually a float! Should be between %s and %s, but was %s".formatted(Byte.MIN_VALUE, Byte.MAX_VALUE, doubleValue));
+        if (doubleValue > (double) Float.MAX_VALUE || doubleValue < (double) -Float.MAX_VALUE) {
+            throw new IllegalArgumentException("Float value is not actually a float! Should be between %s and %s, but was %s".formatted(-Float.MAX_VALUE, Float.MAX_VALUE, doubleValue));
         }
 
         return (float) doubleValue;

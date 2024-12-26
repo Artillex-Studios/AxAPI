@@ -75,6 +75,10 @@ public final class TypeAdapterHolder {
 
     // To yaml
     public Object serialize(Object object, Type type) {
+        if (object == null) {
+            return null;
+        }
+
         TypeAdapter<Object, Object> adapter = null;
         if (type instanceof Class<?> clazz) {
             if (Enum.class.isAssignableFrom(clazz)) {
@@ -105,6 +109,10 @@ public final class TypeAdapterHolder {
 
     // From the yaml
     public Object deserialize(Object object, Type type) {
+        if (object == null) {
+            return null;
+        }
+
         TypeAdapter<?, ?> adapter = null;
         if (type instanceof Class<?> clazz) {
             if (Enum.class.isAssignableFrom(clazz)) {

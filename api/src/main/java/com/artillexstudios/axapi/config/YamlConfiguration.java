@@ -34,7 +34,6 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
@@ -349,6 +348,23 @@ public final class YamlConfiguration implements ConfigurationGetter {
         return this.get0(this.config, path);
     }
 
+    public String dumpInternalData() {
+        return this.dumpInternalData0(this.config);
+    }
+
+    private String dumpInternalData0(Map<?, ?> map) {
+        StringBuilder builder = new StringBuilder();
+        for (Map.Entry<?, ?> entry : map.entrySet()) {
+            if (entry.getValue() instanceof Map<?, ?> m) {
+                builder.append(entry.getKey()).append("=").append(this.dumpInternalData0(m)).append(";class=").append(m.getClass()).append("\n");
+            } else {
+                builder.append(entry.getKey()).append(entry.getValue()).append(";class=").append(entry.getValue().getClass()).append("\n");
+            }
+        }
+
+        return builder.toString();
+    }
+
     private Object get0(Map<String, Object> map, String path) {
         String[] route = path.split("\\.");
         if (route.length == 1) {
@@ -358,12 +374,17 @@ public final class YamlConfiguration implements ConfigurationGetter {
         int i = 0;
         Map<String, Object> parent = map;
         while (i < route.length) {
-            Map<String, Object> node = (Map<String, Object>) parent.get(route[i]);
-            if (node == null) {
+            Object found = parent.get(route[i]);
+            if (found == null) {
                 return null;
             }
 
-            parent = node;
+            if (!(found instanceof Map<?, ?> mapNode)) {
+                LogUtils.warn("Expected map class, but in reality it was: {}. Value: {}", found.getClass(), found);
+                return null;
+            }
+
+            parent = (Map<String, Object>) mapNode;
             i++;
             if (i == route.length - 1) {
                 return parent.get(route[i]);
@@ -569,8 +590,9 @@ public final class YamlConfiguration implements ConfigurationGetter {
     }
 
     private boolean runUpdaters() {
-        Integer configVersion = this.get(this.configVersionPath, Integer.class);
-        if (configVersion == null || configVersion == this.configVersion) {
+        Integer configVersion = (Integer) this.holder.deserialize(this.get(this.configVersionPath), Integer.class);
+        configVersion = configVersion == null ? 1 : configVersion;
+        if (configVersion == this.configVersion) {
             // We don't need to update anything
             return false;
         }

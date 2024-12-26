@@ -24,7 +24,7 @@ public final class IntegerAdapter implements TypeAdapter<Integer, Integer> {
     private Integer validate(Number number) {
         long longValue = number instanceof BigInteger bigInteger ? bigInteger.longValueExact() : number.longValue();
         if (longValue > Integer.MAX_VALUE || longValue < Integer.MIN_VALUE) {
-            throw new IllegalArgumentException("Int value is not actually an int! Should be between %s and %s, but was %s".formatted(Byte.MIN_VALUE, Byte.MAX_VALUE, longValue));
+            throw new IllegalArgumentException("Int value is not actually an int! Should be between %s and %s, but was %s".formatted(Integer.MIN_VALUE, Integer.MAX_VALUE, longValue));
         }
 
         return (int) longValue;
