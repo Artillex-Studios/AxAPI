@@ -380,7 +380,7 @@ public final class YamlConfiguration implements ConfigurationGetter {
             }
 
             if (!(found instanceof Map<?, ?> mapNode)) {
-                LogUtils.warn("Expected map class, but in reality it was: {}. Value: {}", found.getClass(), found);
+                LogUtils.warn("Expected map class, but in reality it was: {}. Value: {}. Route: {}", found.getClass(), found, route[i]);
                 return null;
             }
 
