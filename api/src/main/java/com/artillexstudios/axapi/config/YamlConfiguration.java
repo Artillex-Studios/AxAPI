@@ -627,7 +627,9 @@ public final class YamlConfiguration implements ConfigurationGetter {
                 value = this.yaml.represent(entry.getValue());
             }
 
+            LogUtils.debug("Mapping at: {}", path.isEmpty() ? entry.getKey() : path + "." + entry.getKey());
             Comment comment = this.comments.get(path.isEmpty() ? entry.getKey() : path + "." + entry.getKey());
+            LogUtils.debug("Comment at {}: {}", path.isEmpty() ? entry.getKey() : path + "." + entry.getKey(), comment == null ? "no comment" : comment);
             if (comment != null) {
                 List<CommentLine> lines = new ArrayList<>();
                 String[] split = comment.value().split("\n");
