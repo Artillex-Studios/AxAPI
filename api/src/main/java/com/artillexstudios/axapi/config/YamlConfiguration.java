@@ -465,9 +465,11 @@ public final class YamlConfiguration implements ConfigurationGetter {
                 this.save0(map, path.isEmpty() ? name : path + "." + name, (Class<? extends ConfigurationPart>) cl);
             }
 
+            Named n = c.getAnnotation(Named.class);
+            String na = n == null ? this.keyRenamer.rename(c.getSimpleName()) : n.value();
             Comment classComment = c.getAnnotation(Comment.class);
             if (classComment != null) {
-                this.comments.put(path, classComment);
+                this.comments.put(path.isEmpty() ? na : path + "." + na, classComment);
             }
 
             for (Field field : c.getFields()) {
