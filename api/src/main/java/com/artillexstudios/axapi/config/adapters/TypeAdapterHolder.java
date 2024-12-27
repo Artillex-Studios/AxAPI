@@ -18,6 +18,7 @@ import com.artillexstudios.axapi.config.adapters.primitive.IntegerAdapter;
 import com.artillexstudios.axapi.config.adapters.primitive.LongAdapter;
 import com.artillexstudios.axapi.config.adapters.primitive.ShortAdapter;
 import com.artillexstudios.axapi.config.adapters.primitive.StringAdapter;
+import com.artillexstudios.axapi.config.annotation.Serializable;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import org.bukkit.inventory.ItemStack;
 
@@ -81,7 +82,9 @@ public final class TypeAdapterHolder {
 
         TypeAdapter<Object, Object> adapter = null;
         if (type instanceof Class<?> clazz) {
-            if (Enum.class.isAssignableFrom(clazz)) {
+            if (clazz.isAnnotationPresent(Serializable.class)) {
+                adapter = (TypeAdapter<Object, Object>) this.adapters.get(Serializable.class);
+            } else if (Enum.class.isAssignableFrom(clazz)) {
                 adapter = (TypeAdapter<Object, Object>) this.adapters.get(Enum.class);
             } else {
                 adapter = (TypeAdapter<Object, Object>) this.adapters.get(clazz);
@@ -89,7 +92,9 @@ public final class TypeAdapterHolder {
         }
 
         if (adapter == null && type instanceof ParameterizedType parameterizedType) {
-            if (Enum.class.isAssignableFrom((Class<?>) parameterizedType.getRawType())) {
+            if (parameterizedType.getRawType().getClass().isAnnotationPresent(Serializable.class)) {
+                adapter = (TypeAdapter<Object, Object>) this.adapters.get(Serializable.class);
+            } else if (Enum.class.isAssignableFrom((Class<?>) parameterizedType.getRawType())) {
                 adapter = (TypeAdapter<Object, Object>) this.adapters.get(Enum.class);
             } else {
                 adapter = (TypeAdapter<Object, Object>) this.adapters.get((Class<?>) parameterizedType.getRawType());
@@ -97,7 +102,11 @@ public final class TypeAdapterHolder {
         }
 
         if (adapter == null) {
-            adapter = (TypeAdapter<Object, Object>) this.adapters.get(object.getClass());
+            if (object.getClass().isAnnotationPresent(Serializable.class)) {
+                adapter = (TypeAdapter<Object, Object>) this.adapters.get(Serializable.class);
+            } else {
+                adapter = (TypeAdapter<Object, Object>) this.adapters.get(object.getClass());
+            }
         }
 
         if (adapter == null) {
@@ -115,7 +124,9 @@ public final class TypeAdapterHolder {
 
         TypeAdapter<?, ?> adapter = null;
         if (type instanceof Class<?> clazz) {
-            if (Enum.class.isAssignableFrom(clazz)) {
+            if (clazz.isAnnotationPresent(Serializable.class)) {
+                adapter = this.adapters.get(Serializable.class);
+            } else if (Enum.class.isAssignableFrom(clazz)) {
                 adapter = this.adapters.get(Enum.class);
             } else {
                 adapter = this.adapters.get(clazz);
@@ -123,7 +134,9 @@ public final class TypeAdapterHolder {
         }
 
         if (adapter == null && type instanceof ParameterizedType parameterizedType) {
-            if (Enum.class.isAssignableFrom((Class<?>) parameterizedType.getRawType())) {
+            if (parameterizedType.getRawType().getClass().isAnnotationPresent(Serializable.class)) {
+                adapter = this.adapters.get(Serializable.class);
+            } else if (Enum.class.isAssignableFrom((Class<?>) parameterizedType.getRawType())) {
                 adapter = this.adapters.get(Enum.class);
             } else {
                 adapter = this.adapters.get((Class<?>) parameterizedType.getRawType());
@@ -131,7 +144,11 @@ public final class TypeAdapterHolder {
         }
 
         if (adapter == null) {
-            adapter = this.adapters.get(object.getClass());
+            if (object.getClass().isAnnotationPresent(Serializable.class)) {
+                adapter = this.adapters.get(Serializable.class);
+            } else {
+                adapter = this.adapters.get(object.getClass());
+            }
         }
 
         if (adapter == null) {

@@ -3,12 +3,14 @@ package com.artillexstudios.axapi.config;
 import com.artillexstudios.axapi.config.adapters.ConfigurationGetter;
 import com.artillexstudios.axapi.config.adapters.TypeAdapter;
 import com.artillexstudios.axapi.config.adapters.TypeAdapterHolder;
+import com.artillexstudios.axapi.config.adapters.other.ObjectAdapter;
 import com.artillexstudios.axapi.config.annotation.Comment;
 import com.artillexstudios.axapi.config.annotation.ConfigurationPart;
 import com.artillexstudios.axapi.config.annotation.Header;
 import com.artillexstudios.axapi.config.annotation.Ignored;
 import com.artillexstudios.axapi.config.annotation.Named;
 import com.artillexstudios.axapi.config.annotation.PostProcess;
+import com.artillexstudios.axapi.config.annotation.Serializable;
 import com.artillexstudios.axapi.config.renamer.KeyRenamer;
 import com.artillexstudios.axapi.config.renamer.LowerKebabCaseRenamer;
 import com.artillexstudios.axapi.utils.LogUtils;
@@ -315,11 +317,19 @@ public final class YamlConfiguration implements ConfigurationGetter {
             int i = 0;
             Map<String, Object> parent = map;
             while (i < route.length) {
-                Map<String, Object> node = (Map<String, Object>) parent.get(route[i]);
-                if (node == null) {
+                Map<String, Object> node;
+
+                Object found = parent.get(route[i]);
+                if (found == null) {
                     node = new LinkedHashMap<>();
                     parent.put(route[i], node);
                 }
+
+                if (!(found instanceof Map<?, ?>)) {
+                    LogUtils.warn("Expected map class, but in reality it was: {}. Value: {}. Route: {} Full path: {}", found.getClass(), found, route[i], path);
+                    return;
+                }
+                node = (Map<String, Object>) found;
 
                 parent = node;
                 i++;
@@ -380,7 +390,7 @@ public final class YamlConfiguration implements ConfigurationGetter {
             }
 
             if (!(found instanceof Map<?, ?> mapNode)) {
-                LogUtils.warn("Expected map class, but in reality it was: {}. Value: {}. Route: {}", found.getClass(), found, route[i]);
+                LogUtils.warn("Expected map class, but in reality it was: {}. Value: {}. Route: {} Full path: {}", found.getClass(), found, route[i], path);
                 return null;
             }
 
@@ -696,7 +706,12 @@ public final class YamlConfiguration implements ConfigurationGetter {
             return this;
         }
 
+        public KeyRenamer keyRenamer() {
+            return this.keyRenamer;
+        }
+
         public YamlConfiguration build() {
+            this.adapters.put(Serializable.class, new ObjectAdapter(this));
             return new YamlConfiguration(this.path, this.defaults, this.clazz, this.dumperOptions, this.loaderOptions, this.updaters, this.configVersion, this.configVersionPath, this.adapters, this.keyRenamer);
         }
     }
