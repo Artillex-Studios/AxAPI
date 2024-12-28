@@ -4,10 +4,12 @@ import com.artillexstudios.axapi.config.YamlConfiguration;
 import com.artillexstudios.axapi.config.adapters.TypeAdapter;
 import com.artillexstudios.axapi.config.adapters.TypeAdapterHolder;
 import com.artillexstudios.axapi.config.annotation.Ignored;
+import com.artillexstudios.axapi.config.annotation.PostProcess;
 import com.artillexstudios.axapi.config.annotation.Serializable;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
@@ -40,6 +42,18 @@ public final class ObjectAdapter implements TypeAdapter<Object, Map<String, Obje
                         castMap.put(this.configuration.keyRenamer().rename(field.getName()), field.get(instance));
                     } else {
                         field.set(instance, holder.deserialize(found, field.getGenericType()));
+                    }
+                }
+
+                for (Method method : ((Class<?>) type).getMethods()) {
+                    if (!method.isAnnotationPresent(PostProcess.class)) {
+                        continue;
+                    }
+
+                    try {
+                        method.invoke(instance);
+                    } catch (InvocationTargetException e) {
+                        throw new RuntimeException(e);
                     }
                 }
 

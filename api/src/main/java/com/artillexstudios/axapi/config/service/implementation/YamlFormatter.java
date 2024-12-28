@@ -29,6 +29,7 @@ public final class YamlFormatter implements Formatter {
                     i++;
                 }
             } else if (i >= 1 && getLeadingWhiteSpace(line) < getLeadingWhiteSpace(lines[i - 1]) && getLeadingWhiteSpace(line) == 0) {
+                builder.append("\n");
                 builder.append(line);
                 builder.append("\n");
             } else {

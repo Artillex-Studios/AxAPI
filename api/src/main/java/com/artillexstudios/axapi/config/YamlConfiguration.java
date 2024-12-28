@@ -77,7 +77,11 @@ public final class YamlConfiguration implements ConfigurationGetter {
 
         try {
             Pair<Map<String, Object>, Map<String, Comment>> read = this.reader.read(new BufferedInputStream(new FileInputStream(this.builder.path.toFile())));
-            this.contents.putAll(read.first());
+            for (Map.Entry<String, Object> stringObjectEntry : read.first().entrySet()) {
+                System.out.println(stringObjectEntry.getKey());
+                this.contents.put(stringObjectEntry.getKey(), stringObjectEntry.getValue());
+            }
+//            this.contents.putAll();
             this.comments.putAll(read.second());
         } catch (FileNotFoundException e) {
             return false;

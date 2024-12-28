@@ -26,6 +26,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -62,6 +63,7 @@ public final class TypeAdapterHolder {
         this.adapters.put(WrappedItemStack.class, new WrappedItemStackAdapter());
 
         this.adapters.put(List.class, new ListAdapter());
+        this.adapters.put(ArrayList.class, new ListAdapter());
         this.adapters.put(Map.class, new MapAdapter());
         this.adapters.put(LinkedHashMap.class, new LinkedHashMapAdapter());
     }
@@ -109,6 +111,7 @@ public final class TypeAdapterHolder {
             }
         }
 
+        System.out.println(type);
         if (adapter == null) {
             throw new IllegalArgumentException();
         }

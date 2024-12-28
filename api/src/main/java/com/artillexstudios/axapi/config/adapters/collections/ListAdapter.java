@@ -33,7 +33,12 @@ public final class ListAdapter implements TypeAdapter<List<Object>, List<Object>
     @Override
     public List<Object> serialize(TypeAdapterHolder holder, List<Object> value, Type type) {
         if (!(type instanceof ParameterizedType parameterizedType)) {
-            throw new RuntimeException();
+            List<Object> returning = new ArrayList<>(value.size());
+
+            for (Object o : value) {
+                returning.add(holder.serialize(o, value.getClass()));
+            }
+            return returning;
         }
 
         Type t = parameterizedType.getActualTypeArguments()[0];

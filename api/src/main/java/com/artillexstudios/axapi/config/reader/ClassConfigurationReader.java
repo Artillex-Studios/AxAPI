@@ -53,28 +53,29 @@ public final class ClassConfigurationReader implements Handler {
     @Override
     public Pair<Map<String, Object>, Map<String, Comment>> read(InputStream stream) {
         Map<String, Object> map = this.yaml.load(stream);
+        LinkedHashMap<String, Object> ordered = new LinkedHashMap<>();
         Map<String, Comment> comments = new HashMap<>();
         map = map == null ? new HashMap<>() : map;
         try {
-            this.readClass(map, this.clazz);
+            this.readClass(map, ordered, this.clazz);
             this.readComments("", comments, this.clazz);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
 
-        return Pair.of(map, comments);
+        return Pair.of(ordered, comments);
     }
 
     @Override
     public String write(Map<String, Object> contents, Map<String, Comment> comments) {
         StringWriter writer = new StringWriter();
-        MappingNode node = this.map(contents, comments, "");
+        MappingNode node = this.map(contents);
         this.writeComments("", comments, node);
         this.yaml.serialize(node, writer);
         return writer.toString();
     }
 
-    private MappingNode map(Map<String, Object> map, Map<String, Comment> comments, String path) {
+    private MappingNode map(Map<String, Object> map) {
         List<NodeTuple> nodes = new ArrayList<>();
         Node key;
         Node value;
@@ -82,8 +83,9 @@ public final class ClassConfigurationReader implements Handler {
             Map.Entry<String, Object> entry = iterator.next();
             key = this.yaml.represent(entry.getKey());
             if (entry.getValue() instanceof Map<?, ?> m) {
-                value = this.map((Map<String, Object>) m, comments, path.isEmpty() ? entry.getKey() : path + "." + entry.getKey());
+                value = this.map((Map<String, Object>) m);
             } else {
+                System.out.println(entry.getKey());
                 value = this.yaml.represent(this.holder.serialize(entry.getValue(), entry.getValue().getClass()));
             }
         }
@@ -161,7 +163,7 @@ public final class ClassConfigurationReader implements Handler {
         }
     }
 
-    private void readClass(Map<String, Object> contents, Class<?> clazz) throws IllegalAccessException {
+    private void readClass(Map<String, Object> from, LinkedHashMap<String, Object> to, Class<?> clazz) throws IllegalAccessException {
         for (Field field : clazz.getFields()) {
             if (Modifier.isFinal(field.getModifiers()) || field.isAnnotationPresent(Ignored.class) || !Modifier.isStatic(field.getModifiers())) {
                 continue;
@@ -170,14 +172,14 @@ public final class ClassConfigurationReader implements Handler {
             Named named = field.getAnnotation(Named.class);
             Type type = field.getGenericType();
             String name = named != null ? named.value() : this.renamer.rename(field.getName());
-            Object found = contents.get(name);
+            Object found = from.get(name);
             if (found == null) {
                 found = field.get(null);
             } else {
                 found = this.holder.deserialize(found, type);
             }
 
-            contents.put(name, found);
+            to.put(name, found);
             field.set(null, found);
         }
 
@@ -200,9 +202,9 @@ public final class ClassConfigurationReader implements Handler {
 
             Named named = subClass.getAnnotation(Named.class);
             String name = named == null ? this.renamer.rename(subClass.getSimpleName()) : named.value();
-            Map<String, Object> newContents = (Map<String, Object>) contents.getOrDefault(name, new LinkedHashMap<>());
-            contents.put(name, newContents);
-            this.readClass(newContents, subClass);
+            Map<String, Object> newContents = (Map<String, Object>) from.getOrDefault(name, new LinkedHashMap<>());
+            to.put(name, newContents);
+            this.readClass(newContents, to, subClass);
         }
     }
 }
