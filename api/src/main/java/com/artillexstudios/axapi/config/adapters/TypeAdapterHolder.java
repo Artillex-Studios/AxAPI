@@ -111,7 +111,6 @@ public final class TypeAdapterHolder {
             }
         }
 
-        System.out.println(type);
         if (adapter == null) {
             throw new IllegalArgumentException();
         }

@@ -85,7 +85,6 @@ public final class ClassConfigurationReader implements Handler {
             if (entry.getValue() instanceof Map<?, ?> m) {
                 value = this.map((Map<String, Object>) m);
             } else {
-                System.out.println(entry.getKey());
                 value = this.yaml.represent(this.holder.serialize(entry.getValue(), entry.getValue().getClass()));
             }
         }

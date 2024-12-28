@@ -22,25 +22,24 @@ public final class FileWriter implements Writer {
                 parent.mkdirs();
             }
 
-            File temp = new File(parent, file.getName() /*+ ".tmp"*/);
+            File temp = new File(parent, file.getName() + ".tmp");
             temp.delete();
             temp.createNewFile();
             try {
                 if (dumped != null) {
-                    System.out.println(dumped);
                     try (BufferedWriter writer = new BufferedWriter(new java.io.FileWriter(temp))) {
                         writer.write(dumped);
                         writer.flush();
                     }
                 }
 
-//                try {
-//                    Files.move(temp.toPath(), path, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-//                } catch (AtomicMoveNotSupportedException exception) {
-//                    Files.move(temp.toPath(), path, StandardCopyOption.REPLACE_EXISTING);
-//                }
+                try {
+                    Files.move(temp.toPath(), path, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+                } catch (AtomicMoveNotSupportedException exception) {
+                    Files.move(temp.toPath(), path, StandardCopyOption.REPLACE_EXISTING);
+                }
             } finally {
-//                temp.delete();
+                temp.delete();
             }
         } catch (IOException exception) {
             LogUtils.error("An unexpected error occurred while saving file!", exception);
