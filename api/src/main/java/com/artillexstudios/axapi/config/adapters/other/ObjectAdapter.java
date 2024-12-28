@@ -4,6 +4,7 @@ import com.artillexstudios.axapi.config.YamlConfiguration;
 import com.artillexstudios.axapi.config.adapters.TypeAdapter;
 import com.artillexstudios.axapi.config.adapters.TypeAdapterHolder;
 import com.artillexstudios.axapi.config.annotation.Ignored;
+import com.artillexstudios.axapi.config.annotation.Serializable;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -21,10 +22,14 @@ public final class ObjectAdapter implements TypeAdapter<Object, Map<String, Obje
 
     @Override
     public Object deserialize(TypeAdapterHolder holder, Object input, Type type) {
+        if (input.getClass().isAnnotationPresent(Serializable.class)) {
+            return input;
+        }
+
         if (input instanceof Map<?, ?> map) {
             Map<String, Object> castMap = (Map<String, Object>) map;
             try {
-                Object instance = type.getClass().getDeclaredConstructor().newInstance();
+                Object instance = ((Class<?>) type).getDeclaredConstructor().newInstance();
                 for (Field field : instance.getClass().getFields()) {
                     if (Modifier.isFinal(field.getModifiers()) || field.isAnnotationPresent(Ignored.class)) {
                         continue;
@@ -45,8 +50,9 @@ public final class ObjectAdapter implements TypeAdapter<Object, Map<String, Obje
             }
         }
 
-        return null;
+        throw new RuntimeException();
     }
+
 
     @Override
     public Map<String, Object> serialize(TypeAdapterHolder holder, Object value, Type type) {

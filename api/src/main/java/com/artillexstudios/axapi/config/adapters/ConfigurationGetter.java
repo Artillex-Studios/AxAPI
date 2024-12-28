@@ -1,8 +1,5 @@
 package com.artillexstudios.axapi.config.adapters;
 
-import com.artillexstudios.axapi.items.WrappedItemStack;
-import org.bukkit.inventory.ItemStack;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.LinkedHashMap;
@@ -63,10 +60,6 @@ public interface ConfigurationGetter {
         return this.get(path, Long.class);
     }
 
-    default WrappedItemStack getWrappedItemStack(String path) {
-        return this.get(path, WrappedItemStack.class);
-    }
-
     default BigDecimal getBigDecimal(String path) {
         return this.get(path, BigDecimal.class);
     }
@@ -77,10 +70,6 @@ public interface ConfigurationGetter {
 
     default Pattern getPattern(String path) {
         return this.get(path, Pattern.class);
-    }
-
-    default ItemStack getItemStack(String path) {
-        return this.get(path, ItemStack.class);
     }
 
     default <T extends Enum<T>> T getEnum(String path, Class<T> clazz) {

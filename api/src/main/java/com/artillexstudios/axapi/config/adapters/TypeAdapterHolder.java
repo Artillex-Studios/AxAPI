@@ -55,11 +55,11 @@ public final class TypeAdapterHolder {
         this.adapters.put(String.class, new StringAdapter());
         this.adapters.put(Enum.class, new EnumAdapter());
         this.adapters.put(Pattern.class, new PatternAdapter());
-        this.adapters.put(WrappedItemStack.class, new WrappedItemStackAdapter());
-        this.adapters.put(ItemStack.class, new ItemStackAdapter());
         this.adapters.put(BigInteger.class, new BigIntegerAdapter());
         this.adapters.put(BigDecimal.class, new BigDecimalAdapter());
         this.adapters.put(UUID.class, new UUIDAdapter());
+        this.adapters.put(ItemStack.class, new ItemStackAdapter());
+        this.adapters.put(WrappedItemStack.class, new WrappedItemStackAdapter());
 
         this.adapters.put(List.class, new ListAdapter());
         this.adapters.put(Map.class, new MapAdapter());
