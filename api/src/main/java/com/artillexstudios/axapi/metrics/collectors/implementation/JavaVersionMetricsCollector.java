@@ -5,12 +5,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 public class JavaVersionMetricsCollector implements MetricsCollector {
+    private final int version = Runtime.version().feature();
 
     @Override
     public void collect(JsonArray data) {
         JsonObject object = new JsonObject();
         object.addProperty("@type", "java-version");
-        object.addProperty("java-version", Runtime.version().feature());
+        object.addProperty("java-version", this.version);
         data.add(object);
     }
 }

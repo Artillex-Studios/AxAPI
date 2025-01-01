@@ -5,14 +5,14 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 
-public class ServerSoftwareMetricsCollector implements MetricsCollector {
-    private final String software = Bukkit.getName();
+public class OnlineModeMetricsCollector implements MetricsCollector {
+    private final boolean onlineMode = Bukkit.getOnlineMode();
 
     @Override
     public void collect(JsonArray data) {
         JsonObject object = new JsonObject();
-        object.addProperty("@type", "server-software");
-        object.addProperty("server-software", this.software);
+        object.addProperty("@type", "online-mode");
+        object.addProperty("online-mode", this.onlineMode);
         data.add(object);
     }
 }

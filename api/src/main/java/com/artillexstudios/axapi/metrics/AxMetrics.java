@@ -20,26 +20,30 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Path;
+import java.util.UUID;
 
 public final class AxMetrics {
     private final Gson gson = new GsonBuilder()
             .setPrettyPrinting()
             .create();
+    private final HttpClient client = HttpClient.newBuilder()
+            .build();
     private final long pluginId;
     private ScheduledTask task;
+    private final YamlConfiguration metricsConfig;
 
     public AxMetrics(long pluginId) {
         this.pluginId = pluginId;
 
         Path path = AxPlugin.getProvidingPlugin(AxPlugin.class).getDataFolder().toPath();
         Path metricsConfigPath = path.getParent().resolve("AxAPI").resolve("metrics.yml");
-        YamlConfiguration metricsConfig = YamlConfiguration.of(metricsConfigPath, MetricsConfig.class)
+        this.metricsConfig = YamlConfiguration.of(metricsConfigPath, MetricsConfig.class)
                 .withDumperOptions(options -> {
                     options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
                 })
                 .build();
 
-        metricsConfig.load();
+        this.metricsConfig.load();
     }
 
     public void start() {
@@ -67,8 +71,6 @@ public final class AxMetrics {
         }
         obj.add("data", data);
         String serialized = this.gson.toJson(obj);
-        HttpClient client = HttpClient.newBuilder()
-                .build();
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://metrics.artillex-studios.com/api/v1/upload?uuid=" + MetricsConfig.serverUuid.toString()))
@@ -77,7 +79,20 @@ public final class AxMetrics {
                 .build();
 
         try {
+            UUID previousUUID = MetricsConfig.serverUuid;
             HttpResponse<?> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 425) {
+                this.metricsConfig.load();
+                if (previousUUID.equals(MetricsConfig.serverUuid)) {
+                    MetricsConfig.serverUuid = UUID.randomUUID();
+                    this.metricsConfig.save();
+                }
+                LogUtils.warn("Regenerated server uuid, because it was already in use!");
+            } else if (response.statusCode() == 200) {
+                if (AxPlugin.flags().DEBUG.get()) {
+                    LogUtils.debug("Sent metrics successfully!");
+                }
+            }
         } catch (IOException | InterruptedException exception) {
             // Quietly fail
             if (AxPlugin.flags().DEBUG.get()) {
