@@ -5,7 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 public class JavaVersionMetricsCollector implements MetricsCollector {
-    private final String version = Runtime.version().feature() + "|" + Runtime.version().toString();
+    private final String version = Runtime.version().toString() + "|" +  Runtime.version().feature();
 
     @Override
     public void collect(JsonArray data) {

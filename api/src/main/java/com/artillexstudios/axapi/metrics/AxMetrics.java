@@ -73,7 +73,7 @@ public final class AxMetrics {
         String serialized = this.gson.toJson(obj);
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://metrics.artillex-studios.com/api/api/v1/upload?uuid=" + MetricsConfig.serverUuid.toString()))
+                .uri(URI.create("https://metrics.artillex-studios.com/api/v1/upload?uuid=" + MetricsConfig.serverUuid.toString()))
                 .POST(HttpRequest.BodyPublishers.ofString(serialized))
                 .header("Content-Type", "application/json")
                 .build();
