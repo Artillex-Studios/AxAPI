@@ -124,11 +124,19 @@ public abstract class AxPlugin extends JavaPlugin {
                 .relocate("com{}github{}benmanes", "com.artillexstudios.axapi.libs.caffeine")
                 .build();
 
+        Library snakeYaml = Library.builder()
+                .groupId("org{}yaml")
+                .artifactId("snakeyaml")
+                .version("2.2")
+                .relocate("org{}yaml{}}snakeyaml", "com.artillexstudios.axapi.libs.snakeyaml")
+                .build();
+
         if (flags.DEBUG.get()) {
             libraryManager.setLogLevel(LogLevel.DEBUG);
         }
         libraryManager.loadLibrary(commonsMath);
         libraryManager.loadLibrary(caffeine);
+        libraryManager.loadLibrary(snakeYaml);
 
         this.load();
     }
