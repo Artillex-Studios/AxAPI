@@ -20,7 +20,7 @@ public class CPUModelMetricsCollector implements MetricsCollector {
             Object processorIdentifier = processorIdentifierGetter.invoke(centralProcessingUnit);
             Method processorNameGetter = Class.forName("oshi.hardware.CentralProcessor$ProcessorIdentifier").getDeclaredMethod("getName");
             Method vendorNameGetter = Class.forName("oshi.hardware.CentralProcessor$ProcessorIdentifier").getDeclaredMethod("getVendor");
-            this.cpuModel = (String) processorNameGetter.invoke(processorIdentifier) + "|" + vendorNameGetter.invoke(processorIdentifier);
+            this.cpuModel = processorNameGetter.invoke(processorIdentifier) + "|" + vendorNameGetter.invoke(processorIdentifier);
         } catch (Exception exception) {
             LogUtils.error("Failed to load CPU model!");
         }
