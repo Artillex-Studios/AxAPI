@@ -15,7 +15,7 @@ public class OperatingSystemMetricsCollector implements MetricsCollector {
             Method operatingSystemGetter = Class.forName("oshi.SystemInfo").getDeclaredMethod("getOperatingSystem");
             Object operatingSystem = operatingSystemGetter.invoke(systemInfo);
             Method operatingSystemVersionGetter = Class.forName("oshi.software.os.OperatingSystem").getDeclaredMethod("getVersionInfo");
-            this.operatingSystem = operatingSystemVersionGetter.invoke(operatingSystem).toString();
+            this.operatingSystem = operatingSystemVersionGetter.invoke(operatingSystem).toString() + "|" + System.getProperty("os.name");
         } catch (Exception exception) {
             LogUtils.error("Failed to load OperatingSystem type!");
         }

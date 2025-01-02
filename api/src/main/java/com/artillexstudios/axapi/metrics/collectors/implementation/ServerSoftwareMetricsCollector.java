@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 
 public class ServerSoftwareMetricsCollector implements MetricsCollector {
-    private final String software = Bukkit.getName();
+    private final String software = Bukkit.getName() + "|" + Bukkit.getVersion().split(" ")[0];
 
     @Override
     public void collect(JsonArray data) {
