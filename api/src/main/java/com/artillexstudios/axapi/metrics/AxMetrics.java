@@ -4,8 +4,6 @@ import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.config.YamlConfiguration;
 import com.artillexstudios.axapi.metrics.collectors.MetricsCollector;
 import com.artillexstudios.axapi.metrics.collectors.MetricsCollectors;
-import com.artillexstudios.axapi.scheduler.ScheduledTask;
-import com.artillexstudios.axapi.scheduler.Scheduler;
 import com.artillexstudios.axapi.utils.LogUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -21,6 +19,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Path;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public final class AxMetrics {
     private final Gson gson = new GsonBuilder()
@@ -29,7 +30,7 @@ public final class AxMetrics {
     private final HttpClient client = HttpClient.newBuilder()
             .build();
     private final long pluginId;
-    private ScheduledTask task;
+    private ScheduledFuture<?> future;
     private final YamlConfiguration metricsConfig;
 
     public AxMetrics(long pluginId) {
@@ -51,12 +52,12 @@ public final class AxMetrics {
             return;
         }
 
-        this.task = Scheduler.get().runAsyncTimer(this::submitData, 20 * 60, 20 * 60);
+        this.future = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::submitData, 1_200, 1_200, TimeUnit.MILLISECONDS);
     }
 
     public void cancel() {
-        if (this.task != null && !this.task.isCancelled()) {
-            this.task.cancel();
+        if (this.future != null && !this.future.isCancelled()) {
+            this.future.cancel(false);
         }
     }
 
