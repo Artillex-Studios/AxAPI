@@ -52,7 +52,7 @@ public final class AxMetrics {
             return;
         }
 
-        this.future = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::submitData, 1_200, 1_200, TimeUnit.MILLISECONDS);
+        this.future = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::submitData, 60_000, 60_000, TimeUnit.MILLISECONDS);
     }
 
     public void cancel() {
