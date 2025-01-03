@@ -5,7 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 
-public class OnlinePlayersMetricsCollector implements MetricsCollector {
+public final class OnlinePlayersMetricsCollector implements MetricsCollector {
 
     @Override
     public void collect(JsonArray data) {

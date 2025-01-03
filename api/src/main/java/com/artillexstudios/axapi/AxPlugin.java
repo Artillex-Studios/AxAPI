@@ -128,7 +128,7 @@ public abstract class AxPlugin extends JavaPlugin {
                 .groupId("org{}yaml")
                 .artifactId("snakeyaml")
                 .version("2.2")
-                .relocate("org{}yaml{}}snakeyaml", "com.artillexstudios.axapi.libs.snakeyaml")
+                .relocate("org{}yaml{}snakeyaml", "com.artillexstudios.axapi.libs.snakeyaml")
                 .build();
 
         if (flags.DEBUG.get()) {

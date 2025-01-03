@@ -7,7 +7,7 @@ import com.google.gson.JsonObject;
 
 import java.lang.reflect.Method;
 
-public class CPUModelMetricsCollector implements MetricsCollector {
+public final class CPUModelMetricsCollector implements MetricsCollector {
     private String cpuModel;
 
     public CPUModelMetricsCollector(Object systemInfo) {

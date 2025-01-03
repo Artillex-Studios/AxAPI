@@ -5,7 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 
-public class OnlineModeMetricsCollector implements MetricsCollector {
+public final class OnlineModeMetricsCollector implements MetricsCollector {
     private final boolean onlineMode = Bukkit.getOnlineMode();
 
     @Override

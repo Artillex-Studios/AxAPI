@@ -5,7 +5,7 @@ import com.artillexstudios.axapi.metrics.collectors.MetricsCollector;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-public class PluginVersionMetricsCollector implements MetricsCollector {
+public final class PluginVersionMetricsCollector implements MetricsCollector {
     private final String version = AxPlugin.getPlugin(AxPlugin.class).getDescription().getVersion();
 
     @Override

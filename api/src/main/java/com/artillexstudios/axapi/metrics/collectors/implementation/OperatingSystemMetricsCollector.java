@@ -7,7 +7,7 @@ import com.google.gson.JsonObject;
 
 import java.lang.reflect.Method;
 
-public class OperatingSystemMetricsCollector implements MetricsCollector {
+public final class OperatingSystemMetricsCollector implements MetricsCollector {
     private String operatingSystem;
 
     public OperatingSystemMetricsCollector(Object systemInfo) {

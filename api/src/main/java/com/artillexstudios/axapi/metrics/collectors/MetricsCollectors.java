@@ -30,7 +30,7 @@ public final class MetricsCollectors {
             register(new CPUModelMetricsCollector(systemInfo));
             register(new OperatingSystemMetricsCollector(systemInfo));
         } catch (Exception exception) {
-            LogUtils.debug("Failed to get systeminfo!", exception);
+            LogUtils.error("Failed to get systeminfo!", exception);
         }
     }
 

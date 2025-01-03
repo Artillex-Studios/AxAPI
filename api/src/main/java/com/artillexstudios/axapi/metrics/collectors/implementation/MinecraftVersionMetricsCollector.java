@@ -8,7 +8,7 @@ import org.bukkit.Bukkit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class MinecraftVersionMetricsCollector implements MetricsCollector {
+public final class MinecraftVersionMetricsCollector implements MetricsCollector {
     private static final Pattern pattern = Pattern.compile("MC: (\\d+\\.\\d+\\.\\d+)");
     private final String version;
 

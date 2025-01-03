@@ -4,7 +4,7 @@ import com.artillexstudios.axapi.metrics.collectors.MetricsCollector;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-public class JavaVersionMetricsCollector implements MetricsCollector {
+public final class JavaVersionMetricsCollector implements MetricsCollector {
     private final String version = Runtime.version().toString() + "|" +  Runtime.version().feature();
 
     @Override
