@@ -3,6 +3,7 @@ package com.artillexstudios.axapi.nms.v1_21_R1.items;
 import com.artillexstudios.axapi.items.component.DataComponent;
 import com.artillexstudios.axapi.nms.v1_21_R1.ItemStackSerializer;
 import com.artillexstudios.axapi.reflection.FastFieldAccessor;
+import net.minecraft.SharedConstants;
 import net.minecraft.nbt.SnbtPrinterTagVisitor;
 import net.minecraft.server.MinecraftServer;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
@@ -53,7 +54,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
     @Override
     public String toSNBT() {
         var compoundTag = (net.minecraft.nbt.CompoundTag) itemStack.save(MinecraftServer.getServer().registryAccess());
-        compoundTag.putInt("DataVersion", CraftMagicNumbers.INSTANCE.getDataVersion());
+        compoundTag.putInt("DataVersion", SharedConstants.getCurrentVersion().getDataVersion().getVersion());
         return new SnbtPrinterTagVisitor().visit(compoundTag);
     }
 
