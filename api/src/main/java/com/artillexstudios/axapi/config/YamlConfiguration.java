@@ -27,7 +27,7 @@ import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -75,13 +75,14 @@ public final class YamlConfiguration implements ConfigurationGetter {
             this.save();
         }
 
-        try {
-            Pair<Map<String, Object>, Map<String, Comment>> read = this.reader.read(new BufferedInputStream(new FileInputStream(this.builder.path.toFile())));
+        try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(this.builder.path.toFile()))) {
+            Pair<Map<String, Object>, Map<String, Comment>> read = this.reader.read(bufferedInputStream);
             for (Map.Entry<String, Object> stringObjectEntry : read.first().entrySet()) {
                 this.contents.put(stringObjectEntry.getKey(), stringObjectEntry.getValue());
             }
+
             this.comments.putAll(read.second());
-        } catch (FileNotFoundException e) {
+        } catch (IOException exception) {
             return false;
         }
 
