@@ -34,13 +34,15 @@ public final class ClientboundPacketListener extends MessageToByteEncoder<Packet
         RegistryFriendlyByteBuf in = decorator.apply(channelHandlerContext.alloc().buffer());
         LogUtils.info("Encode called! Buf: {} Packet: {}, class: {}", byteBuf, packet, packet.getClass());
         codec.encode(in, (Packet<? super ClientGamePacketListener>) packet);
-        LogUtils.info("After write! {}", byteBuf);
+        LogUtils.info("After write! {}", in);
         RegistryFriendlyByteBuf out = decorator.apply(byteBuf);
         out.writeVarInt(in.readVarInt());
         PacketEvent event = new PacketEvent(this.player, new FriendlyByteBufWrapper(in), new FriendlyByteBufWrapper(out));
 
         if (event.cancelled()) {
-            return;
+            out.clear();
+        } else if (!event.handled()) {
+            out.writeBytes(in);
         }
     }
 }
