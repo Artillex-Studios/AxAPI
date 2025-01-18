@@ -9,10 +9,13 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.GameProtocols;
 import net.minecraft.server.MinecraftServer;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
 public final class ClientboundPacketListener extends MessageToByteEncoder<Packet<?>> {
@@ -30,19 +33,37 @@ public final class ClientboundPacketListener extends MessageToByteEncoder<Packet
     }
 
     @Override
-    protected void encode(ChannelHandlerContext channelHandlerContext, Packet<?> packet, ByteBuf byteBuf) throws Exception {
+    protected void encode(ChannelHandlerContext channelHandlerContext, Packet<?> packet, ByteBuf byteBuf) {
+        this.handlePacket(channelHandlerContext, packet, byteBuf);
         RegistryFriendlyByteBuf in = decorator.apply(channelHandlerContext.alloc().buffer());
         LogUtils.info("Encode called! Buf: {} Packet: {}, class: {}", byteBuf, packet, packet.getClass());
+        if (packet instanceof ClientboundBundlePacket bundlePacket) {
+
+        }
+
         codec.encode(in, (Packet<? super ClientGamePacketListener>) packet);
         LogUtils.info("After write! {}", in);
         RegistryFriendlyByteBuf out = decorator.apply(byteBuf);
         out.writeVarInt(in.readVarInt());
-        PacketEvent event = new PacketEvent(this.player, new FriendlyByteBufWrapper(in), new FriendlyByteBufWrapper(out));
+//        PacketEvent event = new PacketEvent(this.player, new FriendlyByteBufWrapper(in), new FriendlyByteBufWrapper(out));
+//
+//        if (event.cancelled()) {
+//            out.clear();
+//            LogUtils.info("Cancelled!");
+//        } else if (!event.handled()) {
+//            out.clear();
+//            codec.encode(out, (Packet<? super ClientGamePacketListener>) packet);
+//        }
+    }
 
-        if (event.cancelled()) {
-            out.clear();
-        } else if (!event.handled()) {
-            out.writeBytes(in);
+    public boolean handlePacket(ChannelHandlerContext context, Packet<?> packet, ByteBuf byteBuf) {
+        if (packet instanceof ClientboundBundlePacket bundlePacket) {
+            List<Packet<? super ClientGamePacketListener>> packets = new ArrayList<>();
+            for (Packet<? super ClientGamePacketListener> sub : bundlePacket.subPackets()) {
+
+            }
         }
+
+        return true;
     }
 }
