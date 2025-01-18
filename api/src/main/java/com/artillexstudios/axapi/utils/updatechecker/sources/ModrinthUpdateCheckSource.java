@@ -37,7 +37,7 @@ public final class ModrinthUpdateCheckSource implements UpdateCheckSource {
 
             HttpResponse<?> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() != 200) {
-                return new UpdateCheck(UpdateCheckResult.FAILED, current, List.of());
+                return new UpdateCheck(UpdateCheckResult.FAILED, current, List.of(), new RuntimeException("Received statuscode: " + response.statusCode()));
             }
 
             String body = response.body().toString();
