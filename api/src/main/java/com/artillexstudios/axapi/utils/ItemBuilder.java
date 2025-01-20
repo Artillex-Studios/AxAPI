@@ -10,6 +10,7 @@ import com.artillexstudios.axapi.items.component.type.ProfileProperties;
 import com.artillexstudios.axapi.items.component.type.Unbreakable;
 import com.artillexstudios.axapi.items.component.type.Unit;
 import com.artillexstudios.axapi.nms.NMSHandlers;
+import com.artillexstudios.axapi.utils.mutable.MutableObject;
 import com.google.common.collect.Lists;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.kyori.adventure.key.Key;
@@ -33,7 +34,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class ItemBuilder {
     private static final UUID NIL_UUID = new UUID(0, 0);
@@ -262,7 +262,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setName(String name, Map<String, String> replacements) {
-        AtomicReference<String> toFormat = new AtomicReference<>(name);
+        MutableObject<String> toFormat = new MutableObject<>(name);
         replacements.forEach((pattern, replacement) -> toFormat.set(toFormat.get().replace(pattern, replacement)));
 
         setName(toFormat.get(), TagResolver.resolver());
@@ -323,7 +323,7 @@ public class ItemBuilder {
     public ItemBuilder setLore(List<String> lore, Map<String, String> replacements) {
         List<String> newList = new ArrayList<>(replacements.size());
         for (String line : lore) {
-            AtomicReference<String> toFormat = new AtomicReference<>(line);
+            MutableObject<String> toFormat = new MutableObject<>(line);
             replacements.forEach((pattern, replacement) -> toFormat.set(toFormat.get().replace(pattern, replacement)));
             newList.add(toFormat.get());
         }
@@ -353,6 +353,10 @@ public class ItemBuilder {
     public ItemBuilder addEnchants(Map<Enchantment, Integer> enchantments) {
         enchantments.forEach(this::addEnchantment);
         return this;
+    }
+
+    public WrappedItemStack wrapped() {
+        return this.stack;
     }
 
     public Map<Object, Object> serialize(boolean snbt) {
