@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
 public enum ClassUtils {
@@ -32,6 +33,15 @@ public enum ClassUtils {
             return newInstance(Class.forName(clazz, true, AxPlugin.class.getClassLoader()));
         } catch (ClassNotFoundException exception) {
             log.error("Could not find class {}!", clazz, exception);
+            throw new RuntimeException(exception);
+        }
+    }
+
+    public <T> T construct(String clazz) {
+        try {
+            return (T) getClass(clazz).newInstance();
+        } catch (InstantiationException | IllegalAccessException exception) {
+            log.error("An unexpected error occurred while constructing class {}!", clazz, exception);
             throw new RuntimeException(exception);
         }
     }

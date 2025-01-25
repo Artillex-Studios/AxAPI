@@ -9,6 +9,7 @@ import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
 import com.artillexstudios.axapi.packetentity.tracker.EntityTracker;
 import com.artillexstudios.axapi.placeholders.PlaceholderAPIHook;
 import com.artillexstudios.axapi.placeholders.Placeholders;
+import com.artillexstudios.axapi.reflection.ClassUtils;
 import com.artillexstudios.axapi.scheduler.Scheduler;
 import com.artillexstudios.axapi.utils.LogUtils;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
@@ -59,7 +60,6 @@ public abstract class AxPlugin {
     }
 
     public String getName() {
-
         return plugin.getName();
     }
 
@@ -122,7 +122,8 @@ public abstract class AxPlugin {
 
         Placeholders.lock();
         if (flags.PLACEHOLDER_API_HOOK.get() && Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            new PlaceholderAPIHook().register();
+            PlaceholderAPIHook hook = ClassUtils.INSTANCE.construct("com.artillexstudios.axapi.placeholders.PlaceholderAPIHook");
+            hook.register();
         }
     }
 
