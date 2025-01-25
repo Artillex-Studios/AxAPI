@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class Holograms {
-    private static final JavaPlugin plugin = AxPlugin.getPlugin(AxPlugin.class);
+    private static final JavaPlugin plugin = AxPlugin.getPlugin();
     private static final ConcurrentHashMap<Integer, HologramLine> linesMap = new ConcurrentHashMap<>();
     private static ScheduledExecutorService hologramUpdater;
 
