@@ -1,6 +1,5 @@
 package com.artillexstudios.axapi.reflection;
 
-import com.artillexstudios.axapi.AxPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +21,7 @@ public abstract class FastMethodInvoker {
 
     public static FastMethodInvoker create(String clazz, String method, Class<?>... parameters) {
         try {
-            return create(Class.forName(clazz, true, AxPlugin.class.getClassLoader()).getDeclaredMethod(method, parameters));
+            return create(Class.forName(clazz).getDeclaredMethod(method, parameters));
         } catch (Exception exception) {
             log.error("An unexpected error occurred while creating new FastMethodInvoker for class {}, method {}!", clazz, method, exception);
             throw new RuntimeException(exception);

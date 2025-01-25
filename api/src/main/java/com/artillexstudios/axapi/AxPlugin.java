@@ -7,11 +7,8 @@ import com.artillexstudios.axapi.items.component.DataComponents;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
 import com.artillexstudios.axapi.packetentity.tracker.EntityTracker;
-import com.artillexstudios.axapi.placeholders.PlaceholderAPIHook;
 import com.artillexstudios.axapi.placeholders.Placeholders;
-import com.artillexstudios.axapi.reflection.ClassUtils;
 import com.artillexstudios.axapi.scheduler.Scheduler;
-import com.artillexstudios.axapi.utils.LogUtils;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -31,16 +28,21 @@ public abstract class AxPlugin {
     private static JavaPlugin plugin;
     public static EntityTracker tracker;
     private static FeatureFlags flags;
+    private static ClassLoader classLoader;
 
     public AxPlugin(JavaPlugin plugin) {
         AxPlugin.plugin = plugin;
-        LogUtils.debug("Loaded class from classloader: {}!", this.getClass().getClassLoader());
+        classLoader = this.getClass().getClassLoader();
         flags = new FeatureFlags(this);
         this.updateFlags(flags);
     }
 
     public static JavaPlugin getPlugin() {
         return plugin;
+    }
+
+    public static ClassLoader classLoader() {
+        return classLoader;
     }
 
     public void updateFlags(FeatureFlags flags) {
@@ -119,12 +121,7 @@ public abstract class AxPlugin {
         }
 
         this.enable();
-
         Placeholders.lock();
-        if (flags.PLACEHOLDER_API_HOOK.get() && Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            PlaceholderAPIHook hook = ClassUtils.INSTANCE.construct("com.artillexstudios.axapi.placeholders.PlaceholderAPIHook");
-            hook.register();
-        }
     }
 
     public void enable() {
