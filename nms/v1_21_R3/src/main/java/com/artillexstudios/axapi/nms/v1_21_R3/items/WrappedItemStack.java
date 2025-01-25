@@ -14,6 +14,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
     private static final FastFieldAccessor HANDLE_ACCESSOR = FastFieldAccessor.forClassField(CraftItemStack.class, "handle");
     public net.minecraft.world.item.ItemStack itemStack;
     private ItemStack bukkitStack;
+    private boolean dirty = false;
 
     public WrappedItemStack(ItemStack itemStack) {
         this(itemStack.getType().isAir() ? net.minecraft.world.item.ItemStack.EMPTY : itemStack instanceof CraftItemStack cr ? HANDLE_ACCESSOR.get(cr) : CraftItemStack.asNMSCopy(itemStack));
@@ -27,6 +28,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
     @Override
     public <T> void set(DataComponent<T> component, T value) {
+        this.dirty = true;
         component.apply(itemStack, value);
     }
 
@@ -64,6 +66,10 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
     @Override
     public void finishEdit() {
+        if (!this.dirty) {
+            return;
+        }
+
         ItemMeta meta = CraftItemStack.getItemMeta(itemStack);
         if (bukkitStack != null) {
             bukkitStack.setItemMeta(meta);

@@ -13,6 +13,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
     private static final FastFieldAccessor HANDLE_ACCESSOR = FastFieldAccessor.forClassField(CraftItemStack.class, "handle");
     public final ItemStack parent;
     private final org.bukkit.inventory.ItemStack bukkitStack;
+    private boolean dirty = false;
 
     public WrappedItemStack(org.bukkit.inventory.ItemStack itemStack) {
         this.parent = itemStack.getType().isAir() ? ItemStack.EMPTY : itemStack instanceof CraftItemStack ? HANDLE_ACCESSOR.get(itemStack) : CraftItemStack.asNMSCopy(itemStack);
@@ -26,6 +27,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
     @Override
     public <T> void set(DataComponent<T> component, T value) {
+        this.dirty = true;
         component.apply(parent, value);
     }
 
@@ -63,6 +65,10 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
     @Override
     public void finishEdit() {
+        if (!this.dirty) {
+            return;
+        }
+
         CompoundTag tag = parent.getTag();
         if (tag == null || tag.isEmpty()) {
             if (CraftItemStack.class.isAssignableFrom(bukkitStack.getClass())) {
