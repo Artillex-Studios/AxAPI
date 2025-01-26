@@ -2,6 +2,7 @@ package com.artillexstudios.axapi.nms.v1_19_R1;
 
 import com.artillexstudios.axapi.selection.BlockSetter;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerChatHeaderPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
