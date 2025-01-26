@@ -36,7 +36,7 @@ public final class AxMetrics {
     public AxMetrics(long pluginId) {
         this.pluginId = pluginId;
 
-        Path path = AxPlugin.getProvidingPlugin(AxPlugin.class).getDataFolder().toPath();
+        Path path = AxPlugin.getPlugin().getDataFolder().toPath();
         Path metricsConfigPath = path.getParent().resolve("AxAPI").resolve("metrics.yml");
         this.metricsConfig = YamlConfiguration.of(metricsConfigPath, MetricsConfig.class)
                 .withDumperOptions(options -> {
