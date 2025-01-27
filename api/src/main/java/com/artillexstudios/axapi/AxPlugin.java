@@ -6,6 +6,7 @@ import com.artillexstudios.axapi.hologram.Holograms;
 import com.artillexstudios.axapi.items.component.DataComponents;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
+import com.artillexstudios.axapi.packet.PacketTypes;
 import com.artillexstudios.axapi.packetentity.tracker.EntityTracker;
 import com.artillexstudios.axapi.placeholders.Placeholders;
 import com.artillexstudios.axapi.scheduler.Scheduler;
@@ -116,6 +117,7 @@ public abstract class AxPlugin {
             Holograms.startTicking();
         }
 
+        PacketTypes.init();
         for (Player player : Bukkit.getOnlinePlayers()) {
             NMSHandlers.getNmsHandler().injectPlayer(player);
         }

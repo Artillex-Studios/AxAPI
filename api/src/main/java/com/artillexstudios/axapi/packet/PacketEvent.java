@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 
 public final class PacketEvent {
     private final Player player;
-    private final int id;
+    private final PacketType type;
     private final PacketSide side;
     private final Supplier<FriendlyByteBuf> in;
     private final Supplier<FriendlyByteBuf> out;
@@ -16,10 +16,10 @@ public final class PacketEvent {
     private boolean cancelled = false;
     private boolean handled = false;
 
-    public PacketEvent(Player player, PacketSide side, int id, Supplier<FriendlyByteBuf> in, Supplier<FriendlyByteBuf> out) {
+    public PacketEvent(Player player, PacketSide side, PacketType type, Supplier<FriendlyByteBuf> in, Supplier<FriendlyByteBuf> out) {
         this.player = player;
         this.side = side;
-        this.id = id;
+        this.type = type;
         this.in = in;
         this.out = out;
     }
