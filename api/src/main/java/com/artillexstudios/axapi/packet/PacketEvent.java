@@ -28,8 +28,8 @@ public final class PacketEvent {
         return this.player;
     }
 
-    public int id() {
-        return this.id;
+    public PacketType type() {
+        return this.type;
     }
 
     public PacketSide side() {

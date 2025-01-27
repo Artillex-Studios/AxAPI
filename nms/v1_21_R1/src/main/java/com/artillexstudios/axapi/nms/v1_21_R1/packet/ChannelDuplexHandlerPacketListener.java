@@ -49,10 +49,11 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
                 ByteBuf buf = ctx.alloc().buffer();
                 codec.encode(buf, subPacket);
                 int packetId = VarInt.read(buf);
-                LogUtils.info("(bundle) Packet id: {}, class: {}", packetId, subPacket.getClass());
+                PacketType type = PacketTypes.forPacketId(packetId);
+                LogUtils.info("(bundle) Packet id: {}, class: {}, type: {}", packetId, subPacket.getClass(), type);
 
 
-                PacketEvent event = new PacketEvent(this.player, PacketSide.CLIENT_BOUND, packetId, () -> new FriendlyByteBufWrapper(decorator.apply(buf)), () -> {
+                PacketEvent event = new PacketEvent(this.player, PacketSide.CLIENT_BOUND, type, () -> new FriendlyByteBufWrapper(decorator.apply(buf)), () -> {
                     ByteBuf out = ctx.alloc().buffer();
                     VarInt.write(out, packetId);
                     return new FriendlyByteBufWrapper(decorator.apply(out));
@@ -81,7 +82,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
         codec.encode(buf, (Packet<? super ClientGamePacketListener>) msg);
         int packetId = VarInt.read(buf);
         PacketType type = PacketTypes.forPacketId(packetId);
-        LogUtils.info("Packet id: {}, class: {}", packetId, msg.getClass());
+        LogUtils.info("Packet id: {}, class: {}, type: {}", packetId, msg.getClass(), type);
 
         PacketEvent event = new PacketEvent(this.player, PacketSide.CLIENT_BOUND, type, () -> new FriendlyByteBufWrapper(decorator.apply(buf)), () -> {
             ByteBuf out = ctx.alloc().buffer();
