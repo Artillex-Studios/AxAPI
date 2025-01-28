@@ -36,7 +36,7 @@ public final class ListAdapter implements TypeAdapter<List<Object>, List<Object>
             List<Object> returning = new ArrayList<>(value.size());
 
             for (Object o : value) {
-                returning.add(holder.serialize(o, value.getClass()));
+                returning.add(holder.serialize(o, o.getClass()));
             }
             return returning;
         }
