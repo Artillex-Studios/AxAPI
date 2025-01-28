@@ -9,13 +9,13 @@ public enum PacketEvents {
     private boolean listening = false;
 
     public void addListener(PacketListener listener) {
-        listeners.add(listener);
+        this.listeners.add(listener);
         this.listening = true;
-        this.baked = listeners.toArray(new PacketListener[0]);
+        this.baked = this.listeners.toArray(new PacketListener[0]);
     }
 
     public void callEvent(PacketEvent event) {
-        if (!listening) {
+        if (!this.listening) {
             return;
         }
 

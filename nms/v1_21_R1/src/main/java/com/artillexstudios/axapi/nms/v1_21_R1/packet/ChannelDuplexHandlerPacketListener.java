@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.nms.v1_21_R1.packet;
 
+import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketEvents;
 import com.artillexstudios.axapi.packet.PacketSide;
@@ -35,23 +36,24 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
 
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-        LogUtils.info("Sending packet! {}", msg);
         if (!PacketEvents.INSTANCE.listening()) {
-            LogUtils.info("Not listening!");
             super.write(ctx, msg, promise);
             return;
         }
 
         if (msg instanceof ClientboundBundlePacket bundlePacket) {
-            LogUtils.info("Bundle packet");
+            if (AxPlugin.flags().DEBUG.get()) {
+                LogUtils.info("Bundle packet");
+            }
             List<Packet<? super ClientGamePacketListener>> packets = new ArrayList<>();
             for (Packet<? super ClientGamePacketListener> subPacket : bundlePacket.subPackets()) {
                 ByteBuf buf = ctx.alloc().buffer();
                 codec.encode(buf, subPacket);
                 int packetId = VarInt.read(buf);
                 PacketType type = PacketTypes.forPacketId(packetId);
-                LogUtils.info("(bundle) Packet id: {}, class: {}, type: {}", packetId, subPacket.getClass(), type);
-
+                if (AxPlugin.flags().DEBUG.get()) {
+                    LogUtils.info("(bundle) Packet id: {}, class: {}, type: {}", packetId, subPacket.getClass(), type);
+                }
 
                 PacketEvent event = new PacketEvent(this.player, PacketSide.CLIENT_BOUND, type, () -> new FriendlyByteBufWrapper(decorator.apply(buf)), () -> {
                     ByteBuf out = ctx.alloc().buffer();
@@ -82,7 +84,9 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
         codec.encode(buf, (Packet<? super ClientGamePacketListener>) msg);
         int packetId = VarInt.read(buf);
         PacketType type = PacketTypes.forPacketId(packetId);
-        LogUtils.info("Packet id: {}, class: {}, type: {}", packetId, msg.getClass(), type);
+        if (AxPlugin.flags().DEBUG.get()) {
+            LogUtils.info("Packet id: {}, class: {}, type: {}", packetId, msg.getClass(), type);
+        }
 
         PacketEvent event = new PacketEvent(this.player, PacketSide.CLIENT_BOUND, type, () -> new FriendlyByteBufWrapper(decorator.apply(buf)), () -> {
             ByteBuf out = ctx.alloc().buffer();
@@ -92,19 +96,25 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
 
         PacketEvents.INSTANCE.callEvent(event);
         if (event.cancelled()) {
-            LogUtils.info("Cancelled event!");
+            if (AxPlugin.flags().DEBUG.get()) {
+                LogUtils.info("Cancelled event!");
+            }
             return;
         }
 
         // Nothing was changed
         FriendlyByteBufWrapper out = (FriendlyByteBufWrapper) event.directOut();
         if (out == null) {
-            LogUtils.info("Unchanged!");
+            if (AxPlugin.flags().DEBUG.get()) {
+                LogUtils.info("Unchanged!");
+            }
             super.write(ctx, msg, promise);
             return;
         }
 
-        LogUtils.info("Changed!");
+        if (AxPlugin.flags().DEBUG.get()) {
+            LogUtils.info("Changed!");
+        }
         super.write(ctx, codec.decode(out.buf()), promise);
     }
 }
