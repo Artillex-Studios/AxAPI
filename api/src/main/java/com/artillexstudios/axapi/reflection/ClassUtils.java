@@ -20,7 +20,7 @@ public enum ClassUtils {
     public boolean classExists(@NotNull String className) {
         return CLASS_CACHE.computeIfAbsent(className, name -> {
             try {
-                Class.forName(name, false, AxPlugin.classLoader());
+                Class.forName(name, false, AxPlugin.class.getClassLoader());
                 return true;
             } catch (ClassNotFoundException exception) {
                 return false;
@@ -30,7 +30,7 @@ public enum ClassUtils {
 
     public <T> T newInstance(String clazz) {
         try {
-            return newInstance(Class.forName(clazz, true, AxPlugin.classLoader()));
+            return newInstance(Class.forName(clazz, true, AxPlugin.class.getClassLoader()));
         } catch (ClassNotFoundException exception) {
             log.error("Could not find class {}!", clazz, exception);
             throw new RuntimeException(exception);
@@ -39,8 +39,8 @@ public enum ClassUtils {
 
     public <T> T construct(String clazz) {
         try {
-            return (T) getClass(clazz).getDeclaredConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException exception) {
+            return (T) getClass(clazz).newInstance();
+        } catch (InstantiationException | IllegalAccessException exception) {
             log.error("An unexpected error occurred while constructing class {}!", clazz, exception);
             throw new RuntimeException(exception);
         }
@@ -48,7 +48,7 @@ public enum ClassUtils {
 
     public Class<?> getClass(String clazz) {
         try {
-            return Class.forName(clazz, true, AxPlugin.classLoader());
+            return Class.forName(clazz, true, AxPlugin.class.getClassLoader());
         } catch (ClassNotFoundException exception) {
             log.error("An unexpected error occurred while finding class {}!", clazz, exception);
             throw new RuntimeException(exception);

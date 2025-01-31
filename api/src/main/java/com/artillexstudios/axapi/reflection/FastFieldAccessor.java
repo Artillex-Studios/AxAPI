@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.reflection;
 
+import com.artillexstudios.axapi.AxPlugin;
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +61,7 @@ public class FastFieldAccessor {
 
     public static FastFieldAccessor forClassField(String clazz, String field) {
         try {
-            return forClassField(Class.forName(clazz), field);
+            return forClassField(Class.forName(clazz, true, AxPlugin.class.getClassLoader()), field);
         } catch (ClassNotFoundException exception) {
             log.error("Could not find class named {}!", clazz, exception);
             throw new RuntimeException(exception);
