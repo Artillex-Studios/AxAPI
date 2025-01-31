@@ -6,7 +6,7 @@ import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.component.DataComponentImpl;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.loot.LootTable;
-import com.artillexstudios.axapi.nms.v1_21_R1.packet.ChannelDuplexHandlerPacketListener;
+import com.artillexstudios.axapi.nms.v1_21_R1.packet.ClientboundPacketListener;
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
 import com.artillexstudios.axapi.reflection.FastFieldAccessor;
@@ -145,7 +145,7 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
         }
 
         channel.eventLoop().submit(() -> {
-            channel.pipeline().addBefore(PACKET_HANDLER, AXAPI_HANDLER, new ChannelDuplexHandlerPacketListener(player));
+            channel.pipeline().addBefore(PACKET_HANDLER, AXAPI_HANDLER, new ClientboundPacketListener(player));
         });
     }
 
