@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Locale;
 
 public final class PlaceholderAPIHook extends PlaceholderExpansion {
-    private static final JavaPlugin plugin = AxPlugin.getPlugin();
+    private static final JavaPlugin plugin = AxPlugin.getPlugin(AxPlugin.class);
 
     @Override
     public boolean persist() {

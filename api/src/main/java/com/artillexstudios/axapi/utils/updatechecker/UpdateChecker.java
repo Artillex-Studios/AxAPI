@@ -29,7 +29,7 @@ public final class UpdateChecker {
 
     public UpdateChecker(UpdateCheckSource source) {
         this.source = source;
-        this.current = new ArtifactVersion(AxPlugin.getPlugin().getDescription().getVersion());
+        this.current = new ArtifactVersion(AxPlugin.getPlugin(AxPlugin.class).getDescription().getVersion());
     }
 
     public UpdateChecker onCheck(BiConsumer<CommandSender, UpdateCheck> consumer) {
@@ -60,7 +60,7 @@ public final class UpdateChecker {
 
                 UpdateChecker.this.check(event.getPlayer());
             }
-        }, AxPlugin.getPlugin());
+        }, AxPlugin.getPlugin(AxPlugin.class));
         return this;
     }
 

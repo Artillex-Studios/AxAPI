@@ -15,7 +15,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 public final class FileLogger {
-    private static final Plugin INSTANCE = AxPlugin.getPlugin();
+    private static final Plugin INSTANCE = AxPlugin.getPlugin(AxPlugin.class);
     private static final Logger log = LoggerFactory.getLogger(FileLogger.class);
     private final Path logsPath;
     private final DateTimeFormatter dateFormat;

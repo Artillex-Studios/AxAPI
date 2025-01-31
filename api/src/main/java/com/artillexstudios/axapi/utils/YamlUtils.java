@@ -11,7 +11,7 @@ import java.io.File;
 import java.util.List;
 
 public class YamlUtils {
-    private static final Plugin INSTANCE = AxPlugin.getPlugin();
+    private static final Plugin INSTANCE = AxPlugin.getPlugin(AxPlugin.class);
 
     public static boolean suggest(@NotNull File file) {
         List<String> suggestions = YamlAssist.getSuggestions(file);
