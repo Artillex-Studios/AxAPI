@@ -32,8 +32,8 @@ public abstract class AxPlugin {
     private static FeatureFlags flags;
 
     public AxPlugin(JavaPlugin plugin) {
-        AxPlugin.plugin = plugin;
         LogUtils.debug("Loaded class from classloader: {}!", this.getClass().getClassLoader());
+        AxPlugin.plugin = plugin;
         flags = new FeatureFlags(this);
         this.updateFlags(flags);
     }
