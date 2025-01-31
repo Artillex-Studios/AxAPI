@@ -1,6 +1,5 @@
 package com.artillexstudios.axapi.reflection;
 
-import com.artillexstudios.axapi.AxPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +18,7 @@ public enum ClassUtils {
     public boolean classExists(@NotNull String className) {
         return CLASS_CACHE.computeIfAbsent(className, name -> {
             try {
-                Class.forName(name, false, AxPlugin.class.getClassLoader());
+                Class.forName(name, false, this.getClass().getClassLoader());
                 return true;
             } catch (ClassNotFoundException exception) {
                 return false;
@@ -29,7 +28,7 @@ public enum ClassUtils {
 
     public <T> T newInstance(String clazz) {
         try {
-            return newInstance(Class.forName(clazz, true, AxPlugin.class.getClassLoader()));
+            return newInstance(Class.forName(clazz));
         } catch (ClassNotFoundException exception) {
             log.error("Could not find class {}!", clazz, exception);
             throw new RuntimeException(exception);
@@ -38,7 +37,7 @@ public enum ClassUtils {
 
     public Class<?> getClass(String clazz) {
         try {
-            return Class.forName(clazz, true, AxPlugin.class.getClassLoader());
+            return Class.forName(clazz);
         } catch (ClassNotFoundException exception) {
             log.error("An unexpected error occurred while finding class {}!", clazz, exception);
             throw new RuntimeException(exception);

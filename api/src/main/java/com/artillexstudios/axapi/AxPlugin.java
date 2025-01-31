@@ -10,7 +10,6 @@ import com.artillexstudios.axapi.packetentity.tracker.EntityTracker;
 import com.artillexstudios.axapi.placeholders.PlaceholderAPIHook;
 import com.artillexstudios.axapi.placeholders.Placeholders;
 import com.artillexstudios.axapi.scheduler.Scheduler;
-import com.artillexstudios.axapi.utils.LogUtils;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -32,7 +31,6 @@ public abstract class AxPlugin {
     private static FeatureFlags flags;
 
     public AxPlugin(JavaPlugin plugin) {
-        LogUtils.debug("Loaded class from classloader: {}!", this.getClass().getClassLoader());
         AxPlugin.plugin = plugin;
         flags = new FeatureFlags(this);
         this.updateFlags(flags);
