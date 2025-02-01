@@ -95,7 +95,6 @@ allprojects {
         compileOnly("com.github.ben-manes.caffeine:caffeine:2.9.2")
         compileOnly("me.clip:placeholderapi:2.11.5")
 
-
         implementation("com.github.Artillex-Studios.Lamp:common:cc49e8a098") {
             exclude group: 'net.kyori', module: 'adventure'
         }
@@ -121,7 +120,7 @@ allprojects {
                 shadow(MavenPublication) { publication ->
                     project.shadow.component(publication)
                     artifactId = "axapi"
-                }   
+                }
             }
         }
     }
@@ -144,6 +143,8 @@ shadowJar {
     relocate('dev.dejvokep', 'com.artillexstudios.axapi.libs.boostedyaml')
 }
 
-allprojects.forEach { it.afterEvaluate {
-println(it.name + " " + it.group + " " + it.version)
-}  }
+allprojects.forEach {
+    it.afterEvaluate {
+        println(it.name + " " + it.group + " " + it.version)
+    }
+}

@@ -1,9 +1,9 @@
-package com.artillexstudios.axapi.utils.updatechecker;
+package com.artillexstudios.axapi.updatechecker;
 
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.scheduler.ScheduledTask;
 import com.artillexstudios.axapi.scheduler.Scheduler;
-import com.artillexstudios.axapi.utils.updatechecker.sources.UpdateCheckSource;
+import com.artillexstudios.axapi.updatechecker.sources.UpdateCheckSource;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.EventHandler;

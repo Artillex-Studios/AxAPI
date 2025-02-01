@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.metrics.collectors;
 
+import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.metrics.collectors.implementation.CPUModelMetricsCollector;
 import com.artillexstudios.axapi.metrics.collectors.implementation.JavaVersionMetricsCollector;
 import com.artillexstudios.axapi.metrics.collectors.implementation.MinecraftVersionMetricsCollector;
@@ -14,14 +15,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public final class MetricsCollectors {
-    private static final List<MetricsCollector> collectors = new ArrayList<>();
+public final class MetricsCollectorRegistry {
+    private final List<MetricsCollector> collectors = new ArrayList<>();
 
-    static {
+    public MetricsCollectorRegistry(AxPlugin plugin) {
         register(new JavaVersionMetricsCollector());
         register(new MinecraftVersionMetricsCollector());
         register(new OnlinePlayersMetricsCollector());
-        register(new PluginVersionMetricsCollector());
+        register(new PluginVersionMetricsCollector(plugin));
         register(new ServerSoftwareMetricsCollector());
         register(new OnlineModeMetricsCollector());
 
@@ -34,11 +35,11 @@ public final class MetricsCollectors {
         }
     }
 
-    public static List<MetricsCollector> collectors() {
-        return Collections.unmodifiableList(collectors);
+    public void register(MetricsCollector collector) {
+        this.collectors.add(collector);
     }
 
-    public static void register(MetricsCollector collector) {
-        collectors.add(collector);
+    public List<MetricsCollector> collectors() {
+        return Collections.unmodifiableList(this.collectors);
     }
 }

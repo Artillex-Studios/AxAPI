@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.utils;
 
 import com.artillexstudios.axapi.AxPlugin;
+import com.artillexstudios.axapi.executor.ExceptionReportingScheduledThreadPool;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

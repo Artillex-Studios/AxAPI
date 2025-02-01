@@ -7,7 +7,7 @@ import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
 import com.artillexstudios.axapi.reflection.FastFieldAccessor;
-import com.artillexstudios.axapi.utils.ExceptionReportingScheduledThreadPool;
+import com.artillexstudios.axapi.executor.ExceptionReportingScheduledThreadPool;
 import com.artillexstudios.axapi.utils.LogUtils;
 import com.artillexstudios.axapi.utils.PaperUtils;
 import com.artillexstudios.axapi.utils.Version;
