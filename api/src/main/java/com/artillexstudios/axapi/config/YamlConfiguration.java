@@ -46,7 +46,6 @@ public final class YamlConfiguration implements ConfigurationGetter {
     private final FileCreator creator;
     private final Handler reader;
     private final Yaml yaml;
-    private boolean needsSaving = false;
 
     YamlConfiguration(YamlConfiguration.Builder builder) {
         this.builder = builder;
@@ -121,6 +120,7 @@ public final class YamlConfiguration implements ConfigurationGetter {
                 Object found = parent.get(route[i]);
                 if (found == null) {
                     node = new LinkedHashMap<>();
+                    found = node;
                     parent.put(route[i], node);
                 }
 
