@@ -1,4 +1,4 @@
-package com.artillexstudios.axapi.nms.v1_21_R1.packet;
+package com.artillexstudios.axapi.nms.v1_21_R2.packet;
 
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.packet.PacketEvent;

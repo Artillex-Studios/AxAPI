@@ -1,5 +1,10 @@
 package com.artillexstudios.axapi.items;
 
+import com.artillexstudios.axapi.packet.PacketEvent;
+import com.artillexstudios.axapi.packet.PacketEvents;
+import com.artillexstudios.axapi.packet.PacketListener;
+import com.artillexstudios.axapi.packet.PacketTypes;
+import com.artillexstudios.axapi.packet.wrapper.ClientboundContainerSetSlotWrapper;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.bukkit.entity.Player;
 
@@ -8,6 +13,23 @@ public class PacketItemModifier {
     private static final ObjectArrayList<PacketItemModifierListener> listeners = new ObjectArrayList<>();
 
     public static void registerModifierListener(PacketItemModifierListener listener) {
+        if (!listening) {
+            PacketEvents.INSTANCE.addListener(new PacketListener() {
+                @Override
+                public void onPacketSending(PacketEvent event) {
+                    if (!PacketItemModifier.isListening()) {
+                        return;
+                    }
+
+                    if (event.type() == PacketTypes.CONTAINER_SET_SLOT) {
+                        try (ClientboundContainerSetSlotWrapper wrapper = new ClientboundContainerSetSlotWrapper(event)) {
+                            PacketItemModifier.callModify(wrapper.stack(), event.player(), PacketItemModifier.Context.SET_SLOT);
+                        }
+                    }
+                }
+            });
+        }
+
         if (!listeners.contains(listener)) {
             listeners.add(listener);
             listening = true;
