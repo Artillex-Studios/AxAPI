@@ -30,11 +30,23 @@ import java.net.URLClassLoader;
 
 public abstract class AxPlugin extends JavaPlugin {
     public static EntityTracker tracker;
-    private static FeatureFlags flags;
+    private final FeatureFlags flags = new FeatureFlags(this);
 
     public AxPlugin() {
-        flags = new FeatureFlags(this);
-        this.updateFlags(flags);
+        DependencyManager manager = new DependencyManager(this.getDescription(), new File(this.getDataFolder(), "libs"), URLClassLoaderWrapper.wrap((URLClassLoader) this.getClassLoader()));
+        Dependency commonsMath = new Dependency("org{}apache{}commons".replace("{}", "."), "commons-math3", "3.6.1");
+        Dependency caffeine = new Dependency("com{}github{}ben-manes{}caffeine".replace("{}", "."), "caffeine", "3.1.8");
+
+        manager.dependency(caffeine);
+        manager.dependency(commonsMath);
+
+        manager.relocate(new Relocation("org{}apache{}commons{}math3".replace("{}", "."), "com.artillexstudios.axapi.libs.math3"));
+        manager.relocate(new Relocation("com{}github{}benmanes".replace("{}", "."), "com.artillexstudios.axapi.libs.caffeine"));
+
+        this.dependencies(manager);
+        manager.load();
+
+        this.updateFlags(this.flags);
     }
 
     public void updateFlags(FeatureFlags flags) {
@@ -51,8 +63,8 @@ public abstract class AxPlugin extends JavaPlugin {
         DataComponents.setDataComponentImpl(NMSHandlers.getNmsHandler().dataComponents());
         Scheduler.scheduler.init(this);
 
-        if (flags.PACKET_ENTITY_TRACKER_ENABLED.get()) {
-            tracker = new EntityTracker();
+        if (this.flags.PACKET_ENTITY_TRACKER_ENABLED.get()) {
+            tracker = new EntityTracker(this.flags);
             tracker.startTicking();
         }
 
@@ -89,7 +101,7 @@ public abstract class AxPlugin extends JavaPlugin {
         }, this);
         Bukkit.getPluginManager().registerEvents(new AnvilListener(), this);
 
-        if (flags.HOLOGRAM_UPDATE_TICKS.get() > 0) {
+        if (this.flags.HOLOGRAM_UPDATE_TICKS.get() > 0) {
             Holograms.startTicking();
         }
 
@@ -100,7 +112,7 @@ public abstract class AxPlugin extends JavaPlugin {
         this.enable();
 
         Placeholders.lock();
-        if (flags.PLACEHOLDER_API_HOOK.get() && Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+        if (this.flags.PLACEHOLDER_API_HOOK.get() && Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new PlaceholderAPIHook().register();
         }
     }
@@ -111,18 +123,11 @@ public abstract class AxPlugin extends JavaPlugin {
 
     @Override
     public void onLoad() {
-        DependencyManager manager = new DependencyManager(this.getDescription(), new File(this.getDataFolder(), "libs"), URLClassLoaderWrapper.wrap((URLClassLoader) this.getClassLoader()));
-        Dependency commonsMath = new Dependency("org{}apache{}commons".replace("{}", "."), "commons-math3", "3.6.1");
-        Dependency caffeine = new Dependency("com{}github{}ben-manes{}caffeine".replace("{}", "."), "caffeine", "3.1.8");
-
-        manager.dependency(caffeine);
-        manager.dependency(commonsMath);
-
-        manager.relocate(new Relocation("org{}apache{}commons{}math3".replace("{}", "."), "com.artillexstudios.axapi.libs.math3"));
-        manager.relocate(new Relocation("com{}github{}benmanes".replace("{}", "."), "com.artillexstudios.axapi.libs.caffeine"));
-
-        manager.load();
         this.load();
+    }
+
+    public void dependencies(DependencyManager manager) {
+
     }
 
     public void load() {
@@ -152,14 +157,14 @@ public abstract class AxPlugin extends JavaPlugin {
 
     }
 
+    public FeatureFlags flags() {
+        return this.flags;
+    }
+
     public long reloadWithTime() {
         long start = System.currentTimeMillis();
         this.reload();
 
         return System.currentTimeMillis() - start;
-    }
-
-    public static FeatureFlags flags() {
-        return flags;
     }
 }

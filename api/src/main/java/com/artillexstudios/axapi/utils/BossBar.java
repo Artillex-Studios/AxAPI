@@ -114,8 +114,8 @@ public interface BossBar {
             this.internalName = internalName;
         }
 
-        public static Style parse(String style) {
-            return Style.valueOf(style.toLowerCase(Locale.ENGLISH));
+        public static Color parse(String color) {
+            return Color.valueOf(color.toLowerCase(Locale.ENGLISH));
         }
 
         public String getInternalName() {
@@ -132,6 +132,10 @@ public interface BossBar {
 
         Flag(final String internalName) {
             this.internalName = internalName;
+        }
+
+        public static Flag parse(String flag) {
+            return Flag.valueOf(flag.toLowerCase(Locale.ENGLISH));
         }
 
         public String getInternalName() {

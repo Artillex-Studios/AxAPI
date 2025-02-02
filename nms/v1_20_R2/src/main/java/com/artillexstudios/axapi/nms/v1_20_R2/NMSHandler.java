@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.nms.v1_20_R2;
 
+import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.gui.AnvilInput;
 import com.artillexstudios.axapi.gui.SignInput;
 import com.artillexstudios.axapi.items.WrappedItemStack;
@@ -18,6 +19,7 @@ import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.DebugMarker;
 import com.artillexstudios.axapi.utils.Pair;
 import com.artillexstudios.axapi.utils.Title;
+import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -95,9 +97,11 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     private Field connectionField;
     private AtomicInteger entityCounter;
     private FastFieldAccessor attributeSupplierAccessor;
+    private final FeatureFlags flags;
 
-    public NMSHandler(JavaPlugin plugin) {
+    public NMSHandler(AxPlugin plugin) {
         AXAPI_HANDLER = "axapi_handler_" + plugin.getName().toLowerCase(Locale.ENGLISH);
+        this.flags = plugin.flags();
 
         try {
             connectionField = Class.forName("net.minecraft.server.network.ServerCommonPacketListenerImpl").getDeclaredField("c");
@@ -149,7 +153,7 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
         }
 
         channel.eventLoop().submit(() -> {
-            channel.pipeline().addBefore(PACKET_HANDLER, AXAPI_HANDLER, new PacketListener(player));
+            channel.pipeline().addBefore(PACKET_HANDLER, AXAPI_HANDLER, new PacketListener(this.flags, player));
         });
     }
 

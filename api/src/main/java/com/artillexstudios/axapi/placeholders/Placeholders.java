@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 public final class Placeholders {
+    private static final AxPlugin plugin = AxPlugin.getPlugin(AxPlugin.class);
     private static final HashMap<String, ThrowingFunction<Context, String, ParameterNotInContextException>> placeholderAPIOfflinePlayers = new HashMap<>();
     private static final HashMap<String, ThrowingFunction<Context, String, ParameterNotInContextException>> placeholderAPIOnlinePlayers = new HashMap<>();
     private static final HashMap<String, ThrowingFunction<Context, String, ParameterNotInContextException>> internalOfflinePlayers = new HashMap<>();
@@ -51,11 +52,11 @@ public final class Placeholders {
         List<String> placeholders = new ArrayList<>();
         if (context == ParseContext.PLACEHOLDER_API || context == ParseContext.BOTH) {
             for (String s : placeholderAPIOnlinePlayers.keySet()) {
-                placeholders.add("%" + AxPlugin.flags().PLACEHOLDER_API_IDENTIFIER.get() + "_" + s + "%");
+                placeholders.add("%" + plugin.flags().PLACEHOLDER_API_IDENTIFIER.get() + "_" + s + "%");
             }
 
             for (String s : placeholderAPIOfflinePlayers.keySet()) {
-                placeholders.add("%" + AxPlugin.flags().PLACEHOLDER_API_IDENTIFIER.get() + "_" + s + "%");
+                placeholders.add("%" + plugin.flags().PLACEHOLDER_API_IDENTIFIER.get() + "_" + s + "%");
             }
         }
 

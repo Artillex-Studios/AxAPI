@@ -5,6 +5,7 @@ import com.artillexstudios.axapi.config.YamlConfiguration;
 import com.artillexstudios.axapi.metrics.collectors.MetricsCollector;
 import com.artillexstudios.axapi.metrics.collectors.MetricsCollectorRegistry;
 import com.artillexstudios.axapi.utils.LogUtils;
+import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -25,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 public final class AxMetrics {
     private final MetricsCollectorRegistry registry;
+    private final FeatureFlags flags;
     private final Gson gson = new GsonBuilder()
             .setPrettyPrinting()
             .create();
@@ -36,6 +38,7 @@ public final class AxMetrics {
     public AxMetrics(AxPlugin plugin, long pluginId) {
         this.pluginId = pluginId;
         this.registry = new MetricsCollectorRegistry(plugin);
+        this.flags = plugin.flags();
 
         Path path = plugin.getDataFolder().toPath();
         Path metricsConfigPath = path.getParent().resolve("AxAPI").resolve("metrics.yml");
@@ -102,13 +105,13 @@ public final class AxMetrics {
                 }
                 LogUtils.warn("Regenerated server uuid, because it was already in use!");
             } else if (response.statusCode() == 200) {
-                if (AxPlugin.flags().DEBUG.get()) {
+                if (this.flags.DEBUG.get()) {
                     LogUtils.debug("Sent metrics successfully!");
                 }
             }
         } catch (IOException | InterruptedException exception) {
             // Quietly fail
-            if (AxPlugin.flags().DEBUG.get()) {
+            if (this.flags.DEBUG.get()) {
                 LogUtils.debug("Caught exception while sending metrics! Body: {}", serialized, exception);
             }
         }
