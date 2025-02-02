@@ -1,8 +1,5 @@
 package com.artillexstudios.axapi;
 
-import com.alessiodp.libby.BukkitLibraryManager;
-import com.alessiodp.libby.Library;
-import com.alessiodp.libby.logging.LogLevel;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.gui.AnvilListener;
 import com.artillexstudios.axapi.hologram.Holograms;
@@ -23,6 +20,13 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import revxrsal.zapper.Dependency;
+import revxrsal.zapper.DependencyManager;
+import revxrsal.zapper.classloader.URLClassLoaderWrapper;
+import revxrsal.zapper.relocation.Relocation;
+
+import java.io.File;
+import java.net.URLClassLoader;
 
 public abstract class AxPlugin extends JavaPlugin {
     public static EntityTracker tracker;
@@ -107,29 +111,17 @@ public abstract class AxPlugin extends JavaPlugin {
 
     @Override
     public void onLoad() {
-        BukkitLibraryManager libraryManager = new BukkitLibraryManager(this);
-        libraryManager.addMavenCentral();
+        DependencyManager manager = new DependencyManager(this.getDescription(), new File(this.getDataFolder(), "libs"), URLClassLoaderWrapper.wrap((URLClassLoader) this.getClassLoader()));
+        Dependency commonsMath = new Dependency("org{}apache{}commons".replace("{}", "."), "commons-math3", "3.6.1");
+        Dependency caffeine = new Dependency("com{}github{}ben-manes{}caffeine".replace("{}", "."), "caffeine", "3.1.8");
 
-        Library commonsMath = Library.builder()
-                .groupId("org{}apache{}commons")
-                .artifactId("commons-math3")
-                .version("3.6.1")
-                .relocate("org{}apache{}commons{}math3", "com.artillexstudios.axapi.libs.math3")
-                .build();
+        manager.dependency(caffeine);
+        manager.dependency(commonsMath);
 
-        Library caffeine = Library.builder()
-                .groupId("com{}github{}ben-manes{}caffeine")
-                .artifactId("caffeine")
-                .version("3.1.8")
-                .relocate("com{}github{}benmanes", "com.artillexstudios.axapi.libs.caffeine")
-                .build();
+        manager.relocate(new Relocation("org{}apache{}commons{}math3".replace("{}", "."), "com.artillexstudios.axapi.libs.math3"));
+        manager.relocate(new Relocation("com{}github{}benmanes".replace("{}", "."), "com.artillexstudios.axapi.libs.caffeine"));
 
-        if (flags.DEBUG.get()) {
-            libraryManager.setLogLevel(LogLevel.DEBUG);
-        }
-        libraryManager.loadLibrary(commonsMath);
-        libraryManager.loadLibrary(caffeine);
-
+        manager.load();
         this.load();
     }
 
