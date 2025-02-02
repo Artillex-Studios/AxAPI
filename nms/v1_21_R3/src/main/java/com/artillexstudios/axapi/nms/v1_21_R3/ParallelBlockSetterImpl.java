@@ -111,8 +111,10 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
 
     public LevelChunkSection copy(LevelChunkSection section) {
         try {
-            LevelChunkSection newSection = ClassUtils.INSTANCE.newInstance(LevelChunkSection.class);
-            copyFields(section, newSection);
+//            LevelChunkSection newSection = ClassUtils.INSTANCE.newInstance(LevelChunkSection.class);
+//            copyFields(section, newSection);
+            LevelChunkSection newSection = LevelChunkSection.class.getDeclaredConstructor(LevelChunkSection.class).newInstance(section);
+//            LevelChunkSection newSection = new LevelChunkSection();
 
             return newSection;
         } catch (Exception exception) {
