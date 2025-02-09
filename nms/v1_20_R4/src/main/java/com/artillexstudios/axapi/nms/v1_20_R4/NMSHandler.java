@@ -18,11 +18,9 @@ import com.artillexstudios.axapi.utils.ActionBar;
 import com.artillexstudios.axapi.utils.BossBar;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.DebugMarker;
-import com.artillexstudios.axapi.utils.Pair;
 import com.artillexstudios.axapi.utils.Title;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Dynamic;
 import io.netty.channel.Channel;
@@ -76,14 +74,12 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -313,15 +309,6 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     @Override
     public int nextEntityId() {
         return entityCounter.incrementAndGet();
-    }
-
-    @Override
-    public Pair<String, String> textures(Player player) {
-        CraftPlayer craftPlayer = (CraftPlayer) player;
-        ServerPlayer serverPlayer = craftPlayer.getHandle();
-        GameProfile profile = serverPlayer.getGameProfile();
-        Optional<Property> property = profile.getProperties().get("textures").stream().findFirst();
-        return property.map(value -> Pair.of(value.value(), value.signature())).orElse(null);
     }
 
     @Override

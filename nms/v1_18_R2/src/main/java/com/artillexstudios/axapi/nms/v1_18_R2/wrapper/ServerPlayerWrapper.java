@@ -1,10 +1,14 @@
 package com.artillexstudios.axapi.nms.v1_18_R2.wrapper;
 
+import com.artillexstudios.axapi.utils.PlayerTextures;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
 import net.minecraft.server.level.ServerPlayer;
 import org.bukkit.craftbukkit.v1_18_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper {
     private Player wrapped;
@@ -16,6 +20,23 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
 
     public ServerPlayerWrapper(ServerPlayer player) {
         this.serverPlayer = player;
+    }
+
+    @Override
+    public PlayerTextures textures(Player player) {
+        this.update();
+        GameProfile profile = this.serverPlayer.getGameProfile();
+        Optional<Property> property = profile.getProperties()
+                .get("textures")
+                .stream()
+                .findFirst();
+
+        if (property.isEmpty()) {
+            return new PlayerTextures(null, null);
+        }
+
+        Property value = property.get();
+        return new PlayerTextures(value.getValue(), value.getSignature());
     }
 
     @Override
