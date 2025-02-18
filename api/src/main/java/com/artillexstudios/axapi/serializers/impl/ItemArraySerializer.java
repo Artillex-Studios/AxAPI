@@ -32,7 +32,7 @@ public class ItemArraySerializer implements Serializer<ItemStack[], byte[]> {
                 outputStream.writeShort(serialized.length);
                 outputStream.write(serialized);
             } catch (IllegalArgumentException exception) {
-                LogUtils.error("An unexpected error occurred while serializing itemstack of type {}. Item: {} SNBT: {}", item.getType(), item, WrappedItemStack.wrap(item).toSNBT(), exception);
+                LogUtils.error("An unexpected error occurred while serializing itemstack of type {}. Item: {}", item.getType(), item, exception);
                 outputStream.writeShort(0);
             }
         }
