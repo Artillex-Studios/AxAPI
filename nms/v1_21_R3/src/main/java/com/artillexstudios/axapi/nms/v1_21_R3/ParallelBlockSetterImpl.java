@@ -29,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -113,7 +114,9 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
         try {
 //            LevelChunkSection newSection = ClassUtils.INSTANCE.newInstance(LevelChunkSection.class);
 //            copyFields(section, newSection);
-            LevelChunkSection newSection = LevelChunkSection.class.getDeclaredConstructor(LevelChunkSection.class).newInstance(section);
+            Constructor<LevelChunkSection> constructor = LevelChunkSection.class.getDeclaredConstructor(LevelChunkSection.class);
+            constructor.setAccessible(true);
+            LevelChunkSection newSection = constructor.newInstance(section);
 //            LevelChunkSection newSection = new LevelChunkSection();
 
             return newSection;
