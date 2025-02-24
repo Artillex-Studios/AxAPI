@@ -7,6 +7,7 @@ import com.artillexstudios.axapi.packet.PacketSide;
 import com.artillexstudios.axapi.packet.PacketType;
 import com.artillexstudios.axapi.packet.PacketTypes;
 import com.artillexstudios.axapi.utils.LogUtils;
+import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -28,9 +29,11 @@ import java.util.function.Function;
 public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandler {
     private final Function<ByteBuf, RegistryFriendlyByteBuf> decorator = RegistryFriendlyByteBuf.decorator(MinecraftServer.getServer().registryAccess());
     private final StreamCodec<ByteBuf, Packet<? super ClientGamePacketListener>> codec = GameProtocols.CLIENTBOUND_TEMPLATE.bind(decorator).codec();
+    private final FeatureFlags flags;
     private final Player player;
 
-    public ChannelDuplexHandlerPacketListener(Player player) {
+    public ChannelDuplexHandlerPacketListener(FeatureFlags flags, Player player) {
+        this.flags = flags;
         this.player = player;
     }
 
@@ -42,7 +45,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
         }
 
         if (msg instanceof ClientboundBundlePacket bundlePacket) {
-            if (AxPlugin.flags().DEBUG.get()) {
+            if (this.flags.DEBUG.get()) {
                 LogUtils.info("Bundle packet");
             }
             List<Packet<? super ClientGamePacketListener>> packets = new ArrayList<>();
@@ -51,7 +54,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
                 codec.encode(buf, subPacket);
                 int packetId = VarInt.read(buf);
                 PacketType type = PacketTypes.forPacketId(packetId);
-                if (AxPlugin.flags().DEBUG.get()) {
+                if (this.flags.DEBUG.get()) {
                     LogUtils.info("(bundle) Packet id: {}, class: {}, type: {}", packetId, subPacket.getClass(), type);
                 }
 
@@ -85,7 +88,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
         // TODO: We might want to use the packetType of the packet, but I'd assume that check to be more expensive (key comparsion)
         int packetId = VarInt.read(buf);
         PacketType type = PacketTypes.forPacketId(packetId);
-        if (AxPlugin.flags().DEBUG.get()) {
+        if (this.flags.DEBUG.get()) {
             LogUtils.info("Packet id: {}, class: {}, type: {}", packetId, msg.getClass(), type);
         }
 
@@ -97,7 +100,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
 
         PacketEvents.INSTANCE.callEvent(event);
         if (event.cancelled()) {
-            if (AxPlugin.flags().DEBUG.get()) {
+            if (this.flags.DEBUG.get()) {
                 LogUtils.info("Cancelled event!");
             }
             return;
@@ -106,14 +109,14 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
         // Nothing was changed
         FriendlyByteBufWrapper out = (FriendlyByteBufWrapper) event.directOut();
         if (out == null) {
-            if (AxPlugin.flags().DEBUG.get()) {
+            if (this.flags.DEBUG.get()) {
                 LogUtils.info("Unchanged!");
             }
             super.write(ctx, msg, promise);
             return;
         }
 
-        if (AxPlugin.flags().DEBUG.get()) {
+        if (this.flags.DEBUG.get()) {
             LogUtils.info("Changed!");
         }
         super.write(ctx, codec.decode(out.buf()), promise);
