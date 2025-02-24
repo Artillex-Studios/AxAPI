@@ -1,9 +1,9 @@
-package com.artillexstudios.axapi.utils.updatechecker;
+package com.artillexstudios.axapi.updatechecker;
 
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.scheduler.ScheduledTask;
 import com.artillexstudios.axapi.scheduler.Scheduler;
-import com.artillexstudios.axapi.utils.updatechecker.sources.UpdateCheckSource;
+import com.artillexstudios.axapi.updatechecker.sources.UpdateCheckSource;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.EventHandler;
@@ -29,7 +29,7 @@ public final class UpdateChecker {
 
     public UpdateChecker(UpdateCheckSource source) {
         this.source = source;
-        this.current = new ArtifactVersion(AxPlugin.getPlugin().getDescription().getVersion());
+        this.current = new ArtifactVersion(AxPlugin.getPlugin(AxPlugin.class).getDescription().getVersion());
     }
 
     public UpdateChecker onCheck(BiConsumer<CommandSender, UpdateCheck> consumer) {
@@ -60,7 +60,7 @@ public final class UpdateChecker {
 
                 UpdateChecker.this.check(event.getPlayer());
             }
-        }, AxPlugin.getPlugin());
+        }, AxPlugin.getPlugin(AxPlugin.class));
         return this;
     }
 

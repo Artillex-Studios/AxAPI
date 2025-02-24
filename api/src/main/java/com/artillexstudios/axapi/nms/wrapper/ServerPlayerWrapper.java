@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.nms.wrapper;
 
 import com.artillexstudios.axapi.nms.NMSHandlers;
+import com.artillexstudios.axapi.utils.PlayerTextures;
 import org.bukkit.entity.Player;
 
 public interface ServerPlayerWrapper extends Wrapper<Player> {
@@ -8,6 +9,8 @@ public interface ServerPlayerWrapper extends Wrapper<Player> {
     static ServerPlayerWrapper wrap(Object player) {
         return NMSHandlers.getNmsHandler().wrapper(player);
     }
+
+    PlayerTextures textures(Player player);
 
     double getX();
 

@@ -1,4 +1,4 @@
-package com.artillexstudios.axapi.utils.updatechecker;
+package com.artillexstudios.axapi.updatechecker;
 
 import java.util.List;
 

@@ -3,14 +3,15 @@ package com.artillexstudios.axapi.packetentity.tracker;
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.collections.IdentityArrayMap;
 import com.artillexstudios.axapi.collections.RawReferenceOpenHashSet;
+import com.artillexstudios.axapi.executor.ExceptionReportingScheduledThreadPool;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
 import com.artillexstudios.axapi.reflection.FastFieldAccessor;
-import com.artillexstudios.axapi.utils.ExceptionReportingScheduledThreadPool;
 import com.artillexstudios.axapi.utils.LogUtils;
 import com.artillexstudios.axapi.utils.PaperUtils;
 import com.artillexstudios.axapi.utils.Version;
+import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -35,12 +36,17 @@ public final class EntityTracker {
     private static final boolean folia = PaperUtils.isFolia();
     private final ConcurrentHashMap<Integer, TrackedEntity> entityMap = new ConcurrentHashMap<>();
     private final FastFieldAccessor accessor = FastFieldAccessor.forClassField(String.format("com.artillexstudios.axapi.nms.%s.entity.PacketEntity", Version.getServerVersion().nmsVersion), "tracker");
-    private final JavaPlugin instance = AxPlugin.getPlugin();
+    private final JavaPlugin instance = AxPlugin.getPlugin(AxPlugin.class);
     private ScheduledExecutorService service;
+    private final FeatureFlags flags;
+
+    public EntityTracker(FeatureFlags flags) {
+        this.flags = flags;
+    }
 
     public void startTicking() {
         this.shutdown();
-        this.service = new ExceptionReportingScheduledThreadPool(AxPlugin.flags().PACKET_ENTITY_TRACKER_THREADS.get(), new ThreadFactoryBuilder().setNameFormat(this.instance.getName() + "-EntityTracker-%s").build());
+        this.service = new ExceptionReportingScheduledThreadPool(this.flags.PACKET_ENTITY_TRACKER_THREADS.get(), new ThreadFactoryBuilder().setNameFormat(this.instance.getName() + "-EntityTracker-%s").build());
         this.service.scheduleAtFixedRate(() -> {
             try {
                 this.process();
@@ -52,7 +58,7 @@ public final class EntityTracker {
                     // (But people don't like seeing errors, so this is the solution until I find out what causes the tracker to throw a CME)
                     //
                     // Please don't hunt me for this, I didn't want to do it.
-                    if (AxPlugin.flags().DEBUG.get()) {
+                    if (this.flags.DEBUG.get()) {
                         LogUtils.error("Caught ConcurrentModificationException when processing packet entities!", exception);
                     }
                     return;
@@ -119,7 +125,7 @@ public final class EntityTracker {
         AtomicInteger integer = new AtomicInteger();
         TrackedEntity[] array = this.entityMap.values().toArray(new TrackedEntity[0]);
         int length = array.length;
-        for (int i = 0; i < AxPlugin.flags().PACKET_ENTITY_TRACKER_THREADS.get(); i++) {
+        for (int i = 0; i < this.flags.PACKET_ENTITY_TRACKER_THREADS.get(); i++) {
             this.service.execute(() -> {
                 int l = length;
                 int index;

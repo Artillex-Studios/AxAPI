@@ -1,4 +1,6 @@
-package com.artillexstudios.axapi.utils;
+package com.artillexstudios.axapi.executor;
+
+import com.artillexstudios.axapi.utils.LogUtils;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;

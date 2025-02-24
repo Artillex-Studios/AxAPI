@@ -6,7 +6,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 public final class PluginVersionMetricsCollector implements MetricsCollector {
-    private final String version = AxPlugin.getPlugin().getDescription().getVersion();
+    private final String version;
+
+    public PluginVersionMetricsCollector(AxPlugin plugin) {
+        this.version = plugin.getDescription().getVersion();
+    }
 
     @Override
     public void collect(JsonArray data) {

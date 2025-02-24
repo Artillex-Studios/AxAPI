@@ -1,4 +1,4 @@
-package com.artillexstudios.axapi.utils.updatechecker;
+package com.artillexstudios.axapi.updatechecker;
 
 public record Changelog(ArtifactVersion version, String changelog) {
 }

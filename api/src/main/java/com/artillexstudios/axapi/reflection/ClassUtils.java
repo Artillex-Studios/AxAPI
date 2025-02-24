@@ -1,13 +1,11 @@
 package com.artillexstudios.axapi.reflection;
 
-import com.artillexstudios.axapi.AxPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
 public enum ClassUtils {
@@ -20,7 +18,7 @@ public enum ClassUtils {
     public boolean classExists(@NotNull String className) {
         return CLASS_CACHE.computeIfAbsent(className, name -> {
             try {
-                Class.forName(name, false, AxPlugin.classLoader());
+                Class.forName(name, false, this.getClass().getClassLoader());
                 return true;
             } catch (ClassNotFoundException exception) {
                 return false;
@@ -30,25 +28,16 @@ public enum ClassUtils {
 
     public <T> T newInstance(String clazz) {
         try {
-            return newInstance(Class.forName(clazz, true, AxPlugin.classLoader()));
+            return newInstance(Class.forName(clazz));
         } catch (ClassNotFoundException exception) {
             log.error("Could not find class {}!", clazz, exception);
             throw new RuntimeException(exception);
         }
     }
 
-    public <T> T construct(String clazz) {
-        try {
-            return (T) getClass(clazz).getDeclaredConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException exception) {
-            log.error("An unexpected error occurred while constructing class {}!", clazz, exception);
-            throw new RuntimeException(exception);
-        }
-    }
-
     public Class<?> getClass(String clazz) {
         try {
-            return Class.forName(clazz, true, AxPlugin.classLoader());
+            return Class.forName(clazz);
         } catch (ClassNotFoundException exception) {
             log.error("An unexpected error occurred while finding class {}!", clazz, exception);
             throw new RuntimeException(exception);

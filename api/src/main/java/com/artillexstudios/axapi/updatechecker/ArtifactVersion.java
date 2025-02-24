@@ -1,4 +1,4 @@
-package com.artillexstudios.axapi.utils.updatechecker;
+package com.artillexstudios.axapi.updatechecker;
 
 public record ArtifactVersion(String string, long version) {
 

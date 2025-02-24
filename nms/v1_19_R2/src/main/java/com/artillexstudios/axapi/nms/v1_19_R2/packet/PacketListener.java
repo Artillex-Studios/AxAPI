@@ -8,6 +8,7 @@ import com.artillexstudios.axapi.nms.v1_19_R2.items.WrappedItemStack;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
 import com.artillexstudios.axapi.reflection.FastFieldAccessor;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
+import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.mojang.datafixers.util.Pair;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelDuplexHandler;
@@ -47,9 +48,11 @@ import java.util.List;
 public class PacketListener extends ChannelDuplexHandler {
     private static final Logger log = LoggerFactory.getLogger(PacketListener.class);
     private static final FastFieldAccessor merchantAccessor = FastFieldAccessor.forClassField(ClientboundMerchantOffersPacket.class, "b");
+    private final FeatureFlags flags;
     private final Player player;
 
-    public PacketListener(Player player) {
+    public PacketListener(FeatureFlags flags, Player player) {
+        this.flags = flags;
         this.player = player;
     }
 
@@ -190,7 +193,7 @@ public class PacketListener extends ChannelDuplexHandler {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        if (AxPlugin.flags().DEBUG.get()) {
+        if (this.flags.DEBUG.get()) {
             log.error("An unhandled exception occurred on ctx {}!", ctx, cause);
         }
 

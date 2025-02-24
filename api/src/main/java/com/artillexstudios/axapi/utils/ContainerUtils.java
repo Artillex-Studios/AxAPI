@@ -12,10 +12,13 @@ public enum ContainerUtils {
     INSTANCE;
 
     public void addOrDrop(Inventory inventory, List<ItemStack> items, Location location) {
-        Scheduler.get().runAt(location, () -> {
+        Location copy = location.clone();
+        Scheduler.get().executeAt(copy, () -> {
             for (ItemStack key : items) {
                 HashMap<Integer, ItemStack> remaining = inventory.addItem(key);
-                remaining.forEach((k, v) -> location.getWorld().dropItem(location, v));
+                remaining.forEach((k, v) -> {
+                    copy.getWorld().dropItem(copy, v);
+                });
             }
         });
     }

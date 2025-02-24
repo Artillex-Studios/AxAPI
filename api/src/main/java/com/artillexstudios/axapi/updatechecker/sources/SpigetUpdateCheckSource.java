@@ -1,9 +1,9 @@
-package com.artillexstudios.axapi.utils.updatechecker.sources;
+package com.artillexstudios.axapi.updatechecker.sources;
 
-import com.artillexstudios.axapi.utils.updatechecker.ArtifactVersion;
-import com.artillexstudios.axapi.utils.updatechecker.Changelog;
-import com.artillexstudios.axapi.utils.updatechecker.UpdateCheck;
-import com.artillexstudios.axapi.utils.updatechecker.UpdateCheckResult;
+import com.artillexstudios.axapi.updatechecker.ArtifactVersion;
+import com.artillexstudios.axapi.updatechecker.Changelog;
+import com.artillexstudios.axapi.updatechecker.UpdateCheck;
+import com.artillexstudios.axapi.updatechecker.UpdateCheckResult;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;

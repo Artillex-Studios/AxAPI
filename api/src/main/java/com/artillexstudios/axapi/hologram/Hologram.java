@@ -2,11 +2,11 @@ package com.artillexstudios.axapi.hologram;
 
 import com.artillexstudios.axapi.collections.ThreadSafeList;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
-import com.artillexstudios.axapi.placeholders.PlaceholderAPIUtils;
 import com.artillexstudios.axapi.reflection.ClassUtils;
 import com.artillexstudios.axapi.utils.Pair;
 import com.artillexstudios.axapi.utils.placeholder.Placeholder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -33,7 +33,7 @@ public class Hologram {
         this.id = id;
 
         if (ClassUtils.INSTANCE.classExists("me.clip.placeholderapi.PlaceholderAPI")) {
-            addPlaceholder(new Placeholder(PlaceholderAPIUtils.INSTANCE::setPlaceholders));
+            addPlaceholder(new Placeholder(PlaceholderAPI::setPlaceholders));
         }
     }
 
@@ -78,10 +78,9 @@ public class Hologram {
 
     /**
      * Set a line of a hologram
-     *
      * @param pageIndex The page, starting at 0
      * @param lineIndex The line, starting at 0
-     * @param content   The content
+     * @param content The content
      */
     public void setLine(int pageIndex, int lineIndex, String content) {
         HologramPage page = pages.get(pageIndex);

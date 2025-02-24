@@ -1,7 +1,7 @@
 package com.artillexstudios.axapi.hologram;
 
 import com.artillexstudios.axapi.AxPlugin;
-import com.artillexstudios.axapi.utils.ExceptionReportingScheduledThreadPool;
+import com.artillexstudios.axapi.executor.ExceptionReportingScheduledThreadPool;
 import com.artillexstudios.axapi.utils.LogUtils;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class Holograms {
-    private static final JavaPlugin plugin = AxPlugin.getPlugin();
+    private static final AxPlugin plugin = AxPlugin.getPlugin(AxPlugin.class);
     private static final ConcurrentHashMap<Integer, HologramLine> linesMap = new ConcurrentHashMap<>();
     private static ScheduledExecutorService hologramUpdater;
 
@@ -29,7 +29,7 @@ public class Holograms {
                     line.update();
                 });
             });
-        }, 0, AxPlugin.flags().HOLOGRAM_UPDATE_TICKS.get() * 50, TimeUnit.MILLISECONDS);
+        }, 0, plugin.flags().HOLOGRAM_UPDATE_TICKS.get() * 50, TimeUnit.MILLISECONDS);
     }
 
     public static void shutdown() {

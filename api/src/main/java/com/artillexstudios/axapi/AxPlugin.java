@@ -8,6 +8,7 @@ import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
 import com.artillexstudios.axapi.packet.PacketTypes;
 import com.artillexstudios.axapi.packetentity.tracker.EntityTracker;
+import com.artillexstudios.axapi.placeholders.PlaceholderAPIHook;
 import com.artillexstudios.axapi.placeholders.Placeholders;
 import com.artillexstudios.axapi.scheduler.Scheduler;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
@@ -18,65 +19,53 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import revxrsal.zapper.Dependency;
+import revxrsal.zapper.DependencyManager;
+import revxrsal.zapper.classloader.URLClassLoaderWrapper;
+import revxrsal.zapper.relocation.Relocation;
 
 import java.io.File;
-import java.io.InputStream;
+import java.net.URLClassLoader;
 
-public abstract class AxPlugin {
-    private static JavaPlugin plugin;
+public abstract class AxPlugin extends JavaPlugin {
     public static EntityTracker tracker;
-    private static FeatureFlags flags;
-    private static ClassLoader classLoader;
+    private final FeatureFlags flags = new FeatureFlags(this);
 
-    public AxPlugin(JavaPlugin plugin) {
-        AxPlugin.plugin = plugin;
-        classLoader = this.getClass().getClassLoader();
-        flags = new FeatureFlags(this);
-        this.updateFlags(flags);
-    }
+    public AxPlugin() {
+        DependencyManager manager = new DependencyManager(this.getDescription(), new File(this.getDataFolder(), "libs"), URLClassLoaderWrapper.wrap((URLClassLoader) this.getClassLoader()));
+        Dependency commonsMath = new Dependency("org{}apache{}commons".replace("{}", "."), "commons-math3", "3.6.1");
+        Dependency caffeine = new Dependency("com{}github{}ben-manes{}caffeine".replace("{}", "."), "caffeine", "3.1.8");
 
-    public static JavaPlugin getPlugin() {
-        return plugin;
-    }
+        manager.dependency(caffeine);
+        manager.dependency(commonsMath);
 
-    public static ClassLoader classLoader() {
-        return classLoader;
+        manager.relocate(new Relocation("org{}apache{}commons{}math3".replace("{}", "."), "com.artillexstudios.axapi.libs.math3"));
+        manager.relocate(new Relocation("com{}github{}benmanes".replace("{}", "."), "com.artillexstudios.axapi.libs.caffeine"));
+
+        this.dependencies(manager);
+        manager.load();
+
+        this.updateFlags(this.flags);
     }
 
     public void updateFlags(FeatureFlags flags) {
 
     }
 
-    public InputStream getResource(String fileName) {
-        return plugin.getResource(fileName);
-    }
-
-    public PluginDescriptionFile getDescription() {
-        return plugin.getDescription();
-    }
-
-    public File getDataFolder() {
-        return plugin.getDataFolder();
-    }
-
-    public String getName() {
-        return plugin.getName();
-    }
-
+    @Override
     public void onEnable() {
-        if (!NMSHandlers.British.initialise(plugin)) {
-            Bukkit.getPluginManager().disablePlugin(plugin);
+        if (!NMSHandlers.British.initialise(this)) {
+            Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
 
         DataComponents.setDataComponentImpl(NMSHandlers.getNmsHandler().dataComponents());
-        Scheduler.scheduler.init(plugin);
+        Scheduler.scheduler.init(this);
 
-        if (flags.PACKET_ENTITY_TRACKER_ENABLED.get()) {
-            tracker = new EntityTracker();
+        if (this.flags.PACKET_ENTITY_TRACKER_ENABLED.get()) {
+            tracker = new EntityTracker(this.flags);
             tracker.startTicking();
         }
 
@@ -110,10 +99,10 @@ public abstract class AxPlugin {
 
                 tracker.untrackFor(ServerPlayerWrapper.wrap(event.getPlayer()));
             }
-        }, plugin);
-        Bukkit.getPluginManager().registerEvents(new AnvilListener(), plugin);
+        }, this);
+        Bukkit.getPluginManager().registerEvents(new AnvilListener(), this);
 
-        if (flags.HOLOGRAM_UPDATE_TICKS.get() > 0) {
+        if (this.flags.HOLOGRAM_UPDATE_TICKS.get() > 0) {
             Holograms.startTicking();
         }
 
@@ -125,20 +114,29 @@ public abstract class AxPlugin {
         this.enable();
 
         Placeholders.lock();
+        if (this.flags.PLACEHOLDER_API_HOOK.get() && Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            new PlaceholderAPIHook().register();
+        }
     }
 
     public void enable() {
 
     }
 
+    @Override
     public void onLoad() {
         this.load();
+    }
+
+    public void dependencies(DependencyManager manager) {
+
     }
 
     public void load() {
 
     }
 
+    @Override
     public void onDisable() {
         this.disable();
         Scheduler.get().cancelAll();
@@ -161,14 +159,14 @@ public abstract class AxPlugin {
 
     }
 
+    public FeatureFlags flags() {
+        return this.flags;
+    }
+
     public long reloadWithTime() {
         long start = System.currentTimeMillis();
         this.reload();
 
         return System.currentTimeMillis() - start;
-    }
-
-    public static FeatureFlags flags() {
-        return flags;
     }
 }

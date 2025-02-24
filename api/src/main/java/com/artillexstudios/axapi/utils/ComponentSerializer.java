@@ -19,18 +19,15 @@ public enum ComponentSerializer {
     private final Serializer<Object, Component> serializer = NMSHandlers.getNmsHandler().componentSerializer();
     private final Cache<Component, Object> componentCache = Caffeine.newBuilder()
             .maximumSize(200)
-            .expireAfterAccess(Duration.ofSeconds(20))
-            .scheduler(Scheduler.systemScheduler())
+            .expireAfterAccess(Duration.ofMinutes(5))
             .build();
     private final Cache<Object, Component> vanillaCache = Caffeine.newBuilder()
             .maximumSize(200)
-            .expireAfterAccess(Duration.ofSeconds(20))
-            .scheduler(Scheduler.systemScheduler())
+            .expireAfterAccess(Duration.ofMinutes(5))
             .build();
     private final Cache<String, Component> gsonCache = Caffeine.newBuilder()
             .maximumSize(200)
-            .expireAfterAccess(Duration.ofSeconds(20))
-            .scheduler(Scheduler.systemScheduler())
+            .expireAfterAccess(Duration.ofMinutes(5))
             .build();
 
     public <T> T toVanilla(Component component) {

@@ -24,6 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class HologramLine {
+    private static final AxPlugin plugin = AxPlugin.getPlugin(AxPlugin.class);
     private final Type type;
     private final ThreadSafeList<Placeholder> placeholders = new ThreadSafeList<>();
     private final HologramPage page;
@@ -84,7 +85,7 @@ public class HologramLine {
                             }
                         }
 
-                        for (Pattern pattern : AxPlugin.flags().PLACEHOLDER_PATTERNS.get()) {
+                        for (Pattern pattern : plugin.flags().PLACEHOLDER_PATTERNS.get()) {
                             Matcher matcher = pattern.matcher(content);
                             if (matcher.find()) {
                                 hasPlaceholders = true;
@@ -148,7 +149,7 @@ public class HologramLine {
                         }
                     }
 
-                    for (Pattern pattern : AxPlugin.flags().PLACEHOLDER_PATTERNS.get()) {
+                    for (Pattern pattern : plugin.flags().PLACEHOLDER_PATTERNS.get()) {
                         Matcher matcher = pattern.matcher(reference.get());
                         if (matcher.find()) {
                             hasPlaceholders = true;
