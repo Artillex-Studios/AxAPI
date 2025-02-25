@@ -1,6 +1,5 @@
-package com.artillexstudios.axapi.nms.v1_21_R2.packet;
+package com.artillexstudios.axapi.nms.v1_21_R3.packet;
 
-import com.artillexstudios.axapi.nms.v1_21_R2.packet.FriendlyByteBufWrapper;
 import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketEvents;
 import com.artillexstudios.axapi.packet.PacketSide;

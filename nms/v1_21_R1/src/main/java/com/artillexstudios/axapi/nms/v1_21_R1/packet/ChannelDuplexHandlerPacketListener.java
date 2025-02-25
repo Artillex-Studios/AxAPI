@@ -1,6 +1,5 @@
 package com.artillexstudios.axapi.nms.v1_21_R1.packet;
 
-import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketEvents;
 import com.artillexstudios.axapi.packet.PacketSide;
@@ -27,8 +26,8 @@ import java.util.List;
 import java.util.function.Function;
 
 public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandler {
-    private final Function<ByteBuf, RegistryFriendlyByteBuf> decorator = RegistryFriendlyByteBuf.decorator(MinecraftServer.getServer().registryAccess());
-    private final StreamCodec<ByteBuf, Packet<? super ClientGamePacketListener>> codec = GameProtocols.CLIENTBOUND_TEMPLATE.bind(decorator).codec();
+    private static final Function<ByteBuf, RegistryFriendlyByteBuf> decorator = RegistryFriendlyByteBuf.decorator(MinecraftServer.getServer().registryAccess());
+    private static final StreamCodec<ByteBuf, Packet<? super ClientGamePacketListener>> codec = GameProtocols.CLIENTBOUND_TEMPLATE.bind(decorator).codec();
     private final FeatureFlags flags;
     private final Player player;
 
