@@ -4,7 +4,7 @@ import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketEvent;
 
-public final class ClientboundContainerSetSlotWrapper implements AutoCloseable {
+public final class ClientboundContainerSetSlotWrapper extends PacketWrapper {
     private final FriendlyByteBuf out;
     private byte containerId;
     private int stateId;
@@ -12,6 +12,7 @@ public final class ClientboundContainerSetSlotWrapper implements AutoCloseable {
     private WrappedItemStack stack;
 
     public ClientboundContainerSetSlotWrapper(PacketEvent event) {
+        event.setWrapper(this);
         FriendlyByteBuf buf = event.in();
         this.out = event.out();
         this.containerId = buf.readByte();
@@ -53,7 +54,7 @@ public final class ClientboundContainerSetSlotWrapper implements AutoCloseable {
     }
 
     @Override
-    public void close() {
+    public void write() {
         this.out.writeByte(this.containerId);
         this.out.writeVarInt(this.stateId);
         this.out.writeShort(this.slot);

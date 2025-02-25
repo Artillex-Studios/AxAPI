@@ -22,9 +22,8 @@ public class PacketItemModifier {
                     }
 
                     if (event.type() == PacketTypes.CONTAINER_SET_SLOT) {
-                        try (ClientboundContainerSetSlotWrapper wrapper = new ClientboundContainerSetSlotWrapper(event)) {
-                            PacketItemModifier.callModify(wrapper.stack(), event.player(), PacketItemModifier.Context.SET_SLOT);
-                        }
+                        ClientboundContainerSetSlotWrapper wrapper = new ClientboundContainerSetSlotWrapper(event);
+                        PacketItemModifier.callModify(wrapper.stack(), event.player(), PacketItemModifier.Context.SET_SLOT);
                     }
                 }
             });

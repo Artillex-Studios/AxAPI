@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.packet;
 
+import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public enum PacketEvents {
@@ -24,10 +25,22 @@ public enum PacketEvents {
         if (event.side() == PacketSide.SERVER_BOUND) {
             for (int i = 0; i < bakedLength; i++) {
                 baked[i].onPacketReceive(event);
+
+                PacketWrapper wrapper = event.wrapper();
+                if (wrapper != null) {
+                    wrapper.write();
+                }
             }
         } else {
             for (int i = 0; i < bakedLength; i++) {
                 baked[i].onPacketSending(event);
+
+                PacketWrapper wrapper = event.wrapper();
+                if (wrapper != null) {
+                    // TOOO: Reset writerindex
+//                    event.directOut().clear();
+                    wrapper.write();
+                }
             }
         }
     }

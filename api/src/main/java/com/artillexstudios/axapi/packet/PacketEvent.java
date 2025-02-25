@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.packet;
 
+import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,6 +14,7 @@ public final class PacketEvent {
     private final Supplier<FriendlyByteBuf> out;
     private FriendlyByteBuf outBuf;
     private FriendlyByteBuf inBuf;
+    private PacketWrapper wrapper;
     private boolean cancelled = false;
     private boolean handled = false;
 
@@ -54,6 +56,14 @@ public final class PacketEvent {
         }
 
         return this.outBuf;
+    }
+
+    public void setWrapper(PacketWrapper wrapper) {
+        this.wrapper = wrapper;
+    }
+
+    public PacketWrapper wrapper() {
+        return this.wrapper;
     }
 
     @Nullable
