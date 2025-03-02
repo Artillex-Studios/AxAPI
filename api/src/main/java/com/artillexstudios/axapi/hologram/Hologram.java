@@ -37,6 +37,18 @@ public class Hologram {
         }
     }
 
+    public void hide(Player player) {
+        for (int i = 0; i < pages.size(); i++) {
+            HologramPage page = pages.get(i);
+            page.hide(player);
+        }
+    }
+
+    public void show(Player player) {
+        HologramPage page = pages.get(0);
+        page.show(player);
+    }
+
     public void teleport(Location location) {
         this.location = location;
 
