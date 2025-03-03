@@ -2,6 +2,7 @@ package com.artillexstudios.axapi.packet;
 
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
+import com.artillexstudios.axapi.utils.Version;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 
@@ -64,4 +65,30 @@ public interface FriendlyByteBuf {
     void writeByte(byte value);
 
     byte readByte();
+
+    short readUnsignedByte();
+
+    void readerIndex(int index);
+
+    int readerIndex();
+
+    void writerIndex(int index);
+
+    int writerIndex();
+
+    default int readContainerId() {
+        if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_2)) {
+            return this.readVarInt();
+        }
+
+        return this.readUnsignedByte();
+    }
+
+    default void writeContainerId(int containerId) {
+        if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_2)) {
+            this.writeVarInt(containerId);
+        } else {
+            this.writeByte((byte) containerId);
+        }
+    }
 }

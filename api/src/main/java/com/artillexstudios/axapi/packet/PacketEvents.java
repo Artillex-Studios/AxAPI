@@ -20,15 +20,19 @@ public enum PacketEvents {
             return;
         }
 
-        PacketListener[] baked =  this.baked;
+        PacketListener[] baked = this.baked;
+        PacketWrapper lastWrapper = null;
         int bakedLength = baked.length;
         if (event.side() == PacketSide.SERVER_BOUND) {
             for (int i = 0; i < bakedLength; i++) {
                 baked[i].onPacketReceive(event);
 
                 PacketWrapper wrapper = event.wrapper();
-                if (wrapper != null) {
-                    wrapper.write();
+                if (wrapper != null && lastWrapper != wrapper) {
+                    FriendlyByteBuf out = event.out();
+                    out.writerIndex(1);
+                    wrapper.write(out);
+                    lastWrapper = wrapper;
                 }
             }
         } else {
@@ -36,10 +40,12 @@ public enum PacketEvents {
                 baked[i].onPacketSending(event);
 
                 PacketWrapper wrapper = event.wrapper();
-                if (wrapper != null) {
-                    // TOOO: Reset writerindex
-//                    event.directOut().clear();
-                    wrapper.write();
+                if (wrapper != null && lastWrapper != wrapper) {
+                    FriendlyByteBuf out = event.out();
+                    out.writerIndex(1);
+                    wrapper.write(out);
+                    lastWrapper = wrapper;
+
                 }
             }
         }

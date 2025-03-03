@@ -158,4 +158,29 @@ public record FriendlyByteBufWrapper(RegistryFriendlyByteBuf buf) implements Fri
     public byte readByte() {
         return this.buf.readByte();
     }
+
+    @Override
+    public short readUnsignedByte() {
+        return this.buf.readUnsignedByte();
+    }
+
+    @Override
+    public void readerIndex(int index) {
+        this.buf.readerIndex(index);
+    }
+
+    @Override
+    public int readerIndex() {
+        return this.buf.readerIndex();
+    }
+
+    @Override
+    public void writerIndex(int index) {
+        this.buf.writerIndex(index);
+    }
+
+    @Override
+    public int writerIndex() {
+        return this.buf.writerIndex();
+    }
 }

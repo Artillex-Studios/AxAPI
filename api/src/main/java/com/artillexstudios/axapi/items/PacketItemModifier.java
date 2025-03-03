@@ -4,6 +4,7 @@ import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketEvents;
 import com.artillexstudios.axapi.packet.PacketListener;
 import com.artillexstudios.axapi.packet.PacketTypes;
+import com.artillexstudios.axapi.packet.wrapper.ClientboundContainerSetContentWrapper;
 import com.artillexstudios.axapi.packet.wrapper.ClientboundContainerSetSlotWrapper;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.bukkit.entity.Player;
@@ -24,6 +25,13 @@ public class PacketItemModifier {
                     if (event.type() == PacketTypes.CONTAINER_SET_SLOT) {
                         ClientboundContainerSetSlotWrapper wrapper = new ClientboundContainerSetSlotWrapper(event);
                         PacketItemModifier.callModify(wrapper.stack(), event.player(), PacketItemModifier.Context.SET_SLOT);
+                    } else if (event.type() == PacketTypes.CONTAINER_CONTENT) {
+                        ClientboundContainerSetContentWrapper wrapper = new ClientboundContainerSetContentWrapper(event);
+                        for (WrappedItemStack item : wrapper.items()) {
+                            PacketItemModifier.callModify(item, event.player(), PacketItemModifier.Context.SET_CONTENTS);
+                        }
+
+                        PacketItemModifier.callModify(wrapper.carriedItem(), event.player(), PacketItemModifier.Context.SET_CONTENTS);
                     }
                 }
             });

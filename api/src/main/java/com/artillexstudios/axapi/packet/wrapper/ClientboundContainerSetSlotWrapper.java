@@ -5,24 +5,17 @@ import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketEvent;
 
 public final class ClientboundContainerSetSlotWrapper extends PacketWrapper {
-    private final FriendlyByteBuf out;
     private byte containerId;
     private int stateId;
     private short slot;
     private WrappedItemStack stack;
 
     public ClientboundContainerSetSlotWrapper(PacketEvent event) {
-        event.setWrapper(this);
-        FriendlyByteBuf buf = event.in();
-        this.out = event.out();
-        this.containerId = buf.readByte();
-        this.stateId = buf.readVarInt();
-        this.slot = buf.readShort();
-        this.stack = buf.readItemStack();
+        super(event);
     }
 
     public WrappedItemStack stack() {
-        return stack;
+        return this.stack;
     }
 
     public void stack(WrappedItemStack stack) {
@@ -30,7 +23,7 @@ public final class ClientboundContainerSetSlotWrapper extends PacketWrapper {
     }
 
     public short slot() {
-        return slot;
+        return this.slot;
     }
 
     public void slot(short slot) {
@@ -38,7 +31,7 @@ public final class ClientboundContainerSetSlotWrapper extends PacketWrapper {
     }
 
     public int stateId() {
-        return stateId;
+        return this.stateId;
     }
 
     public void stateId(int stateId) {
@@ -46,7 +39,7 @@ public final class ClientboundContainerSetSlotWrapper extends PacketWrapper {
     }
 
     public byte containerId() {
-        return containerId;
+        return this.containerId;
     }
 
     public void containerId(byte containerId) {
@@ -54,10 +47,18 @@ public final class ClientboundContainerSetSlotWrapper extends PacketWrapper {
     }
 
     @Override
-    public void write() {
-        this.out.writeByte(this.containerId);
-        this.out.writeVarInt(this.stateId);
-        this.out.writeShort(this.slot);
-        this.out.writeItemStack(this.stack);
+    public void write(FriendlyByteBuf out) {
+        out.writeByte(this.containerId);
+        out.writeVarInt(this.stateId);
+        out.writeShort(this.slot);
+        out.writeItemStack(this.stack);
+    }
+
+    @Override
+    public void read(FriendlyByteBuf buf) {
+        this.containerId = buf.readByte();
+        this.stateId = buf.readVarInt();
+        this.slot = buf.readShort();
+        this.stack = buf.readItemStack();
     }
 }
