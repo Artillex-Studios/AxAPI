@@ -22,7 +22,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
     public WrappedItemStack(ItemStack itemStack) {
         this.parent = itemStack;
-        this.bukkitStack = parent.getBukkitStack();
+        this.bukkitStack = CraftItemStack.asCraftMirror(this.parent);
     }
 
     @Override
