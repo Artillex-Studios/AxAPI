@@ -21,7 +21,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Path;
 import java.util.UUID;
-import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public final class AxMetrics {
@@ -32,7 +32,7 @@ public final class AxMetrics {
             .create();
     private HttpClient client;
     private final long pluginId;
-    private ScheduledFuture<?> future;
+    private ScheduledExecutorService executorService;
     private final YamlConfiguration metricsConfig;
     private final String pluginName;
 
@@ -58,14 +58,21 @@ public final class AxMetrics {
             return;
         }
 
+        if (this.executorService != null) {
+            LogUtils.error("Failed to start metrics, as it had already been started!");
+            return;
+        }
+
         this.client = HttpClient.newBuilder()
                 .build();
 
-        this.future = new ExceptionReportingScheduledThreadPool(1,
+        this.executorService = new ExceptionReportingScheduledThreadPool(1,
                 Thread.ofVirtual()
                         .name(this.pluginName + "-AxMetrics-executor")
                         .factory()
-        ).scheduleAtFixedRate(this::submitData, 60_000, 60_000, TimeUnit.MILLISECONDS);
+        );
+
+        this.executorService.scheduleAtFixedRate(this::submitData, 60_000, 60_000, TimeUnit.MILLISECONDS);
     }
 
     public void register(MetricsCollector collector) {
@@ -73,9 +80,16 @@ public final class AxMetrics {
     }
 
     public void cancel() {
-        if (this.future != null && !this.future.isCancelled()) {
-            this.future.cancel(false);
+        if (this.executorService != null && !this.executorService.isShutdown()) {
+            this.executorService.shutdown();
+            try {
+                this.executorService.awaitTermination(30, TimeUnit.SECONDS);
+            } catch (InterruptedException exception) {
+                LogUtils.error("An unexpected error occurred while shutting down the metrics executor!", exception);
+            }
         }
+
+        this.executorService = null;
     }
 
     private void submitData() {
@@ -100,7 +114,7 @@ public final class AxMetrics {
 
         try {
             UUID previousUUID = MetricsConfig.serverUuid;
-            HttpResponse<?> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<?> response = this.client.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() == 425) {
                 this.metricsConfig.load();
                 if (previousUUID.equals(MetricsConfig.serverUuid)) {
