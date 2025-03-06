@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi;
 
+import com.artillexstudios.axapi.dependencies.DependencyManagerWrapper;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.gui.AnvilListener;
 import com.artillexstudios.axapi.hologram.Holograms;
@@ -20,10 +21,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-import revxrsal.zapper.Dependency;
 import revxrsal.zapper.DependencyManager;
 import revxrsal.zapper.classloader.URLClassLoaderWrapper;
-import revxrsal.zapper.relocation.Relocation;
 
 import java.io.File;
 import java.net.URLClassLoader;
@@ -34,16 +33,14 @@ public abstract class AxPlugin extends JavaPlugin {
 
     public AxPlugin() {
         DependencyManager manager = new DependencyManager(this.getDescription(), new File(this.getDataFolder(), "libs"), URLClassLoaderWrapper.wrap((URLClassLoader) this.getClassLoader()));
-        Dependency commonsMath = new Dependency("org{}apache{}commons".replace("{}", "."), "commons-math3", "3.6.1");
-        Dependency caffeine = new Dependency("com{}github{}ben-manes{}caffeine".replace("{}", "."), "caffeine", "3.1.8");
+        DependencyManagerWrapper wrapper = new DependencyManagerWrapper(manager);
+        wrapper.dependency("org{}apache{}commons:commons-math3:3.6.1");
+        wrapper.dependency("com{}github{}ben-manes{}caffeine:caffeine:3.1.8");
 
-        manager.dependency(caffeine);
-        manager.dependency(commonsMath);
+        wrapper.relocate("org{}apache{}commons{}math3", "com.artillexstudios.axapi.libs.math3");
+        wrapper.relocate("com{}github{}benmanes", "com.artillexstudios.axapi.libs.caffeine");
 
-        manager.relocate(new Relocation("org{}apache{}commons{}math3".replace("{}", "."), "com.artillexstudios.axapi.libs.math3"));
-        manager.relocate(new Relocation("com{}github{}benmanes".replace("{}", "."), "com.artillexstudios.axapi.libs.caffeine"));
-
-        this.dependencies(manager);
+        this.dependencies(wrapper);
         manager.load();
 
         this.updateFlags(this.flags);
@@ -126,7 +123,7 @@ public abstract class AxPlugin extends JavaPlugin {
         this.load();
     }
 
-    public void dependencies(DependencyManager manager) {
+    public void dependencies(DependencyManagerWrapper manager) {
 
     }
 
