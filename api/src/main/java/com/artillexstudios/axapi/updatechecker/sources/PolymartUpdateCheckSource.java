@@ -21,6 +21,7 @@ import java.util.List;
 public final class PolymartUpdateCheckSource implements UpdateCheckSource {
     private final int id;
     private final HttpClient client = HttpClient.newHttpClient();
+    private final Gson gson = new Gson();
 
     public PolymartUpdateCheckSource(int id) {
         this.id = id;
@@ -42,7 +43,7 @@ public final class PolymartUpdateCheckSource implements UpdateCheckSource {
 
             String body = response.body().toString();
             List<Changelog> changelogs = new ArrayList<>();
-            JsonObject obj = new Gson().fromJson(body, JsonObject.class);
+            JsonObject obj = this.gson.fromJson(body, JsonObject.class);
             obj = obj.get("response").getAsJsonObject();
             JsonArray updates = obj.get("updates").getAsJsonArray();
             ArtifactVersion latest = new ArtifactVersion(updates.get(0).getAsJsonObject().get("version").getAsString());

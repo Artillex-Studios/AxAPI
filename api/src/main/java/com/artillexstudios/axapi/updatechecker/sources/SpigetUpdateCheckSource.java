@@ -22,6 +22,7 @@ import java.util.List;
 public final class SpigetUpdateCheckSource implements UpdateCheckSource {
     private final int id;
     private final HttpClient client = HttpClient.newHttpClient();
+    private final Gson gson = new Gson();
 
     public SpigetUpdateCheckSource(int id) {
         this.id = id;
@@ -43,7 +44,7 @@ public final class SpigetUpdateCheckSource implements UpdateCheckSource {
 
             String body = response.body().toString();
             List<Changelog> changelogs = new ArrayList<>();
-            JsonArray obj = new Gson().fromJson(body, JsonArray.class);
+            JsonArray obj = this.gson.fromJson(body, JsonArray.class);
             ArtifactVersion latest = new ArtifactVersion(obj.get(0).getAsJsonObject().get("title").getAsString());
 
             for (JsonElement jsonElement : obj) {

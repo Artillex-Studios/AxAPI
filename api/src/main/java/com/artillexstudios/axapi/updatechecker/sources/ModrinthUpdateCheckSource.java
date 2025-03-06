@@ -21,6 +21,7 @@ import java.util.List;
 public final class ModrinthUpdateCheckSource implements UpdateCheckSource {
     private final String id;
     private final HttpClient client = HttpClient.newHttpClient();
+    private final Gson gson = new Gson();
 
     public ModrinthUpdateCheckSource(String id) {
         this.id = id;
@@ -42,7 +43,7 @@ public final class ModrinthUpdateCheckSource implements UpdateCheckSource {
 
             String body = response.body().toString();
             List<Changelog> changelogs = new ArrayList<>();
-            JsonArray obj = new Gson().fromJson(body, JsonArray.class);
+            JsonArray obj = this.gson.fromJson(body, JsonArray.class);
             ArtifactVersion latest = new ArtifactVersion(obj.get(0).getAsJsonObject().get("version_number").getAsString());
 
             for (JsonElement jsonElement : obj) {
