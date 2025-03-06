@@ -21,6 +21,7 @@ import java.util.List;
 
 public final class SpigetUpdateCheckSource implements UpdateCheckSource {
     private final int id;
+    private final HttpClient client = HttpClient.newHttpClient();
 
     public SpigetUpdateCheckSource(int id) {
         this.id = id;
@@ -29,14 +30,13 @@ public final class SpigetUpdateCheckSource implements UpdateCheckSource {
     @Override
     public UpdateCheck check(ArtifactVersion current) {
         try {
-            HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI("https://api.spiget.org/v2/resources/" + this.id + " /updates?size=300&sort=-id"))
                     .timeout(Duration.of(10, ChronoUnit.SECONDS))
                     .GET()
                     .build();
 
-            HttpResponse<?> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<?> response = this.client.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() != 200) {
                 return new UpdateCheck(UpdateCheckResult.FAILED, current, List.of(), new RuntimeException("Received statuscode: " + response.statusCode()));
             }
