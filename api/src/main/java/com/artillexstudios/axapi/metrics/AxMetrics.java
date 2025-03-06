@@ -2,6 +2,7 @@ package com.artillexstudios.axapi.metrics;
 
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.config.YamlConfiguration;
+import com.artillexstudios.axapi.executor.ExceptionReportingScheduledThreadPool;
 import com.artillexstudios.axapi.metrics.collectors.MetricsCollector;
 import com.artillexstudios.axapi.metrics.collectors.MetricsCollectorRegistry;
 import com.artillexstudios.axapi.utils.LogUtils;
@@ -20,7 +21,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Path;
 import java.util.UUID;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -34,11 +34,13 @@ public final class AxMetrics {
     private final long pluginId;
     private ScheduledFuture<?> future;
     private final YamlConfiguration metricsConfig;
+    private final String pluginName;
 
     public AxMetrics(AxPlugin plugin, long pluginId) {
         this.pluginId = pluginId;
         this.registry = new MetricsCollectorRegistry(plugin);
         this.flags = plugin.flags();
+        this.pluginName = plugin.getName();
 
         Path path = plugin.getDataFolder().toPath();
         Path metricsConfigPath = path.getParent().resolve("AxAPI").resolve("metrics.yml");
@@ -59,9 +61,11 @@ public final class AxMetrics {
         this.client = HttpClient.newBuilder()
                 .build();
 
-        // TODO: figure out how we want to handle threads. 1 thread/plugin seems expensive
-        this.future = Executors.newSingleThreadScheduledExecutor()
-                .scheduleAtFixedRate(this::submitData, 60_000, 60_000, TimeUnit.MILLISECONDS);
+        this.future = new ExceptionReportingScheduledThreadPool(1,
+                Thread.ofVirtual()
+                        .name(this.pluginName + "-AxMetrics-executor")
+                        .factory()
+        ).scheduleAtFixedRate(this::submitData, 60_000, 60_000, TimeUnit.MILLISECONDS);
     }
 
     public void register(MetricsCollector collector) {
