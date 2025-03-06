@@ -2,30 +2,36 @@ package com.artillexstudios.axapi.utils;
 
 import it.unimi.dsi.fastutil.objects.Object2LongArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
+import it.unimi.dsi.fastutil.objects.Object2LongMaps;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 
-import java.time.Duration;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 
-public class Cooldown<T> {
-    private final Object2LongArrayMap<T> cooldowns = new Object2LongArrayMap<>();
-    private long closestTime = Long.MAX_VALUE;
+public final class Cooldown<T> {
+    private final Object2LongMap<T> cooldowns;
+    private final boolean synchronize;
+    private final AtomicLong closestTime = new AtomicLong(Long.MAX_VALUE);
+
+    public Cooldown() {
+        this(false);
+    }
+
+    public Cooldown(boolean synchronize) {
+        this.synchronize = synchronize;
+        if (synchronize) {
+            this.cooldowns = Object2LongMaps.synchronize(new Object2LongArrayMap<>());
+        } else {
+            this.cooldowns = new Object2LongArrayMap<>();
+        }
+    }
 
     public void addCooldown(T key, long time) {
         this.doHouseKeeping();
 
-        long closest = System.currentTimeMillis() + time;
-        this.closestTime = Math.min(this.closestTime, closest);
-
-        this.cooldowns.put(key, closest);
-    }
-
-    public void addCooldown(T key, Duration duration) {
-        this.doHouseKeeping();
-
-        long closest = System.currentTimeMillis() + duration.toMillis();
-        this.closestTime = Math.min(this.closestTime, closest);
-
-        this.cooldowns.put(key, closest);
+        long newTime = System.currentTimeMillis() + time;
+        this.closestTime.getAndUpdate(a -> Math.min(a, newTime));
+        this.cooldowns.put(key, newTime);
     }
 
     public long getRemaining(T key) {
@@ -55,18 +61,49 @@ public class Cooldown<T> {
         this.cooldowns.removeLong(key);
     }
 
+    public int size() {
+        this.doHouseKeeping();
+
+        return this.cooldowns.size();
+    }
+
+    public void forEach(Consumer<ObjectIterator<Object2LongMap.Entry<T>>> iteratorConsumer) {
+        this.doHouseKeeping();
+        if (this.synchronize) {
+            synchronized (this.cooldowns) {
+                iteratorConsumer.accept(this.cooldowns.object2LongEntrySet().iterator());
+            }
+        } else {
+            iteratorConsumer.accept(this.cooldowns.object2LongEntrySet().iterator());
+        }
+    }
+
     private void doHouseKeeping() {
-        if (System.currentTimeMillis() < this.closestTime) {
+        if (System.currentTimeMillis() < this.closestTime.get()) {
             return;
         }
 
-        ObjectIterator<Object2LongMap.Entry<T>> iterator = cooldowns.object2LongEntrySet().iterator();
-        long time = System.currentTimeMillis();
+        if (this.synchronize) {
+            synchronized (this.cooldowns) {
+                ObjectIterator<Object2LongMap.Entry<T>> iterator = this.cooldowns.object2LongEntrySet().iterator();
+                long time = System.currentTimeMillis();
 
-        while (iterator.hasNext()) {
-            Object2LongMap.Entry<T> entry = iterator.next();
-            if (time >= entry.getLongValue()) {
-                iterator.remove();
+                while (iterator.hasNext()) {
+                    Object2LongMap.Entry<T> entry = iterator.next();
+                    if (time >= entry.getLongValue()) {
+                        iterator.remove();
+                    }
+                }
+            }
+        } else {
+            ObjectIterator<Object2LongMap.Entry<T>> iterator = this.cooldowns.object2LongEntrySet().iterator();
+            long time = System.currentTimeMillis();
+
+            while (iterator.hasNext()) {
+                Object2LongMap.Entry<T> entry = iterator.next();
+                if (time >= entry.getLongValue()) {
+                    iterator.remove();
+                }
             }
         }
     }
