@@ -62,7 +62,7 @@ public interface FriendlyByteBuf {
 
     long readLong();
 
-    void writeByte(byte value);
+    void writeByte(int value);
 
     byte readByte();
 

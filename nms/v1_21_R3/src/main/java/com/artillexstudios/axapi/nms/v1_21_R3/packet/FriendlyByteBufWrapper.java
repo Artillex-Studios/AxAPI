@@ -150,7 +150,7 @@ public record FriendlyByteBufWrapper(RegistryFriendlyByteBuf buf) implements Fri
     }
 
     @Override
-    public void writeByte(byte value) {
+    public void writeByte(int value) {
         this.buf.writeByte(value);
     }
 

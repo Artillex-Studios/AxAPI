@@ -308,7 +308,7 @@ public final class PacketTypes {
         if (packetType.from().isNewerThanOrEqualTo(Version.getServerVersion()) && packetType.to().isOlderThanOrEqualTo(Version.getServerVersion())) {
             int size = PACKET_TYPES.size();
             PACKET_TYPES.put(size, packetType);
-            if (AxPlugin.flags().DEBUG.get()) {
+            if (AxPlugin.getPlugin(AxPlugin.class).flags().DEBUG.get()) {
                 LogUtils.debug("Registered packet with id {}", size);
             }
         }

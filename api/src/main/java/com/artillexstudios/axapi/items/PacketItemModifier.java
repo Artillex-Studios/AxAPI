@@ -6,6 +6,9 @@ import com.artillexstudios.axapi.packet.PacketListener;
 import com.artillexstudios.axapi.packet.PacketTypes;
 import com.artillexstudios.axapi.packet.wrapper.ClientboundContainerSetContentWrapper;
 import com.artillexstudios.axapi.packet.wrapper.ClientboundContainerSetSlotWrapper;
+import com.artillexstudios.axapi.packet.wrapper.ClientboundSetEquipmentWrapper;
+import com.artillexstudios.axapi.utils.EquipmentSlot;
+import com.artillexstudios.axapi.utils.Pair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.bukkit.entity.Player;
 
@@ -32,6 +35,11 @@ public class PacketItemModifier {
                         }
 
                         PacketItemModifier.callModify(wrapper.carriedItem(), event.player(), PacketItemModifier.Context.SET_CONTENTS);
+                    } else if (event.type() == PacketTypes.SET_EQUIPMENT) {
+                        ClientboundSetEquipmentWrapper wrapper = new ClientboundSetEquipmentWrapper(event);
+                        for (Pair<EquipmentSlot, WrappedItemStack> item : wrapper.items()) {
+                            PacketItemModifier.callModify(item.second(), event.player(), PacketItemModifier.Context.EQUIPMENT);
+                        }
                     }
                 }
             });
