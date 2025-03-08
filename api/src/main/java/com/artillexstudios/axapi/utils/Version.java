@@ -53,9 +53,10 @@ public enum Version {
         Version.protocolVersion = protocolVersion;
     }
 
-    public final List<String> versions;
-    public final int protocolId;
-    public final String nmsVersion;
+
+    private final List<String> versions;
+    private final int protocolId;
+    private final String nmsVersion;
 
     Version(int protocolId, String nmsVersion, List<String> versions) {
         this.protocolId = protocolId;
@@ -89,5 +90,17 @@ public enum Version {
 
     public boolean isOlderThanOrEqualTo(Version version) {
         return this.protocolId <= version.protocolId;
+    }
+
+    public List<String> versions() {
+        return this.versions;
+    }
+
+    public int protocolId() {
+        return this.protocolId;
+    }
+
+    public String nmsVersion() {
+        return this.nmsVersion;
     }
 }

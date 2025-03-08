@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public final class EntityTracker {
     private static final boolean folia = PaperUtils.isFolia();
     private final ConcurrentHashMap<Integer, TrackedEntity> entityMap = new ConcurrentHashMap<>();
-    private final FastFieldAccessor accessor = FastFieldAccessor.forClassField(String.format("com.artillexstudios.axapi.nms.%s.entity.PacketEntity", Version.getServerVersion().nmsVersion), "tracker");
+    private final FastFieldAccessor accessor = FastFieldAccessor.forClassField(String.format("com.artillexstudios.axapi.nms.%s.entity.PacketEntity", Version.getServerVersion().nmsVersion()), "tracker");
     private final JavaPlugin instance = AxPlugin.getPlugin(AxPlugin.class);
     private ScheduledExecutorService service;
     private final FeatureFlags flags;

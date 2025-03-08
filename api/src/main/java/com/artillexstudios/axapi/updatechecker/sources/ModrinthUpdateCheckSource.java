@@ -20,6 +20,8 @@ import java.util.List;
 
 public final class ModrinthUpdateCheckSource implements UpdateCheckSource {
     private final String id;
+    private final HttpClient client = HttpClient.newHttpClient();
+    private final Gson gson = new Gson();
 
     public ModrinthUpdateCheckSource(String id) {
         this.id = id;
@@ -28,21 +30,20 @@ public final class ModrinthUpdateCheckSource implements UpdateCheckSource {
     @Override
     public UpdateCheck check(ArtifactVersion current) {
         try {
-            HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI("https://api.modrinth.com/v2/project/" + this.id + "/version"))
                     .timeout(Duration.of(10, ChronoUnit.SECONDS))
                     .GET()
                     .build();
 
-            HttpResponse<?> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<?> response = this.client.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() != 200) {
                 return new UpdateCheck(UpdateCheckResult.FAILED, current, List.of(), new RuntimeException("Received statuscode: " + response.statusCode()));
             }
 
             String body = response.body().toString();
             List<Changelog> changelogs = new ArrayList<>();
-            JsonArray obj = new Gson().fromJson(body, JsonArray.class);
+            JsonArray obj = this.gson.fromJson(body, JsonArray.class);
             ArtifactVersion latest = new ArtifactVersion(obj.get(0).getAsJsonObject().get("version_number").getAsString());
 
             for (JsonElement jsonElement : obj) {

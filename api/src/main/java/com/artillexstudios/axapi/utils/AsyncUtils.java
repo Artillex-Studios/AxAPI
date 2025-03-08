@@ -3,8 +3,6 @@ package com.artillexstudios.axapi.utils;
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.executor.ExceptionReportingScheduledThreadPool;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
@@ -15,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class AsyncUtils {
-    private static final Logger log = LoggerFactory.getLogger(AsyncUtils.class);
     private static ScheduledExecutorService executorService;
 
     public static void setup(int poolSize) {
@@ -69,7 +66,7 @@ public final class AsyncUtils {
             executorService.shutdown();
             executorService.awaitTermination(1, TimeUnit.MINUTES);
         } catch (InterruptedException exception) {
-            log.error("An unexpected error occurred while stopping AsyncUtils!", exception);
+            LogUtils.error("An unexpected error occurred while stopping AsyncUtils!", exception);
         }
     }
 }

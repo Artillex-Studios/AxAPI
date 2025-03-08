@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id 'maven-publish'
-    id 'com.gradleup.shadow' version '8.3.3'
+    id 'com.gradleup.shadow' version '9.0.0-beta10'
 }
 
 group = 'com.artillexstudios.axapi'
@@ -9,7 +9,7 @@ version = property("version")
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
