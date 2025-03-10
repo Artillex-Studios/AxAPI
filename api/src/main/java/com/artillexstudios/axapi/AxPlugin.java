@@ -31,7 +31,7 @@ import java.net.URLClassLoader;
 public abstract class AxPlugin extends JavaPlugin {
     public static EntityTracker tracker;
     private final FeatureFlags flags = new FeatureFlags(this);
-    private final ComponentSerializer serializer = new ComponentSerializer(this);
+    private ComponentSerializer serializer;
 
     public AxPlugin() {
         DependencyManager manager = new DependencyManager(this.getDescription(), new File(this.getDataFolder(), "libs"), URLClassLoaderWrapper.wrap((URLClassLoader) this.getClassLoader()));
@@ -61,6 +61,7 @@ public abstract class AxPlugin extends JavaPlugin {
 
         DataComponents.setDataComponentImpl(NMSHandlers.getNmsHandler().dataComponents());
         Scheduler.scheduler.init(this);
+        serializer = new ComponentSerializer(this);
 
         if (this.flags.PACKET_ENTITY_TRACKER_ENABLED.get()) {
             tracker = new EntityTracker(this.flags);
