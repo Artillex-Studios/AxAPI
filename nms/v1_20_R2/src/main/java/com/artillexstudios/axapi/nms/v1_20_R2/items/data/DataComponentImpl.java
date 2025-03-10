@@ -222,7 +222,7 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
                     return;
                 }
 
-                setDisplayTag(tag, "Name", StringTag.valueOf(ComponentSerializer.INSTANCE.toGson(component)));
+                setDisplayTag(tag, "Name", StringTag.valueOf(ComponentSerializer.instance().toGson(component)));
             }
 
             @Override

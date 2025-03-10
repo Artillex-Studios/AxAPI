@@ -271,7 +271,7 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
 
     @Override
     public void setTitle(Inventory inventory, Component title) {
-        net.minecraft.network.chat.Component nmsTitle = ComponentSerializer.INSTANCE.toVanilla(title);
+        net.minecraft.network.chat.Component nmsTitle = ComponentSerializer.instance().toVanilla(title);
         for (HumanEntity viewer : inventory.getViewers()) {
             CraftPlayer craftPlayer = (CraftPlayer) viewer;
             ServerPlayer serverPlayer = craftPlayer.getHandle();
@@ -327,7 +327,7 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     public void sendMessage(Player player, Component message) {
         CraftPlayer craftPlayer = (CraftPlayer) player;
         ServerPlayer serverPlayer = craftPlayer.getHandle();
-        serverPlayer.connection.send(new ClientboundSystemChatPacket((net.minecraft.network.chat.Component) ComponentSerializer.INSTANCE.toVanilla(message), false));
+        serverPlayer.connection.send(new ClientboundSystemChatPacket((net.minecraft.network.chat.Component) ComponentSerializer.instance().toVanilla(message), false));
     }
 
     @Override

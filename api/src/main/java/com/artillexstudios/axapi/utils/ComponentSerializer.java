@@ -1,10 +1,10 @@
 package com.artillexstudios.axapi.utils;
 
+import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.serializers.Serializer;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.Scheduler;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 
@@ -13,29 +13,35 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public enum ComponentSerializer {
-    INSTANCE;
-
+public final class ComponentSerializer {
+    private static AxPlugin plugin;
     private final Serializer<Object, Component> serializer = NMSHandlers.getNmsHandler().componentSerializer();
-    private final Cache<Component, Object> componentCache = Caffeine.newBuilder()
-            .maximumSize(200)
-            .expireAfterAccess(Duration.ofMinutes(5))
-            .build();
-    private final Cache<Object, Component> vanillaCache = Caffeine.newBuilder()
-            .maximumSize(200)
-            .expireAfterAccess(Duration.ofMinutes(5))
-            .build();
-    private final Cache<String, Component> gsonCache = Caffeine.newBuilder()
-            .maximumSize(200)
-            .expireAfterAccess(Duration.ofMinutes(5))
-            .build();
+    private final Cache<Component, Object> componentCache;
+    private final Cache<Object, Component> vanillaCache;
+    private final Cache<String, Component> gsonCache;
+
+    public ComponentSerializer(AxPlugin instance) {
+        plugin = instance;
+        this.componentCache = Caffeine.newBuilder()
+                .maximumSize(instance.flags().COMPONENT_CACHE_SIZE.get())
+                .expireAfterAccess(Duration.ofMinutes(5))
+                .build();
+        this.vanillaCache = Caffeine.newBuilder()
+                .maximumSize(instance.flags().COMPONENT_CACHE_SIZE.get())
+                .expireAfterAccess(Duration.ofMinutes(5))
+                .build();
+        this.gsonCache = Caffeine.newBuilder()
+                .maximumSize(instance.flags().COMPONENT_CACHE_SIZE.get())
+                .expireAfterAccess(Duration.ofMinutes(5))
+                .build();
+    }
 
     public <T> T toVanilla(Component component) {
-        return (T) componentCache.get(component, serializer::deserialize);
+        return (T) this.componentCache.get(component, this.serializer::deserialize);
     }
 
     public Component fromVanilla(Object object) {
-        return vanillaCache.get(object, serializer::serialize);
+        return this.vanillaCache.get(object, this.serializer::serialize);
     }
 
     public <T> List<T> toVanillaList(List<Component> components) {
@@ -89,7 +95,7 @@ public enum ComponentSerializer {
     }
 
     public Component fromGson(String string) {
-        return gsonCache.get(string, s -> {
+        return this.gsonCache.get(string, s -> {
             return GsonComponentSerializer.gson().deserialize(s);
         });
     }
@@ -101,5 +107,9 @@ public enum ComponentSerializer {
         }
 
         return newList;
+    }
+    
+    public static ComponentSerializer instance() {
+        return plugin.serializer();
     }
 }

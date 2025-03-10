@@ -186,7 +186,7 @@ public class StringUtils {
     // Thanks! https://www.spigotmc.org/threads/hex-color-code-translate.449748/
     public static String legacyHexFormat(String message) {
         Matcher matcher = HEX_PATTERN.matcher(message);
-        StringBuffer builder = new StringBuffer(message.length() + 4 * 8);
+        StringBuilder builder = new StringBuilder(message.length() + 4 * 8);
 
         while (matcher.find()) {
             String group = matcher.group(1);
@@ -204,7 +204,7 @@ public class StringUtils {
         Objects.requireNonNull(replacer);
         boolean result = matcher.find();
         if (result) {
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             do {
                 String replacement = replacer.apply(matcher);
                 matcher.appendReplacement(sb, replacement);

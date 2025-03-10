@@ -223,7 +223,7 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
                     return;
                 }
 
-                setDisplayTag(tag, "Name", StringTag.valueOf(ComponentSerializer.INSTANCE.toGson(component)));
+                setDisplayTag(tag, "Name", StringTag.valueOf(ComponentSerializer.instance().toGson(component)));
             }
 
             @Override
@@ -243,7 +243,7 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
                     return Component.empty();
                 }
 
-                return ComponentSerializer.INSTANCE.fromGson(display.getString("Name"));
+                return ComponentSerializer.instance().fromGson(display.getString("Name"));
             }
         };
     }
@@ -261,7 +261,7 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
                     return;
                 }
 
-                setDisplayTag(tag, "Name", StringTag.valueOf(ComponentSerializer.INSTANCE.toGson(component)));
+                setDisplayTag(tag, "Name", StringTag.valueOf(ComponentSerializer.instance().toGson(component)));
             }
 
             @Override
@@ -281,7 +281,7 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
                     return Component.empty();
                 }
 
-                return ComponentSerializer.INSTANCE.fromGson(display.getString("Name"));
+                return ComponentSerializer.instance().fromGson(display.getString("Name"));
             }
         };
     }
@@ -305,7 +305,7 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
                 }
 
                 ListTag listTag = new ListTag();
-                List<String> jsonLore = ComponentSerializer.INSTANCE.toGsonList(itemLore.lines());
+                List<String> jsonLore = ComponentSerializer.instance().toGsonList(itemLore.lines());
 
                 for (int i = 0; i < jsonLore.size(); i++) {
                     listTag.add(StringTag.valueOf(jsonLore.get(i)));
