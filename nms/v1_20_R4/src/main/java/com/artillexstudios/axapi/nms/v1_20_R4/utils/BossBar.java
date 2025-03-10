@@ -44,7 +44,7 @@ public class BossBar implements com.artillexstudios.axapi.utils.BossBar {
         this.style = style;
         this.flags.addAll(Arrays.asList(flags));
 
-        event = new BossEvent(uuid, ComponentSerializer.INSTANCE.toVanilla(title), BossEvent.BossBarColor.byName(color.getInternalName()), BossEvent.BossBarOverlay.byName(style.getInternalName())) {};
+        event = new BossEvent(uuid, ComponentSerializer.instance().toVanilla(title), BossEvent.BossBarColor.byName(color.getInternalName()), BossEvent.BossBarOverlay.byName(style.getInternalName())) {};
         updateAddPacket();
     }
 
@@ -127,7 +127,7 @@ public class BossBar implements com.artillexstudios.axapi.utils.BossBar {
     @Override
     public void setTitle(Component title) {
         this.title = title;
-        event.setName(ComponentSerializer.INSTANCE.toVanilla(title));
+        event.setName(ComponentSerializer.instance().toVanilla(title));
         updateAddPacket();
         updateTitle();
     }
