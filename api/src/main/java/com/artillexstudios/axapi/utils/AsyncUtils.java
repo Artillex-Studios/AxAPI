@@ -2,6 +2,7 @@ package com.artillexstudios.axapi.utils;
 
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.executor.ExceptionReportingScheduledThreadPool;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;

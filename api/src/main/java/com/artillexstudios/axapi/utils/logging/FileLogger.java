@@ -1,4 +1,4 @@
-package com.artillexstudios.axapi.utils;
+package com.artillexstudios.axapi.utils.logging;
 
 import com.artillexstudios.axapi.AxPlugin;
 import org.bukkit.plugin.Plugin;

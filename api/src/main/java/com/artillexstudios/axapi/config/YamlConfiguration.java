@@ -17,7 +17,7 @@ import com.artillexstudios.axapi.config.service.Writer;
 import com.artillexstudios.axapi.config.service.implementation.FileCreator;
 import com.artillexstudios.axapi.config.service.implementation.FileWriter;
 import com.artillexstudios.axapi.config.service.implementation.YamlFormatter;
-import com.artillexstudios.axapi.utils.LogUtils;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 import it.unimi.dsi.fastutil.Pair;
 import it.unimi.dsi.fastutil.ints.IntIntPair;
 import org.yaml.snakeyaml.DumperOptions;

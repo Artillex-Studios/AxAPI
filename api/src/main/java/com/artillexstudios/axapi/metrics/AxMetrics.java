@@ -5,7 +5,7 @@ import com.artillexstudios.axapi.config.YamlConfiguration;
 import com.artillexstudios.axapi.executor.ExceptionReportingScheduledThreadPool;
 import com.artillexstudios.axapi.metrics.collectors.MetricsCollector;
 import com.artillexstudios.axapi.metrics.collectors.MetricsCollectorRegistry;
-import com.artillexstudios.axapi.utils.LogUtils;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

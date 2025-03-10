@@ -1,14 +1,23 @@
-package com.artillexstudios.axapi.utils;
+package com.artillexstudios.axapi.utils.logging;
 
 import org.slf4j.LoggerFactory;
 
 public final class LogUtils {
     private static final StackWalker STACK_WALKER = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
-    private static final FileLogger logger = new FileLogger("logs");
+    private static final FileLogger logger = new FileLogger("debug-logs");
 
     public static void debug(String message) {
-        LoggerFactory.getLogger(STACK_WALKER.getCallerClass()).info(message);
-        logger.log(message);
+        debug(message, DebugMode.BOTH);
+    }
+
+    public static void debug(String message, DebugMode mode) {
+        if (mode == DebugMode.CONSOLE || mode == DebugMode.BOTH) {
+            LoggerFactory.getLogger(STACK_WALKER.getCallerClass()).info(message);
+        }
+
+        if (mode == DebugMode.FILE || mode == DebugMode.BOTH) {
+            logger.log(message);
+        }
     }
 
     public static void debug(String message, Object object) {

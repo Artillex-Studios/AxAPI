@@ -9,7 +9,7 @@ import com.artillexstudios.axapi.metrics.collectors.implementation.OnlinePlayers
 import com.artillexstudios.axapi.metrics.collectors.implementation.OperatingSystemMetricsCollector;
 import com.artillexstudios.axapi.metrics.collectors.implementation.PluginVersionMetricsCollector;
 import com.artillexstudios.axapi.metrics.collectors.implementation.ServerSoftwareMetricsCollector;
-import com.artillexstudios.axapi.utils.LogUtils;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
