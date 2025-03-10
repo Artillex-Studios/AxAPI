@@ -338,7 +338,7 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
                     lore.add(line);
                 }
 
-                return new ItemLore(ComponentSerializer.INSTANCE.fromGsonList(lore));
+                return new ItemLore(ComponentSerializer.instance().fromGsonList(lore));
             }
         };
     }

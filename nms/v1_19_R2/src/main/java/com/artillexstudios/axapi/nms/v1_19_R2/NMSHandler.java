@@ -263,7 +263,7 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
 
     @Override
     public void setTitle(Inventory inventory, Component title) {
-        net.minecraft.network.chat.Component nmsTitle = ComponentSerializer.instance()().toVanilla(title);
+        net.minecraft.network.chat.Component nmsTitle = ComponentSerializer.instance().toVanilla(title);
         for (HumanEntity viewer : inventory.getViewers()) {
             CraftPlayer craftPlayer = (CraftPlayer) viewer;
             ServerPlayer serverPlayer = craftPlayer.getHandle();

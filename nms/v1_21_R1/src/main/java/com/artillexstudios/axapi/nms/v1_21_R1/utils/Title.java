@@ -120,13 +120,13 @@ public class Title implements com.artillexstudios.axapi.utils.Title {
         if (title == null || title == Component.empty()) {
             titleTextPacket = null;
         } else {
-            titleTextPacket = new ClientboundSetTitleTextPacket(ComponentSerializer.INSTANCE.toVanilla(title));
+            titleTextPacket = new ClientboundSetTitleTextPacket(ComponentSerializer.instance().toVanilla(title));
         }
 
         if (subTitle == null || subTitle == Component.empty()) {
             subtitleTextPacket = null;
         } else {
-            subtitleTextPacket = new ClientboundSetSubtitleTextPacket(ComponentSerializer.INSTANCE.toVanilla(subTitle));
+            subtitleTextPacket = new ClientboundSetSubtitleTextPacket(ComponentSerializer.instance().toVanilla(subTitle));
         }
 
         animationPacket = new ClientboundSetTitlesAnimationPacket(fadeInTime, stayTime, fadeOutTime);
