@@ -23,7 +23,7 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
     }
 
     @Override
-    public PlayerTextures textures(Player player) {
+    public PlayerTextures textures() {
         this.update();
         GameProfile profile = this.serverPlayer.getGameProfile();
         Optional<Property> property = profile.getProperties()
