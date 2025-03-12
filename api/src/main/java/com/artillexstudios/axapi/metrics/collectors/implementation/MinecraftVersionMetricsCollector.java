@@ -9,7 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class MinecraftVersionMetricsCollector implements MetricsCollector {
-    private static final Pattern pattern = Pattern.compile("MC: (\\d+\\.\\d+(\\.\\d+))?");
+    private static final Pattern pattern = Pattern.compile("MC: (\\d+\\.\\d+(\\.\\d+)?)");
     private final String version;
 
     public MinecraftVersionMetricsCollector() {
