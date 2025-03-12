@@ -25,6 +25,16 @@ public final class Requests {
         return client.sendAsync(builder.build(), HttpResponse.BodyHandlers.ofString());
     }
 
+    public static CompletableFuture<HttpResponse<String>> delete(String url, Map<String, String> headers) {
+        HttpRequest.Builder builder = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .DELETE();
+
+        headers.forEach(builder::setHeader);
+
+        return client.sendAsync(builder.build(), HttpResponse.BodyHandlers.ofString());
+    }
+
     public static CompletableFuture<HttpResponse<String>> get(String url, Map<String, String> headers) {
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(url))
