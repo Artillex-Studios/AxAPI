@@ -5,21 +5,16 @@ import com.artillexstudios.axapi.config.YamlConfiguration;
 import com.artillexstudios.axapi.executor.ExceptionReportingScheduledThreadPool;
 import com.artillexstudios.axapi.metrics.collectors.MetricsCollector;
 import com.artillexstudios.axapi.metrics.collectors.MetricsCollectorRegistry;
-import com.artillexstudios.axapi.utils.logging.LogUtils;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.artillexstudios.axapi.utils.http.Requests;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.yaml.snakeyaml.DumperOptions;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -27,10 +22,6 @@ import java.util.concurrent.TimeUnit;
 public final class AxMetrics {
     private final MetricsCollectorRegistry registry;
     private final FeatureFlags flags;
-    private final Gson gson = new GsonBuilder()
-            .setPrettyPrinting()
-            .create();
-    private HttpClient client;
     private final long pluginId;
     private ScheduledExecutorService executorService;
     private final YamlConfiguration metricsConfig;
@@ -62,9 +53,6 @@ public final class AxMetrics {
             LogUtils.error("Failed to start metrics, as it had already been started!");
             return;
         }
-
-        this.client = HttpClient.newBuilder()
-                .build();
 
         this.executorService = new ExceptionReportingScheduledThreadPool(1,
                 Thread.ofVirtual()
@@ -104,17 +92,8 @@ public final class AxMetrics {
         }
         obj.add("data", data);
 
-        String serialized = this.gson.toJson(obj);
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://metrics.artillex-studios.com/api/v1/upload?uuid=" + MetricsConfig.serverUuid.toString()))
-                .POST(HttpRequest.BodyPublishers.ofString(serialized))
-                .header("Content-Type", "application/json")
-                .build();
-
-        try {
+        Requests.post("https://metrics.artillex-studios.com/api/v1/upload?uuid=" + MetricsConfig.serverUuid.toString(), Map.of("Content-Type", "application/json"), () -> obj).thenAccept(response -> {
             UUID previousUUID = MetricsConfig.serverUuid;
-            HttpResponse<?> response = this.client.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() == 425) {
                 this.metricsConfig.load();
                 if (previousUUID.equals(MetricsConfig.serverUuid)) {
@@ -127,11 +106,12 @@ public final class AxMetrics {
                     LogUtils.debug("Sent metrics successfully!");
                 }
             }
-        } catch (IOException | InterruptedException exception) {
-            // Quietly fail
+        }).exceptionally(throwable -> {
             if (this.flags.DEBUG.get()) {
-                LogUtils.debug("Caught exception while sending metrics! Body: {}", serialized, exception);
+                LogUtils.debug("Caught exception while sending metrics! Body: {}", obj, throwable);
             }
-        }
+            return null;
+        });
+
     }
 }
