@@ -9,39 +9,47 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 public final class Requests {
-    private static final HttpClient client = HttpClient.newHttpClient();
+    private static final AtomicReference<HttpClient> client = new AtomicReference<>();
     private static final Gson gson = new Gson();
 
+    private static void init() {
+        client.getAndUpdate(prev -> prev == null ? HttpClient.newHttpClient() : prev);
+    }
+
     public static CompletableFuture<HttpResponse<String>> post(String url, Map<String, String> headers, Supplier<JsonObject> body) {
+        init();
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(body.get())));
 
         headers.forEach(builder::setHeader);
 
-        return client.sendAsync(builder.build(), HttpResponse.BodyHandlers.ofString());
+        return client.get().sendAsync(builder.build(), HttpResponse.BodyHandlers.ofString());
     }
 
     public static CompletableFuture<HttpResponse<String>> delete(String url, Map<String, String> headers) {
+        init();
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .DELETE();
 
         headers.forEach(builder::setHeader);
 
-        return client.sendAsync(builder.build(), HttpResponse.BodyHandlers.ofString());
+        return client.get().sendAsync(builder.build(), HttpResponse.BodyHandlers.ofString());
     }
 
     public static CompletableFuture<HttpResponse<String>> get(String url, Map<String, String> headers) {
+        init();
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .GET();
 
         headers.forEach(builder::setHeader);
 
-        return client.sendAsync(builder.build(), HttpResponse.BodyHandlers.ofString());
+        return client.get().sendAsync(builder.build(), HttpResponse.BodyHandlers.ofString());
     }
 }
