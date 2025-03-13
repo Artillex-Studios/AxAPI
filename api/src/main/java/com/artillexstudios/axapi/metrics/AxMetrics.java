@@ -110,7 +110,7 @@ public final class AxMetrics {
             }
         } catch (RuntimeException exception) {
             if (this.flags.DEBUG.get()) {
-                LogUtils.debug("Caught exception while sending metrics! Body: {}", obj, exception);
+                LogUtils.debug("Caught exception while sending metrics! Body: {}", obj, exception.getCause());
             }
         }
     }
