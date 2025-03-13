@@ -13,6 +13,7 @@ import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.yaml.snakeyaml.DumperOptions;
 
+import java.net.http.HttpResponse;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.UUID;
@@ -92,7 +93,8 @@ public final class AxMetrics {
         }
         obj.add("data", data);
 
-        Requests.post("https://metrics.artillex-studios.com/api/v1/upload?uuid=" + MetricsConfig.serverUuid.toString(), Map.of("Content-Type", "application/json"), () -> obj).thenAccept(response -> {
+        try {
+            HttpResponse<String> response = Requests.post("https://metrics.artillex-studios.com/api/v1/upload?uuid=" + MetricsConfig.serverUuid.toString(), Map.of("Content-Type", "application/json"), () -> obj);
             UUID previousUUID = MetricsConfig.serverUuid;
             if (response.statusCode() == 425) {
                 this.metricsConfig.load();
@@ -106,12 +108,11 @@ public final class AxMetrics {
                     LogUtils.debug("Sent metrics successfully!");
                 }
             }
-        }).exceptionally(throwable -> {
+        } catch (RuntimeException exception) {
             if (this.flags.DEBUG.get()) {
-                LogUtils.debug("Caught exception while sending metrics! Body: {}", obj, throwable);
+                LogUtils.debug("Caught exception while sending metrics! Body: {}", obj, exception);
             }
-            return null;
-        });
-
+        }
     }
 }
+
