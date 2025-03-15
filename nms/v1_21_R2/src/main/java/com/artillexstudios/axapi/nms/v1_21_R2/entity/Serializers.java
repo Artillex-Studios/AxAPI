@@ -11,8 +11,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.CraftParticle;
+import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import org.bukkit.util.EulerAngle;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.EnumMap;
@@ -173,6 +177,33 @@ public class Serializers {
             @Override
             public EntityDataSerializer<Vector3f> serializer() {
                 return net.minecraft.network.syncher.EntityDataSerializers.VECTOR3;
+            }
+        });
+
+
+        typeTransformers.put(EntityDataSerializers.Type.QUATERNION, new Transformer<Quaternionf>() {
+            @Override
+            public Quaternionf transform(Object other) {
+                com.artillexstudios.axapi.utils.Quaternion quaternion = (com.artillexstudios.axapi.utils.Quaternion) other;
+                return new Quaternionf(quaternion.x(), quaternion.y(), quaternion.z(), quaternion.w());
+            }
+
+            @Override
+            public EntityDataSerializer<Quaternionf> serializer() {
+                return net.minecraft.network.syncher.EntityDataSerializers.QUATERNION;
+            }
+        });
+
+        typeTransformers.put(EntityDataSerializers.Type.BLOCK_DATA, new Transformer<BlockState>() {
+            @Override
+            public BlockState transform(Object other) {
+                BlockData data = (BlockData) other;
+                return ((CraftBlockData) data).getState();
+            }
+
+            @Override
+            public EntityDataSerializer<BlockState> serializer() {
+                return net.minecraft.network.syncher.EntityDataSerializers.BLOCK_STATE;
             }
         });
     }

@@ -11,8 +11,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.v1_19_R2.CraftParticle;
+import org.bukkit.craftbukkit.v1_19_R2.block.data.CraftBlockData;
 import org.bukkit.util.EulerAngle;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.EnumMap;
@@ -172,6 +176,31 @@ public class Serializers {
             @Override
             public EntityDataSerializer<Vector3f> serializer() {
                 throw new RuntimeException("Unsupported type!");
+            }
+        });
+
+        typeTransformers.put(EntityDataSerializers.Type.QUATERNION, new Transformer<Quaternionf>() {
+            @Override
+            public Quaternionf transform(Object other) {
+                throw new RuntimeException("Unsupported type!");
+            }
+
+            @Override
+            public EntityDataSerializer<Quaternionf> serializer() {
+                throw new RuntimeException("Unsupported type!");
+            }
+        });
+
+        typeTransformers.put(EntityDataSerializers.Type.BLOCK_DATA, new Transformer<Optional<BlockState>>() {
+            @Override
+            public Optional<BlockState> transform(Object other) {
+                BlockData data = (BlockData) other;
+                return Optional.of(((CraftBlockData) data).getState());
+            }
+
+            @Override
+            public EntityDataSerializer<Optional<BlockState>> serializer() {
+                return net.minecraft.network.syncher.EntityDataSerializers.BLOCK_STATE;
             }
         });
     }
