@@ -169,7 +169,7 @@ public class StringUtils {
     private static String replaceLegacyFormat(String toFormat, String search, String start, String close) {
         int index;
         while ((index = toFormat.indexOf(search)) != -1) {
-            toFormat = org.apache.commons.lang.StringUtils.replaceOnce(toFormat, search, start);
+            toFormat = org.apache.commons.lang3.StringUtils.replaceOnce(toFormat, search, start);
             for (int i = index; i < toFormat.length(); i++) {
                 if (toFormat.charAt(i) == '&' && i + 1 < toFormat.length() && COLOR_CHARS.contains(toFormat.charAt(i + 1))) {
                     StringBuilder stringBuilder = new StringBuilder(toFormat);
