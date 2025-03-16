@@ -3,6 +3,8 @@ package com.artillexstudios.axapi.packet.wrapper;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketEvent;
+import com.artillexstudios.axapi.packet.PacketType;
+import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
 import com.artillexstudios.axapi.utils.Pair;
 import com.google.common.collect.Lists;
@@ -41,6 +43,11 @@ public final class ClientboundSetEquipmentWrapper extends PacketWrapper {
             WrappedItemStack wrappedItemStack = buf.readItemStack();
             this.items.add(new Pair<>(slot, wrappedItemStack));
         } while ((_byte & -128) != 0);
+    }
+
+    @Override
+    public PacketType packetType() {
+        return ClientboundPacketTypes.SET_EQUIPMENT;
     }
 
     public int entityId() {

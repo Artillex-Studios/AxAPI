@@ -3,6 +3,8 @@ package com.artillexstudios.axapi.packet.wrapper;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketEvent;
+import com.artillexstudios.axapi.packet.PacketType;
+import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
 
 public final class ClientboundContainerSetSlotWrapper extends PacketWrapper {
     private byte containerId;
@@ -60,5 +62,10 @@ public final class ClientboundContainerSetSlotWrapper extends PacketWrapper {
         this.stateId = buf.readVarInt();
         this.slot = buf.readShort();
         this.stack = buf.readItemStack();
+    }
+
+    @Override
+    public PacketType packetType() {
+        return ClientboundPacketTypes.CONTAINER_SET_SLOT;
     }
 }

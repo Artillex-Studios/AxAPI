@@ -8,6 +8,8 @@ import java.util.regex.Pattern;
 public final class FeatureFlags {
     public final BooleanFlag PACKET_ENTITY_TRACKER_ENABLED;
     public final BooleanFlag DEBUG;
+    public final BooleanFlag DEBUG_INCOMING_PACKETS;
+    public final BooleanFlag DEBUG_OUTGOING_PACKETS;
     public final BooleanFlag USE_LEGACY_HEX_FORMATTER;
     public final IntegerFlag PACKET_ENTITY_TRACKER_THREADS;
     public final LongFlag HOLOGRAM_UPDATE_TICKS;
@@ -21,6 +23,8 @@ public final class FeatureFlags {
         this.plugin = plugin;
         this.PACKET_ENTITY_TRACKER_ENABLED = new BooleanFlag(plugin.getName() + "enableEntityTracker", false);
         this.DEBUG = new BooleanFlag(plugin.getName() + "debug", false);
+        this.DEBUG_INCOMING_PACKETS = new BooleanFlag(plugin.getName() + "debugIncomingPackets", false);
+        this.DEBUG_OUTGOING_PACKETS = new BooleanFlag(plugin.getName() + "debugOutgoingPackets", false);
         this.USE_LEGACY_HEX_FORMATTER = new BooleanFlag(plugin.getName() + "useLegacyHexFormat", false);
         this.PACKET_ENTITY_TRACKER_THREADS = new IntegerFlag(plugin.getName() + "entityTrackerThreads", 3);
         this.HOLOGRAM_UPDATE_TICKS = new LongFlag(plugin.getName() + "hologramUpdateTicks", 0L);

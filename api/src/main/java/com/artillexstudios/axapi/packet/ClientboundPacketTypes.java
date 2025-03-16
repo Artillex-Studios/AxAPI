@@ -1,13 +1,15 @@
 package com.artillexstudios.axapi.packet;
 
 import com.artillexstudios.axapi.AxPlugin;
-import com.artillexstudios.axapi.utils.LogUtils;
 import com.artillexstudios.axapi.utils.Version;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 
-public final class PacketTypes {
+public final class ClientboundPacketTypes {
     private static final Int2ObjectMap<PacketType> PACKET_TYPES = new Int2ObjectOpenHashMap<>();
+    private static final Object2IntArrayMap<PacketType> REVERSE_PACKET_TYPES = new Object2IntArrayMap<>();
     public static final PacketType BUNDLE_DELIMITER = new PacketType("BUNDLE", Version.v1_19_3, Version.FUTURE_RELEASE);
     public static final PacketType ADD_ENTITY = new PacketType("ADD_ENTITY", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType ADD_EXPERIENCE_ORB = new PacketType("ADD_EXPERIENCE_ORB", Version.v1_18, Version.FUTURE_RELEASE);
@@ -305,9 +307,10 @@ public final class PacketTypes {
     }
 
     public static void register(PacketType packetType) {
-        if (packetType.from().isNewerThanOrEqualTo(Version.getServerVersion()) && packetType.to().isOlderThanOrEqualTo(Version.getServerVersion())) {
+        if (Version.getServerVersion().isNewerThanOrEqualTo(packetType.from()) && Version.getServerVersion().isOlderThanOrEqualTo(packetType.to())) {
             int size = PACKET_TYPES.size();
             PACKET_TYPES.put(size, packetType);
+            REVERSE_PACKET_TYPES.put(packetType, size);
             if (AxPlugin.getPlugin(AxPlugin.class).flags().DEBUG.get()) {
                 LogUtils.debug("Registered packet with id {}", size);
             }
@@ -316,5 +319,9 @@ public final class PacketTypes {
 
     public static PacketType forPacketId(int id) {
         return PACKET_TYPES.get(id);
+    }
+
+    public static int forPacketType(PacketType type) {
+        return REVERSE_PACKET_TYPES.getInt(type);
     }
 }

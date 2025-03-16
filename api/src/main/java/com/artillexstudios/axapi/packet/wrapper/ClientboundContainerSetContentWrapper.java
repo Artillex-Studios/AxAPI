@@ -3,13 +3,15 @@ package com.artillexstudios.axapi.packet.wrapper;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketEvent;
+import com.artillexstudios.axapi.packet.PacketType;
+import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
-public final class ClientboundContainerSetContentWrapper extends PacketWrapper{
+public final class ClientboundContainerSetContentWrapper extends PacketWrapper {
     private int containerId;
     private int stateId;
     private List<WrappedItemStack> items;
@@ -40,6 +42,11 @@ public final class ClientboundContainerSetContentWrapper extends PacketWrapper{
             items.add(buf.readItemStack());
         }
         this.carriedItem = buf.readItemStack();
+    }
+
+    @Override
+    public PacketType packetType() {
+        return ClientboundPacketTypes.CONTAINER_CONTENT;
     }
 
     public int containerId() {

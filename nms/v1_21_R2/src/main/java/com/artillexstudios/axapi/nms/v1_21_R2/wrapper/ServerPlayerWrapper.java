@@ -1,16 +1,30 @@
 package com.artillexstudios.axapi.nms.v1_21_R2.wrapper;
 
+import com.artillexstudios.axapi.nms.v1_21_R2.packet.FriendlyByteBufWrapper;
+import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
+import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
 import com.artillexstudios.axapi.utils.PlayerTextures;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.GameProtocols;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 
 public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper {
+    private static final Function<ByteBuf, RegistryFriendlyByteBuf> decorator = RegistryFriendlyByteBuf.decorator(MinecraftServer.getServer().registryAccess());
+    private static final StreamCodec<ByteBuf, Packet<? super ClientGamePacketListener>> codec = GameProtocols.CLIENTBOUND_TEMPLATE.bind(decorator).codec();
     private Player wrapped;
     private ServerPlayer serverPlayer;
 
@@ -73,6 +87,14 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
     public Object asMinecraft() {
         this.update();
         return this.serverPlayer;
+    }
+
+    @Override
+    public void sendPacket(PacketWrapper wrapper) {
+        RegistryFriendlyByteBuf buf = decorator.apply(Unpooled.buffer());
+        buf.writeVarInt(ClientboundPacketTypes.forPacketType(wrapper.packetType()));
+        wrapper.write(new FriendlyByteBufWrapper(buf));
+        this.serverPlayer.connection.send(codec.decode(buf));
     }
 
     @Override

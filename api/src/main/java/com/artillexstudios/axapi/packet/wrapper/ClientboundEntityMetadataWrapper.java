@@ -2,6 +2,8 @@ package com.artillexstudios.axapi.packet.wrapper;
 
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketEvent;
+import com.artillexstudios.axapi.packet.PacketType;
+import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
 import com.artillexstudios.axapi.packetentity.meta.Metadata;
 import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataSerializer;
 import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataSerializers;
@@ -55,5 +57,10 @@ public class ClientboundEntityMetadataWrapper extends PacketWrapper {
             EntityDataSerializer<?> serializer = EntityDataSerializers.byId(serializerId);
             items.add(new Metadata.DataItem(i, serializer, serializer.read(buf)));
         }
+    }
+
+    @Override
+    public PacketType packetType() {
+        return ClientboundPacketTypes.SET_ENTITY_DATA;
     }
 }

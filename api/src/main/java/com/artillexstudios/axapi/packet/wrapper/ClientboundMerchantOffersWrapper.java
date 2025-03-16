@@ -3,6 +3,8 @@ package com.artillexstudios.axapi.packet.wrapper;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketEvent;
+import com.artillexstudios.axapi.packet.PacketType;
+import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
 import com.artillexstudios.axapi.utils.MerchantOffer;
 import com.artillexstudios.axapi.utils.Version;
 
@@ -110,6 +112,11 @@ public final class ClientboundMerchantOffersWrapper extends PacketWrapper {
         this.villagerXp = buf.readVarInt();
         this.showProgress = buf.readBoolean();
         this.canRestock = buf.readBoolean();
+    }
+
+    @Override
+    public PacketType packetType() {
+        return ClientboundPacketTypes.MERCHANT_OFFERS;
     }
 
     private MerchantOffer readOffer(FriendlyByteBuf buf) {
