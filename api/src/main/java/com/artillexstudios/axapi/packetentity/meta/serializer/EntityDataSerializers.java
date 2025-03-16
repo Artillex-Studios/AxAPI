@@ -15,6 +15,7 @@ import com.artillexstudios.axapi.utils.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import net.kyori.adventure.text.Component;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Pose;
 import org.bukkit.util.EulerAngle;
 
@@ -160,15 +161,15 @@ public final class EntityDataSerializers {
             return Type.ITEM_STACK;
         }
     };
-    public static final EntityDataSerializer<Integer> BLOCK_DATA = new EntityDataSerializer<>() {
+    public static final EntityDataSerializer<BlockData> BLOCK_DATA = new EntityDataSerializer<>() {
         @Override
-        public void write(FriendlyByteBuf buf, Integer value) {
-            buf.writeVarInt(value);
+        public void write(FriendlyByteBuf buf, BlockData value) {
+            buf.writeBlockData(value);
         }
 
         @Override
-        public Integer read(FriendlyByteBuf buf) {
-            return buf.readVarInt();
+        public BlockData read(FriendlyByteBuf buf) {
+            return buf.readBlockData();
         }
 
         @Override
