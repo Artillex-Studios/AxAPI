@@ -34,13 +34,6 @@ public record EntityDataSerializers<T>(com.artillexstudios.axapi.packetentity.me
         return new EntityDataAccessor<>(id, this);
     }
 
-    @Override
-    public String toString() {
-        return "EntityDataSerializers{" +
-                "type=" + type +
-                '}';
-    }
-
     public enum Type {
         BYTE,
         INT,
