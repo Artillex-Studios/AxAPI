@@ -14,6 +14,7 @@ public final class FeatureFlags {
     public final ListFlag<Pattern> PLACEHOLDER_PATTERNS;
     public final BooleanFlag PLACEHOLDER_API_HOOK;
     public final StringFlag PLACEHOLDER_API_IDENTIFIER;
+    public final IntegerFlag COMPONENT_CACHE_SIZE;
     private final AxPlugin plugin;
 
     public FeatureFlags(AxPlugin plugin) {
@@ -26,5 +27,6 @@ public final class FeatureFlags {
         this.PLACEHOLDER_PATTERNS = new ListFlag<>(plugin.getName() + "placeholderPatterns", PatternFlag.TRANSFORMER, Arrays.asList(Pattern.compile("%.+%"), Pattern.compile("<.+>")));
         this.PLACEHOLDER_API_HOOK = new BooleanFlag(plugin.getName() + "placeholderApiHook", false);
         this.PLACEHOLDER_API_IDENTIFIER = new StringFlag(plugin.getName() + "placeholderApiIdentifier", "");
+        this.COMPONENT_CACHE_SIZE = new IntegerFlag(plugin.getName() + "componentCacheSize", 200);
     }
 }

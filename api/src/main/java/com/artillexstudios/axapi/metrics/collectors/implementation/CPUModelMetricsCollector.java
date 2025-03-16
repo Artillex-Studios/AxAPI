@@ -1,7 +1,7 @@
 package com.artillexstudios.axapi.metrics.collectors.implementation;
 
 import com.artillexstudios.axapi.metrics.collectors.MetricsCollector;
-import com.artillexstudios.axapi.utils.LogUtils;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 

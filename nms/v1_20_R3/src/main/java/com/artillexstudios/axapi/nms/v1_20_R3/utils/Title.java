@@ -111,13 +111,13 @@ public class Title implements com.artillexstudios.axapi.utils.Title {
         if (title == null || title == Component.empty()) {
             titleTextPacket = null;
         } else {
-            titleTextPacket = new ClientboundSetTitleTextPacket((net.minecraft.network.chat.Component) ComponentSerializer.INSTANCE.toVanilla(title));
+            titleTextPacket = new ClientboundSetTitleTextPacket((net.minecraft.network.chat.Component) ComponentSerializer.instance().toVanilla(title));
         }
 
         if (subTitle == null || subTitle == Component.empty()) {
             subtitleTextPacket = null;
         } else {
-            subtitleTextPacket = new ClientboundSetSubtitleTextPacket((net.minecraft.network.chat.Component) ComponentSerializer.INSTANCE.toVanilla(subTitle));
+            subtitleTextPacket = new ClientboundSetSubtitleTextPacket((net.minecraft.network.chat.Component) ComponentSerializer.instance().toVanilla(subTitle));
         }
 
         animationPacket = new ClientboundSetTitlesAnimationPacket(fadeInTime, stayTime, fadeOutTime);

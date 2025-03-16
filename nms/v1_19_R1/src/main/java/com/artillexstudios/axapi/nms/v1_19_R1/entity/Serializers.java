@@ -5,6 +5,7 @@ import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataSerializ
 import com.artillexstudios.axapi.reflection.FastFieldAccessor;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.ParticleArguments;
+import com.artillexstudios.axapi.utils.Quaternion;
 import com.mojang.math.Vector3f;
 import net.minecraft.core.Rotations;
 import net.minecraft.core.particles.ParticleOptions;
@@ -12,7 +13,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.v1_19_R1.CraftParticle;
+import org.bukkit.craftbukkit.v1_19_R1.block.data.CraftBlockData;
 import org.bukkit.util.EulerAngle;
 
 import java.util.EnumMap;
@@ -74,7 +78,7 @@ public class Serializers {
         typeTransformers.put(EntityDataSerializers.Type.COMPONENT, new Transformer<Component>() {
             @Override
             public Component transform(Object other) {
-                return ComponentSerializer.INSTANCE.toVanilla((net.kyori.adventure.text.Component) other);
+                return ComponentSerializer.instance().toVanilla((net.kyori.adventure.text.Component) other);
             }
 
             @Override
@@ -86,7 +90,7 @@ public class Serializers {
         typeTransformers.put(EntityDataSerializers.Type.OPTIONAL_COMPONENT, new Transformer<Optional<Component>>() {
             @Override
             public Optional<Component> transform(Object other) {
-                return ((Optional<net.kyori.adventure.text.Component>) other).map(ComponentSerializer.INSTANCE::toVanilla);
+                return ((Optional<net.kyori.adventure.text.Component>) other).map(ComponentSerializer.instance()::toVanilla);
             }
 
             @Override
@@ -172,6 +176,31 @@ public class Serializers {
             @Override
             public EntityDataSerializer<Vector3f> serializer() {
                 throw new RuntimeException("Unsupported type!");
+            }
+        });
+
+        typeTransformers.put(EntityDataSerializers.Type.QUATERNION, new Transformer<Quaternion>() {
+            @Override
+            public Quaternion transform(Object other) {
+                throw new RuntimeException("Unsupported type!");
+            }
+
+            @Override
+            public EntityDataSerializer<Quaternion> serializer() {
+                throw new RuntimeException("Unsupported type!");
+            }
+        });
+
+        typeTransformers.put(EntityDataSerializers.Type.BLOCK_DATA, new Transformer<Optional<BlockState>>() {
+            @Override
+            public Optional<BlockState> transform(Object other) {
+                BlockData data = (BlockData) other;
+                return Optional.of(((CraftBlockData) data).getState());
+            }
+
+            @Override
+            public EntityDataSerializer<Optional<BlockState>> serializer() {
+                return net.minecraft.network.syncher.EntityDataSerializers.BLOCK_STATE;
             }
         });
     }

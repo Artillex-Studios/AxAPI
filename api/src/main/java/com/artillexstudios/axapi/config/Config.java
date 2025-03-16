@@ -12,10 +12,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public class Config {
     private YamlDocument configuration;
@@ -46,6 +48,10 @@ public class Config {
 
     public void set(String key, Object value) {
         configuration.set(key, value);
+    }
+
+    public void remove(String key) {
+        configuration.remove(key);
     }
 
     public boolean getBoolean(String key) {
@@ -136,6 +142,10 @@ public class Config {
 
     public <T> Optional<T> getOptional(String key) {
         return (Optional<T>) configuration.getOptional(key);
+    }
+
+    public Set<String> getKeys(boolean deep) {
+        return configuration.getRoutesAsStrings(deep);
     }
 
     public boolean reload() {

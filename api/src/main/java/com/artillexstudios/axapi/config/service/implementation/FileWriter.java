@@ -1,7 +1,7 @@
 package com.artillexstudios.axapi.config.service.implementation;
 
 import com.artillexstudios.axapi.config.service.Writer;
-import com.artillexstudios.axapi.utils.LogUtils;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 
 import java.io.BufferedWriter;
 import java.io.File;

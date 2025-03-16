@@ -29,6 +29,6 @@ public class ActionBar implements com.artillexstudios.axapi.utils.ActionBar {
     }
 
     private void updatePacket() {
-        actionBarTextPacket = new ClientboundSetActionBarTextPacket(ComponentSerializer.INSTANCE.toVanilla(content));
+        actionBarTextPacket = new ClientboundSetActionBarTextPacket(ComponentSerializer.instance().toVanilla(content));
     }
 }

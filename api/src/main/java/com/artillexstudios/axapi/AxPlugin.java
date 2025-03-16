@@ -12,6 +12,7 @@ import com.artillexstudios.axapi.packetentity.tracker.EntityTracker;
 import com.artillexstudios.axapi.placeholders.PlaceholderAPIHook;
 import com.artillexstudios.axapi.placeholders.Placeholders;
 import com.artillexstudios.axapi.scheduler.Scheduler;
+import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -31,6 +32,7 @@ import java.net.URLClassLoader;
 public abstract class AxPlugin extends JavaPlugin {
     public static EntityTracker tracker;
     private final FeatureFlags flags = new FeatureFlags(this);
+    private ComponentSerializer serializer;
 
     public AxPlugin() {
         DependencyManager manager = new DependencyManager(this.getDescription(), new File(this.getDataFolder(), "libs"), URLClassLoaderWrapper.wrap((URLClassLoader) this.getClassLoader()));
@@ -60,6 +62,7 @@ public abstract class AxPlugin extends JavaPlugin {
 
         DataComponents.setDataComponentImpl(NMSHandlers.getNmsHandler().dataComponents());
         Scheduler.scheduler.init(this);
+        serializer = new ComponentSerializer(this);
 
         if (this.flags.PACKET_ENTITY_TRACKER_ENABLED.get()) {
             tracker = new EntityTracker(this.flags);
@@ -158,6 +161,10 @@ public abstract class AxPlugin extends JavaPlugin {
 
     public FeatureFlags flags() {
         return this.flags;
+    }
+
+    public ComponentSerializer serializer() {
+        return this.serializer;
     }
 
     public long reloadWithTime() {

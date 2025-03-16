@@ -159,7 +159,7 @@ public class BossBar implements com.artillexstudios.axapi.utils.BossBar {
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         buf.writeUUID(uuid);
         buf.writeVarInt(3);
-        buf.writeComponent((net.minecraft.network.chat.Component) ComponentSerializer.INSTANCE.toVanilla(title));
+        buf.writeComponent((net.minecraft.network.chat.Component) ComponentSerializer.instance().toVanilla(title));
 
         ClientboundBossEventPacket titlePacket = new ClientboundBossEventPacket(buf);
         buf.release();
@@ -220,7 +220,7 @@ public class BossBar implements com.artillexstudios.axapi.utils.BossBar {
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         buf.writeUUID(uuid);
         buf.writeVarInt(0);
-        buf.writeComponent((net.minecraft.network.chat.Component) ComponentSerializer.INSTANCE.toVanilla(title));
+        buf.writeComponent((net.minecraft.network.chat.Component) ComponentSerializer.instance().toVanilla(title));
         buf.writeFloat(progress);
         buf.writeEnum(BossEvent.BossBarColor.byName(color.getInternalName()));
         buf.writeEnum(BossEvent.BossBarOverlay.byName(style.getInternalName()));

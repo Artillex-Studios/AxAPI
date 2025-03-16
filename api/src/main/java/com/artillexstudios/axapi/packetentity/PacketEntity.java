@@ -36,7 +36,7 @@ public interface PacketEntity {
     Location location();
 
     /**
-     * Returns a modifyable meta instance
+     * Returns a modifiable meta instance
      * @return Entity metadata instance
      */
     EntityMeta meta();

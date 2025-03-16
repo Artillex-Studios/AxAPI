@@ -10,7 +10,7 @@ public interface ServerPlayerWrapper extends Wrapper<Player> {
         return NMSHandlers.getNmsHandler().wrapper(player);
     }
 
-    PlayerTextures textures(Player player);
+    PlayerTextures textures();
 
     double getX();
 

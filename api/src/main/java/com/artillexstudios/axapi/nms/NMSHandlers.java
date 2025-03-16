@@ -1,9 +1,8 @@
 package com.artillexstudios.axapi.nms;
 
 import com.artillexstudios.axapi.AxPlugin;
-import com.artillexstudios.axapi.utils.LogUtils;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 import com.artillexstudios.axapi.utils.Version;
-import org.bukkit.plugin.java.JavaPlugin;
 
 public class NMSHandlers {
     private static NMSHandler nmsHandler;
