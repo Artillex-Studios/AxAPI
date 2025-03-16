@@ -1,10 +1,12 @@
-package com.artillexstudios.axapi.packet.accessor;
+package com.artillexstudios.axapi.utils;
 
 import com.artillexstudios.axapi.items.WrappedItemStack;
 
+import java.util.Optional;
+
 public final class MerchantOffer {
     private WrappedItemStack item1;
-    private WrappedItemStack item2;
+    private Optional<WrappedItemStack> item2;
     private WrappedItemStack output;
     private int uses;
     private int maxUses;
@@ -13,7 +15,7 @@ public final class MerchantOffer {
     private float priceMultiplier;
     private int demand;
 
-    public MerchantOffer(WrappedItemStack item1, WrappedItemStack item2, WrappedItemStack output, int uses, int maxUses, int xp, int price, float priceMultiplier, int demand) {
+    public MerchantOffer(WrappedItemStack item1, Optional<WrappedItemStack> item2, WrappedItemStack output, int uses, int maxUses, int xp, int price, float priceMultiplier, int demand) {
         this.item1 = item1;
         this.item2 = item2;
         this.output = output;
@@ -26,23 +28,23 @@ public final class MerchantOffer {
     }
 
     public WrappedItemStack item1() {
-        return item1;
+        return this.item1;
     }
 
     public void setItem1(WrappedItemStack item1) {
         this.item1 = item1;
     }
 
-    public WrappedItemStack item2() {
-        return item2;
+    public Optional<WrappedItemStack> item2() {
+        return this.item2;
     }
 
-    public void setItem2(WrappedItemStack item2) {
+    public void setItem2(Optional<WrappedItemStack> item2) {
         this.item2 = item2;
     }
 
     public WrappedItemStack output() {
-        return output;
+        return this.output;
     }
 
     public void setOutput(WrappedItemStack output) {
@@ -50,7 +52,7 @@ public final class MerchantOffer {
     }
 
     public int uses() {
-        return uses;
+        return this.uses;
     }
 
     public void setUses(int uses) {
@@ -58,7 +60,7 @@ public final class MerchantOffer {
     }
 
     public int maxUses() {
-        return maxUses;
+        return this.maxUses;
     }
 
     public void setMaxUses(int maxUses) {
@@ -66,7 +68,7 @@ public final class MerchantOffer {
     }
 
     public int xp() {
-        return xp;
+        return this.xp;
     }
 
     public void setXp(int xp) {
@@ -74,7 +76,7 @@ public final class MerchantOffer {
     }
 
     public int price() {
-        return price;
+        return this.price;
     }
 
     public void setPrice(int price) {
@@ -82,7 +84,7 @@ public final class MerchantOffer {
     }
 
     public float priceMultiplier() {
-        return priceMultiplier;
+        return this.priceMultiplier;
     }
 
     public void setPriceMultiplier(float priceMultiplier) {
@@ -90,7 +92,7 @@ public final class MerchantOffer {
     }
 
     public int demand() {
-        return demand;
+        return this.demand;
     }
 
     public void setDemand(int demand) {

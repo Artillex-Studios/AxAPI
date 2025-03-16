@@ -206,8 +206,8 @@ public class Serializers {
     }
 
 
-    public static <T, Z> Transformer<Z> transformer(EntityDataAccessor<T> accessor) {
-        return (Transformer<Z>) typeTransformers.get(accessor.serializers().type());
+    public static <T, Z> Transformer<Z> transformer(com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataSerializer<T> accessor) {
+        return (Transformer<Z>) typeTransformers.get(accessor.type());
     }
 
     public interface Transformer<Z> {

@@ -1,13 +1,12 @@
 package com.artillexstudios.axapi.nms.v1_21_R2.packet;
 
-import com.artillexstudios.axapi.nms.v1_21_R2.packet.FriendlyByteBufWrapper;
 import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketEvents;
 import com.artillexstudios.axapi.packet.PacketSide;
 import com.artillexstudios.axapi.packet.PacketType;
 import com.artillexstudios.axapi.packet.PacketTypes;
-import com.artillexstudios.axapi.utils.LogUtils;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;

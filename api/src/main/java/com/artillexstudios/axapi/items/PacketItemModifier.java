@@ -4,9 +4,13 @@ import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketEvents;
 import com.artillexstudios.axapi.packet.PacketListener;
 import com.artillexstudios.axapi.packet.PacketTypes;
+import com.artillexstudios.axapi.utils.MerchantOffer;
 import com.artillexstudios.axapi.packet.wrapper.ClientboundContainerSetContentWrapper;
 import com.artillexstudios.axapi.packet.wrapper.ClientboundContainerSetSlotWrapper;
+import com.artillexstudios.axapi.packet.wrapper.ClientboundEntityMetadataWrapper;
+import com.artillexstudios.axapi.packet.wrapper.ClientboundMerchantOffersWrapper;
 import com.artillexstudios.axapi.packet.wrapper.ClientboundSetEquipmentWrapper;
+import com.artillexstudios.axapi.packetentity.meta.Metadata;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
 import com.artillexstudios.axapi.utils.Pair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -39,6 +43,23 @@ public class PacketItemModifier {
                         ClientboundSetEquipmentWrapper wrapper = new ClientboundSetEquipmentWrapper(event);
                         for (Pair<EquipmentSlot, WrappedItemStack> item : wrapper.items()) {
                             PacketItemModifier.callModify(item.second(), event.player(), PacketItemModifier.Context.EQUIPMENT);
+                        }
+                    } else if (event.type() == PacketTypes.MERCHANT_OFFERS) {
+                        ClientboundMerchantOffersWrapper wrapper = new ClientboundMerchantOffersWrapper(event);
+                        for (MerchantOffer offer : wrapper.merchantOffers()) {
+                            PacketItemModifier.callModify(offer.item1(), event.player(), PacketItemModifier.Context.MERCHANT_OFFER);
+                            offer.item2().ifPresent(cost -> {
+                                PacketItemModifier.callModify(cost, event.player(), PacketItemModifier.Context.MERCHANT_OFFER);
+
+                            });
+                            PacketItemModifier.callModify(offer.output(), event.player(), PacketItemModifier.Context.MERCHANT_OFFER);
+                        }
+                    } else if (event.type() == PacketTypes.SET_ENTITY_DATA) {
+                        ClientboundEntityMetadataWrapper wrapper = new ClientboundEntityMetadataWrapper(event);
+                        for (Metadata.DataItem<?> item : wrapper.items()) {
+                            if (item.getValue() instanceof WrappedItemStack stack) {
+                                PacketItemModifier.callModify(stack, event.player(), PacketItemModifier.Context.DROPPED_ITEM);
+                            }
                         }
                     }
                 }

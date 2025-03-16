@@ -96,9 +96,9 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
             dataValues = new ArrayList<>(toTransform.size());
 
             for (Metadata.DataItem<?> dataItem : toTransform) {
-                Serializers.Transformer<?> transformer = Serializers.transformer(dataItem.getAccessor());
+                Serializers.Transformer<?> transformer = Serializers.transformer(dataItem.serializer());
 
-                dataValues.add(new SynchedEntityData.DataValue<>(dataItem.getAccessor().id(), (EntityDataSerializer<Object>) transformer.serializer(), transformer.transform(dataItem.getValue())));
+                dataValues.add(new SynchedEntityData.DataValue<>(dataItem.id(), (EntityDataSerializer<Object>) transformer.serializer(), transformer.transform(dataItem.getValue())));
             }
         }
 

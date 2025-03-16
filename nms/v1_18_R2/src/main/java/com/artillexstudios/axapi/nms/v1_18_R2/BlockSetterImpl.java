@@ -10,8 +10,8 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.levelgen.Heightmap;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.v1_18_R2.CraftWorld;
@@ -21,8 +21,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class BlockSetterImpl implements BlockSetter {
     private static final ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -49,9 +49,9 @@ public class BlockSetterImpl implements BlockSetter {
             this.chunk = levelChunk = level.getChunk(chunkX, chunkZ);
             chunks.add(levelChunk.getPos());
         }
-       
+
         var state = ((CraftBlockData) data).getState();
-        
+
         int sectionIndex = levelChunk.getSectionIndex(y);
         LevelChunkSection section = levelChunk.getSection(sectionIndex);
 
