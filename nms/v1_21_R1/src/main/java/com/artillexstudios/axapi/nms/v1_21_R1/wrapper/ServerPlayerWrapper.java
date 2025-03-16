@@ -95,6 +95,7 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
         buf.writeVarInt(ClientboundPacketTypes.forPacketType(wrapper.packetType()));
         wrapper.write(new FriendlyByteBufWrapper(buf));
         this.serverPlayer.connection.send(codec.decode(buf));
+        buf.release();
     }
 
     @Override

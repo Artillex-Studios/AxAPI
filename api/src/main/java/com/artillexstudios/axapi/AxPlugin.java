@@ -3,11 +3,21 @@ package com.artillexstudios.axapi;
 import com.artillexstudios.axapi.dependencies.DependencyManagerWrapper;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.gui.AnvilListener;
+import com.artillexstudios.axapi.gui.SignInput;
 import com.artillexstudios.axapi.hologram.Holograms;
 import com.artillexstudios.axapi.items.component.DataComponents;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
 import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
+import com.artillexstudios.axapi.packet.PacketEvent;
+import com.artillexstudios.axapi.packet.PacketEvents;
+import com.artillexstudios.axapi.packet.PacketListener;
+import com.artillexstudios.axapi.packet.ServerboundPacketTypes;
+import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundBlockUpdateWrapper;
+import com.artillexstudios.axapi.packet.wrapper.serverbound.ServerboundInteractWrapper;
+import com.artillexstudios.axapi.packet.wrapper.serverbound.ServerboundSetCreativeModeSlotWrapper;
+import com.artillexstudios.axapi.packet.wrapper.serverbound.ServerboundSignUpdateWrapper;
+import com.artillexstudios.axapi.packetentity.PacketEntity;
 import com.artillexstudios.axapi.packetentity.tracker.EntityTracker;
 import com.artillexstudios.axapi.placeholders.PlaceholderAPIHook;
 import com.artillexstudios.axapi.placeholders.Placeholders;
@@ -28,6 +38,7 @@ import revxrsal.zapper.classloader.URLClassLoaderWrapper;
 
 import java.io.File;
 import java.net.URLClassLoader;
+import java.util.Arrays;
 
 public abstract class AxPlugin extends JavaPlugin {
     public static EntityTracker tracker;
@@ -68,6 +79,38 @@ public abstract class AxPlugin extends JavaPlugin {
             tracker = new EntityTracker(this.flags);
             tracker.startTicking();
         }
+
+
+        PacketEvents.INSTANCE.addListener(new PacketListener() {
+            @Override
+            public void onPacketReceive(PacketEvent event) {
+                if (event.type() == ServerboundPacketTypes.INTERACT) {
+                    if (tracker == null) {
+                        return;
+                    }
+
+                    ServerboundInteractWrapper wrapper = new ServerboundInteractWrapper(event);
+                    PacketEntity entity = tracker.getById(wrapper.entityId());
+                    if (entity != null) {
+                        PacketEntityInteractEvent interactEvent = new PacketEntityInteractEvent(event.player(), entity, wrapper.type() == ServerboundInteractWrapper.ActionType.ATTACK, wrapper.action() instanceof ServerboundInteractWrapper.InteractionAtLocationAction action ? action.location() : null, wrapper.action() instanceof ServerboundInteractWrapper.InteractionAction action ? action.hand() : wrapper.action() instanceof ServerboundInteractWrapper.InteractionAtLocationAction interaction ? interaction.hand() : null);
+                        Bukkit.getPluginManager().callEvent(interactEvent);
+                    }
+                } else if (event.type() == ServerboundPacketTypes.SIGN_UPDATE) {
+                    ServerboundSignUpdateWrapper wrapper = new ServerboundSignUpdateWrapper(event);
+                    SignInput signInput = SignInput.remove(event.player());
+
+                    if (signInput == null) {
+                        return;
+                    }
+
+                    signInput.getListener().accept(event.player(), wrapper.lines());
+                    com.artillexstudios.axapi.scheduler.Scheduler.get().runAt(signInput.getLocation(), task -> {
+                        ServerPlayerWrapper playerWrapper = ServerPlayerWrapper.wrap(event.player());
+                        playerWrapper.sendPacket(new ClientboundBlockUpdateWrapper(signInput.getLocation(), signInput.getLocation().getBlock().getType()));
+                    });
+                }
+            }
+        });
 
         Bukkit.getPluginManager().registerEvents(new Listener() {
             @EventHandler

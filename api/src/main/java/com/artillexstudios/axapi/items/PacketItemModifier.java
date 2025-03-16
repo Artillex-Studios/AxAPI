@@ -4,12 +4,14 @@ import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketEvents;
 import com.artillexstudios.axapi.packet.PacketListener;
 import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
+import com.artillexstudios.axapi.packet.ServerboundPacketTypes;
+import com.artillexstudios.axapi.packet.wrapper.serverbound.ServerboundSetCreativeModeSlotWrapper;
 import com.artillexstudios.axapi.utils.MerchantOffer;
-import com.artillexstudios.axapi.packet.wrapper.ClientboundContainerSetContentWrapper;
-import com.artillexstudios.axapi.packet.wrapper.ClientboundContainerSetSlotWrapper;
-import com.artillexstudios.axapi.packet.wrapper.ClientboundEntityMetadataWrapper;
-import com.artillexstudios.axapi.packet.wrapper.ClientboundMerchantOffersWrapper;
-import com.artillexstudios.axapi.packet.wrapper.ClientboundSetEquipmentWrapper;
+import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundContainerSetContentWrapper;
+import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundContainerSetSlotWrapper;
+import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundEntityMetadataWrapper;
+import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundMerchantOffersWrapper;
+import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundSetEquipmentWrapper;
 import com.artillexstudios.axapi.packetentity.meta.Metadata;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
 import com.artillexstudios.axapi.utils.Pair;
@@ -61,6 +63,14 @@ public class PacketItemModifier {
                                 PacketItemModifier.callModify(stack, event.player(), PacketItemModifier.Context.DROPPED_ITEM);
                             }
                         }
+                    }
+                }
+
+                @Override
+                public void onPacketReceive(PacketEvent event) {
+                     if (event.type() == ServerboundPacketTypes.SET_CREATIVE_MODE_SLOT) {
+                        ServerboundSetCreativeModeSlotWrapper wrapper = new ServerboundSetCreativeModeSlotWrapper(event);
+                         PacketItemModifier.restore(wrapper.stack());
                     }
                 }
             });

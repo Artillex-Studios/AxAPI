@@ -71,6 +71,11 @@ public final class PacketEvent {
         return this.outBuf;
     }
 
+    @Nullable
+    public FriendlyByteBuf directIn() {
+        return this.inBuf;
+    }
+
     public boolean handled() {
         return this.handled;
     }

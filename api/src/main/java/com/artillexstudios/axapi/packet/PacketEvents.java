@@ -27,6 +27,10 @@ public enum PacketEvents {
             for (int i = 0; i < bakedLength; i++) {
                 baked[i].onPacketReceive(event);
 
+                FriendlyByteBuf directIn = event.directIn();
+                if (directIn != null) {
+                    directIn.readerIndex(0);
+                }
                 PacketWrapper wrapper = event.wrapper();
                 if (wrapper != null && lastWrapper != wrapper) {
                     FriendlyByteBuf out = event.out();
@@ -39,13 +43,16 @@ public enum PacketEvents {
             for (int i = 0; i < bakedLength; i++) {
                 baked[i].onPacketSending(event);
 
+                FriendlyByteBuf directIn = event.directIn();
+                if (directIn != null) {
+                    directIn.readerIndex(0);
+                }
                 PacketWrapper wrapper = event.wrapper();
                 if (wrapper != null && lastWrapper != wrapper) {
                     FriendlyByteBuf out = event.out();
                     out.writerIndex(1);
                     wrapper.write(out);
                     lastWrapper = wrapper;
-
                 }
             }
         }

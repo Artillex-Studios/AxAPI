@@ -7,7 +7,10 @@ import com.artillexstudios.axapi.packet.PacketType;
 public abstract class PacketWrapper {
 
     public PacketWrapper(PacketEvent event) {
-        event.setWrapper(this);
+        if (event != null) {
+            event.setWrapper(this);
+            this.read(event.in());
+        }
     }
 
     public abstract void write(FriendlyByteBuf out);

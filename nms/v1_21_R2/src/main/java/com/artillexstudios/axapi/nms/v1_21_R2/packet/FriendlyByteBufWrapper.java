@@ -17,7 +17,10 @@ import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.trading.ItemCost;
+import net.minecraft.world.level.block.Block;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.CraftParticle;
+import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
 import java.util.Optional;
 
@@ -84,6 +87,11 @@ public record FriendlyByteBufWrapper(RegistryFriendlyByteBuf buf) implements Fri
     }
 
     @Override
+    public String readUTF(int length) {
+        return this.buf.readUtf(length);
+    }
+
+    @Override
     public void writeUTF(String utf) {
         this.buf.writeUtf(utf);
     }
@@ -110,7 +118,7 @@ public record FriendlyByteBufWrapper(RegistryFriendlyByteBuf buf) implements Fri
     }
 
     @Override
-    public void writeShort(short value) {
+    public void writeShort(int value) {
         this.buf.writeShort(value);
     }
 
@@ -228,5 +236,20 @@ public record FriendlyByteBufWrapper(RegistryFriendlyByteBuf buf) implements Fri
     @Override
     public void writeParticleArguments(ParticleArguments arguments) {
         ParticleTypes.STREAM_CODEC.encode(this.buf, CraftParticle.createParticleParam(arguments.particle(), arguments.data()));
+    }
+
+    @Override
+    public int readUnsignedShort() {
+        return this.buf.readUnsignedShort();
+    }
+
+    @Override
+    public void writeBlockData(BlockData blockData) {
+        this.buf.writeVarInt(Block.getId(((CraftBlockData) blockData).getState()));
+    }
+
+    @Override
+    public BlockData readBlockData() {
+        return CraftBlockData.fromData(Block.BLOCK_STATE_REGISTRY.byId(this.readVarInt()));
     }
 }

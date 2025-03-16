@@ -94,10 +94,10 @@ public class PacketListener extends ChannelDuplexHandler {
             byteBuf.release();
 
             PacketEntity entity = AxPlugin.tracker.getById(entityId);
-            if (entity != null) {
-                PacketEntityInteractEvent event = new PacketEntityInteractEvent(player, entity, attack, vector, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
-                Bukkit.getPluginManager().callEvent(event);
-            }
+//            if (entity != null) {
+//                PacketEntityInteractEvent event = new PacketEntityInteractEvent(player, entity, attack, vector, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
+//                Bukkit.getPluginManager().callEvent(event);
+//            }
         } else if (msg instanceof ServerboundSignUpdatePacket updatePacket) {
             SignInput signInput = SignInput.remove(player);
             if (signInput == null) {
