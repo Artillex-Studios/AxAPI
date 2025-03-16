@@ -32,7 +32,7 @@ public final class ServerboundPacketTypes {
     public static final PacketType CONTAINER_SLOT_STATE_CHANGED = new PacketType("CONTAINER_SLOT_STATE_CHANGED", Version.v1_20_3, Version.FUTURE_RELEASE);
     public static final PacketType COOKIE_RESPONSE = new PacketType("COOKIE_RESPONSE", Version.v1_20_4, Version.FUTURE_RELEASE);
     public static final PacketType CUSTOM_PAYLOAD = new PacketType("CUSTOM_PAYLOAD", Version.v1_18, Version.FUTURE_RELEASE);
-    public static final PacketType DEBUG_SAMPLE_SUBSCRIPTION = new PacketType("DEBUG_SAMPLE_SUBSCRIPTION", Version.v1_18, Version.FUTURE_RELEASE);
+    public static final PacketType DEBUG_SAMPLE_SUBSCRIPTION = new PacketType("DEBUG_SAMPLE_SUBSCRIPTION", Version.v1_20_2, Version.FUTURE_RELEASE);
     public static final PacketType EDIT_BOOK = new PacketType("EDIT_BOOK", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType ENTITY_TAG_QUERY = new PacketType("ENTITY_TAG_QUERY", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType INTERACT = new PacketType("INTERACT", Version.v1_18, Version.FUTURE_RELEASE);
@@ -101,6 +101,7 @@ public final class ServerboundPacketTypes {
         register(CONTAINER_CLOSE);
         register(CONTAINER_SLOT_STATE_CHANGED);
         register(COOKIE_RESPONSE);
+        register(CUSTOM_PAYLOAD);
         register(DEBUG_SAMPLE_SUBSCRIPTION);
         register(EDIT_BOOK);
         register(ENTITY_TAG_QUERY);

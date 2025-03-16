@@ -150,6 +150,7 @@ public abstract class AxPlugin extends JavaPlugin {
         }
 
         ClientboundPacketTypes.init();
+        ServerboundPacketTypes.init();
         for (Player player : Bukkit.getOnlinePlayers()) {
             NMSHandlers.getNmsHandler().injectPlayer(player);
         }

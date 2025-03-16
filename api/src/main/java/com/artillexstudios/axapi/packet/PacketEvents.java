@@ -29,7 +29,7 @@ public enum PacketEvents {
 
                 FriendlyByteBuf directIn = event.directIn();
                 if (directIn != null) {
-                    directIn.readerIndex(0);
+                    directIn.readerIndex(1);
                 }
                 PacketWrapper wrapper = event.wrapper();
                 if (wrapper != null && lastWrapper != wrapper) {
@@ -45,7 +45,7 @@ public enum PacketEvents {
 
                 FriendlyByteBuf directIn = event.directIn();
                 if (directIn != null) {
-                    directIn.readerIndex(0);
+                    directIn.readerIndex(1);
                 }
                 PacketWrapper wrapper = event.wrapper();
                 if (wrapper != null && lastWrapper != wrapper) {
