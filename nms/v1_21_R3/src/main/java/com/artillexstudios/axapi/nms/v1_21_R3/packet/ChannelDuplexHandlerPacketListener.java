@@ -16,6 +16,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.VarInt;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.GameProtocols;
@@ -131,6 +132,16 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             return;
         }
 
+        if (msg instanceof ServerboundCustomPayloadPacket(
+                net.minecraft.network.protocol.common.custom.CustomPacketPayload payload
+        )) {
+            if (payload instanceof net.minecraft.network.protocol.common.custom.DiscardedPayload(
+                    net.minecraft.resources.ResourceLocation id, ByteBuf data
+            )) {
+                LogUtils.info("Packet id: {}, {}", id.toString(), data.toString());
+            }
+        }
+
         ByteBuf buf = ctx.alloc().buffer();
         serverboundCodec.encode(buf, (Packet<? super ServerGamePacketListener>) msg);
         int packetId = VarInt.read(buf);
@@ -167,5 +178,10 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             LogUtils.info("Incoming changed!");
         }
         super.channelRead(ctx, serverboundCodec.decode(out.buf()));
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        cause.printStackTrace();
     }
 }
