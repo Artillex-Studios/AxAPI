@@ -24,11 +24,27 @@ public final class DependencyManagerWrapper {
         this.dependency(dependency, false);
     }
 
+    public void dependency(Dependency dependency) {
+        this.dependencyManager.dependency(dependency);
+    }
+
     public void repository(String repository) {
         this.dependencyManager.repository(Repository.maven(repository));
     }
 
+    public void repository(Repository repository) {
+        this.dependencyManager.repository(repository);
+    }
+
     public void relocate(String from, String to) {
         this.dependencyManager.relocate(new Relocation(from.replace("{}", "."), to.replace("{}", ".")));
+    }
+
+    public void relocate(Relocation relocation) {
+        this.dependencyManager.relocate(relocation);
+    }
+
+    public DependencyManager wrapped() {
+        return this.dependencyManager;
     }
 }
