@@ -4,24 +4,20 @@ import com.artillexstudios.axapi.updatechecker.ArtifactVersion;
 import com.artillexstudios.axapi.updatechecker.Changelog;
 import com.artillexstudios.axapi.updatechecker.UpdateCheck;
 import com.artillexstudios.axapi.updatechecker.UpdateCheckResult;
+import com.artillexstudios.axapi.utils.http.Requests;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public final class SpigetUpdateCheckSource implements UpdateCheckSource {
     private final int id;
-    private final HttpClient client = HttpClient.newHttpClient();
     private final Gson gson = new Gson();
 
     public SpigetUpdateCheckSource(int id) {
@@ -31,13 +27,7 @@ public final class SpigetUpdateCheckSource implements UpdateCheckSource {
     @Override
     public UpdateCheck check(ArtifactVersion current) {
         try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("https://api.spiget.org/v2/resources/" + this.id + " /updates?size=300&sort=-id"))
-                    .timeout(Duration.of(10, ChronoUnit.SECONDS))
-                    .GET()
-                    .build();
-
-            HttpResponse<?> response = this.client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<?> response = Requests.get("https://api.spiget.org/v2/resources/" + this.id + " /updates?size=300&sort=-id", Map.of());
             if (response.statusCode() != 200) {
                 return new UpdateCheck(UpdateCheckResult.FAILED, current, List.of(), new RuntimeException("Received statuscode: " + response.statusCode()));
             }

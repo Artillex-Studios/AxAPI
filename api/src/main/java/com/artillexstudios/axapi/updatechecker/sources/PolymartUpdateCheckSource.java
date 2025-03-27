@@ -4,23 +4,19 @@ import com.artillexstudios.axapi.updatechecker.ArtifactVersion;
 import com.artillexstudios.axapi.updatechecker.Changelog;
 import com.artillexstudios.axapi.updatechecker.UpdateCheck;
 import com.artillexstudios.axapi.updatechecker.UpdateCheckResult;
+import com.artillexstudios.axapi.utils.http.Requests;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public final class PolymartUpdateCheckSource implements UpdateCheckSource {
     private final int id;
-    private final HttpClient client = HttpClient.newHttpClient();
     private final Gson gson = new Gson();
 
     public PolymartUpdateCheckSource(int id) {
@@ -30,13 +26,7 @@ public final class PolymartUpdateCheckSource implements UpdateCheckSource {
     @Override
     public UpdateCheck check(ArtifactVersion current) {
         try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("https://api.polymart.org/v1/getResourceUpdates/?pretty_print_result=1&resource_id=" + this.id + "&start=0&limit=3000"))
-                    .timeout(Duration.of(10, ChronoUnit.SECONDS))
-                    .GET()
-                    .build();
-
-            HttpResponse<?> response = this.client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<?> response = Requests.get("https://api.polymart.org/v1/getResourceUpdates/?pretty_print_result=1&resource_id=" + this.id + "&start=0&limit=3000", Map.of());
             if (response.statusCode() != 200) {
                 return new UpdateCheck(UpdateCheckResult.FAILED, current, List.of(), new RuntimeException("Received statuscode: " + response.statusCode()));
             }
