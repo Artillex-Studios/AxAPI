@@ -106,7 +106,7 @@ public class IdentityArrayMap<K, V> implements Map<K, V> {
 
     @Override
     public void putAll(Map<? extends K, ? extends V> m) {
-        throw new UnsupportedOperationException();
+        m.forEach(this::put);
     }
 
     @Override
@@ -189,11 +189,14 @@ public class IdentityArrayMap<K, V> implements Map<K, V> {
         };
     }
 
+    @NotNull
     @Override
     public Set<Entry<K, V>> entrySet() {
         return new AbstractSet<>() {
+            @NotNull
             @Override
-            public Iterator<Entry<K, V>> iterator() {
+            public Iterator<Entry<K, V>>
+            iterator() {
                 return new Iterator<>() {
                     private int index = 0;
 
