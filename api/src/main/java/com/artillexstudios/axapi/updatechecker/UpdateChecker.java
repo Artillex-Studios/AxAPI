@@ -67,9 +67,10 @@ public final class UpdateChecker {
     public UpdateChecker check(CommandSender... sender) {
         Scheduler.get().runAsync(() -> {
             UpdateCheck check = UpdateChecker.this.lastCheck;
-            if (check == null || timeOfLastCheck + timeBetweenChecks.toMillis() <= System.currentTimeMillis()) {
+            if (check == null || this.timeOfLastCheck + this.timeBetweenChecks.toMillis() <= System.currentTimeMillis()) {
                 check = this.source.check(this.current);
                 UpdateChecker.this.lastCheck = check;
+                this.timeOfLastCheck = System.currentTimeMillis();
             }
 
             for (CommandSender commandSender : sender) {
@@ -81,7 +82,7 @@ public final class UpdateChecker {
 
     public UpdateChecker checkEvery(double hours) {
         if (this.task != null) {
-            task.cancel();
+            this.task.cancel();
         }
 
         double minutes = 60 * hours;
