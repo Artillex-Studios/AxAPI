@@ -60,7 +60,7 @@ public class LegacyTranslator {
         }
 
         Matcher matcher = HEX_PATTERN.matcher(toFormat);
-        toFormat = StringUtils.replaceAll(matcher, a -> {
+        toFormat = matcher.replaceAll(a -> {
             String group = a.group(1);
             return "&x&" +
                     group.charAt(0) + "&" +

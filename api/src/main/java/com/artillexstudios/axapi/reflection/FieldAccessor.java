@@ -17,7 +17,23 @@ public interface FieldAccessor {
 
     Object get(Object instance);
 
+    default <T> T get(Object instance, Class<T> clazz) {
+        return clazz.cast(this.get(instance));
+    }
+
+    default <T> T getUnchecked(Object instance) {
+        return (T) this.get(instance);
+    }
+
     Object getVolatile(Object instance);
+
+    default <T> T getVolatile(Object instance, Class<T> clazz) {
+        return clazz.cast(this.getVolatile(instance));
+    }
+
+    default <T> T getVolatileUnchecked(Object instance) {
+        return (T) this.getVolatile(instance);
+    }
 
     class Builder {
         private AccessorType type = AccessorType.FIELD;

@@ -1,7 +1,6 @@
 package com.artillexstudios.axapi.utils;
 
 import com.artillexstudios.axapi.AxPlugin;
-import com.artillexstudios.axapi.reflection.FastFieldAccessor;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import it.unimi.dsi.fastutil.chars.CharImmutableList;
@@ -20,9 +19,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,7 +26,6 @@ public class StringUtils {
     private static final AxPlugin plugin = AxPlugin.getPlugin(AxPlugin.class);
     private static final Pattern HEX_PATTERN = Pattern.compile("&#([0-9a-fA-F]{6})");
     private static final Pattern UNUSUAL_LEGACY_HEX_PATTERN = Pattern.compile("&x&([a-fA-F0-9])&([a-fA-F0-9])&([a-fA-F0-9])&([a-fA-F0-9])&([a-fA-F0-9])&([a-fA-F0-9])");
-    private static final FastFieldAccessor TEXT = FastFieldAccessor.forClassField(Matcher.class, "text");
     private static final ObjectImmutableList<Pair<String, String>> COLOR_FORMATS = ObjectImmutableList.of(
             Pair.of("&0", "<black>"),
             Pair.of("&1", "<dark_blue>"),
@@ -86,9 +81,9 @@ public class StringUtils {
             toFormat = replaceLegacyFormat(toFormat, "&o", "<i>", "</i>");
             toFormat = replaceLegacyFormat(toFormat, "&k", "<obf>", "</obf>");
 
-            toFormat = replaceAll(HEX_PATTERN.matcher(toFormat), fo -> "<#" + fo.group(1) + ">");
-            toFormat = replaceAll(UNUSUAL_LEGACY_HEX_PATTERN.matcher(toFormat), fo -> "<#" + fo.group(0) + fo.group(1) + fo.group(2) + fo.group(3) + fo.group(4) + fo.group(5) + ">");
-            toFormat = replaceAll(UNUSUAL_LEGACY_HEX_PATTERN.matcher(toFormat), fo -> "");
+            toFormat = HEX_PATTERN.matcher(toFormat).replaceAll(fo -> "<#" + fo.group(1) + ">");
+            toFormat = UNUSUAL_LEGACY_HEX_PATTERN.matcher(toFormat).replaceAll(fo -> "<#" + fo.group(0) + fo.group(1) + fo.group(2) + fo.group(3) + fo.group(4) + fo.group(5) + ">");
+            toFormat = UNUSUAL_LEGACY_HEX_PATTERN.matcher(toFormat).replaceAll(fo -> "");
 
             for (Pair<String, String> placeholder : COLOR_FORMATS) {
                 toFormat = toFormat.replace(placeholder.first(), placeholder.second());
@@ -169,7 +164,7 @@ public class StringUtils {
     private static String replaceLegacyFormat(String toFormat, String search, String start, String close) {
         int index;
         while ((index = toFormat.indexOf(search)) != -1) {
-            toFormat = org.apache.commons.lang.StringUtils.replaceOnce(toFormat, search, start);
+            toFormat = org.apache.commons.lang3.StringUtils.replaceOnce(toFormat, search, start);
             for (int i = index; i < toFormat.length(); i++) {
                 if (toFormat.charAt(i) == '&' && i + 1 < toFormat.length() && COLOR_CHARS.contains(toFormat.charAt(i + 1))) {
                     StringBuilder stringBuilder = new StringBuilder(toFormat);
@@ -198,21 +193,5 @@ public class StringUtils {
         }
 
         return matcher.appendTail(builder).toString();
-    }
-
-    public static String replaceAll(@NotNull Matcher matcher, @NotNull Function<MatchResult, String> replacer) {
-        Objects.requireNonNull(replacer);
-        boolean result = matcher.find();
-        if (result) {
-            StringBuilder sb = new StringBuilder();
-            do {
-                String replacement = replacer.apply(matcher);
-                matcher.appendReplacement(sb, replacement);
-                result = matcher.find();
-            } while (result);
-            matcher.appendTail(sb);
-            return sb.toString();
-        }
-        return TEXT.get(matcher);
     }
 }

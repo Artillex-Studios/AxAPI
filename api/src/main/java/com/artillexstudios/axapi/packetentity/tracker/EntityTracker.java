@@ -7,11 +7,11 @@ import com.artillexstudios.axapi.executor.ExceptionReportingScheduledThreadPool;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
-import com.artillexstudios.axapi.reflection.FastFieldAccessor;
-import com.artillexstudios.axapi.utils.logging.LogUtils;
+import com.artillexstudios.axapi.reflection.FieldAccessor;
 import com.artillexstudios.axapi.utils.PaperUtils;
 import com.artillexstudios.axapi.utils.Version;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -35,7 +35,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public final class EntityTracker {
     private static final boolean folia = PaperUtils.isFolia();
     private final ConcurrentHashMap<Integer, TrackedEntity> entityMap = new ConcurrentHashMap<>();
-    private final FastFieldAccessor accessor = FastFieldAccessor.forClassField(String.format("com.artillexstudios.axapi.nms.%s.entity.PacketEntity", Version.getServerVersion().nmsVersion()), "tracker");
+    private final FieldAccessor accessor = FieldAccessor.builder()
+            .withField("tracker")
+            .withClass("com.artillexstudios.axapi.nms.%s.entity.PacketEntity".formatted(Version.getServerVersion().nmsVersion()))
+            .build();
     private final JavaPlugin instance = AxPlugin.getPlugin(AxPlugin.class);
     private ScheduledExecutorService service;
     private final FeatureFlags flags;

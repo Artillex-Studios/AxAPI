@@ -1,11 +1,14 @@
 package com.artillexstudios.axapi.collections;
 
-import com.artillexstudios.axapi.reflection.FastFieldAccessor;
+import com.artillexstudios.axapi.reflection.FieldAccessor;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ReferenceSet;
 
 public class RawReferenceOpenHashSet<K> extends ReferenceOpenHashSet<K> {
-    private static final FastFieldAccessor accessor = FastFieldAccessor.forClassField("it.unimi.dsi.fastutil.objects.ObjectCollections$SynchronizedCollection", "collection");
+    private static final FieldAccessor accessor = FieldAccessor.builder()
+            .withClass("it.unimi.dsi.fastutil.objects.ReferenceCollections$SynchronizedCollection")
+            .withField("collection")
+            .build();
 
     public RawReferenceOpenHashSet() {
         super();
@@ -16,7 +19,7 @@ public class RawReferenceOpenHashSet<K> extends ReferenceOpenHashSet<K> {
     }
 
     public static <E> Object[] rawSet(ReferenceSet<E> set) {
-        RawReferenceOpenHashSet<E> rawSet = accessor.get(set);
+        RawReferenceOpenHashSet<E> rawSet = accessor.getUnchecked(set);
         return rawSet.rawSet();
     }
 
