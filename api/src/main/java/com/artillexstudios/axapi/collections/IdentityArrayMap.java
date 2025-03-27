@@ -1,9 +1,11 @@
 package com.artillexstudios.axapi.collections;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.AbstractCollection;
 import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -117,14 +119,74 @@ public class IdentityArrayMap<K, V> implements Map<K, V> {
         this.size = 0;
     }
 
+    @NotNull
     @Override
     public Set<K> keySet() {
-        return (Set<K>) Set.of(this.keys);
+        return new AbstractSet<>() {
+            @NotNull
+            @Override
+            public Iterator<K> iterator() {
+                return new Iterator<>() {
+                    private int index = 0;
+
+                    @Override
+                    public boolean hasNext() {
+                        return this.index < IdentityArrayMap.this.size;
+                    }
+
+                    @Override
+                    public K next() {
+                        if (!hasNext()) {
+                            throw new NoSuchElementException();
+                        }
+
+                        int previousIndex = this.index;
+                        this.index++;
+                        return (K) IdentityArrayMap.this.keys[previousIndex];
+                    }
+                };
+            }
+
+            @Override
+            public int size() {
+                return IdentityArrayMap.this.size;
+            }
+        };
     }
 
+    @NotNull
     @Override
     public Collection<V> values() {
-        return (Collection<V>) List.of(this.values);
+        return new AbstractCollection<>() {
+            @NotNull
+            @Override
+            public Iterator<V> iterator() {
+                return new Iterator<>() {
+                    private int index = 0;
+
+                    @Override
+                    public boolean hasNext() {
+                        return this.index < IdentityArrayMap.this.size;
+                    }
+
+                    @Override
+                    public V next() {
+                        if (!hasNext()) {
+                            throw new NoSuchElementException();
+                        }
+
+                        int previousIndex = this.index;
+                        this.index++;
+                        return (V) IdentityArrayMap.this.values[previousIndex];
+                    }
+                };
+            }
+
+            @Override
+            public int size() {
+                return IdentityArrayMap.this.size;
+            }
+        };
     }
 
     @Override
