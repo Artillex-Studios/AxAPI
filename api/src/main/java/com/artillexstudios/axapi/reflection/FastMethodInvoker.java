@@ -226,7 +226,6 @@ public abstract class FastMethodInvoker {
                         MethodHandles.exactInvoker(handle.type()),
                         handle.type());
                 supplier = (BiConsumer<Object, Object>) callSite.getTarget().invokeExact(handle);
-                ;
             } catch (Throwable throwable) {
                 throw new RuntimeException(throwable);
             }
