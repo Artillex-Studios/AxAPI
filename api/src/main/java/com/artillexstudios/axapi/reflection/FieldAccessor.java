@@ -1,0 +1,114 @@
+package com.artillexstudios.axapi.reflection;
+
+import com.artillexstudios.axapi.reflection.accessor.AccessorType;
+
+import java.lang.reflect.Field;
+import java.util.Arrays;
+
+public interface FieldAccessor {
+
+    static Builder builder() {
+        return new Builder();
+    }
+
+    void set(Object instance, Object argument);
+
+    void setVolatile(Object instance, Object argument);
+
+    Object get(Object instance);
+
+    Object getVolatile(Object instance);
+
+    class Builder {
+        private AccessorType type = AccessorType.FIELD;
+        private Class<?> clazz = null;
+        private Field field = null;
+        private String fieldName = null;
+        private Class<?> fieldType = null;
+        private Integer fieldIndex = null;
+
+        public Builder methodHandle() {
+            this.type = AccessorType.METHOD_HANDLE;
+            return this;
+        }
+
+        public Builder varHandle() {
+            this.type = AccessorType.VAR_HANDLE;
+            return this;
+        }
+
+        public Builder reflect() {
+            this.type = AccessorType.FIELD;
+            return this;
+        }
+
+        public Builder withClass(Class<?> clazz) {
+            this.clazz = clazz;
+            this.tryFetchField();
+            return this;
+        }
+
+        public Builder withClass(String clazz) {
+            this.clazz = ClassUtils.INSTANCE.getClass(clazz);
+            this.tryFetchField();
+            return this;
+        }
+
+        public Builder withField(Field field) {
+            this.field = field;
+            return this;
+        }
+
+        public Builder withField(String field) {
+            this.fieldName = field;
+            this.tryFetchField();
+            return this;
+        }
+
+        public Builder withType(Class<?> type, int index) {
+            this.fieldType = type;
+            this.fieldIndex = index;
+            this.tryFetchField();
+            return this;
+        }
+
+        private void tryFetchField() {
+            if (this.clazz == null) {
+                return;
+            }
+
+            if (this.fieldName != null) {
+                try {
+                    this.field = this.clazz.getDeclaredField(this.fieldName);
+                } catch (NoSuchFieldException exception) {
+                    throw new RuntimeException(exception);
+                }
+            } else if (this.fieldType != null) {
+                Field[] fields = (Field[]) Arrays.stream(this.clazz.getDeclaredFields())
+                        .filter(field -> field.getType().equals(this.field.getType()))
+                        .toArray();
+
+                this.field = fields[this.fieldIndex];
+            } else {
+                return;
+            }
+
+            this.field.setAccessible(true);
+            this.fieldType = null;
+            this.fieldName = null;
+            this.fieldIndex = null;
+        }
+
+        public FieldAccessor build() {
+            if (this.field == null) {
+                return null;
+            }
+
+            try {
+                return this.type.createNew(this.field);
+            } catch (IllegalAccessException exception) {
+                throw new RuntimeException(exception);
+            }
+        }
+    }
+}

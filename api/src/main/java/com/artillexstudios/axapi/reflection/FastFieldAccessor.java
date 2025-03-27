@@ -5,6 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.misc.Unsafe;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -12,7 +14,6 @@ import java.util.stream.Collectors;
 
 public class FastFieldAccessor {
     private static final Logger log = LoggerFactory.getLogger(FastFieldAccessor.class);
-    private static final Unsafe unsafe = UnsafeUtils.INSTANCE.unsafe();
     private final Field field;
     private final long fieldOffset;
 

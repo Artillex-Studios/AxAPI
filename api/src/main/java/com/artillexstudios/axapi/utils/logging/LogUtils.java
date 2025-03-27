@@ -30,7 +30,7 @@ public final class LogUtils {
         }
 
         if (mode == DebugMode.FILE || mode == DebugMode.ALL) {
-            String formatted = org.apache.commons.lang.StringUtils.replace(message, "{}", object == null ? "null" : object.toString(), 1);
+            String formatted = org.apache.commons.lang3.StringUtils.replace(message, "{}", object == null ? "null" : object.toString(), 1);
             logger.log(formatted);
         }
     }
@@ -45,8 +45,8 @@ public final class LogUtils {
         }
 
         if (mode == DebugMode.FILE || mode == DebugMode.ALL) {
-            String formatted = org.apache.commons.lang.StringUtils.replace(message, "{}", object == null ? "null" : object.toString(), 1);
-            formatted = org.apache.commons.lang.StringUtils.replace(formatted, "{}", object2 == null ? "null" : object2.toString(), 1);
+            String formatted = org.apache.commons.lang3.StringUtils.replace(message, "{}", object == null ? "null" : object.toString(), 1);
+            formatted = org.apache.commons.lang3.StringUtils.replace(formatted, "{}", object2 == null ? "null" : object2.toString(), 1);
             logger.log(formatted);
         }
     }
@@ -61,9 +61,9 @@ public final class LogUtils {
         }
 
         if (mode == DebugMode.FILE || mode == DebugMode.ALL) {
-            String formatted = org.apache.commons.lang.StringUtils.replace(message, "{}", object == null ? "null" : object.toString(), 1);
-            formatted = org.apache.commons.lang.StringUtils.replace(formatted, "{}", object2 == null ? "null" : object2.toString(), 1);
-            formatted = org.apache.commons.lang.StringUtils.replace(formatted, "{}", object3 == null ? "null" : object3.toString(), 1);
+            String formatted = org.apache.commons.lang3.StringUtils.replace(message, "{}", object == null ? "null" : object.toString(), 1);
+            formatted = org.apache.commons.lang3.StringUtils.replace(formatted, "{}", object2 == null ? "null" : object2.toString(), 1);
+            formatted = org.apache.commons.lang3.StringUtils.replace(formatted, "{}", object3 == null ? "null" : object3.toString(), 1);
             logger.log(formatted);
         }
     }
@@ -78,10 +78,10 @@ public final class LogUtils {
         }
 
         if (mode == DebugMode.FILE || mode == DebugMode.ALL) {
-            String formatted = org.apache.commons.lang.StringUtils.replace(message, "{}", object == null ? "null" : object.toString(), 1);
-            formatted = org.apache.commons.lang.StringUtils.replace(formatted, "{}", object2 == null ? "null" : object2.toString(), 1);
-            formatted = org.apache.commons.lang.StringUtils.replace(formatted, "{}", object3 == null ? "null" : object3.toString(), 1);
-            formatted = org.apache.commons.lang.StringUtils.replace(formatted, "{}", object4 == null ? "null" : object4.toString(), 1);
+            String formatted = org.apache.commons.lang3.StringUtils.replace(message, "{}", object == null ? "null" : object.toString(), 1);
+            formatted = org.apache.commons.lang3.StringUtils.replace(formatted, "{}", object2 == null ? "null" : object2.toString(), 1);
+            formatted = org.apache.commons.lang3.StringUtils.replace(formatted, "{}", object3 == null ? "null" : object3.toString(), 1);
+            formatted = org.apache.commons.lang3.StringUtils.replace(formatted, "{}", object4 == null ? "null" : object4.toString(), 1);
             logger.log(formatted);
         }
     }
@@ -98,7 +98,7 @@ public final class LogUtils {
         if (mode == DebugMode.FILE || mode == DebugMode.ALL) {
             String formatted = message;
             for (Object argument : arguments) {
-                formatted = org.apache.commons.lang.StringUtils.replace(formatted, "{}", argument == null ? "null" : argument.toString(), 1);
+                formatted = org.apache.commons.lang3.StringUtils.replace(formatted, "{}", argument == null ? "null" : argument.toString(), 1);
             }
             logger.log(formatted);
         }
