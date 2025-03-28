@@ -69,7 +69,7 @@ public final class FileConfigurationReader implements Handler {
                 List<CommentLine> lines = new ArrayList<>();
                 String[] split = comment.value().split("\n");
                 for (String string : split) {
-                    lines.add(new CommentLine(null, null, string, comment.type() == Comment.CommentType.BLOCK ? CommentType.BLOCK : CommentType.BLOCK));
+                    lines.add(new CommentLine(null, null, string, comment.type() == Comment.CommentType.BLOCK ? CommentType.BLOCK : CommentType.IN_LINE));
                 }
                 if (comment.type() == Comment.CommentType.BLOCK) {
                     key.setBlockComments(lines);

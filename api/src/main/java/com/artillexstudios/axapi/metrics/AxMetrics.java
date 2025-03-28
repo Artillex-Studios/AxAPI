@@ -65,7 +65,7 @@ public final class AxMetrics {
     }
 
     public void register(MetricsCollector collector) {
-        this.registry.register(collector);
+        this.registry.register(() -> collector);
     }
 
     public void cancel() {

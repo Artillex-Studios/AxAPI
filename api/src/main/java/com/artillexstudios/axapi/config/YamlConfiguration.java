@@ -76,9 +76,7 @@ public final class YamlConfiguration implements ConfigurationGetter {
 
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(this.builder.path.toFile()))) {
             Pair<Map<String, Object>, Map<String, Comment>> read = this.reader.read(bufferedInputStream);
-            for (Map.Entry<String, Object> stringObjectEntry : read.first().entrySet()) {
-                this.contents.put(stringObjectEntry.getKey(), stringObjectEntry.getValue());
-            }
+            this.contents.putAll(read.first());
 
             this.comments.putAll(read.second());
         } catch (IOException exception) {

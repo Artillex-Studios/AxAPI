@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.metrics.collectors.implementation;
 
 import com.artillexstudios.axapi.metrics.collectors.MetricsCollector;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
@@ -14,8 +15,12 @@ public final class MinecraftVersionMetricsCollector implements MetricsCollector 
 
     public MinecraftVersionMetricsCollector() {
         Matcher matcher = pattern.matcher(Bukkit.getVersion());
-        matcher.find();
-        this.version = matcher.group(1);
+        if (matcher.find()) {
+            this.version = matcher.group(1);
+        } else {
+            LogUtils.error("Failed to get version from Bukkit.getVersion(), didn't match pattern! Was: {}", Bukkit.getVersion());
+            throw new UnsupportedOperationException();
+        }
     }
 
     @Override

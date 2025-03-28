@@ -14,29 +14,35 @@ import com.artillexstudios.axapi.utils.logging.LogUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 public final class MetricsCollectorRegistry {
     private final List<MetricsCollector> collectors = new ArrayList<>();
 
     public MetricsCollectorRegistry(AxPlugin plugin) {
-        register(new JavaVersionMetricsCollector());
-        register(new MinecraftVersionMetricsCollector());
-        register(new OnlinePlayersMetricsCollector());
-        register(new PluginVersionMetricsCollector(plugin));
-        register(new ServerSoftwareMetricsCollector());
-        register(new OnlineModeMetricsCollector());
+        register(JavaVersionMetricsCollector::new);
+        register(MinecraftVersionMetricsCollector::new);
+        register(OnlinePlayersMetricsCollector::new);
+        register(() -> new PluginVersionMetricsCollector(plugin));
+        register(ServerSoftwareMetricsCollector::new);
+        register(OnlineModeMetricsCollector::new);
 
         try {
             Object systemInfo = Class.forName("oshi.SystemInfo").getDeclaredConstructor().newInstance();
-            register(new CPUModelMetricsCollector(systemInfo));
-            register(new OperatingSystemMetricsCollector(systemInfo));
+            register(() -> new CPUModelMetricsCollector(systemInfo));
+            register(() -> new OperatingSystemMetricsCollector(systemInfo));
         } catch (Exception exception) {
             LogUtils.error("Failed to get systeminfo!", exception);
         }
     }
 
-    public void register(MetricsCollector collector) {
-        this.collectors.add(collector);
+    public void register(Supplier<MetricsCollector> collector) {
+        try {
+            MetricsCollector metricsCollector = collector.get();
+            this.collectors.add(metricsCollector);
+        } catch (Exception exception) {
+            LogUtils.error("Failed to initialize collector!");
+        }
     }
 
     public List<MetricsCollector> collectors() {
