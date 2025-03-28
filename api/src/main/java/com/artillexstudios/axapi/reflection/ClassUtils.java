@@ -1,27 +1,30 @@
 package com.artillexstudios.axapi.reflection;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
 
 public enum ClassUtils {
     INSTANCE;
 
     private final Logger log = LoggerFactory.getLogger(ClassUtils.class);
-    private final HashMap<String, Boolean> CLASS_CACHE = new HashMap<>();
+    private final Cache<String, Boolean> CLASS_CACHE = Caffeine.newBuilder()
+            .maximumSize(50)
+            .build();
 
     public boolean classExists(@NotNull String className) {
-        return CLASS_CACHE.computeIfAbsent(className, name -> {
+        return Boolean.TRUE.equals(CLASS_CACHE.get(className, name -> {
             try {
                 Class.forName(name, false, this.getClass().getClassLoader());
                 return true;
             } catch (ClassNotFoundException exception) {
                 return false;
             }
-        });
+        }));
     }
 
     public <T> T newInstance(String clazz) {
