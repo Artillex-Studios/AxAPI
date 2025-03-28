@@ -6,14 +6,15 @@ import org.slf4j.LoggerFactory;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public enum ClassUtils {
     INSTANCE;
 
     private final Logger log = LoggerFactory.getLogger(ClassUtils.class);
     private final Unsafe unsafe = UnsafeUtils.INSTANCE.unsafe();
-    private final HashMap<String, Boolean> CLASS_CACHE = new HashMap<>();
+    private final Map<String, Boolean> CLASS_CACHE = new ConcurrentHashMap<>();
 
     public boolean classExists(@NotNull String className) {
         return CLASS_CACHE.computeIfAbsent(className, name -> {
