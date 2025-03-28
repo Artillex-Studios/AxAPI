@@ -16,6 +16,7 @@ java {
 dependencies {
     implementation project(path: ":api")
     implementation project(path: ":folia")
+    implementation project(path: ":nms:v1_21_R4", configuration: "reobf")
     implementation project(path: ":nms:v1_21_R3", configuration: "reobf")
     implementation project(path: ":nms:v1_21_R2", configuration: "reobf")
     implementation project(path: ":nms:v1_21_R1", configuration: "reobf")
@@ -23,11 +24,6 @@ dependencies {
     implementation project(path: ":nms:v1_20_R3", configuration: "reobf")
     implementation project(path: ":nms:v1_20_R2", configuration: "reobf")
     implementation project(path: ":nms:v1_20_R1", configuration: "reobf")
-    implementation project(path: ":nms:v1_19_R3", configuration: "reobf")
-    implementation project(path: ":nms:v1_19_R2", configuration: "reobf")
-    implementation project(path: ":nms:v1_19_R1", configuration: "reobf")
-    implementation project(path: ":nms:v1_18_R2", configuration: "reobf")
-    implementation project(path: ":nms:v1_18_R1", configuration: "reobf")
 }
 
 allprojects {
