@@ -7,6 +7,8 @@ import com.artillexstudios.axapi.items.component.DataComponentImpl;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.loot.LootTable;
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
+import com.artillexstudios.axapi.nms.wrapper.Wrapper;
+import com.artillexstudios.axapi.nms.wrapper.WrapperMapper;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
 import com.artillexstudios.axapi.selection.ParallelBlockSetter;
 import com.artillexstudios.axapi.selection.BlockSetter;
@@ -38,15 +40,9 @@ public interface NMSHandler {
 
     Serializer<Object, Component> componentSerializer();
 
-    void injectPlayer(Player player);
-
-    void uninjectPlayer(Player player);
-
     int getProtocolVersionId(Player player);
 
     PacketEntity createEntity(EntityType entityType, Location location);
-
-    BlockSetter newSetter(World world);
 
     ActionBar newActionBar(Component content);
 
@@ -68,31 +64,15 @@ public interface NMSHandler {
 
     DataComponentImpl dataComponents();
 
-    OfflinePlayer getCachedOfflinePlayer(String name);
-
-    void sendPacket(Player player, Object packet);
-
-    void sendPacket(ServerPlayerWrapper player, Object packet);
-
-    default ParallelBlockSetter newParallelSetter(World world) {
-        return null;
-    }
-
-    int nextEntityId();
-
-    void sendMessage(Player player, Component message);
-
     DebugMarker marker(Color color, String message, int duration, int transparency, Location location);
 
-    double getBase(Player player, Attribute attribute);
-
-    Player dummyPlayer();
+    ServerPlayerWrapper dummyPlayer();
 
     LootTable lootTable(Key key);
-
-    List<ServerPlayerWrapper> players(World world);
 
     void openAnvilInput(AnvilInput anvilInput);
 
     ServerPlayerWrapper wrapper(Object player);
+
+    <T extends WrapperMapper<?>> T mapper(String id);
 }

@@ -2,11 +2,12 @@ package com.artillexstudios.axapi.items;
 
 import com.artillexstudios.axapi.items.component.DataComponent;
 import com.artillexstudios.axapi.nms.NMSHandlers;
+import com.artillexstudios.axapi.nms.wrapper.Wrapper;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.function.Function;
 
-public interface WrappedItemStack {
+public interface WrappedItemStack extends Wrapper<ItemStack> {
 
     static WrappedItemStack wrap(ItemStack itemStack) {
         return NMSHandlers.getNmsHandler().wrapItem(itemStack);
