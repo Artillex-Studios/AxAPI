@@ -1,17 +1,15 @@
 package com.artillexstudios.axapi.reflection;
 
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 
 public enum ClassUtils {
     INSTANCE;
 
-    private final Logger log = LoggerFactory.getLogger(ClassUtils.class);
     private final Cache<String, Boolean> CLASS_CACHE = Caffeine.newBuilder()
             .maximumSize(50)
             .build();
@@ -31,7 +29,7 @@ public enum ClassUtils {
         try {
             return newInstance(Class.forName(clazz));
         } catch (ClassNotFoundException exception) {
-            log.error("Could not find class {}!", clazz, exception);
+            LogUtils.error("Could not find class {}!", clazz, exception);
             throw new RuntimeException(exception);
         }
     }
@@ -40,7 +38,7 @@ public enum ClassUtils {
         try {
             return Class.forName(clazz);
         } catch (ClassNotFoundException exception) {
-            log.error("An unexpected error occurred while finding class {}!", clazz, exception);
+            LogUtils.error("An unexpected error occurred while finding class {}!", clazz, exception);
             throw new RuntimeException(exception);
         }
     }
@@ -50,7 +48,7 @@ public enum ClassUtils {
         try {
             return cl.getDeclaredField(field);
         } catch (NoSuchFieldException exception) {
-            log.error("An unexpected error occurred while getting field {} of class {}!", field, clazz, exception);
+            LogUtils.error("An unexpected error occurred while getting field {} of class {}!", field, clazz, exception);
             throw new RuntimeException(exception);
         }
     }
