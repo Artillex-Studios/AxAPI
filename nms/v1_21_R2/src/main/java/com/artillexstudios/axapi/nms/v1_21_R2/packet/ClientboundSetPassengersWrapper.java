@@ -1,18 +1,17 @@
 package com.artillexstudios.axapi.nms.v1_21_R2.packet;
 
-import com.artillexstudios.axapi.reflection.ClassUtils;
-import com.artillexstudios.axapi.reflection.FastFieldAccessor;
+import io.netty.buffer.Unpooled;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 
 public class ClientboundSetPassengersWrapper {
-    private static final FastFieldAccessor entityId = FastFieldAccessor.forClassField(ClientboundSetPassengersPacket.class, "b");
-    private static final FastFieldAccessor passengers = FastFieldAccessor.forClassField(ClientboundSetPassengersPacket.class, "c");
 
     public static ClientboundSetPassengersPacket createNew(int ridingEntity, int[] passengerIds) {
-        ClientboundSetPassengersPacket packet = ClassUtils.INSTANCE.newInstance(ClientboundSetPassengersPacket.class);
-        entityId.setInt(packet, ridingEntity);
-        passengers.set(packet, passengerIds);
-
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        buf.writeVarInt(ridingEntity);
+        buf.writeVarIntArray(passengerIds);
+        ClientboundSetPassengersPacket packet = ClientboundSetPassengersPacket.STREAM_CODEC.decode(buf);
+        buf.release();
         return packet;
     }
 }

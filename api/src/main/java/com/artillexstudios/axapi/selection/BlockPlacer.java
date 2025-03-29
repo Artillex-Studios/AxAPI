@@ -1,6 +1,6 @@
 package com.artillexstudios.axapi.selection;
 
-import com.artillexstudios.axapi.nms.NMSHandlers;
+import com.artillexstudios.axapi.nms.wrapper.WorldWrapper;
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
 import org.apache.commons.math3.util.Pair;
 import org.bukkit.Bukkit;
@@ -23,26 +23,26 @@ public class BlockPlacer {
     }
 
     public int run() {
-        BlockSetter setter = NMSHandlers.getNmsHandler().newSetter(selection.getWorld());
+        BlockSetter setter = WorldWrapper.wrap(this.selection.getWorld()).setter();
         int blockCount = 0;
-        int chunkMinX = selection.getMinX() >> 4;
-        int chunkMaxX = selection.getMaxX() >> 4;
-        int chunkMinZ = selection.getMinZ() >> 4;
-        int chunkMaxZ = selection.getMaxZ() >> 4;
-        
+        int chunkMinX = this.selection.getMinX() >> 4;
+        int chunkMaxX = this.selection.getMaxX() >> 4;
+        int chunkMinZ = this.selection.getMinZ() >> 4;
+        int chunkMaxZ = this.selection.getMaxZ() >> 4;
+
         for (int chunkX = chunkMinX; chunkX <= chunkMaxX; chunkX++) {
-            int minX = Math.max(selection.getMinX(), chunkX << 4);
-            int maxX = Math.min(selection.getMaxX(), (chunkX << 4) + 15);
+            int minX = Math.max(this.selection.getMinX(), chunkX << 4);
+            int maxX = Math.min(this.selection.getMaxX(), (chunkX << 4) + 15);
 
             for (int chunkZ = chunkMinZ; chunkZ <= chunkMaxZ; chunkZ++) {
-                int minZ = Math.max(selection.getMinZ(), chunkZ << 4);
-                int maxZ = Math.min(selection.getMaxZ(), (chunkZ << 4) + 15);
-                
-                for (int y = selection.getMinY(); y <= selection.getMaxY(); y++) {
+                int minZ = Math.max(this.selection.getMinZ(), chunkZ << 4);
+                int maxZ = Math.min(this.selection.getMaxZ(), (chunkZ << 4) + 15);
+
+                for (int y = this.selection.getMinY(); y <= this.selection.getMaxY(); y++) {
                     for (int x = minX; x <= maxX; x++) {
                         for (int z = minZ; z <= maxZ; z++) {
-                            BlockData type = distribution.sample();
-                    
+                            BlockData type = this.distribution.sample();
+
                             blockCount++;
                             setter.setBlock(x, y, z, type);
                         }

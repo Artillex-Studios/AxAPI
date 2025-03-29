@@ -12,9 +12,7 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.levelgen.Heightmap;
-import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,8 +28,8 @@ public class BlockSetterImpl implements BlockSetter {
     private final ArrayList<ChunkPos> chunks = new ArrayList<>();
     private LevelChunk chunk = null;
 
-    public BlockSetterImpl(World world) {
-        this.level = ((CraftWorld) world).getHandle();
+    public BlockSetterImpl(ServerLevel level) {
+        this.level = level;
     }
 
     @Override

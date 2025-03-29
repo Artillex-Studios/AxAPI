@@ -1,6 +1,6 @@
 package com.artillexstudios.axapi.utils;
 
-import com.artillexstudios.axapi.nms.NMSHandlers;
+import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
 import dev.dejvokep.boostedyaml.YamlDocument;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.command.CommandSender;
@@ -35,8 +35,9 @@ public class MessageUtils {
             return;
         }
 
-        if (sender instanceof Player) {
-            NMSHandlers.getNmsHandler().sendMessage((Player) sender, StringUtils.format(prefix + message, resolvers));
+        if (sender instanceof Player player) {
+            ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(player);
+            wrapper.message(StringUtils.format(prefix + message, resolvers));
         } else {
             sender.sendMessage(StringUtils.formatToString(prefix + message, resolvers));
         }
@@ -47,8 +48,9 @@ public class MessageUtils {
             return;
         }
 
-        if (sender instanceof Player) {
-            NMSHandlers.getNmsHandler().sendMessage((Player) sender, StringUtils.format(message, resolvers));
+        if (sender instanceof Player player) {
+            ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(player);
+            wrapper.message(StringUtils.format(message, resolvers));
         } else {
             sender.sendMessage(StringUtils.formatToString(message, resolvers));
         }

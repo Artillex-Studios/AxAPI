@@ -9,7 +9,6 @@ import com.artillexstudios.axapi.items.component.type.ItemLore;
 import com.artillexstudios.axapi.items.component.type.ProfileProperties;
 import com.artillexstudios.axapi.items.component.type.Unbreakable;
 import com.artillexstudios.axapi.items.component.type.Unit;
-import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.utils.mutable.MutableObject;
 import com.google.common.collect.Lists;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
@@ -51,7 +50,7 @@ public class ItemBuilder {
 
         String snbt;
         if ((snbt = (String) map.get("snbt")) != null) {
-            this.stack = NMSHandlers.getNmsHandler().wrapItem(snbt);
+            this.stack = WrappedItemStack.wrap(snbt);
         } else {
             this.stack = WrappedItemStack.wrap(new ItemStack(getMaterial(type)));
         }

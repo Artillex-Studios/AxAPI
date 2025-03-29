@@ -1,7 +1,6 @@
 package com.artillexstudios.axapi.serializers.impl;
 
 import com.artillexstudios.axapi.items.WrappedItemStack;
-import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.serializers.Serializer;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import com.google.common.io.ByteArrayDataInput;
@@ -52,7 +51,7 @@ public class ItemArraySerializer implements Serializer<ItemStack[], byte[]> {
                 byte[] read = new byte[size];
                 input.readFully(read);
 
-                items[i] = NMSHandlers.getNmsHandler().wrapItem(read).toBukkit();
+                items[i] = WrappedItemStack.wrap(read).toBukkit();
             } else {
                 items[i] = AIR.clone();
             }

@@ -1,7 +1,6 @@
 package com.artillexstudios.axapi.nms.v1_21_R4.items.nbt;
 
 import com.artillexstudios.axapi.items.nbt.Tag;
-import net.minecraft.nbt.ListTag;
 
 import java.util.List;
 import java.util.Set;
@@ -16,184 +15,221 @@ public class CompoundTag implements com.artillexstudios.axapi.items.nbt.Compound
 
     @Override
     public void put(String key, Tag tag) {
-        parent.put(key, tag.getParent() instanceof net.minecraft.nbt.CompoundTag compoundTag ? compoundTag : (ListTag) tag.getParent());
+        this.parent.put(key, tag.getParent() instanceof net.minecraft.nbt.CompoundTag compoundTag ? compoundTag : (net.minecraft.nbt.ListTag) tag.getParent());
     }
 
     @Override
     public void putByte(String key, byte value) {
-        parent.putByte(key, value);
+        this.parent.putByte(key, value);
     }
 
     @Override
     public void putShort(String key, short value) {
-        parent.putShort(key, value);
+        this.parent.putShort(key, value);
     }
 
     @Override
     public void putInt(String key, int value) {
-        parent.putInt(key, value);
+        this.parent.putInt(key, value);
     }
 
     @Override
     public void putLong(String key, long value) {
-        parent.putLong(key, value);
+        this.parent.putLong(key, value);
     }
 
     @Override
     public void putUUID(String key, UUID value) {
-        parent.putUUID(key, value);
+        if (this.parent.contains(key + "Most") && this.parent.contains(key + "Least")) {
+            this.parent.remove(key + "Most");
+            this.parent.remove(key + "Least");
+        }
+
+        this.putIntArray(key, uuidToIntArray(value));
     }
 
     @Override
     public UUID getUUID(String key) {
-        if (!containsUUID(key)) {
-            return null;
-        }
-
-        return parent.getUUID(key);
+        return this.contains(key + "Most") && this.contains(key + "Least") ? new UUID(this.getLong(key + "Most"), this.getLong(key + "Least")) : this.contains(key) ? uuidFromIntArray(this.getIntArray(key)) : null;
     }
 
     @Override
     public boolean containsUUID(String key) {
-        return parent.hasUUID(key);
+        return (this.contains(key + "Least") && this.contains(key + "Most")) || this.contains(key);
     }
 
     @Override
     public void putFloat(String key, float value) {
-        parent.putFloat(key, value);
+        this.parent.putFloat(key, value);
     }
 
     @Override
     public void putDouble(String key, double value) {
-        parent.putDouble(key, value);
+        this.parent.putDouble(key, value);
     }
 
     @Override
     public void putString(String key, String value) {
-        parent.putString(key, value);
+        this.parent.putString(key, value);
     }
 
     @Override
     public void putByteArray(String key, byte[] value) {
-        parent.putByteArray(key, value);
+        this.parent.putByteArray(key, value);
     }
 
     @Override
     public void putByteArray(String key, List<Byte> value) {
-        parent.putByteArray(key, value);
+        byte[] bytes = new byte[value.size()];
+        int i = 0;
+        for (Byte b : value) {
+            bytes[i] = b;
+            i++;
+        }
+
+        this.parent.putByteArray(key, bytes);
     }
 
     @Override
     public void putIntArray(String key, int[] value) {
-        parent.putIntArray(key, value);
+        this.parent.putIntArray(key, value);
     }
 
     @Override
     public void putIntArray(String key, List<Integer> value) {
-        parent.putIntArray(key, value);
+        int[] ints = new int[value.size()];
+        int i = 0;
+        for (Integer integer : value) {
+            ints[i] = integer;
+            i++;
+        }
+
+        this.parent.putIntArray(key, ints);
     }
 
     @Override
     public void putLongArray(String key, long[] value) {
-        parent.putLongArray(key, value);
+        this.parent.putLongArray(key, value);
     }
 
     @Override
     public void putLongArray(String key, List<Long> value) {
-        parent.putLongArray(key, value);
+        long[] longs = new long[value.size()];
+        int i = 0;
+        for (Long l : value) {
+            longs[i] = l;
+            i++;
+        }
+
+        this.parent.putLongArray(key, longs);
     }
 
     @Override
     public void putBoolean(String key, boolean value) {
-        parent.putBoolean(key, value);
+        this.parent.putBoolean(key, value);
     }
 
     @Override
     public boolean contains(String key) {
-        return parent.contains(key);
+        return this.parent.contains(key);
     }
 
     @Override
-    public byte getByte(String key) {
-        return parent.getByte(key);
+    public Byte getByte(String key) {
+        return this.parent.getByte(key).orElse(null);
     }
 
     @Override
-    public short getShort(String key) {
-        return parent.getShort(key);
+    public Short getShort(String key) {
+        return this.parent.getShort(key).orElse(null);
     }
 
     @Override
-    public int getInt(String key) {
-        return parent.getInt(key);
+    public Integer getInt(String key) {
+        return this.parent.getInt(key).orElse(null);
     }
 
     @Override
-    public long getLong(String key) {
-        return parent.getLong(key);
+    public Long getLong(String key) {
+        return this.parent.getLong(key).orElse(null);
     }
 
     @Override
-    public float getFloat(String key) {
-        return parent.getFloat(key);
+    public Float getFloat(String key) {
+        return this.parent.getFloat(key).orElse(null);
     }
 
     @Override
-    public double getDouble(String key) {
-        return parent.getDouble(key);
+    public Double getDouble(String key) {
+        return this.parent.getDouble(key).orElse(null);
     }
 
     @Override
     public String getString(String key) {
-        return parent.getString(key);
+        return this.parent.getString(key).orElse(null);
     }
 
     @Override
     public byte[] getByteArray(String key) {
-        return parent.getByteArray(key);
+        return this.parent.getByteArray(key).orElse(null);
     }
 
     @Override
     public int[] getIntArray(String key) {
-        return parent.getIntArray(key);
+        return this.parent.getIntArray(key).orElse(null);
     }
 
     @Override
     public long[] getLongArray(String key) {
-        return parent.getLongArray(key);
+        return this.parent.getLongArray(key).orElse(null);
     }
 
     @Override
     public com.artillexstudios.axapi.items.nbt.CompoundTag getCompound(String key) {
-        return new CompoundTag(parent.getCompound(key));
+        return this.parent.getCompound(key).map(CompoundTag::new).orElse(null);
     }
 
     @Override
-    public com.artillexstudios.axapi.items.nbt.ListTag getList(String key) {
-        return new com.artillexstudios.axapi.nms.v1_21_R3.items.nbt.ListTag(parent.getList(key, 10));
+    public ListTag getList(String key) {
+        return this.parent.getList(key).map(ListTag::new).orElse(null);
     }
 
     @Override
-    public boolean getBoolean(String key) {
-        return parent.getBoolean(key);
+    public Boolean getBoolean(String key) {
+        return this.parent.getBoolean(key).orElse(null);
     }
 
     @Override
     public void remove(String key) {
-        parent.remove(key);
+        this.parent.remove(key);
     }
 
     @Override
     public boolean isEmpty() {
-        return parent.isEmpty();
+        return this.parent.isEmpty();
     }
 
     @Override
     public Set<String> getAllKeys() {
-        return parent.getAllKeys();
+        return this.parent.keySet();
     }
 
+    @Override
     public net.minecraft.nbt.CompoundTag getParent() {
-        return parent;
+        return this.parent;
+    }
+
+    public static UUID uuidFromIntArray(int[] array) {
+        return new UUID((long) array[0] << 32 | (long) array[1] & 4294967295L, (long) array[2] << 32 | (long) array[3] & 4294967295L);
+    }
+
+    public static int[] uuidToIntArray(UUID uuid) {
+        long l = uuid.getMostSignificantBits();
+        long m = uuid.getLeastSignificantBits();
+        return leastMostToIntArray(l, m);
+    }
+
+    private static int[] leastMostToIntArray(long uuidMost, long uuidLeast) {
+        return new int[]{(int) (uuidMost >> 32), (int) uuidMost, (int) (uuidLeast >> 32), (int) uuidLeast};
     }
 }

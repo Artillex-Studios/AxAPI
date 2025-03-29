@@ -7,9 +7,9 @@ import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.hologram.HologramLine;
 import com.artillexstudios.axapi.hologram.Holograms;
 import com.artillexstudios.axapi.items.WrappedItemStack;
-import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.nms.v1_21_R1.packet.ClientboundSetPassengersWrapper;
 import com.artillexstudios.axapi.nms.v1_21_R1.packet.ClientboundTeleportEntityWrapper;
+import com.artillexstudios.axapi.nms.v1_21_R1.wrapper.ServerWrapper;
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
 import com.artillexstudios.axapi.packetentity.meta.EntityMeta;
 import com.artillexstudios.axapi.packetentity.meta.EntityMetaFactory;
@@ -67,7 +67,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     private final NonNullList<ItemStack> handSlots;
     private final NonNullList<ItemStack> armorSlots;
     private Location location;
-    private EntityTracker.TrackedEntity tracker;
+    private volatile EntityTracker.TrackedEntity tracker;
     private List<SynchedEntityData.DataValue<?>> trackedValues;
     private Vec3 vec3;
     private volatile boolean shouldTeleport = false;
@@ -80,7 +80,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     private int viewDistanceSquared = 32 * 32;
 
     public PacketEntity(EntityType entityType, Location location) {
-        this.id = NMSHandlers.getNmsHandler().nextEntityId();
+        this.id = ServerWrapper.INSTANCE.nextEntityId();
         this.type = net.minecraft.world.entity.EntityType.byString(entityType.getName()).orElse(net.minecraft.world.entity.EntityType.ARMOR_STAND);
         this.meta = EntityMetaFactory.getForType(entityType);
         this.location = location;
@@ -216,7 +216,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
                     }
 
                     ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(player);
-                    NMSHandlers.getNmsHandler().sendPacket(wrapper, new ClientboundSetEntityDataPacket(this.id, this.translate(wrapper.wrapped(), line, dirty)));
+                    wrapper.sendPacket(new ClientboundSetEntityDataPacket(this.id, this.translate(wrapper.wrapped(), line, dirty)));
                 }
             }
         }
@@ -385,7 +385,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
             }
 
             ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(player);
-            NMSHandlers.getNmsHandler().sendPacket(wrapper, new ClientboundSetEntityDataPacket(this.id, this.translate(wrapper.wrapped(), line, transformed)));
+            wrapper.sendPacket(new ClientboundSetEntityDataPacket(this.id, this.translate(wrapper.wrapped(), line, transformed)));
         }
     }
 

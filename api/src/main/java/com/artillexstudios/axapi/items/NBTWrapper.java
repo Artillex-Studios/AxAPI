@@ -6,7 +6,6 @@ import com.artillexstudios.axapi.items.nbt.ListTag;
 import com.artillexstudios.axapi.items.nbt.Tag;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -92,82 +91,42 @@ public class NBTWrapper {
     }
 
     public Byte getByte(String key) {
-        if (!this.tag.contains(key)) {
-            return null;
-        }
-
         return this.tag.getByte(key);
     }
 
     public Short getShort(String key) {
-        if (!this.tag.contains(key)) {
-            return null;
-        }
-
         return this.tag.getShort(key);
     }
 
     public Integer getInt(String key) {
-        if (!this.tag.contains(key)) {
-            return null;
-        }
-
         return this.tag.getInt(key);
     }
 
     public Long getLong(String key) {
-        if (!this.tag.contains(key)) {
-            return null;
-        }
-
         return this.tag.getLong(key);
     }
 
     public String getString(String key) {
-        if (!this.tag.contains(key)) {
-            return null;
-        }
-
         return this.tag.getString(key);
     }
 
     public byte[] getByteArray(String key) {
-        if (!this.tag.contains(key)) {
-            return null;
-        }
-
         return this.tag.getByteArray(key);
     }
 
     public long[] getLongArray(String key) {
-        if (!this.tag.contains(key)) {
-            return null;
-        }
-
         return this.tag.getLongArray(key);
     }
 
     public int[] getIntArray(String key) {
-        if (!this.tag.contains(key)) {
-            return null;
-        }
-
         return this.tag.getIntArray(key);
     }
 
     public Float getFloat(String key) {
-        if (!this.tag.contains(key)) {
-            return null;
-        }
-
         return this.tag.getFloat(key);
     }
 
     public Double getDouble(String key) {
-        if (!this.tag.contains(key)) {
-            return null;
-        }
-
         return this.tag.getDouble(key);
     }
 

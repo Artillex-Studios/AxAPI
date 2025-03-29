@@ -2,65 +2,64 @@ package com.artillexstudios.axapi.nms.v1_20_R2.items;
 
 import com.artillexstudios.axapi.items.component.DataComponent;
 import com.artillexstudios.axapi.nms.v1_20_R2.ItemStackSerializer;
-import com.artillexstudios.axapi.reflection.FastFieldAccessor;
+import com.artillexstudios.axapi.reflection.FieldAccessor;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.SnbtPrinterTagVisitor;
-import net.minecraft.world.item.ItemStack;
 import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_20_R2.util.CraftMagicNumbers;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class WrappedItemStack implements com.artillexstudios.axapi.items.WrappedItemStack {
-    private static final FastFieldAccessor HANDLE_ACCESSOR = FastFieldAccessor.forClassField(CraftItemStack.class, "handle");
-    public final ItemStack parent;
-    private final org.bukkit.inventory.ItemStack bukkitStack;
+    private static final FieldAccessor handleAccessor = FieldAccessor.builder()
+            .withClass(CraftItemStack.class)
+            .withField("handle").build();
+    public net.minecraft.world.item.ItemStack itemStack;
+    private ItemStack bukkitStack;
     private boolean dirty = false;
 
-    public WrappedItemStack(org.bukkit.inventory.ItemStack itemStack) {
-        this.parent = itemStack.getType().isAir() ? ItemStack.EMPTY : itemStack instanceof CraftItemStack ? HANDLE_ACCESSOR.get(itemStack) : CraftItemStack.asNMSCopy(itemStack);
-        bukkitStack = itemStack;
+    public WrappedItemStack(ItemStack itemStack) {
+        this(itemStack.getType().isAir() ? net.minecraft.world.item.ItemStack.EMPTY : itemStack instanceof CraftItemStack cr ? handleAccessor.get(cr, net.minecraft.world.item.ItemStack.class) : CraftItemStack.asNMSCopy(itemStack));
+        this.bukkitStack = itemStack;
     }
 
-    public WrappedItemStack(ItemStack itemStack) {
-        this.parent = itemStack;
-        this.bukkitStack = CraftItemStack.asCraftMirror(this.parent);
+    public WrappedItemStack(net.minecraft.world.item.ItemStack itemStack) {
+        this.itemStack = itemStack;
+        this.bukkitStack = null;
     }
 
     @Override
     public <T> void set(DataComponent<T> component, T value) {
         this.dirty = true;
-        component.apply(parent, value);
+        component.apply(this.itemStack, value);
     }
 
     @Override
     public <T> T get(DataComponent<T> component) {
-        return component.get(parent);
+        return component.get(this.itemStack);
     }
 
     @Override
     public int getAmount() {
-        return parent.getCount();
+        return this.itemStack.getCount();
     }
 
     @Override
     public void setAmount(int amount) {
-        this.parent.setCount(amount);
+        this.itemStack.setCount(amount);
     }
 
     @Override
-    public org.bukkit.inventory.ItemStack toBukkit() {
-        return CraftItemStack.asCraftMirror(parent);
+    public ItemStack toBukkit() {
+        return CraftItemStack.asBukkitCopy(this.itemStack);
     }
 
     @Override
     public String toSNBT() {
-        var compoundTag = (net.minecraft.nbt.CompoundTag) parent.save(new CompoundTag());
-        compoundTag.putInt("DataVersion", CraftMagicNumbers.INSTANCE.getDataVersion());
-        return new SnbtPrinterTagVisitor().visit(compoundTag);
+        return ItemStackSerializer.INSTANCE.serializeAsSnbt(this.toBukkit());
     }
 
     @Override
     public byte[] serialize() {
-        return ItemStackSerializer.INSTANCE.serializeAsBytes(CraftItemStack.asBukkitCopy(parent));
+        return ItemStackSerializer.INSTANCE.serializeAsBytes(this.toBukkit());
     }
 
     @Override
@@ -69,34 +68,49 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
             return;
         }
 
-        CompoundTag tag = parent.getTag();
+        CompoundTag tag = this.itemStack.getTag();
         if (tag == null || tag.isEmpty()) {
-            if (CraftItemStack.class.isAssignableFrom(bukkitStack.getClass())) {
-                CraftItemStack craftItemStack = (CraftItemStack) bukkitStack;
-                ItemStack handle = HANDLE_ACCESSOR.get(craftItemStack);
+            if (CraftItemStack.class.isAssignableFrom(this.bukkitStack.getClass())) {
+                CraftItemStack craftItemStack = (CraftItemStack) this.bukkitStack;
+                net.minecraft.world.item.ItemStack handle = handleAccessor.get(craftItemStack, net.minecraft.world.item.ItemStack.class);
                 handle.setTag(null);
             } else {
-                parent.setTag(null);
-                org.bukkit.inventory.ItemStack bukkitItem = CraftItemStack.asCraftMirror(parent);
-                bukkitStack.setItemMeta(bukkitItem.getItemMeta());
+                this.itemStack.setTag(null);
+                org.bukkit.inventory.ItemStack bukkitItem = CraftItemStack.asCraftMirror(this.itemStack);
+                this.bukkitStack.setItemMeta(bukkitItem.getItemMeta());
             }
             return;
         }
 
         if (CraftItemStack.class.isAssignableFrom(bukkitStack.getClass())) {
             CraftItemStack craftItemStack = (CraftItemStack) bukkitStack;
-            ItemStack handle = HANDLE_ACCESSOR.get(craftItemStack);
+            net.minecraft.world.item.ItemStack handle = handleAccessor.get(craftItemStack, net.minecraft.world.item.ItemStack.class);
             handle.setTag(tag);
         } else {
-            parent.setTag(tag);
-            org.bukkit.inventory.ItemStack bukkitItem = CraftItemStack.asCraftMirror(parent);
-            bukkitStack.setItemMeta(bukkitItem.getItemMeta());
+            this.itemStack.setTag(tag);
+            org.bukkit.inventory.ItemStack bukkitItem = CraftItemStack.asCraftMirror(this.itemStack);
+            this.bukkitStack.setItemMeta(bukkitItem.getItemMeta());
         }
     }
 
     @Override
-    public com.artillexstudios.axapi.items.WrappedItemStack copy() {
-        finishEdit();
-        return new WrappedItemStack(this.parent.copy());
+    public WrappedItemStack copy() {
+        this.finishEdit();
+        return new WrappedItemStack(this.itemStack.copy());
+    }
+
+    @Override
+    public void update(boolean force) {
+
+    }
+
+    @Override
+    public ItemStack wrapped() {
+        return this.toBukkit();
+    }
+
+    @Override
+    public net.minecraft.world.item.ItemStack asMinecraft() {
+        return this.itemStack;
     }
 }

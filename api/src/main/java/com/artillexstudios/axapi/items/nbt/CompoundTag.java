@@ -50,17 +50,17 @@ public interface CompoundTag extends Tag {
 
     boolean contains(String key);
 
-    byte getByte(String key);
+    Byte getByte(String key);
 
-    short getShort(String key);
+    Short getShort(String key);
 
-    int getInt(String key);
+    Integer getInt(String key);
 
-    long getLong(String key);
+    Long getLong(String key);
 
-    float getFloat(String key);
+    Float getFloat(String key);
 
-    double getDouble(String key);
+    Double getDouble(String key);
 
     String getString(String key);
 
@@ -74,7 +74,7 @@ public interface CompoundTag extends Tag {
 
     ListTag getList(String key);
 
-    boolean getBoolean(String key);
+    Boolean getBoolean(String key);
 
     void remove(String key);
 

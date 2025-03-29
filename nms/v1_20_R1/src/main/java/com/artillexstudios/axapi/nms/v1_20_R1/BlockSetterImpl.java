@@ -10,32 +10,26 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.chunk.LevelChunkSection;
-import org.bukkit.World;
+import net.minecraft.world.level.levelgen.Heightmap;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_20_R1.block.data.CraftBlockData;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class BlockSetterImpl implements BlockSetter {
     private static final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final ServerLevel level;
-    private final World world;
     private final ArrayList<ChunkPos> chunks = new ArrayList<>();
     private LevelChunk chunk = null;
-    private int sectionIndex = -10000;
-    private LevelChunkSection section = null;
 
-    public BlockSetterImpl(World world) {
-        this.world = world;
-        this.level = ((CraftWorld) world).getHandle();
+    public BlockSetterImpl(ServerLevel level) {
+        this.level = level;
     }
 
     @Override
@@ -49,9 +43,9 @@ public class BlockSetterImpl implements BlockSetter {
             this.chunk = levelChunk = level.getChunk(chunkX, chunkZ);
             chunks.add(levelChunk.getPos());
         }
-       
+
         var state = ((CraftBlockData) data).getState();
-        
+
         int sectionIndex = levelChunk.getSectionIndex(y);
         LevelChunkSection section = levelChunk.getSection(sectionIndex);
 
@@ -70,11 +64,13 @@ public class BlockSetterImpl implements BlockSetter {
 
     @Override
     public void finalise() {
-        relight();
-
         for (ChunkPos chunk : chunks) {
-            sendUpdatePacket(level.getChunk(chunk.x, chunk.z));
+            LevelChunk levelChunk = level.getChunk(chunk.x, chunk.z);
+            levelChunk.setUnsaved(true);
+            sendUpdatePacket(levelChunk);
         }
+
+        relight();
 
         chunks.clear();
     }
@@ -87,7 +83,7 @@ public class BlockSetterImpl implements BlockSetter {
     }
 
     private void relight() {
-        var set = new HashSet(chunks);
+        var set = new HashSet<>(chunks);
         MinecraftServer.getServer().executeBlocking(() -> {
             var lightEngine = level.chunkSource.getLightEngine();
             lightEngine.relight(set, c -> {

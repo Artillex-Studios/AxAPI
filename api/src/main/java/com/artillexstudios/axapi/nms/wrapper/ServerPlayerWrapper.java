@@ -6,6 +6,8 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 
 public interface ServerPlayerWrapper extends Wrapper<Player> {
+    String PACKET_HANDLER = "packet_handler";
+    String AXAPI_HANDLER = "axapi_handler";
 
     static ServerPlayerWrapper wrap(Object player) {
         return WrapperRegistry.SERVER_PLAYER.map(player);

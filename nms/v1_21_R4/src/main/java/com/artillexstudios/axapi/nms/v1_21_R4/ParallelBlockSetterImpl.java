@@ -57,8 +57,8 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
 
     private final ServerLevel level;
 
-    public ParallelBlockSetterImpl(World world) {
-        this.level = ((CraftWorld) world).getHandle();
+    public ParallelBlockSetterImpl(ServerLevel level) {
+        this.level = level;
     }
 
 //    public void copyFields(LevelChunkSection fromSection, LevelChunkSection toSection) {

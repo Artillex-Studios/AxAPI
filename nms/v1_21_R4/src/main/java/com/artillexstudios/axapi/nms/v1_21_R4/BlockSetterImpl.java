@@ -1,7 +1,6 @@
 package com.artillexstudios.axapi.nms.v1_21_R4;
 
 import com.artillexstudios.axapi.selection.BlockSetter;
-import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
@@ -12,26 +11,21 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.levelgen.Heightmap;
-import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class BlockSetterImpl implements BlockSetter {
-    private static final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final ServerLevel level;
     private final ArrayList<ChunkPos> chunks = new ArrayList<>();
     private LevelChunk chunk = null;
 
-    public BlockSetterImpl(World world) {
-        this.level = ((CraftWorld) world).getHandle();
+    public BlockSetterImpl(ServerLevel level) {
+        this.level = level;
     }
 
     @Override

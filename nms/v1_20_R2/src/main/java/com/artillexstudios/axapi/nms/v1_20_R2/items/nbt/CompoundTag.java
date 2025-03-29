@@ -1,199 +1,364 @@
 package com.artillexstudios.axapi.nms.v1_20_R2.items.nbt;
 
 import com.artillexstudios.axapi.items.nbt.Tag;
-import net.minecraft.nbt.ListTag;
+import com.artillexstudios.axapi.reflection.FieldAccessor;
+import net.minecraft.CrashReport;
+import net.minecraft.CrashReportCategory;
+import net.minecraft.ReportedException;
+import net.minecraft.nbt.ByteArrayTag;
+import net.minecraft.nbt.IntArrayTag;
+import net.minecraft.nbt.LongArrayTag;
+import net.minecraft.nbt.NumericTag;
+import net.minecraft.nbt.TagType;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
 public class CompoundTag implements com.artillexstudios.axapi.items.nbt.CompoundTag {
+    private static final FieldAccessor accessor = FieldAccessor.builder()
+            .withClass(net.minecraft.nbt.CompoundTag.class)
+            .withField("x")
+            .build();
     private final net.minecraft.nbt.CompoundTag parent;
+    private final Map<String, net.minecraft.nbt.Tag> tags;
 
     public CompoundTag(net.minecraft.nbt.CompoundTag tag) {
         this.parent = tag;
+        this.tags = accessor.getUnchecked(tag);
     }
 
     @Override
     public void put(String key, Tag tag) {
-        parent.put(key, tag.getParent() instanceof net.minecraft.nbt.CompoundTag compoundTag ? compoundTag : (ListTag) tag.getParent());
+        this.parent.put(key, tag.getParent() instanceof net.minecraft.nbt.CompoundTag compoundTag ? compoundTag : (net.minecraft.nbt.ListTag) tag.getParent());
     }
 
     @Override
     public void putByte(String key, byte value) {
-        parent.putByte(key, value);
+        this.parent.putByte(key, value);
     }
 
     @Override
     public void putShort(String key, short value) {
-        parent.putShort(key, value);
+        this.parent.putShort(key, value);
     }
 
     @Override
     public void putInt(String key, int value) {
-        parent.putInt(key, value);
+        this.parent.putInt(key, value);
     }
 
     @Override
     public void putLong(String key, long value) {
-        parent.putLong(key, value);
+        this.parent.putLong(key, value);
     }
 
     @Override
     public void putUUID(String key, UUID value) {
-        parent.putUUID(key, value);
+        if (this.parent.contains(key + "Most") && this.parent.contains(key + "Least")) {
+            this.parent.remove(key + "Most");
+            this.parent.remove(key + "Least");
+        }
+
+        this.putIntArray(key, uuidToIntArray(value));
     }
 
     @Override
     public UUID getUUID(String key) {
-        if (!containsUUID(key)) {
-            return null;
-        }
-
-        return parent.getUUID(key);
+        return this.contains(key + "Most") && this.contains(key + "Least") ? new UUID(this.getLong(key + "Most"), this.getLong(key + "Least")) : this.contains(key) ? uuidFromIntArray(this.getIntArray(key)) : null;
     }
 
     @Override
     public boolean containsUUID(String key) {
-        return parent.hasUUID(key);
+        return (this.contains(key + "Least") && this.contains(key + "Most")) || this.contains(key);
     }
 
     @Override
     public void putFloat(String key, float value) {
-        parent.putFloat(key, value);
+        this.parent.putFloat(key, value);
     }
 
     @Override
     public void putDouble(String key, double value) {
-        parent.putDouble(key, value);
+        this.parent.putDouble(key, value);
     }
 
     @Override
     public void putString(String key, String value) {
-        parent.putString(key, value);
+        this.parent.putString(key, value);
     }
 
     @Override
     public void putByteArray(String key, byte[] value) {
-        parent.putByteArray(key, value);
+        this.parent.putByteArray(key, value);
     }
 
     @Override
     public void putByteArray(String key, List<Byte> value) {
-        parent.putByteArray(key, value);
+        byte[] bytes = new byte[value.size()];
+        int i = 0;
+        for (Byte b : value) {
+            bytes[i] = b;
+            i++;
+        }
+
+        this.parent.putByteArray(key, bytes);
     }
 
     @Override
     public void putIntArray(String key, int[] value) {
-        parent.putIntArray(key, value);
+        this.parent.putIntArray(key, value);
     }
 
     @Override
     public void putIntArray(String key, List<Integer> value) {
-        parent.putIntArray(key, value);
+        int[] ints = new int[value.size()];
+        int i = 0;
+        for (Integer integer : value) {
+            ints[i] = integer;
+            i++;
+        }
+
+        this.parent.putIntArray(key, ints);
     }
 
     @Override
     public void putLongArray(String key, long[] value) {
-        parent.putLongArray(key, value);
+        this.parent.putLongArray(key, value);
     }
 
     @Override
     public void putLongArray(String key, List<Long> value) {
-        parent.putLongArray(key, value);
+        long[] longs = new long[value.size()];
+        int i = 0;
+        for (Long l : value) {
+            longs[i] = l;
+            i++;
+        }
+
+        this.parent.putLongArray(key, longs);
     }
 
     @Override
     public void putBoolean(String key, boolean value) {
-        parent.putBoolean(key, value);
+        this.parent.putBoolean(key, value);
     }
 
     @Override
     public boolean contains(String key) {
-        return parent.contains(key);
+        return this.parent.contains(key);
     }
 
     @Override
-    public byte getByte(String key) {
-        return parent.getByte(key);
+    public Byte getByte(String key) {
+        try {
+            if (this.parent.contains(key, 99)) {
+                return ((NumericTag) this.tags.get(key)).getAsByte();
+            }
+        } catch (ClassCastException ignored) {
+
+        }
+
+        return null;
     }
 
     @Override
-    public short getShort(String key) {
-        return parent.getShort(key);
+    public Short getShort(String key) {
+        try {
+            if (this.parent.contains(key, 99)) {
+                return ((NumericTag) this.tags.get(key)).getAsShort();
+            }
+        } catch (ClassCastException ignored) {
+
+        }
+
+        return null;
     }
 
     @Override
-    public int getInt(String key) {
-        return parent.getInt(key);
+    public Integer getInt(String key) {
+        try {
+            if (this.parent.contains(key, 99)) {
+                return ((NumericTag) this.tags.get(key)).getAsInt();
+            }
+        } catch (ClassCastException ignored) {
+
+        }
+
+        return null;
     }
 
     @Override
-    public long getLong(String key) {
-        return parent.getLong(key);
+    public Long getLong(String key) {
+        try {
+            if (this.parent.contains(key, 99)) {
+                return ((NumericTag) this.tags.get(key)).getAsLong();
+            }
+        } catch (ClassCastException ignored) {
+
+        }
+
+        return null;
     }
 
     @Override
-    public float getFloat(String key) {
-        return parent.getFloat(key);
+    public Float getFloat(String key) {
+        try {
+            if (this.parent.contains(key, 99)) {
+                return ((NumericTag) this.tags.get(key)).getAsFloat();
+            }
+        } catch (ClassCastException ignored) {
+
+        }
+
+        return null;
     }
 
     @Override
-    public double getDouble(String key) {
-        return parent.getDouble(key);
+    public Double getDouble(String key) {
+        try {
+            if (this.parent.contains(key, 99)) {
+                return ((NumericTag) this.tags.get(key)).getAsDouble();
+            }
+        } catch (ClassCastException ignored) {
+
+        }
+
+        return null;
     }
 
     @Override
     public String getString(String key) {
-        return parent.getString(key);
+        try {
+            if (this.parent.contains(key, 8)) {
+                return this.tags.get(key).getAsString();
+            }
+        } catch (ClassCastException ignored) {
+
+        }
+
+        return null;
     }
 
     @Override
     public byte[] getByteArray(String key) {
-        return parent.getByteArray(key);
+        try {
+            if (this.parent.contains(key, 7)) {
+                return ((ByteArrayTag) this.tags.get(key)).getAsByteArray();
+            }
+        } catch (ClassCastException var3) {
+            throw new ReportedException(this.createReport(key, ByteArrayTag.TYPE, var3));
+        }
+
+        return null;
     }
 
     @Override
     public int[] getIntArray(String key) {
-        return parent.getIntArray(key);
+        try {
+            if (this.parent.contains(key, 11)) {
+                return ((IntArrayTag) this.tags.get(key)).getAsIntArray();
+            }
+        } catch (ClassCastException var3) {
+            throw new ReportedException(this.createReport(key, IntArrayTag.TYPE, var3));
+        }
+
+        return null;
     }
 
     @Override
     public long[] getLongArray(String key) {
-        return parent.getLongArray(key);
+        try {
+            if (this.parent.contains(key, 12)) {
+                return ((LongArrayTag) this.tags.get(key)).getAsLongArray();
+            }
+        } catch (ClassCastException var3) {
+            throw new ReportedException(this.createReport(key, LongArrayTag.TYPE, var3));
+        }
+
+        return null;
     }
 
     @Override
-    public com.artillexstudios.axapi.items.nbt.CompoundTag getCompound(String key) {
-        return new CompoundTag(parent.getCompound(key));
+    public CompoundTag getCompound(String key) {
+        try {
+            if (this.parent.contains(key, 10)) {
+                return new CompoundTag((net.minecraft.nbt.CompoundTag) this.tags.get(key));
+            }
+        } catch (ClassCastException var3) {
+            throw new ReportedException(this.createReport(key, net.minecraft.nbt.CompoundTag.TYPE, var3));
+        }
+
+        return null;
     }
 
     @Override
-    public com.artillexstudios.axapi.items.nbt.ListTag getList(String key) {
-        return new com.artillexstudios.axapi.nms.v1_20_R2.items.nbt.ListTag(parent.getList(key, 10));
+    public ListTag getList(String key) {
+        try {
+            if (this.parent.getTagType(key) == 9) {
+                net.minecraft.nbt.ListTag listTag = (net.minecraft.nbt.ListTag)this.tags.get(key);
+                if (!listTag.isEmpty() && listTag.getElementType() != 10) {
+                    return null;
+                }
+
+                return new ListTag(listTag);
+            }
+        } catch (ClassCastException var4) {
+            throw new ReportedException(this.createReport(key, net.minecraft.nbt.ListTag.TYPE, var4));
+        }
+
+        return null;
     }
 
     @Override
-    public boolean getBoolean(String key) {
-        return parent.getBoolean(key);
+    public Boolean getBoolean(String key) {
+        Byte value = this.getByte(key);
+        return value == null ? null : value != 0;
     }
 
     @Override
     public void remove(String key) {
-        parent.remove(key);
+        this.parent.remove(key);
     }
 
     @Override
     public boolean isEmpty() {
-        return parent.isEmpty();
+        return this.parent.isEmpty();
     }
 
     @Override
     public Set<String> getAllKeys() {
-        return parent.getAllKeys();
+        return this.parent.getAllKeys();
     }
 
+    @Override
     public net.minecraft.nbt.CompoundTag getParent() {
-        return parent;
+        return this.parent;
+    }
+
+    public static UUID uuidFromIntArray(int[] array) {
+        return new UUID((long) array[0] << 32 | (long) array[1] & 4294967295L, (long) array[2] << 32 | (long) array[3] & 4294967295L);
+    }
+
+    public static int[] uuidToIntArray(UUID uuid) {
+        long l = uuid.getMostSignificantBits();
+        long m = uuid.getLeastSignificantBits();
+        return leastMostToIntArray(l, m);
+    }
+
+    private static int[] leastMostToIntArray(long uuidMost, long uuidLeast) {
+        return new int[]{(int) (uuidMost >> 32), (int) uuidMost, (int) (uuidLeast >> 32), (int) uuidLeast};
+    }
+
+    private CrashReport createReport(String tagName, TagType<?> type, ClassCastException exception) {
+        CrashReport crashReport = CrashReport.forThrowable(exception, "Reading NBT data");
+        CrashReportCategory crashReportCategory = crashReport.addCategory("Corrupt NBT tag", 1);
+        crashReportCategory.setDetail("Tag type found", () -> this.tags.get(tagName).getType().getName());
+        Objects.requireNonNull(type);
+        crashReportCategory.setDetail("Tag type expected", type::getName);
+        crashReportCategory.setDetail("Tag name", tagName);
+        return crashReport;
     }
 }

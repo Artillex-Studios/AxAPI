@@ -4,8 +4,8 @@ import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.collections.IdentityArrayMap;
 import com.artillexstudios.axapi.collections.RawReferenceOpenHashSet;
 import com.artillexstudios.axapi.executor.ExceptionReportingScheduledThreadPool;
-import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
+import com.artillexstudios.axapi.nms.wrapper.WorldWrapper;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
 import com.artillexstudios.axapi.reflection.FieldAccessor;
 import com.artillexstudios.axapi.utils.PaperUtils;
@@ -183,7 +183,8 @@ public final class EntityTracker {
                 return wrapper;
             }
 
-            return NMSHandlers.getNmsHandler().players(world);
+            WorldWrapper wrapper = WorldWrapper.wrap(world);
+            return wrapper.players();
         }
 
         public void updateTracking(@NotNull List<ServerPlayerWrapper> newTrackerCandidates) {
@@ -241,7 +242,8 @@ public final class EntityTracker {
 
         public void broadcast(Object packet) {
             this.seenBy.forEach(player -> {
-                NMSHandlers.getNmsHandler().sendPacket(ServerPlayerWrapper.wrap(player), packet);
+                ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(player);
+                wrapper.sendPacket(packet);
             });
         }
 

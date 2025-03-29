@@ -71,7 +71,8 @@ public abstract class AxPlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new Listener() {
             @EventHandler
             public void onPlayerQuitEvent(@NotNull final PlayerQuitEvent event) {
-                NMSHandlers.getNmsHandler().uninjectPlayer(event.getPlayer());
+                ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(event.getPlayer());
+                wrapper.uninject();
 
                 if (tracker == null) {
                     return;
@@ -82,7 +83,8 @@ public abstract class AxPlugin extends JavaPlugin {
 
             @EventHandler
             public void onPlayerJoinEvent(@NotNull final PlayerJoinEvent event) {
-                NMSHandlers.getNmsHandler().injectPlayer(event.getPlayer());
+                ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(event.getPlayer());
+                wrapper.inject();
             }
 
             @EventHandler
@@ -106,7 +108,8 @@ public abstract class AxPlugin extends JavaPlugin {
         }
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            NMSHandlers.getNmsHandler().injectPlayer(player);
+            ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(player);
+            wrapper.inject();
         }
 
         this.enable();
@@ -140,7 +143,8 @@ public abstract class AxPlugin extends JavaPlugin {
         Scheduler.get().cancelAll();
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            NMSHandlers.getNmsHandler().uninjectPlayer(player);
+            ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(player);
+            wrapper.inject();
         }
 
         if (tracker != null) {

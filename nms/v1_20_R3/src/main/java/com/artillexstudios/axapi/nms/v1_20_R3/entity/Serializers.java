@@ -1,8 +1,8 @@
 package com.artillexstudios.axapi.nms.v1_20_R3.entity;
 
+import com.artillexstudios.axapi.nms.v1_20_R3.items.WrappedItemStack;
 import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataAccessor;
 import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataSerializers;
-import com.artillexstudios.axapi.reflection.FastFieldAccessor;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.ParticleArguments;
 import net.minecraft.core.Rotations;
@@ -23,7 +23,6 @@ import java.util.EnumMap;
 import java.util.Optional;
 
 public class Serializers {
-    private static final FastFieldAccessor nmsStack = FastFieldAccessor.forClassField(com.artillexstudios.axapi.nms.v1_20_R3.items.WrappedItemStack.class, "parent");
     private static final EnumMap<EntityDataSerializers.Type, Transformer<?>> typeTransformers = new EnumMap<>(EntityDataSerializers.Type.class);
 
     static {
@@ -103,7 +102,7 @@ public class Serializers {
 
             @Override
             public ItemStack transform(Object other) {
-                return nmsStack.get(other);
+                return ((WrappedItemStack) other).itemStack;
             }
 
             @Override

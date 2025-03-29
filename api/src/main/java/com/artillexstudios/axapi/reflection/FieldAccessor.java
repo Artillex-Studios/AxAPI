@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.reflection;
 
 import com.artillexstudios.axapi.reflection.accessor.AccessorType;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -18,7 +19,12 @@ public interface FieldAccessor {
     Object get(Object instance);
 
     default <T> T get(Object instance, Class<T> clazz) {
-        return clazz.cast(this.get(instance));
+        try {
+            return clazz.cast(this.get(instance));
+        } catch (ClassCastException exception) {
+            LogUtils.error("Failed to get field due to mismatching type!", exception);
+            throw exception;
+        }
     }
 
     default <T> T getUnchecked(Object instance) {

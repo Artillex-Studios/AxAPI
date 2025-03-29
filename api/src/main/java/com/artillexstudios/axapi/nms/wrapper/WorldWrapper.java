@@ -8,6 +8,10 @@ import java.util.List;
 
 public interface WorldWrapper extends Wrapper<World> {
 
+    static WorldWrapper wrap(Object world) {
+        return WrapperRegistry.WORLD.map(world);
+    }
+
     BlockSetter setter();
 
     ParallelBlockSetter parallelSetter();

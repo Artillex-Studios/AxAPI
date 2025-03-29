@@ -1,24 +1,16 @@
 package com.artillexstudios.axapi.items;
 
 import com.artillexstudios.axapi.items.component.DataComponent;
-import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.nms.wrapper.Wrapper;
+import com.artillexstudios.axapi.nms.wrapper.WrapperRegistry;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.function.Function;
 
 public interface WrappedItemStack extends Wrapper<ItemStack> {
 
-    static WrappedItemStack wrap(ItemStack itemStack) {
-        return NMSHandlers.getNmsHandler().wrapItem(itemStack);
-    }
-
-    static WrappedItemStack wrap(byte[] bytes) {
-        return NMSHandlers.getNmsHandler().wrapItem(bytes);
-    }
-
-    static WrappedItemStack wrap(String snbt) {
-        return NMSHandlers.getNmsHandler().wrapItem(snbt);
+    static WrappedItemStack wrap(Object data) {
+        return WrapperRegistry.ITEM_STACK.map(data);
     }
 
     static <T> T edit(ItemStack itemStack, Function<WrappedItemStack, T> function) {

@@ -59,7 +59,7 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
             public CompoundTag get(Object item) {
                 ItemStack itemStack = (ItemStack) item;
 
-                return new com.artillexstudios.axapi.nms.v1_21_R3.items.nbt.CompoundTag(itemStack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.of(new net.minecraft.nbt.CompoundTag())).copyTag());
+                return new com.artillexstudios.axapi.nms.v1_21_R4.items.nbt.CompoundTag(itemStack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.of(new net.minecraft.nbt.CompoundTag())).copyTag());
             }
         };
     }
@@ -148,7 +148,7 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
                     return;
                 }
 
-                itemStack.set(DataComponents.UNBREAKABLE, new net.minecraft.world.item.component.Unbreakable(unbreakable.showInTooltip()));
+                itemStack.set(DataComponents.UNBREAKABLE, net.minecraft.util.Unit.INSTANCE);
             }
 
             @Override

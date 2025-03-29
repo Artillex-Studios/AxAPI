@@ -2,22 +2,21 @@ package com.artillexstudios.axapi.nms.v1_21_R3.items;
 
 import com.artillexstudios.axapi.items.component.DataComponent;
 import com.artillexstudios.axapi.nms.v1_21_R3.ItemStackSerializer;
-import com.artillexstudios.axapi.reflection.FastFieldAccessor;
-import net.minecraft.SharedConstants;
-import net.minecraft.nbt.SnbtPrinterTagVisitor;
-import net.minecraft.server.MinecraftServer;
+import com.artillexstudios.axapi.reflection.FieldAccessor;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public class WrappedItemStack implements com.artillexstudios.axapi.items.WrappedItemStack {
-    private static final FastFieldAccessor HANDLE_ACCESSOR = FastFieldAccessor.forClassField(CraftItemStack.class, "handle");
+    private static final FieldAccessor handleAccessor = FieldAccessor.builder()
+            .withClass(CraftItemStack.class)
+            .withField("handle").build();
     public net.minecraft.world.item.ItemStack itemStack;
     private ItemStack bukkitStack;
     private boolean dirty = false;
 
     public WrappedItemStack(ItemStack itemStack) {
-        this(itemStack.getType().isAir() ? net.minecraft.world.item.ItemStack.EMPTY : itemStack instanceof CraftItemStack cr ? HANDLE_ACCESSOR.get(cr) : CraftItemStack.asNMSCopy(itemStack));
+        this(itemStack.getType().isAir() ? net.minecraft.world.item.ItemStack.EMPTY : itemStack instanceof CraftItemStack cr ? handleAccessor.get(cr, net.minecraft.world.item.ItemStack.class) : CraftItemStack.asNMSCopy(itemStack));
         this.bukkitStack = itemStack;
     }
 
@@ -29,39 +28,37 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
     @Override
     public <T> void set(DataComponent<T> component, T value) {
         this.dirty = true;
-        component.apply(itemStack, value);
+        component.apply(this.itemStack, value);
     }
 
     @Override
     public <T> T get(DataComponent<T> component) {
-        return component.get(itemStack);
+        return component.get(this.itemStack);
     }
 
     @Override
     public int getAmount() {
-        return itemStack.getCount();
+        return this.itemStack.getCount();
     }
 
     @Override
     public void setAmount(int amount) {
-        itemStack.setCount(amount);
+        this.itemStack.setCount(amount);
     }
 
     @Override
     public ItemStack toBukkit() {
-        return CraftItemStack.asBukkitCopy(itemStack);
+        return CraftItemStack.asBukkitCopy(this.itemStack);
     }
 
     @Override
     public String toSNBT() {
-        var compoundTag = (net.minecraft.nbt.CompoundTag) itemStack.save(MinecraftServer.getServer().registryAccess());
-        compoundTag.putInt("DataVersion", SharedConstants.getCurrentVersion().getDataVersion().getVersion());
-        return new SnbtPrinterTagVisitor().visit(compoundTag);
+        return ItemStackSerializer.INSTANCE.serializeAsSnbt(this.toBukkit());
     }
 
     @Override
     public byte[] serialize() {
-        return ItemStackSerializer.INSTANCE.serializeAsBytes(toBukkit());
+        return ItemStackSerializer.INSTANCE.serializeAsBytes(this.toBukkit());
     }
 
     @Override
@@ -70,17 +67,32 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
             return;
         }
 
-        ItemMeta meta = CraftItemStack.getItemMeta(itemStack);
-        if (bukkitStack != null) {
-            bukkitStack.setItemMeta(meta);
+        ItemMeta meta = CraftItemStack.getItemMeta(this.itemStack);
+        if (this.bukkitStack != null) {
+            this.bukkitStack.setItemMeta(meta);
         } else {
-            CraftItemStack.setItemMeta(itemStack, meta);
+            CraftItemStack.setItemMeta(this.itemStack, meta);
         }
     }
 
     @Override
-    public com.artillexstudios.axapi.items.WrappedItemStack copy() {
-        finishEdit();
+    public WrappedItemStack copy() {
+        this.finishEdit();
         return new WrappedItemStack(this.itemStack.copy());
+    }
+
+    @Override
+    public void update(boolean force) {
+
+    }
+
+    @Override
+    public ItemStack wrapped() {
+        return this.toBukkit();
+    }
+
+    @Override
+    public net.minecraft.world.item.ItemStack asMinecraft() {
+        return this.itemStack;
     }
 }
