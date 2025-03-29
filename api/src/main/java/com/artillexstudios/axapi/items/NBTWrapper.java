@@ -151,6 +151,76 @@ public class NBTWrapper {
         return this.tag.getCompound(key);
     }
 
+    public Boolean getBooleanOr(String key, boolean def) {
+        Boolean value = this.tag.getBoolean(key);
+        return value == null ? def : value;
+    }
+
+    public Byte getByteOr(String key, byte def) {
+        Byte value = this.tag.getByte(key);
+        return value == null ? def : value;
+    }
+
+    public Short getShortOr(String key, short def) {
+        Short value = this.tag.getShort(key);
+        return value == null ? def : value;
+    }
+
+    public Integer getIntOr(String key, int def) {
+        Integer value = this.tag.getInt(key);
+        return value == null ? def : value;
+    }
+
+    public Long getLongOr(String key, long def) {
+        Long value = this.tag.getLong(key);
+        return value == null ? def : value;
+    }
+
+    public String getStringOr(String key, String def) {
+        String string = this.tag.getString(key);
+        return string == null ? def : string;
+    }
+
+    public byte[] getByteArrayOr(String key, byte[] def) {
+        byte[] byteArray = this.tag.getByteArray(key);
+        return byteArray == null ? def : byteArray;
+    }
+
+    public long[] getLongArrayOr(String key, long[] def) {
+        long[] longArray = this.tag.getLongArray(key);
+        return longArray == null ? def : longArray;
+    }
+
+    public int[] getIntArrayOr(String key, int[] def) {
+        int[] intArray = this.tag.getIntArray(key);
+        return intArray == null ? def : intArray;
+    }
+
+    public Float getFloatOr(String key, float def) {
+        Float value = this.tag.getFloat(key);
+        return value == null ? def : value;
+    }
+
+    public Double getDoubleOr(String key, double def) {
+        Double value = this.tag.getDouble(key);
+        return value == null ? def : value;
+    }
+
+    public UUID getUUIDOr(String key, UUID def) {
+        UUID uuid = this.tag.getUUID(key);
+        return uuid == null ? def : uuid;
+    }
+
+    public ListTag getListOr(String key, ListTag def) {
+        ListTag list = this.tag.getList(key);
+        return list == null ? def : list;
+    }
+
+    public CompoundTag getCompoundOr(String key, CompoundTag def) {
+        CompoundTag compound = this.tag.getCompound(key);
+        return compound == null ? def : compound;
+    }
+
     public boolean contains(String key) {
         return this.tag.contains(key);
     }
