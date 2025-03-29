@@ -1,12 +1,12 @@
 package com.artillexstudios.axapi.packetentity.meta.serializer;
 
-import com.artillexstudios.shared.axapi.nbt.CompoundTag;
-import com.artillexstudios.shared.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.utils.Direction;
 import com.artillexstudios.axapi.utils.GlobalPosition;
 import com.artillexstudios.axapi.utils.Quaternion;
 import com.artillexstudios.axapi.utils.VillagerData;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
+import com.artillexstudios.shared.axapi.nbt.CompoundTag;
+import com.artillexstudios.shared.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.shared.axapi.utils.BlockPosition;
 import com.artillexstudios.shared.axapi.utils.ParticleArguments;
 import com.artillexstudios.shared.axapi.utils.Vector3f;
@@ -588,8 +588,9 @@ public final class EntityDataSerializers {
     }
 
     private static <T> void register(EntityDataSerializer<T> serializer) {
-        SERIALIZERS.put(SERIALIZERS.size(), serializer);
-        REVERSE_SERIALIZERS.put(serializer, REVERSE_SERIALIZERS.size());
+        int index = SERIALIZERS.size();
+        SERIALIZERS.put(index, serializer);
+        REVERSE_SERIALIZERS.put(serializer, index);
     }
 
     static {

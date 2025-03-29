@@ -38,6 +38,7 @@ public class ClientboundEntityMetadataWrapper extends PacketWrapper {
 
     @Override
     public void write(FriendlyByteBuf out) {
+        out.writeVarInt(this.entityId);
         for (Metadata.DataItem item : this.items) {
             int serializer = EntityDataSerializers.getId(item.serializer());
             out.writeByte(item.id());
@@ -51,12 +52,12 @@ public class ClientboundEntityMetadataWrapper extends PacketWrapper {
     @Override
     public void read(FriendlyByteBuf buf) {
         this.entityId = buf.readVarInt();
-        items = new ArrayList<>();
+        this.items = new ArrayList<>();
         int i;
         while ((i = buf.readUnsignedByte()) != 255) {
             int serializerId = buf.readVarInt();
             EntityDataSerializer<?> serializer = EntityDataSerializers.byId(serializerId);
-            items.add(new Metadata.DataItem(i, serializer, serializer.read(buf)));
+            this.items.add(new Metadata.DataItem(i, serializer, serializer.read(buf)));
         }
     }
 
