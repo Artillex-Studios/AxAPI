@@ -159,6 +159,10 @@ public class NBTWrapper {
         return this.tag.containsUUID(key);
     }
 
+    public void remove(String key) {
+        this.tag.remove(key);
+    }
+
     public Set<String> getAllKeys() {
         return this.tag.getAllKeys();
     }
