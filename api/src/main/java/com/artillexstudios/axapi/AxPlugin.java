@@ -31,6 +31,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.plugin.RegisteredServiceProvider;
+import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.zapper.DependencyManager;
@@ -43,6 +45,7 @@ public abstract class AxPlugin extends JavaPlugin {
     public EntityTracker tracker;
     private final FeatureFlags flags = new FeatureFlags(this);
     private ComponentSerializer serializer;
+    private PacketEvents packetEvents;
 
     public AxPlugin() {
         DependencyManager manager = new DependencyManager(this.getDescription(), new File(this.getDataFolder(), "libs"), URLClassLoaderWrapper.wrap((URLClassLoader) this.getClassLoader()));
@@ -79,8 +82,14 @@ public abstract class AxPlugin extends JavaPlugin {
             tracker.startTicking();
         }
 
-
-        PacketEvents.addListener(new PacketListener() {
+        RegisteredServiceProvider<PacketEvents> registration = Bukkit.getServicesManager().getRegistration(PacketEvents.class);
+        if (registration == null) {
+            this.packetEvents = new PacketEvents();
+            Bukkit.getServicesManager().register(PacketEvents.class, this.packetEvents, this, ServicePriority.High);
+        } else {
+            this.packetEvents = registration.getProvider();
+        }
+        this.packetEvents.addListener(new PacketListener() {
             @Override
             public void onPacketReceive(PacketEvent event) {
                 if (event.type() == ServerboundPacketTypes.INTERACT) {

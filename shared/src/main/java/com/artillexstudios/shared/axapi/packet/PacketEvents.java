@@ -8,23 +8,23 @@ import org.slf4j.LoggerFactory;
 public class PacketEvents {
     private static final StackWalker stackWalker = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
     private static final Logger log = LoggerFactory.getLogger(PacketEvents.class);
-    private static final ObjectArrayList<PacketListener> listeners = new ObjectArrayList<>();
-    private static PacketListener[] baked = new PacketListener[0];
-    private static boolean listening = false;
+    private final ObjectArrayList<PacketListener> listeners = new ObjectArrayList<>();
+    private PacketListener[] baked = new PacketListener[0];
+    private boolean listening = false;
 
-    public static void addListener(PacketListener listener) {
+    public void addListener(PacketListener listener) {
         listeners.add(listener);
         listening = true;
         baked = listeners.toArray(new PacketListener[0]);
         log.error("REGISTERING LISTENER FROM {}! Listeners: {}", stackWalker.getCallerClass(), listeners);
     }
 
-    public static void callEvent(PacketEvent event) {
-        if (!listening) {
+    public void callEvent(PacketEvent event) {
+        if (!this.listening) {
             return;
         }
 
-        PacketListener[] baked = PacketEvents.baked;
+        PacketListener[] baked = this.baked;
         PacketWrapper lastWrapper = null;
         int bakedLength = baked.length;
         if (event.side() == PacketSide.SERVER_BOUND) {
@@ -63,7 +63,7 @@ public class PacketEvents {
         }
     }
 
-    public static boolean listening() {
-        return listening;
+    public boolean listening() {
+        return this.listening;
     }
 }

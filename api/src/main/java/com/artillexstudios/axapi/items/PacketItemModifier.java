@@ -16,6 +16,7 @@ import com.artillexstudios.shared.axapi.packet.PacketEvents;
 import com.artillexstudios.shared.axapi.packet.PacketListener;
 import com.artillexstudios.shared.axapi.packet.ServerboundPacketTypes;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -25,7 +26,7 @@ public class PacketItemModifier {
 
     public static void registerModifierListener(PacketItemModifierListener listener) {
         if (!listening) {
-            PacketEvents.addListener(new PacketListener() {
+            Bukkit.getServicesManager().getRegistration(PacketEvents.class).getProvider().addListener(new PacketListener() {
                 @Override
                 public void onPacketSending(PacketEvent event) {
                     if (!PacketItemModifier.isListening()) {
