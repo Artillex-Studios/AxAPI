@@ -25,7 +25,7 @@ public class PacketItemModifier {
 
     public static void registerModifierListener(PacketItemModifierListener listener) {
         if (!listening) {
-            PacketEvents.INSTANCE.addListener(new PacketListener() {
+            PacketEvents.addListener(new PacketListener() {
                 @Override
                 public void onPacketSending(PacketEvent event) {
                     if (!PacketItemModifier.isListening()) {

@@ -42,7 +42,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
 
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-        if (!PacketEvents.INSTANCE.listening()) {
+        if (!PacketEvents.listening()) {
             super.write(ctx, msg, promise);
             return;
         }
@@ -67,7 +67,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
                     return new FriendlyByteBufWrapper(decorator.apply(out));
                 });
 
-                PacketEvents.INSTANCE.callEvent(event);
+                PacketEvents.callEvent(event);
                 if (event.cancelled()) {
                     continue;
                 }
@@ -101,7 +101,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             return new FriendlyByteBufWrapper(decorator.apply(out));
         });
 
-        PacketEvents.INSTANCE.callEvent(event);
+        PacketEvents.callEvent(event);
         if (event.cancelled()) {
             if (this.flags.DEBUG_OUTGOING_PACKETS.get()) {
                 LogUtils.info("Cancelled event!");
@@ -127,7 +127,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (!PacketEvents.INSTANCE.listening()) {
+        if (!PacketEvents.listening()) {
             super.channelRead(ctx, msg);
             return;
         }
@@ -153,7 +153,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             return new FriendlyByteBufWrapper(decorator.apply(out));
         });
 
-        PacketEvents.INSTANCE.callEvent(event);
+        PacketEvents.callEvent(event);
         if (event.cancelled()) {
             if (this.flags.DEBUG_INCOMING_PACKETS.get()) {
                 LogUtils.info("Incoming cancelled event!");

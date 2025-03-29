@@ -5,28 +5,26 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public enum PacketEvents {
-    INSTANCE;
+public class PacketEvents {
     private static final StackWalker stackWalker = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
     private static final Logger log = LoggerFactory.getLogger(PacketEvents.class);
+    private static final ObjectArrayList<PacketListener> listeners = new ObjectArrayList<>();
+    private static PacketListener[] baked = new PacketListener[0];
+    private static boolean listening = false;
 
-    private ObjectArrayList<PacketListener> listeners = new ObjectArrayList<>();
-    private PacketListener[] baked = new PacketListener[0];
-    private boolean listening = false;
-
-    public void addListener(PacketListener listener) {
-        this.listeners.add(listener);
-        this.listening = true;
-        this.baked = this.listeners.toArray(new PacketListener[0]);
-        log.error("REGISTERING LISTENER FROM {}! Listeners: {}", stackWalker.getCallerClass(), this.listeners);
+    public static void addListener(PacketListener listener) {
+        listeners.add(listener);
+        listening = true;
+        baked = listeners.toArray(new PacketListener[0]);
+        log.error("REGISTERING LISTENER FROM {}! Listeners: {}", stackWalker.getCallerClass(), listeners);
     }
 
-    public void callEvent(PacketEvent event) {
-        if (!this.listening) {
+    public static void callEvent(PacketEvent event) {
+        if (!listening) {
             return;
         }
 
-        PacketListener[] baked = this.baked;
+        PacketListener[] baked = PacketEvents.baked;
         PacketWrapper lastWrapper = null;
         int bakedLength = baked.length;
         if (event.side() == PacketSide.SERVER_BOUND) {
@@ -65,7 +63,7 @@ public enum PacketEvents {
         }
     }
 
-    public boolean listening() {
-        return this.listening;
+    public static boolean listening() {
+        return listening;
     }
 }

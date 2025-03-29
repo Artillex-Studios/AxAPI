@@ -80,7 +80,7 @@ public abstract class AxPlugin extends JavaPlugin {
         }
 
 
-        PacketEvents.INSTANCE.addListener(new PacketListener() {
+        PacketEvents.addListener(new PacketListener() {
             @Override
             public void onPacketReceive(PacketEvent event) {
                 if (event.type() == ServerboundPacketTypes.INTERACT) {
