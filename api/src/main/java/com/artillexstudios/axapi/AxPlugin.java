@@ -82,12 +82,16 @@ public abstract class AxPlugin extends JavaPlugin {
             tracker.startTicking();
         }
 
-        RegisteredServiceProvider<PacketEvents> registration = Bukkit.getServicesManager().getRegistration(PacketEvents.class);
+        PacketEvents registration = Bukkit.getServicesManager().load(PacketEvents.class);
+        LogUtils.warn("Found registration: {}", registration);
         if (registration == null) {
             this.packetEvents = new PacketEvents();
-            Bukkit.getServicesManager().register(PacketEvents.class, this.packetEvents, this, ServicePriority.High);
+            Bukkit.getServicesManager().register(PacketEvents.class, this.packetEvents, this, ServicePriority.Normal);
+            LogUtils.warn("Registered registration: {}", this.packetEvents);
+            LogUtils.warn("Check if registered: {}", Bukkit.getServicesManager().load(PacketEvents.class));
         } else {
-            this.packetEvents = registration.getProvider();
+            LogUtils.info("Found...");
+            this.packetEvents = registration;
         }
         this.packetEvents.addListener(new PacketListener() {
             @Override
