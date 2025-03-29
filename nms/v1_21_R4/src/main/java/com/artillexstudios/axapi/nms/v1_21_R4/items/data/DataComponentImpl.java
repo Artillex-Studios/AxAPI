@@ -21,7 +21,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.component.CustomData;
-import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.component.ResolvableProfile;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -154,8 +153,8 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
             @Override
             public Unbreakable get(Object item) {
                 ItemStack itemStack = (ItemStack) item;
-                net.minecraft.world.item.component.Unbreakable vanilla = itemStack.get(DataComponents.UNBREAKABLE);
-                return new Unbreakable(vanilla != null && vanilla.showInTooltip());
+                net.minecraft.util.Unit vanilla = itemStack.get(DataComponents.UNBREAKABLE);
+                return new Unbreakable(true);
             }
         };
     }
@@ -292,7 +291,7 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
                 }
 
                 net.minecraft.world.item.enchantment.ItemEnchantments.Mutable vanilla = new net.minecraft.world.item.enchantment.ItemEnchantments.Mutable(net.minecraft.world.item.enchantment.ItemEnchantments.EMPTY);
-                vanilla.showInTooltip = itemEnchantments.showInTooltip();
+//                vanilla.showInTooltip = itemEnchantments.showInTooltip();
 
                 for (Map.Entry<Enchantment, Integer> e : itemEnchantments.entrySet()) {
                     vanilla.set(CraftEnchantment.bukkitToMinecraftHolder(e.getKey()), e.getValue());
@@ -313,7 +312,7 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
 
                 vanilla.entrySet().forEach(e -> enchants.put(CraftEnchantment.minecraftToBukkit(e.getKey().value()), e.getIntValue()));
 
-                return new ItemEnchantments(enchants, vanilla.showInTooltip);
+                return new ItemEnchantments(enchants, true/*vanilla.showInTooltip*/);
             }
         };
     }
@@ -352,19 +351,20 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
 
             @Override
             public void apply(Object item, Unit unit) {
-                ItemStack itemStack = (ItemStack) item;
-                if (unit == null) {
-                    itemStack.remove(DataComponents.HIDE_ADDITIONAL_TOOLTIP);
-                    return;
-                }
-
-                itemStack.set(DataComponents.HIDE_ADDITIONAL_TOOLTIP, net.minecraft.util.Unit.INSTANCE);
+//                ItemStack itemStack = (ItemStack) item;
+//                if (unit == null) {
+//                    itemStack.remove(DataComponents.HIDE_ADDITIONAL_TOOLTIP);
+//                    return;
+//                }
+//
+//                itemStack.set(DataComponents.HIDE_ADDITIONAL_TOOLTIP, net.minecraft.util.Unit.INSTANCE);
             }
 
             @Override
             public Unit get(Object item) {
-                ItemStack itemStack = (ItemStack) item;
-                return itemStack.get(DataComponents.HIDE_ADDITIONAL_TOOLTIP) == null ? null : Unit.INSTANCE;
+//                ItemStack itemStack = (ItemStack) item;
+//                return itemStack.get(DataComponents.HIDE_ADDITIONAL_TOOLTIP) == null ? null : Unit.INSTANCE;
+                return null;
             }
         };
     }
@@ -375,19 +375,20 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
 
             @Override
             public void apply(Object item, Unit unit) {
-                ItemStack itemStack = (ItemStack) item;
-                if (unit == null) {
-                    itemStack.remove(DataComponents.HIDE_TOOLTIP);
-                    return;
-                }
-
-                itemStack.set(DataComponents.HIDE_TOOLTIP, net.minecraft.util.Unit.INSTANCE);
+//                ItemStack itemStack = (ItemStack) item;
+//                if (unit == null) {
+//                    itemStack.remove(DataComponents.HIDE_TOOLTIP);
+//                    return;
+//                }
+//
+//                itemStack.set(DataComponents.HIDE_TOOLTIP, net.minecraft.util.Unit.INSTANCE);
             }
 
             @Override
             public Unit get(Object item) {
-                ItemStack itemStack = (ItemStack) item;
-                return itemStack.get(DataComponents.HIDE_TOOLTIP) == null ? null : Unit.INSTANCE;
+//                ItemStack itemStack = (ItemStack) item;
+//                return itemStack.get(DataComponents.HIDE_TOOLTIP) == null ? null : Unit.INSTANCE;
+                return null;
             }
         };
     }
@@ -497,7 +498,7 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
                 }
 
                 net.minecraft.world.item.enchantment.ItemEnchantments.Mutable vanilla = new net.minecraft.world.item.enchantment.ItemEnchantments.Mutable(net.minecraft.world.item.enchantment.ItemEnchantments.EMPTY);
-                vanilla.showInTooltip = itemEnchantments.showInTooltip();
+//                vanilla.showInTooltip = itemEnchantments.showInTooltip();
 
                 for (Map.Entry<Enchantment, Integer> e : itemEnchantments.entrySet()) {
                     vanilla.set(CraftEnchantment.bukkitToMinecraftHolder(e.getKey()), e.getValue());
@@ -518,7 +519,7 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
 
                 vanilla.entrySet().forEach(e -> enchants.put(CraftEnchantment.minecraftToBukkit(e.getKey().value()), e.getIntValue()));
 
-                return new ItemEnchantments(enchants, vanilla.showInTooltip);
+                return new ItemEnchantments(enchants, true/*vanilla.showInTooltip*/);
             }
         };
     }
@@ -594,14 +595,14 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
                     return;
                 }
 
-                itemStack.set(DataComponents.DYED_COLOR, new DyedItemColor(dyedColor.rgb(), dyedColor.showInTooltip()));
+//                itemStack.set(DataComponents.DYED_COLOR, new DyedItemColor(dyedColor.rgb()/*, dyedColor.showInTooltip()*/));
             }
 
             @Override
             public DyedColor get(Object item) {
                 ItemStack itemStack = (ItemStack) item;
                 var color = itemStack.get(DataComponents.DYED_COLOR);
-                return new DyedColor(color == null ? Color.fromRGB(0) : Color.fromRGB(color.rgb()), color == null ? true : color.showInTooltip());
+                return new DyedColor(color == null ? Color.fromRGB(0) : Color.fromRGB(color.rgb()), color == null ? true : true/*color.showInTooltip()*/);
             }
         };
     }
