@@ -21,7 +21,7 @@ public class NMSHandlers {
         }
 
         try {
-            nmsHandler = (NMSHandler) Class.forName("com.artillexstudios.axapi.nms.%s.NMSHandler".formatted(version.nmsVersion())).getConstructor(AxPlugin.class).newInstance(plugin);
+            nmsHandler = (NMSHandler) Class.forName("com.artillexstudios.axapi.nms.%s.NMSHandler".formatted(version.nmsVersion())).getConstructor().newInstance();
         } catch (Exception exception) {
             LogUtils.warn("Could not enable NMSHandler due to an internal exception while loading NMSHandler!", exception);
             return false;
