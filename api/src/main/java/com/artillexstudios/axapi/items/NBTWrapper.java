@@ -30,6 +30,11 @@ public class NBTWrapper {
         return new NBTWrapper(stack);
     }
 
+    public NBTWrapper set(String key, boolean value) {
+        this.tag.putBoolean(key, value);
+        return this;
+    }
+
     public NBTWrapper set(String key, int value) {
         this.tag.putInt(key, value);
         return this;
@@ -88,6 +93,10 @@ public class NBTWrapper {
     public NBTWrapper set(String key, long[] value) {
         this.tag.putLongArray(key, value);
         return this;
+    }
+
+    public Boolean getBoolean(String key) {
+        return this.tag.getBoolean(key);
     }
 
     public Byte getByte(String key) {
