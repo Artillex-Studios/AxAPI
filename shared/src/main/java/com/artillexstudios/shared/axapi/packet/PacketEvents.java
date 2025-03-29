@@ -2,9 +2,14 @@ package com.artillexstudios.shared.axapi.packet;
 
 import com.artillexstudios.shared.axapi.packet.wrapper.PacketWrapper;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public enum PacketEvents {
     INSTANCE;
+    private static final StackWalker stackWalker = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
+    private static final Logger log = LoggerFactory.getLogger(PacketEvents.class);
+
     private ObjectArrayList<PacketListener> listeners = new ObjectArrayList<>();
     private PacketListener[] baked = new PacketListener[0];
     private boolean listening = false;
@@ -13,6 +18,7 @@ public enum PacketEvents {
         this.listeners.add(listener);
         this.listening = true;
         this.baked = this.listeners.toArray(new PacketListener[0]);
+        log.error("REGISTERING LISTENER FROM {}! Listeners: {}", stackWalker.getCallerClass(), this.listeners);
     }
 
     public void callEvent(PacketEvent event) {
@@ -25,6 +31,7 @@ public enum PacketEvents {
         int bakedLength = baked.length;
         if (event.side() == PacketSide.SERVER_BOUND) {
             for (int i = 0; i < bakedLength; i++) {
+                log.warn("Received! {}", i);
                 baked[i].onPacketReceive(event);
 
                 FriendlyByteBuf directIn = event.directIn();
