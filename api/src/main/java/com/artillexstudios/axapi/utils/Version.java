@@ -27,6 +27,7 @@ public enum Version {
     v1_17_1(756, "v1_17_R2", Collections.singletonList("1.17.1")),
     v1_17(755, "v1_17_R1", Collections.singletonList("1.17")),
     v1_16_5(754, "v1_16_R3", Collections.singletonList("1.16.5")),
+    FUTURE_RELEASE(Integer.MAX_VALUE, "FUTURE_RELEASE", Collections.singletonList("FUTURE_RELEASE")),
     UNKNOWN(-1, "UNKNOWN", Collections.singletonList("UNKNOWN"));
 
     private static final Int2ObjectArrayMap<Version> versionMap = new Int2ObjectArrayMap<>();
@@ -86,6 +87,10 @@ public enum Version {
 
     public boolean isOlderThan(Version version) {
         return this.protocolId < version.protocolId;
+    }
+
+    public boolean isOlderThanOrEqualTo(Version version) {
+        return this.protocolId <= version.protocolId;
     }
 
     public List<String> versions() {

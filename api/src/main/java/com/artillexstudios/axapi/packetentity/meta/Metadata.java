@@ -2,6 +2,7 @@ package com.artillexstudios.axapi.packetentity.meta;
 
 import com.artillexstudios.axapi.packetentity.meta.serializer.Accessors;
 import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataAccessor;
+import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataSerializer;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.apache.commons.lang3.ObjectUtils;
@@ -18,7 +19,7 @@ public final class Metadata {
     }
 
     public <T> void createDataItem(EntityDataAccessor<T> accessor, T value) {
-        DataItem<T> dataItem = new DataItem<>(accessor, value);
+        DataItem<T> dataItem = new DataItem<>(accessor.id(), accessor.serializers(), value);
 
         items.put(accessor.id(), dataItem);
     }
@@ -72,7 +73,7 @@ public final class Metadata {
         List<DataItem<?>> list = null;
 
         for (DataItem<?> next : this.items.values()) {
-            if (next.getAccessor().id() == Accessors.CUSTOM_NAME.id()) {
+            if (next.id() == Accessors.CUSTOM_NAME.id()) {
                 list = new ArrayList<>(1);
                 list.add(next.copy());
                 break;
@@ -127,20 +128,26 @@ public final class Metadata {
     }
 
     public static class DataItem<T> {
-        final EntityDataAccessor<T> accessor;
+        final int id;
+        final EntityDataSerializer<T> serializer;
         final T original;
         volatile T value;
         private volatile boolean dirty;
 
-        public DataItem(EntityDataAccessor<T> data, T value) {
-            this.accessor = data;
+        public DataItem(int id, EntityDataSerializer<T> serializer, T value) {
+            this.id = id;
+            this.serializer = serializer;
             this.value = value;
             this.original = value;
             this.dirty = true;
         }
 
-        public EntityDataAccessor<T> getAccessor() {
-            return this.accessor;
+        public EntityDataSerializer<T> serializer() {
+            return this.serializer;
+        }
+
+        public int id() {
+            return this.id;
         }
 
         public T getValue() {
@@ -164,15 +171,16 @@ public final class Metadata {
         }
 
         public DataItem<T> copy() {
-            return new DataItem<>(this.accessor, value);
+            return new DataItem<>(this.id, this.serializer, this.value);
         }
 
         @Override
         public String toString() {
             return "DataItem{" +
-                    "accessor=" + accessor +
-                    ", value=" + value +
+                    "id=" + id +
+                    ", serializer=" + serializer +
                     ", original=" + original +
+                    ", value=" + value +
                     ", dirty=" + dirty +
                     '}';
         }

@@ -32,6 +32,7 @@ import net.minecraft.network.protocol.game.ServerboundSignUpdatePacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.npc.VillagerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.MerchantOffers;
@@ -97,11 +98,11 @@ public class PacketListener extends ChannelDuplexHandler {
 
                 byteBuf.release();
 
-                PacketEntity entity = AxPlugin.tracker.getById(entityId);
-                if (entity != null) {
-                    PacketEntityInteractEvent event = new PacketEntityInteractEvent(player, entity, attack, vector, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
-                    Bukkit.getPluginManager().callEvent(event);
-                }
+//                PacketEntity entity = AxPlugin.tracker.getById(entityId);
+//                if (entity != null) {
+//                    PacketEntityInteractEvent event = new PacketEntityInteractEvent(player, entity, attack, vector, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
+//                    Bukkit.getPluginManager().callEvent(event);
+//                }
             }
             case ServerboundSignUpdatePacket updatePacket -> {
                 SignInput signInput = SignInput.remove(player);
