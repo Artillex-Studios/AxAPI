@@ -40,7 +40,7 @@ import java.io.File;
 import java.net.URLClassLoader;
 
 public abstract class AxPlugin extends JavaPlugin {
-    public static EntityTracker tracker;
+    public EntityTracker tracker;
     private final FeatureFlags flags = new FeatureFlags(this);
     private ComponentSerializer serializer;
 
@@ -84,21 +84,17 @@ public abstract class AxPlugin extends JavaPlugin {
             @Override
             public void onPacketReceive(PacketEvent event) {
                 if (event.type() == ServerboundPacketTypes.INTERACT) {
-                    LogUtils.info("Interact packet!");
-                    if (tracker == null) {
-                        LogUtils.info("No tracker");
+                    if (AxPlugin.this.tracker == null) {
+                        LogUtils.info("No tracker. Package: {}, class: {}", AxPlugin.class.getPackageName(), AxPlugin.class);
                         return;
                     }
 
                     ServerboundInteractWrapper wrapper = new ServerboundInteractWrapper(event);
-                    LogUtils.info("Wrapped");
                     PacketEntity entity = tracker.getById(wrapper.entityId());
                     if (entity != null) {
-                        LogUtils.info("Yes entity");
                         PacketEntityInteractEvent interactEvent = new PacketEntityInteractEvent(event.player(), entity, wrapper.type() == ServerboundInteractWrapper.ActionType.ATTACK, wrapper.action() instanceof ServerboundInteractWrapper.InteractionAtLocationAction action ? action.location() : null, wrapper.action() instanceof ServerboundInteractWrapper.InteractionAction action ? action.hand() : wrapper.action() instanceof ServerboundInteractWrapper.InteractionAtLocationAction interaction ? interaction.hand() : null);
                         Bukkit.getPluginManager().callEvent(interactEvent);
                     }
-                    LogUtils.info("No Entity");
                 } else if (event.type() == ServerboundPacketTypes.SIGN_UPDATE) {
                     ServerboundSignUpdateWrapper wrapper = new ServerboundSignUpdateWrapper(event);
                     SignInput signInput = SignInput.remove(event.player());
@@ -112,8 +108,6 @@ public abstract class AxPlugin extends JavaPlugin {
                         ServerPlayerWrapper playerWrapper = ServerPlayerWrapper.wrap(event.player());
                         playerWrapper.sendPacket(new ClientboundBlockUpdateWrapper(signInput.getLocation(), signInput.getLocation().getBlock().getType()));
                     });
-                } else {
-                    LogUtils.info("Received packet type: {}", event.type().name());
                 }
             }
         });

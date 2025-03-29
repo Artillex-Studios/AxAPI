@@ -6,7 +6,8 @@ public enum EquipmentSlot {
     BOOTS(Type.ARMOR, 0),
     LEGGINGS(Type.ARMOR, 1),
     CHEST_PLATE(Type.ARMOR, 2),
-    HELMET(Type.ARMOR, 3);
+    HELMET(Type.ARMOR, 3),
+    BODY(Type.ANIMAL_ARMOR, 6);
 
     private final Type type;
     private final int index;
@@ -26,6 +27,7 @@ public enum EquipmentSlot {
 
     public enum Type {
         HAND,
-        ARMOR
+        ARMOR,
+        ANIMAL_ARMOR
     }
 }
