@@ -4,7 +4,7 @@ import com.artillexstudios.axapi.packetentity.meta.EntityMeta;
 import com.artillexstudios.axapi.packetentity.meta.Metadata;
 import com.artillexstudios.axapi.packetentity.meta.serializer.Accessors;
 import com.artillexstudios.axapi.utils.Quaternion;
-import com.artillexstudios.shared.axapi.utils.Vector3f;
+import com.artillexstudios.axapi.utils.Vector3f;
 
 public abstract class DisplayMeta extends EntityMeta {
 

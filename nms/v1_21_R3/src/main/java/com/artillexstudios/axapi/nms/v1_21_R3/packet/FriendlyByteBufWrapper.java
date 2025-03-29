@@ -3,8 +3,8 @@ package com.artillexstudios.axapi.nms.v1_21_R3.packet;
 import com.artillexstudios.axapi.nms.v1_21_R3.items.WrappedItemStack;
 import com.artillexstudios.axapi.nms.v1_21_R3.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
-import com.artillexstudios.shared.axapi.packet.FriendlyByteBuf;
-import com.artillexstudios.shared.axapi.utils.ParticleArguments;
+import com.artillexstudios.axapi.packet.FriendlyByteBuf;
+import com.artillexstudios.axapi.utils.ParticleArguments;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.minecraft.core.component.DataComponentMap;
@@ -27,13 +27,13 @@ import java.util.Optional;
 public record FriendlyByteBufWrapper(RegistryFriendlyByteBuf buf) implements FriendlyByteBuf {
 
     @Override
-    public org.bukkit.inventory.ItemStack readItemStack() {
-        return new WrappedItemStack(ItemStack.OPTIONAL_STREAM_CODEC.decode(this.buf)).toBukkit();
+    public WrappedItemStack readItemStack() {
+        return new WrappedItemStack(ItemStack.OPTIONAL_STREAM_CODEC.decode(this.buf));
     }
 
     @Override
-    public void writeItemStack(org.bukkit.inventory.ItemStack itemStack) {
-        ItemStack.OPTIONAL_STREAM_CODEC.encode(this.buf, new WrappedItemStack(itemStack).asMinecraft());
+    public void writeItemStack(com.artillexstudios.axapi.items.WrappedItemStack itemStack) {
+        ItemStack.OPTIONAL_STREAM_CODEC.encode(this.buf, ((WrappedItemStack) itemStack).asMinecraft());
     }
 
     @Override
@@ -72,12 +72,12 @@ public record FriendlyByteBufWrapper(RegistryFriendlyByteBuf buf) implements Fri
     }
 
     @Override
-    public com.artillexstudios.shared.axapi.nbt.CompoundTag readNBT() {
+    public com.artillexstudios.axapi.items.nbt.CompoundTag readNBT() {
         return new CompoundTag(this.buf.readNbt());
     }
 
     @Override
-    public void writeNBT(com.artillexstudios.shared.axapi.nbt.CompoundTag tag) {
+    public void writeNBT(com.artillexstudios.axapi.items.nbt.CompoundTag tag) {
         this.buf.writeNbt((net.minecraft.nbt.CompoundTag) tag.getParent());
     }
 
@@ -203,25 +203,25 @@ public record FriendlyByteBufWrapper(RegistryFriendlyByteBuf buf) implements Fri
     }
 
     @Override
-    public org.bukkit.inventory.ItemStack readItemCost() {
-        return new WrappedItemStack(ItemCost.STREAM_CODEC.decode(this.buf).itemStack()).toBukkit();
+    public WrappedItemStack readItemCost() {
+        return new WrappedItemStack(ItemCost.STREAM_CODEC.decode(this.buf).itemStack());
     }
 
     @Override
-    public void writeItemCost(org.bukkit.inventory.ItemStack itemCost) {
-        ItemStack nmsItem = new WrappedItemStack(itemCost).asMinecraft();
+    public void writeItemCost(com.artillexstudios.axapi.items.WrappedItemStack itemCost) {
+        ItemStack nmsItem = ((WrappedItemStack) itemCost).asMinecraft();
         ItemCost.STREAM_CODEC.encode(this.buf, new ItemCost(nmsItem.getItemHolder(), nmsItem.getCount(), DataComponentPredicate.allOf(PatchedDataComponentMap.fromPatch(DataComponentMap.EMPTY, nmsItem.getComponentsPatch()))));
     }
 
     @Override
-    public Optional<org.bukkit.inventory.ItemStack> readOptionalItemCost() {
-        return ItemCost.OPTIONAL_STREAM_CODEC.decode(this.buf).map(cost -> new WrappedItemStack(cost.itemStack()).toBukkit());
+    public Optional<com.artillexstudios.axapi.items.WrappedItemStack> readOptionalItemCost() {
+        return ItemCost.OPTIONAL_STREAM_CODEC.decode(this.buf).map(cost -> new WrappedItemStack(cost.itemStack()));
     }
 
     @Override
-    public void writeOptionalItemCost(Optional<org.bukkit.inventory.ItemStack> itemCost) {
+    public void writeOptionalItemCost(Optional<com.artillexstudios.axapi.items.WrappedItemStack> itemCost) {
         ItemCost.OPTIONAL_STREAM_CODEC.encode(this.buf, itemCost.map(stack -> {
-            ItemStack nmsItem = new WrappedItemStack(stack).itemStack;
+            ItemStack nmsItem = ((WrappedItemStack) stack).itemStack;
             return new ItemCost(nmsItem.getItemHolder(), nmsItem.getCount(), DataComponentPredicate.allOf(PatchedDataComponentMap.fromPatch(DataComponentMap.EMPTY, nmsItem.getComponentsPatch())));
         }));
     }

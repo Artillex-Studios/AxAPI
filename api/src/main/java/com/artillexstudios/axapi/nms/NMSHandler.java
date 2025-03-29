@@ -12,7 +12,7 @@ import com.artillexstudios.axapi.utils.ActionBar;
 import com.artillexstudios.axapi.utils.BossBar;
 import com.artillexstudios.axapi.utils.DebugMarker;
 import com.artillexstudios.axapi.utils.Title;
-import com.artillexstudios.shared.axapi.nbt.CompoundTag;
+import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Color;

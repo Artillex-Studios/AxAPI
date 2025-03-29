@@ -1,13 +1,13 @@
 package com.artillexstudios.axapi.packet.wrapper.clientbound;
 
+import com.artillexstudios.axapi.items.WrappedItemStack;
+import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
+import com.artillexstudios.axapi.packet.FriendlyByteBuf;
+import com.artillexstudios.axapi.packet.PacketEvent;
+import com.artillexstudios.axapi.packet.PacketType;
+import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
 import com.artillexstudios.axapi.utils.MerchantOffer;
-import com.artillexstudios.shared.axapi.packet.ClientboundPacketTypes;
-import com.artillexstudios.shared.axapi.packet.FriendlyByteBuf;
-import com.artillexstudios.shared.axapi.packet.PacketEvent;
-import com.artillexstudios.shared.axapi.packet.PacketType;
-import com.artillexstudios.shared.axapi.packet.wrapper.PacketWrapper;
-import com.artillexstudios.shared.axapi.utils.Version;
-import org.bukkit.inventory.ItemStack;
+import com.artillexstudios.axapi.utils.Version;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -121,9 +121,9 @@ public final class ClientboundMerchantOffersWrapper extends PacketWrapper {
     }
 
     private MerchantOffer readOffer(FriendlyByteBuf buf) {
-        ItemStack stack = Version.getServerVersion().isOlderThan(Version.v1_20_4) ? buf.readItemStack() : buf.readItemCost();
-        ItemStack soldItem = buf.readItemStack();
-        Optional<ItemStack> secondStack = Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_20_4) || Version.getServerVersion().isOlderThan(Version.v1_19) ? buf.readOptionalItemCost() : Optional.ofNullable(buf.readItemStack());
+        WrappedItemStack stack = Version.getServerVersion().isOlderThan(Version.v1_20_4) ? buf.readItemStack() : buf.readItemCost();
+        WrappedItemStack soldItem = buf.readItemStack();
+        Optional<WrappedItemStack> secondStack = Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_20_4) || Version.getServerVersion().isOlderThan(Version.v1_19) ? buf.readOptionalItemCost() : Optional.ofNullable(buf.readItemStack());
         boolean tradeDisabled = buf.readBoolean();
         int uses = buf.readInt();
         int maxUses = buf.readInt();

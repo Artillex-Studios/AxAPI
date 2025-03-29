@@ -2,12 +2,12 @@ package com.artillexstudios.axapi.nms.v1_21_R3.packet;
 
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
-import com.artillexstudios.shared.axapi.packet.ClientboundPacketTypes;
-import com.artillexstudios.shared.axapi.packet.PacketEvent;
-import com.artillexstudios.shared.axapi.packet.PacketEvents;
-import com.artillexstudios.shared.axapi.packet.PacketSide;
-import com.artillexstudios.shared.axapi.packet.PacketType;
-import com.artillexstudios.shared.axapi.packet.ServerboundPacketTypes;
+import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
+import com.artillexstudios.axapi.packet.PacketEvent;
+import com.artillexstudios.axapi.packet.PacketEvents;
+import com.artillexstudios.axapi.packet.PacketSide;
+import com.artillexstudios.axapi.packet.PacketType;
+import com.artillexstudios.axapi.packet.ServerboundPacketTypes;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -35,7 +35,6 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
     private static final StreamCodec<ByteBuf, Packet<? super ServerGamePacketListener>> serverboundCodec = GameProtocols.SERVERBOUND_TEMPLATE.bind(decorator).codec();
     private final FeatureFlags flags;
     private final Player player;
-    private final PacketEvents events = Bukkit.getServicesManager().getRegistration(PacketEvents.class).getProvider();
 
     public ChannelDuplexHandlerPacketListener(FeatureFlags flags, Player player) {
         this.flags = flags;
@@ -44,7 +43,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
 
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-        if (!events.listening()) {
+        if (!PacketEvents.INSTANCE.listening()) {
             super.write(ctx, msg, promise);
             return;
         }
@@ -69,7 +68,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
                     return new FriendlyByteBufWrapper(decorator.apply(out));
                 });
 
-                events.callEvent(event);
+                PacketEvents.INSTANCE.callEvent(event);
                 if (event.cancelled()) {
                     continue;
                 }
@@ -103,7 +102,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             return new FriendlyByteBufWrapper(decorator.apply(out));
         });
 
-        events.callEvent(event);
+        PacketEvents.INSTANCE.callEvent(event);
         if (event.cancelled()) {
             if (this.flags.DEBUG_OUTGOING_PACKETS.get()) {
                 LogUtils.info("Cancelled event!");
@@ -129,7 +128,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (!events.listening()) {
+        if (!PacketEvents.INSTANCE.listening()) {
             super.channelRead(ctx, msg);
             return;
         }
@@ -155,7 +154,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             return new FriendlyByteBufWrapper(decorator.apply(out));
         });
 
-        events.callEvent(event);
+        PacketEvents.INSTANCE.callEvent(event);
         if (event.cancelled()) {
             if (this.flags.DEBUG_INCOMING_PACKETS.get()) {
                 LogUtils.info("Incoming cancelled event!");

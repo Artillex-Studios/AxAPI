@@ -1,22 +1,22 @@
-package com.artillexstudios.shared.axapi.packet;
+package com.artillexstudios.axapi.packet;
 
-import com.artillexstudios.shared.axapi.nbt.CompoundTag;
-import com.artillexstudios.shared.axapi.utils.BlockPosition;
-import com.artillexstudios.shared.axapi.utils.ParticleArguments;
-import com.artillexstudios.shared.axapi.utils.Vector3f;
-import com.artillexstudios.shared.axapi.utils.Version;
+import com.artillexstudios.axapi.items.WrappedItemStack;
+import com.artillexstudios.axapi.items.nbt.CompoundTag;
+import com.artillexstudios.axapi.utils.BlockPosition;
+import com.artillexstudios.axapi.utils.ParticleArguments;
+import com.artillexstudios.axapi.utils.Vector3f;
+import com.artillexstudios.axapi.utils.Version;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.Optional;
 
 public interface FriendlyByteBuf {
 
-    ItemStack readItemStack();
+    WrappedItemStack readItemStack();
 
-    void writeItemStack(ItemStack wrappedItemStack);
+    void writeItemStack(WrappedItemStack wrappedItemStack);
 
     byte[] readByteArray();
 
@@ -84,13 +84,13 @@ public interface FriendlyByteBuf {
 
     int writerIndex();
 
-    ItemStack readItemCost();
+    WrappedItemStack readItemCost();
 
-    void writeItemCost(ItemStack itemCost);
+    void writeItemCost(WrappedItemStack itemCost);
 
-    Optional<ItemStack> readOptionalItemCost();
+    Optional<WrappedItemStack> readOptionalItemCost();
 
-    void writeOptionalItemCost(Optional<ItemStack> itemCost);
+    void writeOptionalItemCost(Optional<WrappedItemStack> itemCost);
 
     ParticleArguments readParticleArguments();
 
@@ -114,7 +114,7 @@ public interface FriendlyByteBuf {
         return new Vector3f(this.readFloat(), this.readFloat(), this.readFloat());
     }
 
-    default  void writeVector3f(Vector3f value) {
+    default void writeVector3f(Vector3f value) {
         this.writeFloat(value.x());
         this.writeFloat(value.y());
         this.writeFloat(value.z());

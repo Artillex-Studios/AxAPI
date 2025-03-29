@@ -1,6 +1,5 @@
 package com.artillexstudios.axapi.utils;
 
-import com.artillexstudios.shared.axapi.utils.BlockPosition;
 import net.kyori.adventure.key.Key;
 
 public class GlobalPosition {

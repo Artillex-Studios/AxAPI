@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.packetentity.meta.entity;
 
+import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.packetentity.meta.EntityMeta;
 import com.artillexstudios.axapi.packetentity.meta.Metadata;
 import com.artillexstudios.axapi.packetentity.meta.serializer.Accessors;
@@ -12,16 +13,16 @@ public class ItemEntityMeta extends EntityMeta {
         super(metadata);
     }
 
-    public void itemStack(ItemStack itemStack) {
+    public void itemStack(WrappedItemStack itemStack) {
         this.metadata.set(Accessors.ITEM_SLOT, itemStack);
     }
 
-    public ItemStack itemStack() {
+    public WrappedItemStack itemStack() {
         return this.metadata.get(Accessors.ITEM_SLOT);
     }
 
     @Override
     protected void defineDefaults() {
-        this.metadata.define(Accessors.ITEM_SLOT, new ItemStack(Material.AIR));
+        this.metadata.define(Accessors.ITEM_SLOT, WrappedItemStack.wrap(new ItemStack(Material.AIR)));
     }
 }

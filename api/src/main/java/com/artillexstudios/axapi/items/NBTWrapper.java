@@ -1,9 +1,9 @@
 package com.artillexstudios.axapi.items;
 
 import com.artillexstudios.axapi.items.component.DataComponents;
-import com.artillexstudios.shared.axapi.nbt.CompoundTag;
-import com.artillexstudios.shared.axapi.nbt.ListTag;
-import com.artillexstudios.shared.axapi.nbt.Tag;
+import com.artillexstudios.axapi.items.nbt.CompoundTag;
+import com.artillexstudios.axapi.items.nbt.ListTag;
+import com.artillexstudios.axapi.items.nbt.Tag;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Set;

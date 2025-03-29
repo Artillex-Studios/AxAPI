@@ -8,6 +8,11 @@ import com.artillexstudios.axapi.hologram.Holograms;
 import com.artillexstudios.axapi.items.component.DataComponents;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
+import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
+import com.artillexstudios.axapi.packet.PacketEvent;
+import com.artillexstudios.axapi.packet.PacketEvents;
+import com.artillexstudios.axapi.packet.PacketListener;
+import com.artillexstudios.axapi.packet.ServerboundPacketTypes;
 import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundBlockUpdateWrapper;
 import com.artillexstudios.axapi.packet.wrapper.serverbound.ServerboundInteractWrapper;
 import com.artillexstudios.axapi.packet.wrapper.serverbound.ServerboundSignUpdateWrapper;
@@ -19,11 +24,6 @@ import com.artillexstudios.axapi.scheduler.Scheduler;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
-import com.artillexstudios.shared.axapi.packet.ClientboundPacketTypes;
-import com.artillexstudios.shared.axapi.packet.PacketEvent;
-import com.artillexstudios.shared.axapi.packet.PacketEvents;
-import com.artillexstudios.shared.axapi.packet.PacketListener;
-import com.artillexstudios.shared.axapi.packet.ServerboundPacketTypes;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -31,8 +31,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.plugin.RegisteredServiceProvider;
-import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.zapper.DependencyManager;
@@ -45,7 +43,6 @@ public abstract class AxPlugin extends JavaPlugin {
     public EntityTracker tracker;
     private final FeatureFlags flags = new FeatureFlags(this);
     private ComponentSerializer serializer;
-    private PacketEvents packetEvents;
 
     public AxPlugin() {
         DependencyManager manager = new DependencyManager(this.getDescription(), new File(this.getDataFolder(), "libs"), URLClassLoaderWrapper.wrap((URLClassLoader) this.getClassLoader()));
@@ -82,28 +79,7 @@ public abstract class AxPlugin extends JavaPlugin {
             tracker.startTicking();
         }
 
-        Class<PacketEvents> cl = PacketEvents.class;
-        for (Class<?> knownService : Bukkit.getServicesManager().getKnownServices()) {
-            if (knownService.getName().contains("PacketEvents")) {
-                LogUtils.info("Found packetevents!");
-                cl = (Class<PacketEvents>) knownService;
-                break;
-            } else {
-                LogUtils.info("Registered service: {}", knownService.getName());
-            }
-        }
-        PacketEvents registration = Bukkit.getServicesManager().load(cl);
-        LogUtils.warn("Found registration: {}", registration);
-        if (registration == null) {
-            this.packetEvents = new PacketEvents();
-            Bukkit.getServicesManager().register(PacketEvents.class, this.packetEvents, this, ServicePriority.Normal);
-            LogUtils.warn("Registered registration: {}", this.packetEvents);
-            LogUtils.warn("Check if registered: {}", Bukkit.getServicesManager().load(PacketEvents.class));
-        } else {
-            LogUtils.info("Found...");
-            this.packetEvents = registration;
-        }
-        this.packetEvents.addListener(new PacketListener() {
+        PacketEvents.INSTANCE.addListener(new PacketListener() {
             @Override
             public void onPacketReceive(PacketEvent event) {
                 if (event.type() == ServerboundPacketTypes.INTERACT) {

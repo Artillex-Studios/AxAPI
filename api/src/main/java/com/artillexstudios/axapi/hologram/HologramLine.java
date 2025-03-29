@@ -67,7 +67,7 @@ public class HologramLine {
             switch (type) {
                 case ITEM_STACK: {
                     ItemEntityMeta meta = (ItemEntityMeta) packetEntity.meta();
-                    meta.itemStack(WrappedItemStack.wrap(content).toBukkit());
+                    meta.itemStack(WrappedItemStack.wrap(content));
                     break;
                 }
                 case HEAD:
@@ -122,7 +122,7 @@ public class HologramLine {
             case ITEM_STACK: {
                 packetEntity = NMSHandlers.getNmsHandler().createEntity(EntityType.DROPPED_ITEM, location);
                 ItemEntityMeta meta = (ItemEntityMeta) packetEntity.meta();
-                meta.itemStack(WrappedItemStack.wrap(content).toBukkit());
+                meta.itemStack(WrappedItemStack.wrap(content));
                 meta.hasNoGravity(true);
                 setup();
                 packetEntity.spawn();

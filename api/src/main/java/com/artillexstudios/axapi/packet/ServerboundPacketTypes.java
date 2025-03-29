@@ -1,6 +1,6 @@
-package com.artillexstudios.shared.axapi.packet;
+package com.artillexstudios.axapi.packet;
 
-import com.artillexstudios.shared.axapi.utils.Version;
+import com.artillexstudios.axapi.utils.Version;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;

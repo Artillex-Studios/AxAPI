@@ -10,7 +10,6 @@ pluginManagement {
 rootProject.name = 'AxAPI'
 include 'api'
 include 'folia'
-include 'shared'
 include 'nms'
 //include 'nms:v1_21_R4'
 include 'nms:v1_21_R3'

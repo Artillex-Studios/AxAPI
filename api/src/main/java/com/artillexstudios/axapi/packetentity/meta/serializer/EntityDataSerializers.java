@@ -1,22 +1,22 @@
 package com.artillexstudios.axapi.packetentity.meta.serializer;
 
+import com.artillexstudios.axapi.items.WrappedItemStack;
+import com.artillexstudios.axapi.items.nbt.CompoundTag;
+import com.artillexstudios.axapi.packet.FriendlyByteBuf;
+import com.artillexstudios.axapi.utils.BlockPosition;
 import com.artillexstudios.axapi.utils.Direction;
 import com.artillexstudios.axapi.utils.GlobalPosition;
+import com.artillexstudios.axapi.utils.ParticleArguments;
 import com.artillexstudios.axapi.utils.Quaternion;
+import com.artillexstudios.axapi.utils.Vector3f;
+import com.artillexstudios.axapi.utils.Version;
 import com.artillexstudios.axapi.utils.VillagerData;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
-import com.artillexstudios.shared.axapi.nbt.CompoundTag;
-import com.artillexstudios.shared.axapi.packet.FriendlyByteBuf;
-import com.artillexstudios.shared.axapi.utils.BlockPosition;
-import com.artillexstudios.shared.axapi.utils.ParticleArguments;
-import com.artillexstudios.shared.axapi.utils.Vector3f;
-import com.artillexstudios.shared.axapi.utils.Version;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import net.kyori.adventure.text.Component;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Pose;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
 
 import java.util.ArrayList;
@@ -145,14 +145,14 @@ public final class EntityDataSerializers {
             return Type.OPTIONAL_COMPONENT;
         }
     };
-    public static final EntityDataSerializer<ItemStack> ITEM_STACK = new EntityDataSerializer<>() {
+    public static final EntityDataSerializer<WrappedItemStack> ITEM_STACK = new EntityDataSerializer<>() {
         @Override
-        public void write(FriendlyByteBuf buf, ItemStack value) {
+        public void write(FriendlyByteBuf buf, WrappedItemStack value) {
             buf.writeItemStack(value);
         }
 
         @Override
-        public ItemStack read(FriendlyByteBuf buf) {
+        public WrappedItemStack read(FriendlyByteBuf buf) {
             return buf.readItemStack();
         }
 

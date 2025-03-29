@@ -1,4 +1,4 @@
-package com.artillexstudios.shared.axapi.packet;
+package com.artillexstudios.axapi.packet;
 
 public abstract class PacketListener {
 

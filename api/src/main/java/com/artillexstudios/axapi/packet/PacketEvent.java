@@ -1,6 +1,6 @@
-package com.artillexstudios.shared.axapi.packet;
+package com.artillexstudios.axapi.packet;
 
-import com.artillexstudios.shared.axapi.packet.wrapper.PacketWrapper;
+import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 

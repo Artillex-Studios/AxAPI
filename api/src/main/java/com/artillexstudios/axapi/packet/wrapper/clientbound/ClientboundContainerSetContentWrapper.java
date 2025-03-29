@@ -1,10 +1,11 @@
 package com.artillexstudios.axapi.packet.wrapper.clientbound;
 
-import com.artillexstudios.shared.axapi.packet.ClientboundPacketTypes;
-import com.artillexstudios.shared.axapi.packet.FriendlyByteBuf;
-import com.artillexstudios.shared.axapi.packet.PacketEvent;
-import com.artillexstudios.shared.axapi.packet.PacketType;
-import com.artillexstudios.shared.axapi.packet.wrapper.PacketWrapper;
+import com.artillexstudios.axapi.items.WrappedItemStack;
+import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
+import com.artillexstudios.axapi.packet.FriendlyByteBuf;
+import com.artillexstudios.axapi.packet.PacketEvent;
+import com.artillexstudios.axapi.packet.PacketType;
+import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -14,8 +15,8 @@ import java.util.List;
 public final class ClientboundContainerSetContentWrapper extends PacketWrapper {
     private int containerId;
     private int stateId;
-    private List<ItemStack> items;
-    private ItemStack carriedItem;
+    private List<WrappedItemStack> items;
+    private WrappedItemStack carriedItem;
 
     public ClientboundContainerSetContentWrapper(PacketEvent event) {
         super(event);
@@ -26,10 +27,10 @@ public final class ClientboundContainerSetContentWrapper extends PacketWrapper {
         out.writeContainerId(this.containerId);
         out.writeVarInt(this.stateId);
         out.writeVarInt(this.items.size());
-        for (ItemStack item : this.items) {
+        for (WrappedItemStack item : this.items) {
             out.writeItemStack(item);
         }
-        out.writeItemStack(this.carriedItem == null ? new ItemStack(Material.AIR) : this.carriedItem);
+        out.writeItemStack(this.carriedItem == null ? WrappedItemStack.wrap(new ItemStack(Material.AIR)) : this.carriedItem);
     }
 
     @Override
@@ -65,19 +66,19 @@ public final class ClientboundContainerSetContentWrapper extends PacketWrapper {
         this.stateId = stateId;
     }
 
-    public List<ItemStack> items() {
+    public List<WrappedItemStack> items() {
         return this.items;
     }
 
-    public void setItems(List<ItemStack> items) {
+    public void setItems(List<WrappedItemStack> items) {
         this.items = items;
     }
 
-    public ItemStack carriedItem() {
+    public WrappedItemStack carriedItem() {
         return this.carriedItem;
     }
 
-    public void setCarriedItem(ItemStack carriedItem) {
+    public void setCarriedItem(WrappedItemStack carriedItem) {
         this.carriedItem = carriedItem;
     }
 }

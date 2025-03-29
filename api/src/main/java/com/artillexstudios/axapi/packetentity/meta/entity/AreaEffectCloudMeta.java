@@ -3,7 +3,7 @@ package com.artillexstudios.axapi.packetentity.meta.entity;
 import com.artillexstudios.axapi.packetentity.meta.EntityMeta;
 import com.artillexstudios.axapi.packetentity.meta.Metadata;
 import com.artillexstudios.axapi.packetentity.meta.serializer.Accessors;
-import com.artillexstudios.shared.axapi.utils.ParticleArguments;
+import com.artillexstudios.axapi.utils.ParticleArguments;
 import org.bukkit.Particle;
 
 public class AreaEffectCloudMeta extends EntityMeta {

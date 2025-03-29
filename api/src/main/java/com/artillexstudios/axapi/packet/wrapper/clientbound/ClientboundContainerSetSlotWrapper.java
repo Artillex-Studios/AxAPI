@@ -1,28 +1,27 @@
 package com.artillexstudios.axapi.packet.wrapper.clientbound;
 
 import com.artillexstudios.axapi.items.WrappedItemStack;
-import com.artillexstudios.shared.axapi.packet.FriendlyByteBuf;
-import com.artillexstudios.shared.axapi.packet.PacketEvent;
-import com.artillexstudios.shared.axapi.packet.PacketType;
-import com.artillexstudios.shared.axapi.packet.ClientboundPacketTypes;
-import com.artillexstudios.shared.axapi.packet.wrapper.PacketWrapper;
-import org.bukkit.inventory.ItemStack;
+import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
+import com.artillexstudios.axapi.packet.FriendlyByteBuf;
+import com.artillexstudios.axapi.packet.PacketEvent;
+import com.artillexstudios.axapi.packet.PacketType;
+import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
 
 public final class ClientboundContainerSetSlotWrapper extends PacketWrapper {
     private byte containerId;
     private int stateId;
     private short slot;
-    private ItemStack stack;
+    private WrappedItemStack stack;
 
     public ClientboundContainerSetSlotWrapper(PacketEvent event) {
         super(event);
     }
 
-    public ItemStack stack() {
+    public WrappedItemStack stack() {
         return this.stack;
     }
 
-    public void stack(ItemStack stack) {
+    public void stack(WrappedItemStack stack) {
         this.stack = stack;
     }
 

@@ -1,4 +1,4 @@
-package com.artillexstudios.shared.axapi.nbt;
+package com.artillexstudios.axapi.items.nbt;
 
 public interface Tag {
 

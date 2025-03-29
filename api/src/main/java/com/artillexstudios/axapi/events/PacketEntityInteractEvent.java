@@ -2,7 +2,7 @@ package com.artillexstudios.axapi.events;
 
 import com.artillexstudios.axapi.packet.wrapper.serverbound.ServerboundInteractWrapper;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
-import com.artillexstudios.shared.axapi.utils.Vector3f;
+import com.artillexstudios.axapi.utils.Vector3f;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
