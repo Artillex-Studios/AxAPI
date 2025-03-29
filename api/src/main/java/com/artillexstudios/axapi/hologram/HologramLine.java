@@ -3,6 +3,7 @@ package com.artillexstudios.axapi.hologram;
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.collections.ThreadSafeList;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
+import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
 import com.artillexstudios.axapi.packetentity.meta.EntityMeta;
@@ -66,12 +67,12 @@ public class HologramLine {
             switch (type) {
                 case ITEM_STACK: {
                     ItemEntityMeta meta = (ItemEntityMeta) packetEntity.meta();
-                    meta.itemStack(NMSHandlers.getNmsHandler().wrapItem(content));
+                    meta.itemStack(WrappedItemStack.wrap(content).toBukkit());
                     break;
                 }
                 case HEAD:
                 case SMALL_HEAD: {
-                    packetEntity.setItem(EquipmentSlot.HELMET, NMSHandlers.getNmsHandler().wrapItem(content));
+                    packetEntity.setItem(EquipmentSlot.HELMET, WrappedItemStack.wrap(content));
                     break;
                 }
                 case TEXT: {
@@ -121,7 +122,7 @@ public class HologramLine {
             case ITEM_STACK: {
                 packetEntity = NMSHandlers.getNmsHandler().createEntity(EntityType.DROPPED_ITEM, location);
                 ItemEntityMeta meta = (ItemEntityMeta) packetEntity.meta();
-                meta.itemStack(NMSHandlers.getNmsHandler().wrapItem(content));
+                meta.itemStack(WrappedItemStack.wrap(content).toBukkit());
                 meta.hasNoGravity(true);
                 setup();
                 packetEntity.spawn();
@@ -129,7 +130,7 @@ public class HologramLine {
             }
             case HEAD: {
                 packetEntity = NMSHandlers.getNmsHandler().createEntity(EntityType.ARMOR_STAND, location);
-                packetEntity.setItem(EquipmentSlot.HELMET, NMSHandlers.getNmsHandler().wrapItem(this.content));
+                packetEntity.setItem(EquipmentSlot.HELMET, WrappedItemStack.wrap(this.content));
                 EntityMeta meta = packetEntity.meta();
                 meta.invisible(true);
                 setup();
@@ -179,7 +180,7 @@ public class HologramLine {
             case SMALL_HEAD: {
                 packetEntity = NMSHandlers.getNmsHandler().createEntity(EntityType.ARMOR_STAND, location);
                 ArmorStandMeta meta = (ArmorStandMeta) packetEntity.meta();
-                packetEntity.setItem(EquipmentSlot.HELMET, NMSHandlers.getNmsHandler().wrapItem(this.content));
+                packetEntity.setItem(EquipmentSlot.HELMET, WrappedItemStack.wrap(this.content));
                 meta.invisible(true);
                 meta.small(true);
                 setup();

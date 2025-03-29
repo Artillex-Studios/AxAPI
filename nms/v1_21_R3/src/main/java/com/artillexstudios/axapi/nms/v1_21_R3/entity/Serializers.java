@@ -1,10 +1,9 @@
 package com.artillexstudios.axapi.nms.v1_21_R3.entity;
 
 import com.artillexstudios.axapi.nms.v1_21_R3.items.WrappedItemStack;
-import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataAccessor;
 import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataSerializers;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
-import com.artillexstudios.axapi.utils.ParticleArguments;
+import com.artillexstudios.shared.axapi.utils.ParticleArguments;
 import net.minecraft.core.Rotations;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.chat.Component;
@@ -102,7 +101,7 @@ public class Serializers {
 
             @Override
             public ItemStack transform(Object other) {
-                return ((WrappedItemStack) other).itemStack;
+                return new WrappedItemStack((org.bukkit.inventory.ItemStack) other).itemStack;
             }
 
             @Override
@@ -169,7 +168,7 @@ public class Serializers {
         typeTransformers.put(EntityDataSerializers.Type.VECTOR3, new Transformer<Vector3f>() {
             @Override
             public Vector3f transform(Object other) {
-                com.artillexstudios.axapi.utils.Vector3f vector3f = (com.artillexstudios.axapi.utils.Vector3f) other;
+                Vector3f vector3f = (Vector3f) other;
                 return new Vector3f(vector3f.x(), vector3f.y(), vector3f.z());
             }
 

@@ -1,8 +1,8 @@
-package com.artillexstudios.axapi.packet.wrapper;
+package com.artillexstudios.shared.axapi.packet.wrapper;
 
-import com.artillexstudios.axapi.packet.FriendlyByteBuf;
-import com.artillexstudios.axapi.packet.PacketEvent;
-import com.artillexstudios.axapi.packet.PacketType;
+import com.artillexstudios.shared.axapi.packet.FriendlyByteBuf;
+import com.artillexstudios.shared.axapi.packet.PacketEvent;
+import com.artillexstudios.shared.axapi.packet.PacketType;
 
 public abstract class PacketWrapper {
 

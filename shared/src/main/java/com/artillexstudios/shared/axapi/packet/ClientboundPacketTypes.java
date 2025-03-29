@@ -1,8 +1,6 @@
-package com.artillexstudios.axapi.packet;
+package com.artillexstudios.shared.axapi.packet;
 
-import com.artillexstudios.axapi.AxPlugin;
-import com.artillexstudios.axapi.utils.Version;
-import com.artillexstudios.axapi.utils.logging.LogUtils;
+import com.artillexstudios.shared.axapi.utils.Version;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
@@ -311,9 +309,6 @@ public final class ClientboundPacketTypes {
             int size = PACKET_TYPES.size();
             PACKET_TYPES.put(size, packetType);
             REVERSE_PACKET_TYPES.put(packetType, size);
-            if (AxPlugin.getPlugin(AxPlugin.class).flags().DEBUG.get()) {
-                LogUtils.debug("Registered packet with id {}", size);
-            }
         }
     }
 

@@ -1,4 +1,4 @@
-package com.artillexstudios.axapi.packet;
+package com.artillexstudios.shared.axapi.packet;
 
 public enum PacketSide {
     CLIENT_BOUND,

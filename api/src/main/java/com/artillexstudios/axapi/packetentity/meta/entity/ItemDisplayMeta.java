@@ -1,10 +1,7 @@
 package com.artillexstudios.axapi.packetentity.meta.entity;
 
-import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.packetentity.meta.Metadata;
 import com.artillexstudios.axapi.packetentity.meta.serializer.Accessors;
-import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataAccessor;
-import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataSerializers;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -14,11 +11,11 @@ public class ItemDisplayMeta extends DisplayMeta {
         super(metadata);
     }
 
-    public void displayedItem(WrappedItemStack wrappedItemStack) {
+    public void displayedItem(ItemStack wrappedItemStack) {
         this.metadata.set(Accessors.DISPLAYED_ITEM, wrappedItemStack);
     }
 
-    public WrappedItemStack displayedItem() {
+    public ItemStack displayedItem() {
         return this.metadata.get(Accessors.DISPLAYED_ITEM);
     }
 
@@ -32,7 +29,7 @@ public class ItemDisplayMeta extends DisplayMeta {
 
     @Override
     protected void defineDefaults() {
-        this.metadata.define(Accessors.DISPLAYED_ITEM, WrappedItemStack.wrap(new ItemStack(Material.AIR)));
+        this.metadata.define(Accessors.DISPLAYED_ITEM, new ItemStack(Material.AIR));
         this.metadata.define(Accessors.DISPLAY_TYPE, (byte) 0);
     }
 

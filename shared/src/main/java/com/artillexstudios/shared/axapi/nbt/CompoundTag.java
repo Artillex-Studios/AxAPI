@@ -1,16 +1,10 @@
-package com.artillexstudios.axapi.items.nbt;
-
-import com.artillexstudios.axapi.nms.NMSHandlers;
+package com.artillexstudios.shared.axapi.nbt;
 
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 public interface CompoundTag extends Tag {
-
-    static CompoundTag create() {
-        return NMSHandlers.getNmsHandler().newTag();
-    }
 
     void put(String key, Tag tag);
 

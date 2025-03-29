@@ -1,4 +1,4 @@
-package com.artillexstudios.axapi.utils;
+package com.artillexstudios.shared.axapi.utils;
 
 public class Vector3f {
     private final float x;

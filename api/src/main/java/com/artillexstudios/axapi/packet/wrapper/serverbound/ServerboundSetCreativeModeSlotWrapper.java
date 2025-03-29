@@ -1,16 +1,16 @@
 package com.artillexstudios.axapi.packet.wrapper.serverbound;
 
-import com.artillexstudios.axapi.items.WrappedItemStack;
-import com.artillexstudios.axapi.packet.FriendlyByteBuf;
-import com.artillexstudios.axapi.packet.PacketEvent;
-import com.artillexstudios.axapi.packet.PacketType;
-import com.artillexstudios.axapi.packet.ServerboundPacketTypes;
-import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
-import com.artillexstudios.axapi.utils.Version;
+import com.artillexstudios.shared.axapi.packet.FriendlyByteBuf;
+import com.artillexstudios.shared.axapi.packet.PacketEvent;
+import com.artillexstudios.shared.axapi.packet.PacketType;
+import com.artillexstudios.shared.axapi.packet.ServerboundPacketTypes;
+import com.artillexstudios.shared.axapi.packet.wrapper.PacketWrapper;
+import com.artillexstudios.shared.axapi.utils.Version;
+import org.bukkit.inventory.ItemStack;
 
 public class ServerboundSetCreativeModeSlotWrapper extends PacketWrapper {
     private int slot;
-    private WrappedItemStack stack;
+    private ItemStack stack;
 
     public ServerboundSetCreativeModeSlotWrapper(PacketEvent event) {
         super(event);
@@ -24,11 +24,11 @@ public class ServerboundSetCreativeModeSlotWrapper extends PacketWrapper {
         this.slot = slot;
     }
 
-    public WrappedItemStack stack() {
+    public ItemStack stack() {
         return this.stack;
     }
 
-    public void stack(WrappedItemStack stack) {
+    public void stack(ItemStack stack) {
         this.stack = stack;
     }
 

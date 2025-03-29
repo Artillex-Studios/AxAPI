@@ -1,6 +1,6 @@
-package com.artillexstudios.axapi.packet;
+package com.artillexstudios.shared.axapi.packet;
 
-import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
+import com.artillexstudios.shared.axapi.packet.wrapper.PacketWrapper;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public enum PacketEvents {

@@ -1,7 +1,7 @@
 package com.artillexstudios.axapi.nms.v1_21_R3.items.nbt;
 
-import com.artillexstudios.axapi.items.nbt.Tag;
 import com.artillexstudios.axapi.reflection.FieldAccessor;
+import com.artillexstudios.shared.axapi.nbt.Tag;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
@@ -17,7 +17,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-public class CompoundTag implements com.artillexstudios.axapi.items.nbt.CompoundTag {
+public class CompoundTag implements com.artillexstudios.shared.axapi.nbt.CompoundTag {
     private static final FieldAccessor accessor = FieldAccessor.builder()
             .withClass(net.minecraft.nbt.CompoundTag.class)
             .withField("x")
@@ -295,7 +295,7 @@ public class CompoundTag implements com.artillexstudios.axapi.items.nbt.Compound
     }
 
     @Override
-    public ListTag getList(String key) {
+    public com.artillexstudios.shared.axapi.nbt.ListTag getList(String key) {
         try {
             if (this.parent.getTagType(key) == 9) {
                 net.minecraft.nbt.ListTag listTag = (net.minecraft.nbt.ListTag)this.tags.get(key);

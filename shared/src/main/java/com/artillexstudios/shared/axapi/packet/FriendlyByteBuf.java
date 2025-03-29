@@ -1,22 +1,22 @@
-package com.artillexstudios.axapi.packet;
+package com.artillexstudios.shared.axapi.packet;
 
-import com.artillexstudios.axapi.items.WrappedItemStack;
-import com.artillexstudios.axapi.items.nbt.CompoundTag;
-import com.artillexstudios.axapi.utils.BlockPosition;
-import com.artillexstudios.axapi.utils.ParticleArguments;
-import com.artillexstudios.axapi.utils.Vector3f;
-import com.artillexstudios.axapi.utils.Version;
+import com.artillexstudios.shared.axapi.nbt.CompoundTag;
+import com.artillexstudios.shared.axapi.utils.BlockPosition;
+import com.artillexstudios.shared.axapi.utils.ParticleArguments;
+import com.artillexstudios.shared.axapi.utils.Vector3f;
+import com.artillexstudios.shared.axapi.utils.Version;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Optional;
 
 public interface FriendlyByteBuf {
 
-    WrappedItemStack readItemStack();
+    ItemStack readItemStack();
 
-    void writeItemStack(WrappedItemStack wrappedItemStack);
+    void writeItemStack(ItemStack wrappedItemStack);
 
     byte[] readByteArray();
 
@@ -84,13 +84,13 @@ public interface FriendlyByteBuf {
 
     int writerIndex();
 
-    WrappedItemStack readItemCost();
+    ItemStack readItemCost();
 
-    void writeItemCost(WrappedItemStack itemCost);
+    void writeItemCost(ItemStack itemCost);
 
-    Optional<WrappedItemStack> readOptionalItemCost();
+    Optional<ItemStack> readOptionalItemCost();
 
-    void writeOptionalItemCost(Optional<WrappedItemStack> itemCost);
+    void writeOptionalItemCost(Optional<ItemStack> itemCost);
 
     ParticleArguments readParticleArguments();
 

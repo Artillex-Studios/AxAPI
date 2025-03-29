@@ -1,22 +1,23 @@
 package com.artillexstudios.axapi.items;
 
-import com.artillexstudios.axapi.packet.PacketEvent;
-import com.artillexstudios.axapi.packet.PacketEvents;
-import com.artillexstudios.axapi.packet.PacketListener;
-import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
-import com.artillexstudios.axapi.packet.ServerboundPacketTypes;
-import com.artillexstudios.axapi.packet.wrapper.serverbound.ServerboundSetCreativeModeSlotWrapper;
-import com.artillexstudios.axapi.utils.MerchantOffer;
 import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundContainerSetContentWrapper;
 import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundContainerSetSlotWrapper;
 import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundEntityMetadataWrapper;
 import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundMerchantOffersWrapper;
 import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundSetEquipmentWrapper;
+import com.artillexstudios.axapi.packet.wrapper.serverbound.ServerboundSetCreativeModeSlotWrapper;
 import com.artillexstudios.axapi.packetentity.meta.Metadata;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
+import com.artillexstudios.axapi.utils.MerchantOffer;
 import com.artillexstudios.axapi.utils.Pair;
+import com.artillexstudios.shared.axapi.packet.ClientboundPacketTypes;
+import com.artillexstudios.shared.axapi.packet.PacketEvent;
+import com.artillexstudios.shared.axapi.packet.PacketEvents;
+import com.artillexstudios.shared.axapi.packet.PacketListener;
+import com.artillexstudios.shared.axapi.packet.ServerboundPacketTypes;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 public class PacketItemModifier {
     private static boolean listening = false;
@@ -33,28 +34,28 @@ public class PacketItemModifier {
 
                     if (event.type() == ClientboundPacketTypes.CONTAINER_SET_SLOT) {
                         ClientboundContainerSetSlotWrapper wrapper = new ClientboundContainerSetSlotWrapper(event);
-                        PacketItemModifier.callModify(wrapper.stack(), event.player(), PacketItemModifier.Context.SET_SLOT);
+                        PacketItemModifier.callModify(WrappedItemStack.wrap(wrapper.stack()), event.player(), PacketItemModifier.Context.SET_SLOT);
                     } else if (event.type() == ClientboundPacketTypes.CONTAINER_CONTENT) {
                         ClientboundContainerSetContentWrapper wrapper = new ClientboundContainerSetContentWrapper(event);
-                        for (WrappedItemStack item : wrapper.items()) {
-                            PacketItemModifier.callModify(item, event.player(), PacketItemModifier.Context.SET_CONTENTS);
+                        for (ItemStack item : wrapper.items()) {
+                            PacketItemModifier.callModify(WrappedItemStack.wrap(item), event.player(), PacketItemModifier.Context.SET_CONTENTS);
                         }
 
-                        PacketItemModifier.callModify(wrapper.carriedItem(), event.player(), PacketItemModifier.Context.SET_CONTENTS);
+                        PacketItemModifier.callModify(WrappedItemStack.wrap(wrapper.carriedItem()), event.player(), PacketItemModifier.Context.SET_CONTENTS);
                     } else if (event.type() == ClientboundPacketTypes.SET_EQUIPMENT) {
                         ClientboundSetEquipmentWrapper wrapper = new ClientboundSetEquipmentWrapper(event);
-                        for (Pair<EquipmentSlot, WrappedItemStack> item : wrapper.items()) {
-                            PacketItemModifier.callModify(item.second(), event.player(), PacketItemModifier.Context.EQUIPMENT);
+                        for (Pair<EquipmentSlot, ItemStack> item : wrapper.items()) {
+                            PacketItemModifier.callModify(WrappedItemStack.wrap(item.second()), event.player(), PacketItemModifier.Context.EQUIPMENT);
                         }
                     } else if (event.type() == ClientboundPacketTypes.MERCHANT_OFFERS) {
                         ClientboundMerchantOffersWrapper wrapper = new ClientboundMerchantOffersWrapper(event);
                         for (MerchantOffer offer : wrapper.merchantOffers()) {
-                            PacketItemModifier.callModify(offer.item1(), event.player(), PacketItemModifier.Context.MERCHANT_OFFER);
+                            PacketItemModifier.callModify(WrappedItemStack.wrap(offer.item1()), event.player(), PacketItemModifier.Context.MERCHANT_OFFER);
                             offer.item2().ifPresent(cost -> {
-                                PacketItemModifier.callModify(cost, event.player(), PacketItemModifier.Context.MERCHANT_OFFER);
+                                PacketItemModifier.callModify(WrappedItemStack.wrap(cost), event.player(), PacketItemModifier.Context.MERCHANT_OFFER);
 
                             });
-                            PacketItemModifier.callModify(offer.output(), event.player(), PacketItemModifier.Context.MERCHANT_OFFER);
+                            PacketItemModifier.callModify(WrappedItemStack.wrap(offer.output()), event.player(), PacketItemModifier.Context.MERCHANT_OFFER);
                         }
                     } else if (event.type() == ClientboundPacketTypes.SET_ENTITY_DATA) {
                         ClientboundEntityMetadataWrapper wrapper = new ClientboundEntityMetadataWrapper(event);
@@ -68,9 +69,9 @@ public class PacketItemModifier {
 
                 @Override
                 public void onPacketReceive(PacketEvent event) {
-                     if (event.type() == ServerboundPacketTypes.SET_CREATIVE_MODE_SLOT) {
+                    if (event.type() == ServerboundPacketTypes.SET_CREATIVE_MODE_SLOT) {
                         ServerboundSetCreativeModeSlotWrapper wrapper = new ServerboundSetCreativeModeSlotWrapper(event);
-                         PacketItemModifier.restore(wrapper.stack());
+                        PacketItemModifier.restore(WrappedItemStack.wrap(wrapper.stack()));
                     }
                 }
             });

@@ -1,13 +1,14 @@
 package com.artillexstudios.axapi.utils;
 
 import com.artillexstudios.axapi.items.WrappedItemStack;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Optional;
 
 public final class MerchantOffer {
-    private WrappedItemStack item1;
-    private Optional<WrappedItemStack> item2;
-    private WrappedItemStack output;
+    private ItemStack item1;
+    private Optional<ItemStack> item2;
+    private ItemStack output;
     private int uses;
     private int maxUses;
     private int xp;
@@ -15,7 +16,7 @@ public final class MerchantOffer {
     private float priceMultiplier;
     private int demand;
 
-    public MerchantOffer(WrappedItemStack item1, Optional<WrappedItemStack> item2, WrappedItemStack output, int uses, int maxUses, int xp, int price, float priceMultiplier, int demand) {
+    public MerchantOffer(ItemStack item1, Optional<ItemStack> item2, ItemStack output, int uses, int maxUses, int xp, int price, float priceMultiplier, int demand) {
         this.item1 = item1;
         this.item2 = item2;
         this.output = output;
@@ -27,27 +28,27 @@ public final class MerchantOffer {
         this.demand = demand;
     }
 
-    public WrappedItemStack item1() {
+    public ItemStack item1() {
         return this.item1;
     }
 
-    public void setItem1(WrappedItemStack item1) {
+    public void setItem1(ItemStack item1) {
         this.item1 = item1;
     }
 
-    public Optional<WrappedItemStack> item2() {
+    public Optional<ItemStack> item2() {
         return this.item2;
     }
 
-    public void setItem2(Optional<WrappedItemStack> item2) {
+    public void setItem2(Optional<ItemStack> item2) {
         this.item2 = item2;
     }
 
-    public WrappedItemStack output() {
+    public ItemStack output() {
         return this.output;
     }
 
-    public void setOutput(WrappedItemStack output) {
+    public void setOutput(ItemStack output) {
         this.output = output;
     }
 

@@ -1,10 +1,9 @@
-package com.artillexstudios.axapi.utils;
+package com.artillexstudios.shared.axapi.utils;
 
-import com.artillexstudios.axapi.nms.NMSHandlers;
-import com.artillexstudios.axapi.reflection.FastMethodInvoker;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
-import org.bukkit.entity.Player;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -35,8 +34,13 @@ public enum Version {
     private static int protocolVersion;
 
     static {
-        final FastMethodInvoker methodInvoker = FastMethodInvoker.create("net.minecraft.SharedConstants", "c");
-        final int protocolVersion = methodInvoker.invoke(null);
+        final int protocolVersion;
+        try {
+            Method method = Class.forName("net.minecraft.SharedConstants").getDeclaredMethod("c");
+            protocolVersion = (int) method.invoke(null);
+        } catch (NoSuchMethodException | ClassNotFoundException | InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
 
         for (Version value : values()) {
             versionMap.put(value.protocolId, value);
@@ -63,10 +67,6 @@ public enum Version {
         this.protocolId = protocolId;
         this.versions = versions;
         this.nmsVersion = nmsVersion;
-    }
-
-    public static Version getPlayerVersion(Player player) {
-        return versionMap.get(NMSHandlers.getNmsHandler().getProtocolVersionId(player));
     }
 
     public static Version getServerVersion() {

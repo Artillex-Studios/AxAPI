@@ -1,13 +1,13 @@
 package com.artillexstudios.axapi.packet.wrapper.serverbound;
 
-import com.artillexstudios.axapi.packet.FriendlyByteBuf;
-import com.artillexstudios.axapi.packet.PacketEvent;
-import com.artillexstudios.axapi.packet.PacketType;
-import com.artillexstudios.axapi.packet.ServerboundPacketTypes;
-import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
-import com.artillexstudios.axapi.utils.BlockPosition;
+import com.artillexstudios.shared.axapi.packet.FriendlyByteBuf;
+import com.artillexstudios.shared.axapi.packet.PacketEvent;
+import com.artillexstudios.shared.axapi.packet.PacketType;
+import com.artillexstudios.shared.axapi.packet.ServerboundPacketTypes;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
-import com.artillexstudios.axapi.utils.Version;
+import com.artillexstudios.shared.axapi.packet.wrapper.PacketWrapper;
+import com.artillexstudios.shared.axapi.utils.BlockPosition;
+import com.artillexstudios.shared.axapi.utils.Version;
 import net.kyori.adventure.text.Component;
 
 import java.util.ArrayList;

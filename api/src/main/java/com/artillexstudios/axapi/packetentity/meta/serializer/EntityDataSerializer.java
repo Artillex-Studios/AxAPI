@@ -1,6 +1,6 @@
 package com.artillexstudios.axapi.packetentity.meta.serializer;
 
-import com.artillexstudios.axapi.packet.FriendlyByteBuf;
+import com.artillexstudios.shared.axapi.packet.FriendlyByteBuf;
 
 public interface EntityDataSerializer<T> {
 

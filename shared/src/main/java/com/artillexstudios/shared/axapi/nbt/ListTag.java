@@ -1,4 +1,4 @@
-package com.artillexstudios.axapi.items.nbt;
+package com.artillexstudios.shared.axapi.nbt;
 
 public interface ListTag extends Tag {
 
