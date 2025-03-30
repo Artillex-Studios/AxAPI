@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.packet;
 
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public enum PacketEvents {
@@ -25,13 +26,16 @@ public enum PacketEvents {
         PacketWrapper lastWrapper = null;
         int bakedLength = baked.length;
         if (event.side() == PacketSide.SERVER_BOUND) {
+            FriendlyByteBuf in = event.in();
+            LogUtils.info("SERVERBOUND: Input buffer: {}, readerIndex: {}, writerIndex: {}", in, in.readerIndex(), in.writerIndex());
             for (int i = 0; i < bakedLength; i++) {
                 baked[i].onPacketReceive(event);
 
-                FriendlyByteBuf directIn = event.directIn();
-                if (directIn != null) {
-                    directIn.readerIndex(1);
-                }
+                FriendlyByteBuf directIn = in = event.in();
+                LogUtils.info("SERVERBOUND: Input after event: {}, readerIndex: {}, writerIndex: {}", in, in.readerIndex(), in.writerIndex());
+//                if (directIn != null) {
+//                    directIn.readerIndex(1);
+//                }
                 PacketWrapper wrapper = event.wrapper();
                 if (wrapper != null && lastWrapper != wrapper) {
                     FriendlyByteBuf out = event.out();
@@ -41,13 +45,17 @@ public enum PacketEvents {
                 }
             }
         } else {
+            FriendlyByteBuf in = event.in();
+            LogUtils.info("CLIENTBOUND: Input buffer: {}, readerIndex: {}, writerIndex: {}", in, in.readerIndex(), in.writerIndex());
             for (int i = 0; i < bakedLength; i++) {
                 baked[i].onPacketSending(event);
 
-                FriendlyByteBuf directIn = event.directIn();
-                if (directIn != null) {
-                    directIn.readerIndex(1);
-                }
+                FriendlyByteBuf directIn = in = event.in();
+                LogUtils.info("CLIENTBOUND: Input after event: {}, readerIndex: {}, writerIndex: {}", in, in.readerIndex(), in.writerIndex());
+//                FriendlyByteBuf directIn = event.directIn();
+//                if (directIn != null) {
+//                    directIn.readerIndex(1);
+//                }
                 PacketWrapper wrapper = event.wrapper();
                 if (wrapper != null && lastWrapper != wrapper) {
                     FriendlyByteBuf out = event.out();

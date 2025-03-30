@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.CraftParticle;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -250,5 +251,11 @@ public record FriendlyByteBufWrapper(RegistryFriendlyByteBuf buf) implements Fri
     @Override
     public BlockData readBlockData() {
         return CraftBlockData.fromData(Block.BLOCK_STATE_REGISTRY.byId(this.readVarInt()));
+    }
+
+    @NotNull
+    @Override
+    public String toString() {
+        return this.buf().toString();
     }
 }
