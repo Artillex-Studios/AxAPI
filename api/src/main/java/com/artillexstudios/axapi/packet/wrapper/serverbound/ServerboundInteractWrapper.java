@@ -75,7 +75,7 @@ public final class ServerboundInteractWrapper extends PacketWrapper {
     public enum ActionType {
         INTERACT(InteractionAction::new),
         ATTACK(buf -> new AttackAction()),
-        INTERACT_AT(InteractionAction::new);
+        INTERACT_AT(InteractionAtLocationAction::new);
 
         private Function<FriendlyByteBuf, Action> mapper;
 

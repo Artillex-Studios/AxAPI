@@ -560,16 +560,16 @@ public final class EntityDataSerializers {
         @Override
         public void write(FriendlyByteBuf buf, OptionalInt value) {
             if (value.isPresent()) {
-                buf.writeBoolean(true);
                 buf.writeVarInt(value.getAsInt());
             } else {
-                buf.writeBoolean(false);
+                buf.writeVarInt(0);
             }
         }
 
         @Override
         public OptionalInt read(FriendlyByteBuf buf) {
-            return buf.readBoolean() ? OptionalInt.of(buf.readVarInt()) : OptionalInt.empty();
+            int i = buf.readVarInt();
+            return i != 0 ? OptionalInt.of(i) : OptionalInt.empty();
         }
 
         @Override
