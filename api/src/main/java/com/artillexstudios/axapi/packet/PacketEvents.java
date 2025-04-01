@@ -28,7 +28,6 @@ public enum PacketEvents {
         if (event.side() == PacketSide.SERVER_BOUND) {
             FriendlyByteBuf in = event.in();
             for (int i = 0; i < bakedLength; i++) {
-                LogUtils.info("SERVERBOUND: Input buffer: {}, readerIndex: {}, writerIndex: {}", in, in.readerIndex(), in.writerIndex());
                 try {
                     baked[i].onPacketReceive(event);
                 } catch (Throwable throwable) {
@@ -36,7 +35,6 @@ public enum PacketEvents {
                 }
 
                 FriendlyByteBuf directIn = in = event.in();
-                LogUtils.info("SERVERBOUND: Input after event: {}, readerIndex: {}, writerIndex: {}", in, in.readerIndex(), in.writerIndex());
 //                if (directIn != null) {
 //                    directIn.readerIndex(1);
 //                }
@@ -51,7 +49,6 @@ public enum PacketEvents {
         } else {
             FriendlyByteBuf in = event.in();
             for (int i = 0; i < bakedLength; i++) {
-                LogUtils.info("CLIENTBOUND: Input buffer: {}, readerIndex: {}, writerIndex: {}", in, in.readerIndex(), in.writerIndex());
                 try {
                     baked[i].onPacketSending(event);
                 } catch (Throwable throwable) {
@@ -59,7 +56,6 @@ public enum PacketEvents {
                 }
 
                 FriendlyByteBuf directIn = in = event.in();
-                LogUtils.info("CLIENTBOUND: Input after event: {}, readerIndex: {}, writerIndex: {}", in, in.readerIndex(), in.writerIndex());
 //                FriendlyByteBuf directIn = event.directIn();
 //                if (directIn != null) {
 //                    directIn.readerIndex(1);
