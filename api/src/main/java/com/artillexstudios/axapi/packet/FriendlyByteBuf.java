@@ -3,7 +3,6 @@ package com.artillexstudios.axapi.packet;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.utils.BlockPosition;
-import com.artillexstudios.axapi.utils.ParticleArguments;
 import com.artillexstudios.axapi.utils.Vector3f;
 import com.artillexstudios.axapi.utils.Version;
 import net.kyori.adventure.key.Key;
@@ -91,10 +90,6 @@ public interface FriendlyByteBuf {
     Optional<WrappedItemStack> readOptionalItemCost();
 
     void writeOptionalItemCost(Optional<WrappedItemStack> itemCost);
-
-    ParticleArguments readParticleArguments();
-
-    void writeParticleArguments(ParticleArguments arguments);
 
     int readUnsignedShort();
 

@@ -11,7 +11,6 @@ import com.artillexstudios.axapi.utils.Quaternion;
 import com.artillexstudios.axapi.utils.Vector3f;
 import com.artillexstudios.axapi.utils.Version;
 import com.artillexstudios.axapi.utils.VillagerData;
-import com.artillexstudios.axapi.utils.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import net.kyori.adventure.text.Component;
@@ -193,17 +192,16 @@ public final class EntityDataSerializers {
             return Type.BOOLEAN;
         }
     };
+    // TODO: Implement properly
     public static final EntityDataSerializer<ParticleArguments> PARTICLE = new EntityDataSerializer<>() {
         @Override
         public void write(FriendlyByteBuf buf, ParticleArguments value) {
-            LogUtils.info("Writing particle!");
-            buf.writeParticleArguments(value);
         }
 
         @Override
         public ParticleArguments read(FriendlyByteBuf buf) {
-            LogUtils.info("Reading particle!");
-            return buf.readParticleArguments();
+            int particleId = buf.readVarInt();
+            return null;
         }
 
         @Override
@@ -458,20 +456,18 @@ public final class EntityDataSerializers {
     public static final EntityDataSerializer<List<ParticleArguments>> PARTICLES = new EntityDataSerializer<>() {
         @Override
         public void write(FriendlyByteBuf buf, List<ParticleArguments> value) {
-            LogUtils.info("Writing particles!");
             buf.writeVarInt(value.size());
             for (ParticleArguments particleArguments : value) {
-                buf.writeParticleArguments(particleArguments);
+                PARTICLE.write(buf, particleArguments);
             }
         }
 
         @Override
         public List<ParticleArguments> read(FriendlyByteBuf buf) {
-            LogUtils.info("Reading particles!");
             int size = buf.readVarInt();
             List<ParticleArguments> arguments = new ArrayList<>();
             for (int i = 0; i < size; i++) {
-                arguments.add(buf.readParticleArguments());
+                arguments.add(PARTICLE.read(buf));
             }
             return arguments;
         }
