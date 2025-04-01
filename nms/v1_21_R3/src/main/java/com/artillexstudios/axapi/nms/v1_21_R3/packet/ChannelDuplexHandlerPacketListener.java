@@ -242,20 +242,17 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
 
     public static int packetId(Packet<?> packet) {
         net.minecraft.network.protocol.PacketType<?> type = packet.type();
+        int packetId;
         if (type.flow() == PacketFlow.CLIENTBOUND) {
-            int packetId = clientboundIds.getOrDefault(type, -1);
-            if (packetId == -1) {
-                throw new IllegalStateException();
-            }
-
-            return packetId;
+            packetId = clientboundIds.getOrDefault(type, -1);
         } else {
-            int packetId = serverboundIds.getOrDefault(type, -1);
-            if (packetId == -1) {
-                throw new IllegalStateException();
-            }
-
-            return packetId;
+            packetId = serverboundIds.getOrDefault(type, -1);
         }
+
+        if (packetId == -1) {
+            throw new IllegalStateException();
+        }
+
+        return packetId;
     }
 }
