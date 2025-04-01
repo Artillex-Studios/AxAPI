@@ -250,7 +250,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
 
             return packetId;
         } else {
-            int packetId = clientboundIds.getOrDefault(type, -1);
+            int packetId = serverboundIds.getOrDefault(type, -1);
             if (packetId == -1) {
                 throw new IllegalStateException();
             }
