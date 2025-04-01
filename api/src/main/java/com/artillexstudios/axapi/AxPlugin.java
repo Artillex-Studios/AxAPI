@@ -23,7 +23,6 @@ import com.artillexstudios.axapi.placeholders.Placeholders;
 import com.artillexstudios.axapi.scheduler.Scheduler;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
-import com.artillexstudios.axapi.utils.logging.LogUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -84,7 +83,6 @@ public abstract class AxPlugin extends JavaPlugin {
             public void onPacketReceive(PacketEvent event) {
                 if (event.type() == ServerboundPacketTypes.INTERACT) {
                     if (AxPlugin.this.tracker == null) {
-                        LogUtils.info("No tracker. Package: {}, class: {}", AxPlugin.class.getPackageName(), AxPlugin.class);
                         return;
                     }
 
