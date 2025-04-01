@@ -159,10 +159,10 @@ public abstract class AxPlugin extends JavaPlugin {
 
         this.enable();
 
-//        Placeholders.lock();
-//        if (this.flags.PLACEHOLDER_API_HOOK.get() && Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-//            new PlaceholderAPIHook().register();
-//        }
+        Placeholders.lock();
+        if (this.flags.PLACEHOLDER_API_HOOK.get() && Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            new PlaceholderAPIHook().register();
+        }
     }
 
     public void enable() {

@@ -1,7 +1,6 @@
 package com.artillexstudios.axapi.placeholders;
 
 import com.artillexstudios.axapi.AxPlugin;
-import com.artillexstudios.axapi.placeholders.refactor.PlaceholderParser;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
@@ -13,13 +12,7 @@ import java.util.List;
 import java.util.Locale;
 
 public final class PlaceholderAPIHook extends PlaceholderExpansion {
-    private final PlaceholderParser parser;
-    private final AxPlugin plugin;
-
-    public PlaceholderAPIHook(PlaceholderParser parser, AxPlugin plugin) {
-        this.parser = parser;
-        this.plugin = plugin;
-    }
+    private static final AxPlugin plugin = AxPlugin.getPlugin(AxPlugin.class);
 
     @Override
     public boolean persist() {
@@ -29,9 +22,9 @@ public final class PlaceholderAPIHook extends PlaceholderExpansion {
     @NotNull
     @Override
     public String getIdentifier() {
-        String identifier = this.plugin.flags().PLACEHOLDER_API_IDENTIFIER.get();
+        String identifier = plugin.flags().PLACEHOLDER_API_IDENTIFIER.get();
         if (identifier.isBlank()) {
-            String pluginName = this.plugin.getName().toLowerCase(Locale.ENGLISH);
+            String pluginName = plugin.getName().toLowerCase(Locale.ENGLISH);
             LogUtils.error("PlaceholderAPI identifier is not set up! Please set it! Defaulting to {}", pluginName);
             return pluginName;
         }
@@ -48,7 +41,7 @@ public final class PlaceholderAPIHook extends PlaceholderExpansion {
     @NotNull
     @Override
     public String getVersion() {
-        return this.plugin.getDescription().getVersion();
+        return plugin.getDescription().getVersion();
     }
 
     @Nullable
