@@ -26,18 +26,17 @@ public enum PacketEvents {
         PacketWrapper lastWrapper = null;
         int bakedLength = baked.length;
         if (event.side() == PacketSide.SERVER_BOUND) {
-            FriendlyByteBuf in = event.in();
             for (int i = 0; i < bakedLength; i++) {
                 try {
                     baked[i].onPacketReceive(event);
                 } catch (Throwable throwable) {
-                    LogUtils.error("Exception while running packet event! Buffer: {}", in, throwable);
+                    LogUtils.error("Exception while running packet event! Buffer: {}", event.in(), throwable);
                 }
 
-                FriendlyByteBuf directIn = in = event.in();
-//                if (directIn != null) {
-//                    directIn.readerIndex(1);
-//                }
+                FriendlyByteBuf directIn = event.directIn();
+                if (directIn != null) {
+                    directIn.readerIndex(1);
+                }
                 PacketWrapper wrapper = event.wrapper();
                 if (wrapper != null && lastWrapper != wrapper) {
                     FriendlyByteBuf out = event.out();
@@ -47,19 +46,17 @@ public enum PacketEvents {
                 }
             }
         } else {
-            FriendlyByteBuf in = event.in();
             for (int i = 0; i < bakedLength; i++) {
                 try {
                     baked[i].onPacketSending(event);
                 } catch (Throwable throwable) {
-                    LogUtils.error("Exception while running packet event! Buffer: {}", in, throwable);
+                    LogUtils.error("Exception while running packet event! Buffer: {}", event.in(), throwable);
                 }
 
-                FriendlyByteBuf directIn = in = event.in();
-//                FriendlyByteBuf directIn = event.directIn();
-//                if (directIn != null) {
-//                    directIn.readerIndex(1);
-//                }
+                FriendlyByteBuf directIn = event.directIn();
+                if (directIn != null) {
+                    directIn.readerIndex(1);
+                }
                 PacketWrapper wrapper = event.wrapper();
                 if (wrapper != null && lastWrapper != wrapper) {
                     FriendlyByteBuf out = event.out();
