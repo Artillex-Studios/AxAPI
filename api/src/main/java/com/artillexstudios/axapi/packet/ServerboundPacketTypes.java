@@ -160,6 +160,6 @@ public final class ServerboundPacketTypes {
     }
 
     public static int forPacketType(PacketType type) {
-        return REVERSE_PACKET_TYPES.getInt(type);
+        return REVERSE_PACKET_TYPES.getOrDefault(type, -1);
     }
 }

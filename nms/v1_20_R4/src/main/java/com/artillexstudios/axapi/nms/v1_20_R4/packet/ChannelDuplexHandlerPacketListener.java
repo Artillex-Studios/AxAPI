@@ -1,47 +1,27 @@
 package com.artillexstudios.axapi.nms.v1_20_R4.packet;
 
 import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
+import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketEvents;
 import com.artillexstudios.axapi.packet.PacketSide;
 import com.artillexstudios.axapi.packet.PacketType;
 import com.artillexstudios.axapi.packet.ServerboundPacketTypes;
-import com.artillexstudios.axapi.reflection.FieldAccessor;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.VarInt;
-import net.minecraft.network.codec.IdDispatchCodec;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
-import net.minecraft.network.protocol.game.GameProtocols;
-import net.minecraft.network.protocol.game.ServerGamePacketListener;
-import net.minecraft.server.MinecraftServer;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandler {
-    private static final Function<ByteBuf, RegistryFriendlyByteBuf> decorator = RegistryFriendlyByteBuf.decorator(MinecraftServer.getServer().registryAccess());
-    private static final StreamCodec<ByteBuf, Packet<? super ClientGamePacketListener>> clientboundCodec = GameProtocols.CLIENTBOUND.bind(decorator).codec();
-    private static final StreamCodec<ByteBuf, Packet<? super ServerGamePacketListener>> serverboundCodec = GameProtocols.SERVERBOUND.bind(decorator).codec();
-    private static final FieldAccessor toIdAccessor = FieldAccessor.builder()
-            .withClass(IdDispatchCodec.class)
-            .withField("d")
-            .build();
-    private static final Object2IntMap<PacketType> clientboundIds = toIdAccessor.getUnchecked(clientboundCodec);
-    private static final Object2IntMap<PacketType> serverboundIds = toIdAccessor.getUnchecked(serverboundCodec);
     private final FeatureFlags flags;
     private final Player player;
 
@@ -63,21 +43,18 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             }
             List<Packet<? super ClientGamePacketListener>> packets = new ArrayList<>();
             for (Packet<? super ClientGamePacketListener> subPacket : bundlePacket.subPackets()) {
-                int packetId = packetId(subPacket);
+                int packetId = PacketTransformer.packetId(subPacket);
                 PacketType type = ClientboundPacketTypes.forPacketId(packetId);
                 if (this.flags.DEBUG_OUTGOING_PACKETS.get()) {
                     LogUtils.info("(bundle) Packet id: {}, class: {}, type: {}", packetId, subPacket.getClass(), type);
                 }
 
                 PacketEvent event = new PacketEvent(this.player, PacketSide.CLIENT_BOUND, type, () -> {
-                    ByteBuf buf = ctx.alloc().buffer();
-                    clientboundCodec.encode(buf, subPacket);
-                    VarInt.read(buf);
-                    return new FriendlyByteBufWrapper(decorator.apply(buf));
+                    return PacketTransformer.transformClientbound(ctx, subPacket, FriendlyByteBuf::readVarInt);
                 }, () -> {
-                    ByteBuf out = ctx.alloc().buffer();
-                    VarInt.write(out, packetId);
-                    return new FriendlyByteBufWrapper(decorator.apply(out));
+                    return PacketTransformer.newByteBuf(ctx, buf -> {
+                        buf.writeVarInt(packetId);
+                    });
                 });
 
                 PacketEvents.INSTANCE.callEvent(event);
@@ -108,29 +85,25 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
                     continue;
                 }
 
-                packets.add(clientboundCodec.decode(out.buf()));
-                out.buf().release();
+                packets.add(PacketTransformer.transformClientbound(out.buf()));
             }
 
             super.write(ctx, new ClientboundBundlePacket(packets), promise);
             return;
         }
 
-        int packetId = packetId((Packet<?>) msg);
+        int packetId = PacketTransformer.packetId((Packet<?>) msg);
         PacketType type = ClientboundPacketTypes.forPacketId(packetId);
         if (this.flags.DEBUG_OUTGOING_PACKETS.get()) {
             LogUtils.info("Packet id: {}, class: {}, type: {}", packetId, msg.getClass(), type);
         }
 
         PacketEvent event = new PacketEvent(this.player, PacketSide.CLIENT_BOUND, type, () -> {
-            ByteBuf buf = ctx.alloc().buffer();
-            clientboundCodec.encode(buf, (Packet<? super ClientGamePacketListener>) msg);
-            VarInt.read(buf);
-            return new FriendlyByteBufWrapper(decorator.apply(buf));
+            return PacketTransformer.transformClientbound(ctx, (Packet<?>) msg, FriendlyByteBuf::readVarInt);
         }, () -> {
-            ByteBuf out = ctx.alloc().buffer();
-            VarInt.write(out, packetId);
-            return new FriendlyByteBufWrapper(decorator.apply(out));
+            return PacketTransformer.newByteBuf(ctx, buf -> {
+                buf.writeVarInt(packetId);
+            });
         });
 
         PacketEvents.INSTANCE.callEvent(event);
@@ -169,8 +142,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
         if (this.flags.DEBUG_OUTGOING_PACKETS.get()) {
             LogUtils.info("Changed!");
         }
-        super.write(ctx, clientboundCodec.decode(out.buf()), promise);
-        out.buf().release();
+        super.write(ctx, PacketTransformer.transformClientbound(out.buf()), promise);
     }
 
     @Override
@@ -187,21 +159,18 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             return;
         }
 
-        int packetId = packetId((Packet<?>) msg);
+        int packetId = PacketTransformer.packetId((Packet<?>) msg);
         PacketType type = ServerboundPacketTypes.forPacketId(packetId);
         if (this.flags.DEBUG_INCOMING_PACKETS.get()) {
             LogUtils.info("Incoming packet id: {}, class: {}, type: {}", packetId, msg.getClass(), type);
         }
 
         PacketEvent event = new PacketEvent(this.player, PacketSide.SERVER_BOUND, type, () -> {
-            ByteBuf buf = ctx.alloc().buffer();
-            serverboundCodec.encode(buf, (Packet<? super ServerGamePacketListener>) msg);
-            VarInt.read(buf);
-            return new FriendlyByteBufWrapper(decorator.apply(buf));
+            return PacketTransformer.transformServerbound(ctx, (Packet<?>) msg, FriendlyByteBuf::readVarInt);
         }, () -> {
-            ByteBuf out = ctx.alloc().buffer();
-            VarInt.write(out, packetId);
-            return new FriendlyByteBufWrapper(decorator.apply(out));
+            return PacketTransformer.newByteBuf(ctx, buf -> {
+                buf.writeVarInt(packetId);
+            });
         });
 
         PacketEvents.INSTANCE.callEvent(event);
@@ -239,23 +208,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
         if (this.flags.DEBUG_INCOMING_PACKETS.get()) {
             LogUtils.info("Incoming changed!");
         }
-        super.channelRead(ctx, serverboundCodec.decode(out.buf()));
+        super.channelRead(ctx, PacketTransformer.transformServerbound(out.buf()));
         out.buf().release();
-    }
-
-    public static int packetId(Packet<?> packet) {
-        net.minecraft.network.protocol.PacketType<?> type = packet.type();
-        int packetId;
-        if (type.flow() == PacketFlow.CLIENTBOUND) {
-            packetId = clientboundIds.getOrDefault(type, -1);
-        } else {
-            packetId = serverboundIds.getOrDefault(type, -1);
-        }
-
-        if (packetId == -1) {
-            throw new IllegalStateException();
-        }
-
-        return packetId;
     }
 }

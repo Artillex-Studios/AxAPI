@@ -2,6 +2,8 @@ package com.artillexstudios.axapi.nms.v1_20_R4.wrapper;
 
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.nms.v1_20_R4.packet.ChannelDuplexHandlerPacketListener;
+import com.artillexstudios.axapi.nms.v1_20_R4.packet.PacketTransformer;
+import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
 import com.artillexstudios.axapi.reflection.FieldAccessor;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.PlayerTextures;
@@ -85,6 +87,11 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
     @Override
     public void sendPacket(Object packet) {
         this.update();
+
+        if (packet instanceof PacketWrapper wrapper) {
+            this.serverPlayer.connection.send(PacketTransformer.transformClientbound(wrapper));
+            return;
+        }
 
         if (!(packet instanceof Packet<?> p)) {
             LogUtils.warn("Failed to send unknown packet to player {}! Packet: {}", this.wrapped().getName(), packet);

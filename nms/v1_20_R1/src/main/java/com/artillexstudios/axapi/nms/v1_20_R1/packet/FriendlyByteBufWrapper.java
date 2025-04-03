@@ -192,7 +192,6 @@ public record FriendlyByteBufWrapper(net.minecraft.network.FriendlyByteBuf buf) 
         return this.buf.writerIndex();
     }
 
-
     @Override
     public WrappedItemStack readItemCost() {
         return new com.artillexstudios.axapi.nms.v1_20_R1.items.WrappedItemStack(this.buf.readItem());

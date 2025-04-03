@@ -138,4 +138,17 @@ public interface FriendlyByteBuf {
             this.writeByte((byte) containerId);
         }
     }
+
+    default void writePacketType(PacketType packetType) {
+        int packetId = ClientboundPacketTypes.forPacketType(packetType);
+        if (packetId == -1) {
+            packetId = ServerboundPacketTypes.forPacketType(packetType);
+        }
+
+        if (packetId == -1) {
+            throw new IllegalArgumentException();
+        }
+
+        this.writeVarInt(packetId);
+    }
 }

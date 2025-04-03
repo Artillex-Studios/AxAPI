@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.nms.wrapper;
 
 import com.artillexstudios.axapi.AxPlugin;
+import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
 import com.artillexstudios.axapi.utils.PlayerTextures;
 import net.kyori.adventure.text.Component;
 import org.bukkit.attribute.Attribute;
