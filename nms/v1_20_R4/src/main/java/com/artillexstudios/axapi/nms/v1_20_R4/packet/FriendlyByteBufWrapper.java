@@ -1,4 +1,4 @@
-package com.artillexstudios.axapi.nms.v1_21_R1.packet;
+package com.artillexstudios.axapi.nms.v1_20_R4.packet;
 
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
@@ -24,12 +24,12 @@ public record FriendlyByteBufWrapper(RegistryFriendlyByteBuf buf) implements Fri
 
     @Override
     public WrappedItemStack readItemStack() {
-        return new com.artillexstudios.axapi.nms.v1_21_R1.items.WrappedItemStack(ItemStack.OPTIONAL_STREAM_CODEC.decode(this.buf));
+        return new com.artillexstudios.axapi.nms.v1_20_R4.items.WrappedItemStack(ItemStack.OPTIONAL_STREAM_CODEC.decode(this.buf));
     }
 
     @Override
     public void writeItemStack(WrappedItemStack wrappedItemStack) {
-        ItemStack.OPTIONAL_STREAM_CODEC.encode(this.buf, ((com.artillexstudios.axapi.nms.v1_21_R1.items.WrappedItemStack) wrappedItemStack).itemStack);
+        ItemStack.OPTIONAL_STREAM_CODEC.encode(this.buf, ((com.artillexstudios.axapi.nms.v1_20_R4.items.WrappedItemStack) wrappedItemStack).itemStack);
     }
 
     @Override
@@ -69,7 +69,7 @@ public record FriendlyByteBufWrapper(RegistryFriendlyByteBuf buf) implements Fri
 
     @Override
     public CompoundTag readNBT() {
-        return new com.artillexstudios.axapi.nms.v1_21_R1.items.nbt.CompoundTag(this.buf.readNbt());
+        return new com.artillexstudios.axapi.nms.v1_20_R4.items.nbt.CompoundTag(this.buf.readNbt());
     }
 
     @Override
@@ -201,24 +201,24 @@ public record FriendlyByteBufWrapper(RegistryFriendlyByteBuf buf) implements Fri
 
     @Override
     public WrappedItemStack readItemCost() {
-        return new com.artillexstudios.axapi.nms.v1_21_R1.items.WrappedItemStack(ItemCost.STREAM_CODEC.decode(this.buf).itemStack());
+        return new com.artillexstudios.axapi.nms.v1_20_R4.items.WrappedItemStack(ItemCost.STREAM_CODEC.decode(this.buf).itemStack());
     }
 
     @Override
     public void writeItemCost(WrappedItemStack itemCost) {
-        ItemStack nmsItem = ((com.artillexstudios.axapi.nms.v1_21_R1.items.WrappedItemStack) itemCost).itemStack;
+        ItemStack nmsItem = ((com.artillexstudios.axapi.nms.v1_20_R4.items.WrappedItemStack) itemCost).itemStack;
         ItemCost.STREAM_CODEC.encode(this.buf, new ItemCost(nmsItem.getItemHolder(), nmsItem.getCount(), DataComponentPredicate.allOf(PatchedDataComponentMap.fromPatch(DataComponentMap.EMPTY, nmsItem.getComponentsPatch()))));
     }
 
     @Override
     public Optional<WrappedItemStack> readOptionalItemCost() {
-        return ItemCost.OPTIONAL_STREAM_CODEC.decode(this.buf).map(cost -> new com.artillexstudios.axapi.nms.v1_21_R1.items.WrappedItemStack(cost.itemStack()));
+        return ItemCost.OPTIONAL_STREAM_CODEC.decode(this.buf).map(cost -> new com.artillexstudios.axapi.nms.v1_20_R4.items.WrappedItemStack(cost.itemStack()));
     }
 
     @Override
     public void writeOptionalItemCost(Optional<WrappedItemStack> itemCost) {
         ItemCost.OPTIONAL_STREAM_CODEC.encode(this.buf, itemCost.map(stack -> {
-            ItemStack nmsItem = ((com.artillexstudios.axapi.nms.v1_21_R1.items.WrappedItemStack) stack).itemStack;
+            ItemStack nmsItem = ((com.artillexstudios.axapi.nms.v1_20_R4.items.WrappedItemStack) stack).itemStack;
             return new ItemCost(nmsItem.getItemHolder(), nmsItem.getCount(), DataComponentPredicate.allOf(PatchedDataComponentMap.fromPatch(DataComponentMap.EMPTY, nmsItem.getComponentsPatch())));
         }));
     }

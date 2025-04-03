@@ -1,4 +1,4 @@
-package com.artillexstudios.axapi.nms.v1_21_R1.packet;
+package com.artillexstudios.axapi.nms.v1_20_R4.packet;
 
 import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
 import com.artillexstudios.axapi.packet.PacketEvent;
@@ -34,8 +34,8 @@ import java.util.function.Function;
 
 public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandler {
     private static final Function<ByteBuf, RegistryFriendlyByteBuf> decorator = RegistryFriendlyByteBuf.decorator(MinecraftServer.getServer().registryAccess());
-    private static final StreamCodec<ByteBuf, Packet<? super ClientGamePacketListener>> clientboundCodec = GameProtocols.CLIENTBOUND_TEMPLATE.bind(decorator).codec();
-    private static final StreamCodec<ByteBuf, Packet<? super ServerGamePacketListener>> serverboundCodec = GameProtocols.SERVERBOUND_TEMPLATE.bind(decorator).codec();
+    private static final StreamCodec<ByteBuf, Packet<? super ClientGamePacketListener>> clientboundCodec = GameProtocols.CLIENTBOUND.bind(decorator).codec();
+    private static final StreamCodec<ByteBuf, Packet<? super ServerGamePacketListener>> serverboundCodec = GameProtocols.SERVERBOUND.bind(decorator).codec();
     private static final FieldAccessor toIdAccessor = FieldAccessor.builder()
             .withClass(IdDispatchCodec.class)
             .withField("d")

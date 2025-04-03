@@ -112,6 +112,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
                 }
 
                 packets.add(clientboundCodec.decode(out.buf()));
+                out.buf().release();
             }
 
             super.write(ctx, new ClientboundBundlePacket(packets), promise);
@@ -172,6 +173,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             LogUtils.info("Changed!");
         }
         super.write(ctx, clientboundCodec.decode(out.buf()), promise);
+        out.buf().release();
     }
 
     @Override
@@ -241,6 +243,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             LogUtils.info("Incoming changed!");
         }
         super.channelRead(ctx, serverboundCodec.decode(out.buf()));
+        out.buf().release();
     }
 
     public int packetId(Packet<?> packet) {

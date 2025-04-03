@@ -1,4 +1,4 @@
-package com.artillexstudios.axapi.nms.v1_21_R1.packet;
+package com.artillexstudios.axapi.nms.v1_20_R2.packet;
 
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
@@ -6,30 +6,24 @@ import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
-import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.core.component.DataComponentPredicate;
-import net.minecraft.core.component.PatchedDataComponentMap;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.level.block.Block;
+import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.craftbukkit.block.data.CraftBlockData;
+import org.bukkit.craftbukkit.v1_20_R2.block.data.CraftBlockData;
 
 import java.util.Optional;
 
-public record FriendlyByteBufWrapper(RegistryFriendlyByteBuf buf) implements FriendlyByteBuf {
+public record FriendlyByteBufWrapper(net.minecraft.network.FriendlyByteBuf buf) implements FriendlyByteBuf {
 
     @Override
     public WrappedItemStack readItemStack() {
-        return new com.artillexstudios.axapi.nms.v1_21_R1.items.WrappedItemStack(ItemStack.OPTIONAL_STREAM_CODEC.decode(this.buf));
+        return new com.artillexstudios.axapi.nms.v1_20_R2.items.WrappedItemStack(this.buf.readItem());
     }
 
     @Override
     public void writeItemStack(WrappedItemStack wrappedItemStack) {
-        ItemStack.OPTIONAL_STREAM_CODEC.encode(this.buf, ((com.artillexstudios.axapi.nms.v1_21_R1.items.WrappedItemStack) wrappedItemStack).itemStack);
+        this.buf.writeItem(((com.artillexstudios.axapi.nms.v1_20_R2.items.WrappedItemStack) wrappedItemStack).itemStack);
     }
 
     @Override
@@ -49,12 +43,12 @@ public record FriendlyByteBufWrapper(RegistryFriendlyByteBuf buf) implements Fri
 
     @Override
     public Component readComponent() {
-        return ComponentSerializer.instance().fromVanilla(ComponentSerialization.TRUSTED_STREAM_CODEC.decode(this.buf));
+        return ComponentSerializer.instance().fromVanilla(this.buf.readComponent());
     }
 
     @Override
     public void writeComponent(Component component) {
-        ComponentSerialization.TRUSTED_STREAM_CODEC.encode(buf, ComponentSerializer.instance().toVanilla(component));
+        this.buf.writeComponent(ComponentSerializer.instance().<net.minecraft.network.chat.Component>toVanilla(component));
     }
 
     @Override
@@ -69,7 +63,7 @@ public record FriendlyByteBufWrapper(RegistryFriendlyByteBuf buf) implements Fri
 
     @Override
     public CompoundTag readNBT() {
-        return new com.artillexstudios.axapi.nms.v1_21_R1.items.nbt.CompoundTag(this.buf.readNbt());
+        return new com.artillexstudios.axapi.nms.v1_20_R2.items.nbt.CompoundTag(this.buf.readNbt());
     }
 
     @Override
@@ -201,26 +195,23 @@ public record FriendlyByteBufWrapper(RegistryFriendlyByteBuf buf) implements Fri
 
     @Override
     public WrappedItemStack readItemCost() {
-        return new com.artillexstudios.axapi.nms.v1_21_R1.items.WrappedItemStack(ItemCost.STREAM_CODEC.decode(this.buf).itemStack());
+        return new com.artillexstudios.axapi.nms.v1_20_R2.items.WrappedItemStack(this.buf.readItem());
     }
 
     @Override
     public void writeItemCost(WrappedItemStack itemCost) {
-        ItemStack nmsItem = ((com.artillexstudios.axapi.nms.v1_21_R1.items.WrappedItemStack) itemCost).itemStack;
-        ItemCost.STREAM_CODEC.encode(this.buf, new ItemCost(nmsItem.getItemHolder(), nmsItem.getCount(), DataComponentPredicate.allOf(PatchedDataComponentMap.fromPatch(DataComponentMap.EMPTY, nmsItem.getComponentsPatch()))));
+        this.buf.writeItem(((com.artillexstudios.axapi.nms.v1_20_R2.items.WrappedItemStack) itemCost).itemStack);
     }
 
     @Override
     public Optional<WrappedItemStack> readOptionalItemCost() {
-        return ItemCost.OPTIONAL_STREAM_CODEC.decode(this.buf).map(cost -> new com.artillexstudios.axapi.nms.v1_21_R1.items.WrappedItemStack(cost.itemStack()));
+        return Optional.of(this.buf.readItem()).map(com.artillexstudios.axapi.nms.v1_20_R2.items.WrappedItemStack::new);
     }
 
     @Override
     public void writeOptionalItemCost(Optional<WrappedItemStack> itemCost) {
-        ItemCost.OPTIONAL_STREAM_CODEC.encode(this.buf, itemCost.map(stack -> {
-            ItemStack nmsItem = ((com.artillexstudios.axapi.nms.v1_21_R1.items.WrappedItemStack) stack).itemStack;
-            return new ItemCost(nmsItem.getItemHolder(), nmsItem.getCount(), DataComponentPredicate.allOf(PatchedDataComponentMap.fromPatch(DataComponentMap.EMPTY, nmsItem.getComponentsPatch())));
-        }));
+        WrappedItemStack item = itemCost.orElse(WrappedItemStack.wrap(new org.bukkit.inventory.ItemStack(Material.AIR)));
+        this.buf.writeItem(((com.artillexstudios.axapi.nms.v1_20_R2.items.WrappedItemStack) item).itemStack);
     }
 
     @Override
