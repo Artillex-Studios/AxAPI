@@ -2,8 +2,7 @@ package com.artillexstudios.axapi.nms.v1_20_R3.wrapper;
 
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.nms.v1_20_R3.packet.ChannelDuplexHandlerPacketListener;
-import com.artillexstudios.axapi.nms.v1_20_R3.packet.FriendlyByteBufWrapper;
-import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
+import com.artillexstudios.axapi.nms.v1_20_R3.packet.PacketTransformer;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
 import com.artillexstudios.axapi.reflection.FieldAccessor;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
@@ -11,13 +10,10 @@ import com.artillexstudios.axapi.utils.PlayerTextures;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import net.kyori.adventure.text.Component;
 import net.minecraft.network.Connection;
-import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.ClientboundSystemChatPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
@@ -92,16 +88,8 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
     public void sendPacket(Object packet) {
         this.update();
 
-        if (packet instanceof PacketWrapper packetWrapper) {
-            FriendlyByteBufWrapper buf = new FriendlyByteBufWrapper(new net.minecraft.network.FriendlyByteBuf(Unpooled.buffer()));
-            int packetId = ClientboundPacketTypes.forPacketType(packetWrapper.packetType());
-            if (packetId == -1) {
-                throw new IllegalArgumentException();
-            }
-
-            packetWrapper.write(buf);
-            this.serverPlayer.connection.send(ConnectionProtocol.PLAY.codec(PacketFlow.CLIENTBOUND).createPacket(packetId, buf.buf()));
-            buf.buf().release();
+        if (packet instanceof PacketWrapper wrapper) {
+            this.serverPlayer.connection.send(PacketTransformer.transformClientbound(wrapper));
             return;
         }
 
