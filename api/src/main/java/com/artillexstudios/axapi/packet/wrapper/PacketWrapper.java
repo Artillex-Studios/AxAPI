@@ -6,6 +6,10 @@ import com.artillexstudios.axapi.packet.PacketType;
 
 public abstract class PacketWrapper {
 
+    public PacketWrapper() {
+        this(null);
+    }
+
     public PacketWrapper(PacketEvent event) {
         if (event != null) {
             event.setWrapper(this);

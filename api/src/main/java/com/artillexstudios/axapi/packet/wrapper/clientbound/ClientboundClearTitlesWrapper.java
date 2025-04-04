@@ -5,31 +5,30 @@ import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketType;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
-import net.kyori.adventure.text.Component;
 
-public final class ClientboundSetTitleTextWrapper extends PacketWrapper {
-    private Component text;
+public final class ClientboundClearTitlesWrapper extends PacketWrapper {
+    private boolean reset;
 
-    public ClientboundSetTitleTextWrapper(Component text) {
-        this.text = text;
+    public ClientboundClearTitlesWrapper(boolean reset) {
+        this.reset = reset;
     }
 
-    public ClientboundSetTitleTextWrapper(PacketEvent event) {
+    public ClientboundClearTitlesWrapper(PacketEvent event) {
         super(event);
     }
 
     @Override
     public void write(FriendlyByteBuf out) {
-        out.writeComponent(this.text);
+        out.writeBoolean(this.reset);
     }
 
     @Override
     public void read(FriendlyByteBuf buf) {
-        this.text = buf.readComponent();
+        this.reset = buf.readBoolean();
     }
 
     @Override
     public PacketType packetType() {
-        return ClientboundPacketTypes.SET_TITLE_TEXT;
+        return ClientboundPacketTypes.CLEAR_TITLES;
     }
 }

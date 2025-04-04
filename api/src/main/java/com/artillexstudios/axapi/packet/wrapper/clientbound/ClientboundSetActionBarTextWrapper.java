@@ -11,7 +11,6 @@ public final class ClientboundSetActionBarTextWrapper extends PacketWrapper {
     private Component text;
 
     public ClientboundSetActionBarTextWrapper(Component text) {
-        super(null);
         this.text = text;
     }
 
