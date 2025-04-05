@@ -3,19 +3,15 @@ package com.artillexstudios.axapi.nms;
 import com.artillexstudios.axapi.gui.AnvilInput;
 import com.artillexstudios.axapi.gui.SignInput;
 import com.artillexstudios.axapi.items.component.DataComponentImpl;
+import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.loot.LootTable;
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
 import com.artillexstudios.axapi.nms.wrapper.WrapperMapper;
+import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
 import com.artillexstudios.axapi.serializers.Serializer;
-import com.artillexstudios.axapi.utils.ActionBar;
-import com.artillexstudios.axapi.utils.BossBar;
-import com.artillexstudios.axapi.utils.DebugMarker;
-import com.artillexstudios.axapi.utils.Title;
-import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -33,12 +29,6 @@ public interface NMSHandler {
 
     PacketEntity createEntity(EntityType entityType, Location location);
 
-    ActionBar newActionBar(Component content);
-
-    Title newTitle(Component title, Component subtitle, int fadeIn, int stay, int fadeOut);
-
-    BossBar newBossBar(Component title, float progress, BossBar.Color color, BossBar.Style style, BossBar.Flag... flags);
-
     CompoundTag newTag();
 
     void openSignInput(SignInput signInput);
@@ -47,8 +37,6 @@ public interface NMSHandler {
 
     DataComponentImpl dataComponents();
 
-    DebugMarker marker(Color color, String message, int duration, int transparency, Location location);
-
     ServerPlayerWrapper dummyPlayer();
 
     LootTable lootTable(Key key);
@@ -56,4 +44,6 @@ public interface NMSHandler {
     void openAnvilInput(AnvilInput anvilInput);
 
     <T extends WrapperMapper<?>> T mapper(String id);
+
+    FriendlyByteBuf newBuf();
 }

@@ -17,7 +17,6 @@ import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.level.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -238,9 +237,29 @@ public record FriendlyByteBufWrapper(RegistryFriendlyByteBuf buf) implements Fri
         return CraftBlockData.fromData(Block.BLOCK_STATE_REGISTRY.byId(this.readVarInt()));
     }
 
-    @NotNull
+
     @Override
-    public String toString() {
-        return this.buf().toString();
+    public void writeBytes(FriendlyByteBuf buf) {
+        this.buf.writeBytes(((FriendlyByteBufWrapper) buf).buf());
+    }
+
+    @Override
+    public FriendlyByteBuf readBytes(int length) {
+        return PacketTransformer.wrap(this.buf.readBytes(length));
+    }
+
+    @Override
+    public FriendlyByteBuf copy() {
+        return PacketTransformer.copy(this);
+    }
+
+    @Override
+    public int readableBytes() {
+        return this.buf.readableBytes();
+    }
+
+    @Override
+    public void release() {
+        this.buf.release();
     }
 }

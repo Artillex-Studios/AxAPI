@@ -163,4 +163,12 @@ public final class PacketTransformer {
 
         return packetId;
     }
+
+    public static FriendlyByteBuf wrap(ByteBuf buf) {
+        return new FriendlyByteBufWrapper(decorator.apply(buf));
+    }
+
+    public static FriendlyByteBuf copy(FriendlyByteBufWrapper friendlyByteBufWrapper) {
+        return wrap(friendlyByteBufWrapper.buf().copy());
+    }
 }

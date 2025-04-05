@@ -6,6 +6,7 @@ import com.artillexstudios.axapi.nms.v1_20_R1.entity.PacketEntity;
 import com.artillexstudios.axapi.nms.v1_20_R1.items.data.DataComponentImpl;
 import com.artillexstudios.axapi.nms.v1_20_R1.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.nms.v1_20_R1.loot.LootTable;
+import com.artillexstudios.axapi.nms.v1_20_R1.packet.PacketTransformer;
 import com.artillexstudios.axapi.nms.v1_20_R1.utils.ActionBar;
 import com.artillexstudios.axapi.nms.v1_20_R1.utils.BossBar;
 import com.artillexstudios.axapi.nms.v1_20_R1.utils.DebugMarker;
@@ -87,21 +88,6 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     }
 
     @Override
-    public ActionBar newActionBar(Component content) {
-        return new ActionBar(content);
-    }
-
-    @Override
-    public Title newTitle(Component title, Component subtitle, int fadeIn, int stay, int fadeOut) {
-        return new Title(title, subtitle, fadeIn, stay, fadeOut);
-    }
-
-    @Override
-    public BossBar newBossBar(Component title, float progress, BossBar.Color color, BossBar.Style style, BossBar.Flag... flags) {
-        return new BossBar(title, progress, color, style, flags);
-    }
-
-    @Override
     public CompoundTag newTag() {
         return new CompoundTag(new net.minecraft.nbt.CompoundTag());
     }
@@ -166,11 +152,6 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     }
 
     @Override
-    public DebugMarker marker(Color color, String message, int duration, int transparency, Location location) {
-        return new DebugMarker(color, toString(), duration, transparency, location);
-    }
-
-    @Override
     public ServerPlayerWrapper dummyPlayer() {
         return WrapperRegistry.SERVER_PLAYER.map(new ServerPlayer(MinecraftServer.getServer(), WrapperMapperRegistry.WORLD.map(Bukkit.getWorlds().getFirst()).asMinecraft(), new GameProfile(UUID.randomUUID(), "dummy")));
     }
@@ -202,5 +183,10 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     @Override
     public <T extends WrapperMapper<?>> T mapper(String id) {
         return WrapperMapperRegistry.mapper(id);
+    }
+
+    @Override
+    public com.artillexstudios.axapi.packet.FriendlyByteBuf newBuf() {
+        return PacketTransformer.newByteBuf();
     }
 }

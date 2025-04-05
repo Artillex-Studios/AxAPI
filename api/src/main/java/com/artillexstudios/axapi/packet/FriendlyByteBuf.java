@@ -2,6 +2,7 @@ package com.artillexstudios.axapi.packet;
 
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
+import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.utils.BlockPosition;
 import com.artillexstudios.axapi.utils.Vector3f;
 import com.artillexstudios.axapi.utils.Version;
@@ -12,6 +13,10 @@ import org.bukkit.block.data.BlockData;
 import java.util.Optional;
 
 public interface FriendlyByteBuf {
+
+    static FriendlyByteBuf alloc() {
+        return NMSHandlers.getNmsHandler().newBuf();
+    }
 
     WrappedItemStack readItemStack();
 
@@ -96,6 +101,16 @@ public interface FriendlyByteBuf {
     void writeBlockData(BlockData blockData);
 
     BlockData readBlockData();
+
+    void writeBytes(FriendlyByteBuf buf);
+
+    FriendlyByteBuf readBytes(int length);
+
+    FriendlyByteBuf copy();
+
+    int readableBytes();
+
+    void release();
 
     default <T extends Enum<T>> T readEnum(Class<T> clazz) {
         return clazz.getEnumConstants()[this.readVarInt()];

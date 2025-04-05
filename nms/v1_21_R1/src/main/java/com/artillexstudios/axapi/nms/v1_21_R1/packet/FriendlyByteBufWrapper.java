@@ -237,4 +237,29 @@ public record FriendlyByteBufWrapper(RegistryFriendlyByteBuf buf) implements Fri
     public BlockData readBlockData() {
         return CraftBlockData.fromData(Block.BLOCK_STATE_REGISTRY.byId(this.readVarInt()));
     }
+
+    @Override
+    public void writeBytes(FriendlyByteBuf buf) {
+        this.buf.writeBytes(((FriendlyByteBufWrapper) buf).buf());
+    }
+
+    @Override
+    public FriendlyByteBuf readBytes(int length) {
+        return PacketTransformer.wrap(this.buf.readBytes(length));
+    }
+
+    @Override
+    public FriendlyByteBuf copy() {
+        return PacketTransformer.copy(this);
+    }
+
+    @Override
+    public int readableBytes() {
+        return this.buf.readableBytes();
+    }
+
+    @Override
+    public void release() {
+        this.buf.release();
+    }
 }
