@@ -11,6 +11,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.block.data.BlockData;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public interface FriendlyByteBuf {
 
@@ -165,5 +166,14 @@ public interface FriendlyByteBuf {
         }
 
         this.writeVarInt(packetId);
+    }
+
+    default void writeUUID(UUID uuid) {
+        this.writeLong(uuid.getMostSignificantBits());
+        this.writeLong(uuid.getLeastSignificantBits());
+    }
+
+    default UUID readUUID() {
+        return new UUID(this.readLong(), this.readLong());
     }
 }

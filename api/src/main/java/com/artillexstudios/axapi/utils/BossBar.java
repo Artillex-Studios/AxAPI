@@ -1,63 +1,146 @@
 package com.artillexstudios.axapi.utils;
 
-import com.artillexstudios.axapi.nms.NMSHandlers;
+import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
+import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
+import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundBossEventWrapper;
 import net.kyori.adventure.text.Component;
+import org.apache.commons.lang3.Validate;
 import org.bukkit.entity.Player;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
+import java.util.WeakHashMap;
 
-public interface BossBar {
+public final class BossBar {
+    private final UUID uuid = UUID.randomUUID();
+    private final Set<Flag> flags = EnumSet.noneOf(Flag.class);
+    private final Set<Player> viewers = Collections.newSetFromMap(new WeakHashMap<>());
+    private final ClientboundBossEventWrapper removePacket = new ClientboundBossEventWrapper(this.uuid, ClientboundBossEventWrapper.REMOVE_ACTION);
+    private Component title;
+    private Color color;
+    private Style style;
+    private float progress;
+    private ClientboundBossEventWrapper addPacket;
 
-    static BossBar create(Component title) {
-        return NMSHandlers.getNmsHandler().newBossBar(title, 1.0f, Color.PINK, Style.PROGRESS);
+    public BossBar(Component title, float progress, Color color, Style style, Flag... flags) {
+        Validate.inclusiveBetween(0.0, 1.0, progress);
+        this.title = title;
+        this.progress = progress;
+        this.color = color;
+        this.style = style;
+        this.flags.addAll(Arrays.asList(flags));
     }
 
-    static BossBar create(Component title, float progress) {
-        return NMSHandlers.getNmsHandler().newBossBar(title, progress, Color.PINK, Style.PROGRESS);
+    public static BossBar create(Component title) {
+        return new BossBar(title, 1.0f, Color.PINK, Style.PROGRESS);
     }
 
-    static BossBar create(Component title, float progress, Color color) {
-        return NMSHandlers.getNmsHandler().newBossBar(title, progress, color, Style.PROGRESS);
+    public static BossBar create(Component title, float progress) {
+        return new BossBar(title, progress, Color.PINK, Style.PROGRESS);
     }
 
-    static BossBar create(Component title, float progress, Color color, Style style) {
-        return NMSHandlers.getNmsHandler().newBossBar(title, progress, color, style);
+    public static BossBar create(Component title, float progress, Color color) {
+        return new BossBar(title, progress, color, Style.PROGRESS);
     }
 
-    static BossBar create(Component title, float progress, Color color, Style style, Flag... flags) {
-        return NMSHandlers.getNmsHandler().newBossBar(title, progress, color, style, flags);
+    public static BossBar create(Component title, float progress, Color color, Style style) {
+        return new BossBar(title, progress, color, style);
     }
 
-    void show(Player player);
+    public static BossBar create(Component title, float progress, Color color, Style style, Flag... flags) {
+        return new BossBar(title, progress, color, style, flags);
+    }
 
-    void hide(Player player);
+    public void show(Player player) {
+        if (!this.viewers.add(player)) {
+            return;
+        }
 
-    void setStyle(Style style);
+        ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(player);
+        wrapper.sendPacket(this.addPacket);
+    }
 
-    void setColor(Color color);
+    public void hide(Player player) {
+        if (this.viewers.remove(player)) {
+            return;
+        }
 
-    void addFlags(Flag... flag);
+        ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(player);
+        wrapper.sendPacket(this.removePacket);
+    }
 
-    void removeFlags(Flag... flag);
+    public void style(Style style) {
+        this.style = style;
+        this.updatePacket();
+        this.broadcast(new ClientboundBossEventWrapper(this.uuid, new ClientboundBossEventWrapper.UpdateStyleAction(this.color, this.style)));
+    }
 
-    Set<Flag> getFlags();
+    public void color(Color color) {
+        this.color = color;
+        this.updatePacket();
+        this.broadcast(new ClientboundBossEventWrapper(this.uuid, new ClientboundBossEventWrapper.UpdateStyleAction(this.color, this.style)));
+    }
 
-    Component getTitle();
+    public void addFlags(Flag... flag) {
+        this.flags.addAll(Arrays.asList(flag));
+        this.updatePacket();
+        this.broadcast(new ClientboundBossEventWrapper(this.uuid, new ClientboundBossEventWrapper.UpdateFlagsAction(this.flags)));
+    }
 
-    void setTitle(Component title);
+    public void removeFlags(Flag... flag) {
+        Arrays.asList(flag).forEach(this.flags::remove);
+        this.updatePacket();
+        this.broadcast(new ClientboundBossEventWrapper(this.uuid, new ClientboundBossEventWrapper.UpdateFlagsAction(this.flags)));
+    }
 
-    float getProgress();
+    public Set<Flag> flags() {
+        return this.flags;
+    }
 
-    void setProgress(float progress);
+    public Component title() {
+        return this.title;
+    }
 
-    void remove();
+    public void title(Component title) {
+        this.title = title;
+        this.updatePacket();
+        this.broadcast(new ClientboundBossEventWrapper(this.uuid, new ClientboundBossEventWrapper.UpdateNameAction(this.title)));
+    }
 
-    enum Style {
+    public float progress() {
+        return this.progress;
+    }
+
+    public void progress(float progress) {
+        this.progress = progress;
+        this.updatePacket();
+        this.broadcast(new ClientboundBossEventWrapper(this.uuid, new ClientboundBossEventWrapper.UpdateProgressAction(this.progress)));
+    }
+
+    public void remove() {
+        this.broadcast(this.removePacket);
+        this.viewers.clear();
+    }
+
+    private void updatePacket() {
+        this.addPacket = new ClientboundBossEventWrapper(this.uuid, new ClientboundBossEventWrapper.AddAction(this.title, this.progress, this.color, this.style, this.flags));
+    }
+
+    private void broadcast(PacketWrapper packetWrapper) {
+        for (Player viewer : this.viewers) {
+            ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(viewer);
+            wrapper.sendPacket(packetWrapper);
+        }
+    }
+
+    public enum Style {
         PROGRESS(Arrays.asList("progress", "solid"), "progress"),
         NOTCHED_6(Arrays.asList("notched_6", "segmented_6"), "notched_6"),
         NOTCHED_10(Arrays.asList("notched_10", "segmented_10"), "notched_10"),
@@ -99,7 +182,7 @@ public interface BossBar {
         }
     }
 
-    enum Color {
+    public enum Color {
         PINK("pink"),
         BLUE("blue"),
         RED("red"),
@@ -123,7 +206,7 @@ public interface BossBar {
         }
     }
 
-    enum Flag {
+    public enum Flag {
         DARKEN_SCREEN("darken_screen"),
         PLAY_BOSS_MUSIC("play_boss_music"),
         CREATE_WORLD_FOG("create_world_fog");

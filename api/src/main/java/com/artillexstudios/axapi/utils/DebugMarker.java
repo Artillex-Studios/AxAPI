@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.utils;
 
+import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundCustomPayloadWrapper;
 import net.kyori.adventure.key.Key;
@@ -22,6 +23,7 @@ public final class DebugMarker {
         this.duration = duration;
         this.transparency = transparency;
         this.location = location;
+
         this.updatePacket();
     }
 
@@ -30,47 +32,53 @@ public final class DebugMarker {
     }
 
     public void color(Color color) {
-
+        this.color = color;
+        this.updatePacket();
     }
 
     public Color color() {
-        return null;
+        return this.color;
     }
 
     public void message(String message) {
-
+        this.message = message;
+        this.updatePacket();
     }
 
     public String message() {
-        return null;
+        return this.message;
     }
 
     public void duration(int duration) {
-
+        this.duration = duration;
+        this.updatePacket();
     }
 
     public int duration() {
-        return 0;
+        return this.duration;
     }
 
     public void transparency(int transparency) {
-
+        this.transparency = transparency;
+        this.updatePacket();
     }
 
     public int transparency() {
-        return 0;
+        return this.transparency;
     }
 
     public void location(Location location) {
-
+        this.location = location.clone();
+        this.updatePacket();
     }
 
     public Location location() {
-        return null;
+        return this.location;
     }
 
     public void send(Player player) {
-
+        ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(player);
+        wrapper.sendPacket(this.packet);
     }
 
     private void updatePacket() {
