@@ -1,5 +1,7 @@
 package com.artillexstudios.axapi.utils;
 
+import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
+import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundClearTitlesWrapper;
 import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundSetSubtitleTextWrapper;
 import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundSetTitleTextWrapper;
 import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundSetTitlesAnimationWrapper;
@@ -24,6 +26,8 @@ public final class Title {
         this.fadeIn = fadeIn;
         this.stay = stay;
         this.fadeOut = fadeOut;
+
+        this.updatePacket();
     }
 
     public static Title create(Component title) {
@@ -58,43 +62,67 @@ public final class Title {
     }
 
     public void setTitle(@Nullable Component title) {
-
+        this.title = title;
+        this.updatePacket();
     }
 
     public void setSubTitle(@Nullable Component subTitle) {
-
+        this.subTitle = subTitle;
+        this.updatePacket();
     }
 
     public void set(@Nullable Component title, @Nullable Component subTitle) {
-
+        this.title = title;
+        this.subTitle = subTitle;
+        this.updatePacket();
     }
 
     public void set(@Nullable Component title, @Nullable Component subTitle, int fadeIn, int stay, int fadeOut) {
-
+        this.title = title;
+        this.subTitle = subTitle;
+        this.fadeIn = fadeIn;
+        this.stay = stay;
+        this.fadeOut = fadeOut;
+        this.updatePacket();
     }
 
     public void setTimes(int fadeIn, int stay, int fadeOut) {
-
+        this.fadeIn = fadeIn;
+        this.stay = stay;
+        this.fadeOut = fadeOut;
+        this.updatePacket();
     }
 
     public void setFadeIn(int fadeIn) {
-
+        this.fadeIn = fadeIn;
+        this.updatePacket();
     }
 
     public void setStay(int stay) {
-
+        this.stay = stay;
+        this.updatePacket();
     }
 
-    public void setFadeOut(int fateOut) {
-
+    public void setFadeOut(int fadeOut) {
+        this.fadeOut = fadeOut;
+        this.updatePacket();
     }
 
     public void send(Player player) {
+        ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(player);
+        wrapper.sendPacket(this.animationPacket);
+        if (this.titleTextPacket != null) {
+            wrapper.sendPacket(this.titleTextPacket);
+        }
 
+        if (this.subtitleTextPacket != null) {
+            wrapper.sendPacket(this.subtitleTextPacket);
+        }
     }
 
     public void clear(Player player) {
-
+        ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(player);
+        wrapper.sendPacket(new ClientboundClearTitlesWrapper(true));
     }
 
     private void updatePacket() {
