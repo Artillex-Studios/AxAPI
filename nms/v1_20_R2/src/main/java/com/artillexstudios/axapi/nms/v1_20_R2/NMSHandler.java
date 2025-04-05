@@ -6,10 +6,7 @@ import com.artillexstudios.axapi.nms.v1_20_R2.entity.PacketEntity;
 import com.artillexstudios.axapi.nms.v1_20_R2.items.data.DataComponentImpl;
 import com.artillexstudios.axapi.nms.v1_20_R2.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.nms.v1_20_R2.loot.LootTable;
-import com.artillexstudios.axapi.nms.v1_20_R2.utils.ActionBar;
-import com.artillexstudios.axapi.nms.v1_20_R2.utils.BossBar;
-import com.artillexstudios.axapi.nms.v1_20_R2.utils.DebugMarker;
-import com.artillexstudios.axapi.nms.v1_20_R2.utils.Title;
+import com.artillexstudios.axapi.nms.v1_20_R2.packet.PacketTransformer;
 import com.artillexstudios.axapi.nms.v1_20_R2.wrapper.WrapperMapperRegistry;
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
 import com.artillexstudios.axapi.nms.wrapper.WrapperMapper;
@@ -39,7 +36,6 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.bukkit.Bukkit;
-import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_20_R2.CraftWorld;
@@ -85,21 +81,6 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     @Override
     public PacketEntity createEntity(EntityType entityType, Location location) {
         return new PacketEntity(entityType, location);
-    }
-
-    @Override
-    public ActionBar newActionBar(Component content) {
-        return new ActionBar(content);
-    }
-
-    @Override
-    public Title newTitle(Component title, Component subtitle, int fadeIn, int stay, int fadeOut) {
-        return new Title(title, subtitle, fadeIn, stay, fadeOut);
-    }
-
-    @Override
-    public BossBar newBossBar(Component title, float progress, BossBar.Color color, BossBar.Style style, BossBar.Flag... flags) {
-        return new BossBar(title, progress, color, style, flags);
     }
 
     @Override
@@ -167,11 +148,6 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     }
 
     @Override
-    public DebugMarker marker(Color color, String message, int duration, int transparency, Location location) {
-        return new DebugMarker(color, toString(), duration, transparency, location);
-    }
-
-    @Override
     public ServerPlayerWrapper dummyPlayer() {
         return WrapperRegistry.SERVER_PLAYER.map(new ServerPlayer(MinecraftServer.getServer(), WrapperMapperRegistry.WORLD.map(Bukkit.getWorlds().getFirst()).asMinecraft(), new GameProfile(UUID.randomUUID(), "dummy"), ClientInformation.createDefault()));
     }
@@ -203,5 +179,10 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     @Override
     public <T extends WrapperMapper<?>> T mapper(String id) {
         return WrapperMapperRegistry.mapper(id);
+    }
+
+    @Override
+    public com.artillexstudios.axapi.packet.FriendlyByteBuf newBuf() {
+        return PacketTransformer.newByteBuf();
     }
 }

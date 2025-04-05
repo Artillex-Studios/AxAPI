@@ -126,21 +126,21 @@ public final class PacketTransformer {
         return wrapper;
     }
 
-    public FriendlyByteBuf newByteBuf() {
+    public static FriendlyByteBuf newByteBuf() {
         return newByteBuf(null, buf -> {
         });
     }
 
-    public FriendlyByteBuf newByteBuf(ChannelHandlerContext ctx) {
+    public static FriendlyByteBuf newByteBuf(ChannelHandlerContext ctx) {
         return newByteBuf(ctx, buf -> {
         });
     }
 
-    public FriendlyByteBuf newByteBuf(Consumer<FriendlyByteBuf> consumer) {
+    public static FriendlyByteBuf newByteBuf(Consumer<FriendlyByteBuf> consumer) {
         return newByteBuf(null, consumer);
     }
 
-    public FriendlyByteBuf newByteBuf(ChannelHandlerContext ctx, Consumer<FriendlyByteBuf> consumer) {
+    public static FriendlyByteBuf newByteBuf(ChannelHandlerContext ctx, Consumer<FriendlyByteBuf> consumer) {
         FriendlyByteBufWrapper wrapper = new FriendlyByteBufWrapper(decorator.apply(alloc(ctx)));
         consumer.accept(wrapper);
         return wrapper;
@@ -150,7 +150,7 @@ public final class PacketTransformer {
         return alloc(null);
     }
 
-    public ByteBuf alloc(ChannelHandlerContext ctx) {
+    public static ByteBuf alloc(ChannelHandlerContext ctx) {
         return ctx == null ? Unpooled.buffer() : ctx.alloc().buffer();
     }
 
