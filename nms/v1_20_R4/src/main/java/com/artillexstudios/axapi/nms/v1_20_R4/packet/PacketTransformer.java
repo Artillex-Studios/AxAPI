@@ -76,21 +76,21 @@ public final class PacketTransformer {
         }
     }
 
-    public static FriendlyByteBuf transformServerbound(ChannelHandlerContext ctx, Packet<?> packet) {
+    public static FriendlyByteBufWrapper transformServerbound(ChannelHandlerContext ctx, Packet<?> packet) {
         return transformServerbound(ctx, packet, buf -> {
         });
     }
 
-    public static FriendlyByteBuf transformServerbound(Packet<?> packet) {
+    public static FriendlyByteBufWrapper transformServerbound(Packet<?> packet) {
         return transformServerbound(null, packet, buf -> {
         });
     }
 
-    public static FriendlyByteBuf transformServerbound(Packet<?> packet, Consumer<FriendlyByteBuf> consumer) {
+    public static FriendlyByteBufWrapper transformServerbound(Packet<?> packet, Consumer<FriendlyByteBuf> consumer) {
         return transformServerbound(null, packet, consumer);
     }
 
-    public static FriendlyByteBuf transformServerbound(ChannelHandlerContext ctx, Packet<?> packet, Consumer<FriendlyByteBuf> consumer) {
+    public static FriendlyByteBufWrapper transformServerbound(ChannelHandlerContext ctx, Packet<?> packet, Consumer<FriendlyByteBuf> consumer) {
         ByteBuf buffer = alloc(ctx);
         serverboundCodec.encode(buffer, (Packet<? super ServerGamePacketListener>) packet);
         FriendlyByteBufWrapper wrapper = new FriendlyByteBufWrapper(decorator.apply(buffer));
@@ -98,21 +98,21 @@ public final class PacketTransformer {
         return wrapper;
     }
 
-    public static FriendlyByteBuf transformClientbound(ChannelHandlerContext ctx, Packet<?> packet) {
+    public static FriendlyByteBufWrapper transformClientbound(ChannelHandlerContext ctx, Packet<?> packet) {
         return transformClientbound(ctx, packet, buf -> {
         });
     }
 
-    public static FriendlyByteBuf transformClientbound(Packet<?> packet) {
+    public static FriendlyByteBufWrapper transformClientbound(Packet<?> packet) {
         return transformClientbound(null, packet, buf -> {
         });
     }
 
-    public static FriendlyByteBuf transformClientbound(Packet<?> packet, Consumer<FriendlyByteBuf> consumer) {
+    public static FriendlyByteBufWrapper transformClientbound(Packet<?> packet, Consumer<FriendlyByteBuf> consumer) {
         return transformClientbound(null, packet, consumer);
     }
 
-    public static FriendlyByteBuf transformClientbound(ChannelHandlerContext ctx, Packet<?> packet, Consumer<FriendlyByteBuf> consumer) {
+    public static FriendlyByteBufWrapper transformClientbound(ChannelHandlerContext ctx, Packet<?> packet, Consumer<FriendlyByteBuf> consumer) {
         ByteBuf buffer = alloc(ctx);
         clientboundCodec.encode(buffer, (Packet<? super ClientGamePacketListener>) packet);
         FriendlyByteBufWrapper wrapper = new FriendlyByteBufWrapper(decorator.apply(buffer));
@@ -120,21 +120,21 @@ public final class PacketTransformer {
         return wrapper;
     }
 
-    public static FriendlyByteBuf newByteBuf() {
+    public static FriendlyByteBufWrapper newByteBuf() {
         return newByteBuf(null, buf -> {
         });
     }
 
-    public static FriendlyByteBuf newByteBuf(ChannelHandlerContext ctx) {
+    public static FriendlyByteBufWrapper newByteBuf(ChannelHandlerContext ctx) {
         return newByteBuf(ctx, buf -> {
         });
     }
 
-    public static FriendlyByteBuf newByteBuf(Consumer<FriendlyByteBuf> consumer) {
+    public static FriendlyByteBufWrapper newByteBuf(Consumer<FriendlyByteBuf> consumer) {
         return newByteBuf(null, consumer);
     }
 
-    public static FriendlyByteBuf newByteBuf(ChannelHandlerContext ctx, Consumer<FriendlyByteBuf> consumer) {
+    public static FriendlyByteBufWrapper newByteBuf(ChannelHandlerContext ctx, Consumer<FriendlyByteBuf> consumer) {
         FriendlyByteBufWrapper wrapper = new FriendlyByteBufWrapper(decorator.apply(alloc(ctx)));
         consumer.accept(wrapper);
         return wrapper;
@@ -164,11 +164,11 @@ public final class PacketTransformer {
         return packetId;
     }
 
-    public static FriendlyByteBuf wrap(ByteBuf buf) {
+    public static FriendlyByteBufWrapper wrap(ByteBuf buf) {
         return new FriendlyByteBufWrapper(decorator.apply(buf));
     }
 
-    public static FriendlyByteBuf copy(FriendlyByteBufWrapper friendlyByteBufWrapper) {
+    public static FriendlyByteBufWrapper copy(FriendlyByteBufWrapper friendlyByteBufWrapper) {
         return wrap(friendlyByteBufWrapper.buf().copy());
     }
 }

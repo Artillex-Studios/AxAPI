@@ -146,7 +146,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
         this.meta.metadata().markNotDirty();
         this.trackedValues = transform(this.meta.metadata().getNonDefaultValues());
 
-        AxPlugin.tracker.addEntity(this);
+        AxPlugin.getPlugin(AxPlugin.class).tracker.addEntity(this);
     }
 
     @Override
@@ -332,7 +332,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
 
     @Override
     public void remove() {
-        AxPlugin.tracker.removeEntity(this);
+        AxPlugin.getPlugin(AxPlugin.class).tracker.removeEntity(this);
     }
 
     @Override
