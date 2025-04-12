@@ -32,7 +32,7 @@ public final class ServerboundPacketTypes {
     public static final PacketType CONTAINER_SLOT_STATE_CHANGED = new PacketType("CONTAINER_SLOT_STATE_CHANGED", Version.v1_20_3, Version.FUTURE_RELEASE);
     public static final PacketType COOKIE_RESPONSE = new PacketType("COOKIE_RESPONSE", Version.v1_20_4, Version.FUTURE_RELEASE);
     public static final PacketType CUSTOM_PAYLOAD = new PacketType("CUSTOM_PAYLOAD", Version.v1_18, Version.FUTURE_RELEASE);
-    public static final PacketType DEBUG_SAMPLE_SUBSCRIPTION = new PacketType("DEBUG_SAMPLE_SUBSCRIPTION", Version.v1_20_2, Version.FUTURE_RELEASE);
+    public static final PacketType DEBUG_SAMPLE_SUBSCRIPTION = new PacketType("DEBUG_SAMPLE_SUBSCRIPTION", Version.v1_20_4, Version.FUTURE_RELEASE);
     public static final PacketType EDIT_BOOK = new PacketType("EDIT_BOOK", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType ENTITY_TAG_QUERY = new PacketType("ENTITY_TAG_QUERY", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType INTERACT = new PacketType("INTERACT", Version.v1_18, Version.FUTURE_RELEASE);
@@ -45,9 +45,9 @@ public final class ServerboundPacketTypes {
     public static final PacketType MOVE_PLAYER_STATUS = new PacketType("MOVE_PLAYER_STATUS", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType MOVE_VEHICLE = new PacketType("MOVE_VEHICLE", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType PADDLE_BOAT = new PacketType("PADDLE_BOAT", Version.v1_18, Version.FUTURE_RELEASE);
-    public static final PacketType PICK_ITEM = new PacketType("PICK_ITEM", Version.v1_18, Version.v1_21_2);
+    public static final PacketType PICK_ITEM = new PacketType("PICK_ITEM", Version.v1_18, Version.v1_21);
     public static final PacketType PICK_ITEM_FROM_BLOCK = new PacketType("PICK_ITEM_FROM_BLOCK", Version.v1_21_2, Version.FUTURE_RELEASE);
-    public static final PacketType PICK_ITEM_FROM_ENTITY = new PacketType("PICK_ITEM_FROM_ENTITY", Version.v1_18, Version.FUTURE_RELEASE);
+    public static final PacketType PICK_ITEM_FROM_ENTITY = new PacketType("PICK_ITEM_FROM_ENTITY", Version.v1_21_2, Version.FUTURE_RELEASE);
     public static final PacketType PING_REQUEST = new PacketType("PING_REQUEST", Version.v1_20_2, Version.FUTURE_RELEASE);
     public static final PacketType PLACE_RECIPE = new PacketType("PLACE_RECIPE", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType PLAYER_ABILITIES = new PacketType("PLAYER_ABILITIES", Version.v1_18, Version.FUTURE_RELEASE);
