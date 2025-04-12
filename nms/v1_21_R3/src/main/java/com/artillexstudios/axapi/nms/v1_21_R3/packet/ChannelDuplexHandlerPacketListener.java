@@ -213,7 +213,6 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             LogUtils.info("Incoming changed!");
         }
         super.channelRead(ctx, PacketTransformer.transformServerbound(out.buf()));
-        out.buf().release();
     }
 
     @Override
