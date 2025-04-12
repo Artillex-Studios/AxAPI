@@ -1,6 +1,8 @@
 package com.artillexstudios.axapi.packet;
 
+import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.utils.Version;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
@@ -153,9 +155,15 @@ public final class ServerboundPacketTypes {
 
     public static void register(PacketType packetType) {
         if (Version.getServerVersion().isNewerThanOrEqualTo(packetType.from()) && Version.getServerVersion().isOlderThanOrEqualTo(packetType.to())) {
+            if (AxPlugin.getPlugin(AxPlugin.class).flags().DEBUG.get()) {
+                LogUtils.debug("Registering serverbound packet: {}", packetType);
+            }
+
             int size = PACKET_TYPES.size();
             PACKET_TYPES.put(size, packetType);
             REVERSE_PACKET_TYPES.put(packetType, size);
+        } else if (AxPlugin.getPlugin(AxPlugin.class).flags().DEBUG.get()) {
+            LogUtils.debug("Did not register serverbound packet: {}", packetType);
         }
     }
 

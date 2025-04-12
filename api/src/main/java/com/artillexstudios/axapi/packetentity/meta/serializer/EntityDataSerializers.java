@@ -11,7 +11,6 @@ import com.artillexstudios.axapi.utils.Quaternion;
 import com.artillexstudios.axapi.utils.Vector3f;
 import com.artillexstudios.axapi.utils.Version;
 import com.artillexstudios.axapi.utils.VillagerData;
-import com.artillexstudios.axapi.utils.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import net.kyori.adventure.text.Component;
@@ -356,7 +355,6 @@ public final class EntityDataSerializers {
 
         @Override
         public Vector3f read(FriendlyByteBuf buf) {
-            LogUtils.info("vector3 read");
             return new Vector3f(buf.readFloat(), buf.readFloat(), buf.readFloat());
         }
 
