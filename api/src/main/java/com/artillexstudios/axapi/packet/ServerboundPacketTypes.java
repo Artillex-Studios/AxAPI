@@ -16,7 +16,7 @@ public final class ServerboundPacketTypes {
     public static final PacketType CHANGE_DIFFICULTY = new PacketType("CHANGE_DIFFICULTY", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType CHAT_ACK = new PacketType("CHAT_ACK", Version.v1_19, Version.FUTURE_RELEASE);
     public static final PacketType CHAT_COMMAND = new PacketType("CHAT_COMMAND", Version.v1_19, Version.FUTURE_RELEASE);
-    public static final PacketType CHAT_COMMAND_SIGNED = new PacketType("CHAT_COMMAND_SIGNED", Version.v1_19, Version.FUTURE_RELEASE);
+    public static final PacketType CHAT_COMMAND_SIGNED = new PacketType("CHAT_COMMAND_SIGNED", Version.v1_20_4, Version.FUTURE_RELEASE);
     public static final PacketType CHAT = new PacketType("CHAT", Version.v1_18, Version.FUTURE_RELEASE);
     // Chat session update 1.19.3+
     public static final PacketType CHUNK_BATCH_RECEIVE = new PacketType("CHUNK_BATCH_RECEIVE", Version.v1_20_2, Version.FUTURE_RELEASE);
