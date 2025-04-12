@@ -8,6 +8,7 @@ import com.artillexstudios.axapi.packetentity.meta.Metadata;
 import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataSerializer;
 import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataSerializers;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +58,7 @@ public class ClientboundEntityMetadataWrapper extends PacketWrapper {
         while ((i = buf.readUnsignedByte()) != 255) {
             int serializerId = buf.readVarInt();
             EntityDataSerializer<?> serializer = EntityDataSerializers.byId(serializerId);
+            LogUtils.info("Metadata wrapper: {}, {}", serializer, buf);
             this.items.add(new Metadata.DataItem(i, serializer, serializer.read(buf)));
         }
     }

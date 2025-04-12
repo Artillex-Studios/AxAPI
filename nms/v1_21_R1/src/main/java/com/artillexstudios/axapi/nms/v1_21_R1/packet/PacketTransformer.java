@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.nms.v1_21_R1.packet;
 
+import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketType;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
@@ -34,6 +35,7 @@ public final class PacketTransformer {
 
     public static Packet<?> transformClientbound(PacketWrapper wrapper) {
         FriendlyByteBufWrapper buf = new FriendlyByteBufWrapper(decorator.apply(Unpooled.buffer()));
+        buf.writeVarInt(ClientboundPacketTypes.forPacketType(wrapper.packetType()));
         wrapper.write(buf);
         return transformClientbound(buf.buf());
     }
