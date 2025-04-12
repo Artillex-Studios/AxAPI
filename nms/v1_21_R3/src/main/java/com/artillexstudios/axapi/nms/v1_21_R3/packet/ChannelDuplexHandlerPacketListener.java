@@ -106,7 +106,11 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             });
         });
 
-        PacketEvents.INSTANCE.callEvent(event);
+        try {
+            PacketEvents.INSTANCE.callEvent(event);
+        } catch (RuntimeException e) {
+            LogUtils.info("Packet id: {}, class: {}, type: {}", packetId, msg.getClass(), type);
+        }
         if (event.cancelled()) {
             if (this.flags.DEBUG_OUTGOING_PACKETS.get()) {
                 LogUtils.info("Cancelled event!");

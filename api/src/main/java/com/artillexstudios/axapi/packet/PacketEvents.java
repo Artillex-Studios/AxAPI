@@ -31,6 +31,7 @@ public enum PacketEvents {
                     baked[i].onPacketReceive(event);
                 } catch (Throwable throwable) {
                     LogUtils.error("Exception while running packet event! Buffer: {}", event.in(), throwable);
+                    throw new RuntimeException(throwable);
                 }
 
                 FriendlyByteBuf directIn = event.directIn();
@@ -51,6 +52,7 @@ public enum PacketEvents {
                     baked[i].onPacketSending(event);
                 } catch (Throwable throwable) {
                     LogUtils.error("Exception while running packet event! Buffer: {}", event.in(), throwable);
+                    throw new RuntimeException(throwable);
                 }
 
                 FriendlyByteBuf directIn = event.directIn();

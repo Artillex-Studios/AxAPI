@@ -55,7 +55,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
                 PacketEvent event = new PacketEvent(this.player, PacketSide.CLIENT_BOUND, type, () -> {
                     return this.transformer.transformClientbound(ctx, subPacket, FriendlyByteBuf::readVarInt);
                 }, () -> {
-                    return this.transformer.newByteBuf(ctx, buf -> {
+                    return PacketTransformer.newByteBuf(ctx, buf -> {
                         buf.writeVarInt(packetId);
                     });
                 });
@@ -104,12 +104,16 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
         PacketEvent event = new PacketEvent(this.player, PacketSide.CLIENT_BOUND, type, () -> {
             return this.transformer.transformClientbound(ctx, (Packet<?>) msg, FriendlyByteBuf::readVarInt);
         }, () -> {
-            return this.transformer.newByteBuf(ctx, buf -> {
+            return PacketTransformer.newByteBuf(ctx, buf -> {
                 buf.writeVarInt(packetId);
             });
         });
 
-        PacketEvents.INSTANCE.callEvent(event);
+        try {
+            PacketEvents.INSTANCE.callEvent(event);
+        } catch (RuntimeException e) {
+            LogUtils.info("Packet id: {}, class: {}, type: {}", packetId, msg.getClass(), type);
+        }
         if (event.cancelled()) {
             if (this.flags.DEBUG_OUTGOING_PACKETS.get()) {
                 LogUtils.info("Cancelled event!");
@@ -171,7 +175,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
         PacketEvent event = new PacketEvent(this.player, PacketSide.SERVER_BOUND, type, () -> {
             return this.transformer.transformServerbound(ctx, (Packet<?>) msg, FriendlyByteBuf::readVarInt);
         }, () -> {
-            return this.transformer.newByteBuf(ctx, buf -> {
+            return PacketTransformer.newByteBuf(ctx, buf -> {
                 buf.writeVarInt(packetId);
             });
         });
