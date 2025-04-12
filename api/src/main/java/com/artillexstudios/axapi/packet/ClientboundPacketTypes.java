@@ -10,7 +10,7 @@ public final class ClientboundPacketTypes {
     private static final Object2IntArrayMap<PacketType> REVERSE_PACKET_TYPES = new Object2IntArrayMap<>();
     public static final PacketType BUNDLE_DELIMITER = new PacketType("BUNDLE", Version.v1_19_3, Version.FUTURE_RELEASE);
     public static final PacketType ADD_ENTITY = new PacketType("ADD_ENTITY", Version.v1_18, Version.FUTURE_RELEASE);
-    public static final PacketType ADD_EXPERIENCE_ORB = new PacketType("ADD_EXPERIENCE_ORB", Version.v1_18, Version.v1_20_3);
+    public static final PacketType ADD_EXPERIENCE_ORB = new PacketType("ADD_EXPERIENCE_ORB", Version.v1_18, Version.v1_21_3);
     public static final PacketType ADD_MOB = new PacketType("ADD_MOB", Version.v1_18, Version.v1_18_2);
     public static final PacketType ADD_PAINTING = new PacketType("ADD_PAINTIN", Version.v1_18, Version.v1_18_2);
     public static final PacketType ADD_PLAYER = new PacketType("ADD_PLAYER", Version.v1_18, Version.v1_20_2);
