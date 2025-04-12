@@ -15,7 +15,7 @@ public final class ClientboundPacketTypes {
     public static final PacketType ADD_EXPERIENCE_ORB = new PacketType("ADD_EXPERIENCE_ORB", Version.v1_18, Version.v1_21_3);
     public static final PacketType ADD_MOB = new PacketType("ADD_MOB", Version.v1_18, Version.v1_18_2);
     public static final PacketType ADD_PAINTING = new PacketType("ADD_PAINTIN", Version.v1_18, Version.v1_18_2);
-    public static final PacketType ADD_PLAYER = new PacketType("ADD_PLAYER", Version.v1_18, Version.v1_20_2);
+    public static final PacketType ADD_PLAYER = new PacketType("ADD_PLAYER", Version.v1_18, Version.v1_20_1);
     public static final PacketType ADD_VIBRATION_SIGNAL = new PacketType("ADD_VIBRATION_SIGNAL", Version.v1_18, Version.v1_18_2);
     public static final PacketType ANIMATE = new PacketType("ANIMATE", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType STATISTICS = new PacketType("STATISTICS", Version.v1_18, Version.FUTURE_RELEASE);
