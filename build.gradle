@@ -141,7 +141,7 @@ shadowJar {
     relocate('com.github.benmanes', 'com.artillexstudios.axapi.libs.caffeine')
     relocate('org.yaml.snakeyaml', 'com.artillexstudios.axapi.libs.snakeyaml')
     relocate('com.alessiodp.libby', 'com.artillexstudios.axapi.libs.libby')
-    relocate('dev.dejvokep', 'com.artillexstudios.axapi.libs.boostedyaml')
+    relocate('dev.dejvokep.boostedyaml', 'com.artillexstudios.axapi.libs.boostedyaml')
 }
 
 allprojects.forEach {

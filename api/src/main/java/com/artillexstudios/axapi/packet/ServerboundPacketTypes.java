@@ -68,9 +68,11 @@ public final class ServerboundPacketTypes {
     public static final PacketType SET_CREATIVE_MODE_SLOT = new PacketType("SET_CREATIVE_MODE_SLOT", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType SET_JIGSAW_BLOCK = new PacketType("SET_JIGSAW_BLOCK", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType SET_STRUCTURE_BLOCK = new PacketType("SET_STRUCTURE_BLOCK", Version.v1_18, Version.FUTURE_RELEASE);
+    public static final PacketType SET_TEST_BLOCK = new PacketType("SET_TEST_BLOCK", Version.v1_21_4, Version.FUTURE_RELEASE);
     public static final PacketType SIGN_UPDATE = new PacketType("SIGN_UPDATE", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType SWING = new PacketType("SWING", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType TELEPORT_TO_ENTITY = new PacketType("TELEPORT_TO_ENTITY", Version.v1_18, Version.FUTURE_RELEASE);
+    public static final PacketType TEST_INSTANCE_BLOCK_ACTION = new PacketType("TEST_INSTANCE_BLOCK_ACTION", Version.v1_21_4, Version.FUTURE_RELEASE);
     public static final PacketType USE_ITEM_ON = new PacketType("USE_ITEM_ON", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType USE_ITEM = new PacketType("USE_ITEM", Version.v1_18, Version.FUTURE_RELEASE);
 
@@ -140,9 +142,11 @@ public final class ServerboundPacketTypes {
         register(SET_CREATIVE_MODE_SLOT);
         register(SET_JIGSAW_BLOCK);
         register(SET_STRUCTURE_BLOCK);
+        register(SET_TEST_BLOCK);
         register(SIGN_UPDATE);
         register(SWING);
         register(TELEPORT_TO_ENTITY);
+        register(TEST_INSTANCE_BLOCK_ACTION);
         register(USE_ITEM_ON);
         register(USE_ITEM);
     }

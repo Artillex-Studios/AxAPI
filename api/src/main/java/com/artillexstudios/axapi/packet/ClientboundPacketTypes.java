@@ -10,7 +10,7 @@ public final class ClientboundPacketTypes {
     private static final Object2IntArrayMap<PacketType> REVERSE_PACKET_TYPES = new Object2IntArrayMap<>();
     public static final PacketType BUNDLE_DELIMITER = new PacketType("BUNDLE", Version.v1_19_3, Version.FUTURE_RELEASE);
     public static final PacketType ADD_ENTITY = new PacketType("ADD_ENTITY", Version.v1_18, Version.FUTURE_RELEASE);
-    public static final PacketType ADD_EXPERIENCE_ORB = new PacketType("ADD_EXPERIENCE_ORB", Version.v1_18, Version.FUTURE_RELEASE);
+    public static final PacketType ADD_EXPERIENCE_ORB = new PacketType("ADD_EXPERIENCE_ORB", Version.v1_18, Version.v1_20_3);
     public static final PacketType ADD_MOB = new PacketType("ADD_MOB", Version.v1_18, Version.v1_18_2);
     public static final PacketType ADD_PAINTING = new PacketType("ADD_PAINTIN", Version.v1_18, Version.v1_18_2);
     public static final PacketType ADD_PLAYER = new PacketType("ADD_PLAYER", Version.v1_18, Version.v1_20_2);
@@ -142,6 +142,7 @@ public final class ClientboundPacketTypes {
     public static final PacketType TAG_QUERY = new PacketType("TAG_QUERY", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType TAKE_ITEM_ENTITY = new PacketType("TAKE_ITEM_ENTITY", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType TELEPORT = new PacketType("TELEPORT", Version.v1_18, Version.FUTURE_RELEASE);
+    public static final PacketType TEST_INSTANCE_BLOCK_STATUS = new PacketType("TEST_INSTANCE_BLOCK_STATUS", Version.v1_21_4, Version.FUTURE_RELEASE);
     public static final PacketType TICKING_STATE = new PacketType("TICKING_STATE", Version.v1_20_3, Version.FUTURE_RELEASE);
     public static final PacketType TICKING_STEP = new PacketType("TICKING_STEP", Version.v1_20_3, Version.FUTURE_RELEASE);
     public static final PacketType TRANSFER = new PacketType("TRANSFER", Version.v1_20_4, Version.FUTURE_RELEASE);
@@ -290,6 +291,7 @@ public final class ClientboundPacketTypes {
         register(TAG_QUERY);
         register(TAKE_ITEM_ENTITY);
         register(TELEPORT);
+        register(TEST_INSTANCE_BLOCK_STATUS); // 1.21.5
         register(TICKING_STATE); // 1.20.3
         register(TICKING_STEP); // 1.20.3
         register(TRANSFER); // 1.20.3
