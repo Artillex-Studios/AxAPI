@@ -18,6 +18,7 @@ import com.artillexstudios.axapi.packet.wrapper.serverbound.ServerboundInteractW
 import com.artillexstudios.axapi.packet.wrapper.serverbound.ServerboundSignUpdateWrapper;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
 import com.artillexstudios.axapi.packetentity.tracker.EntityTracker;
+import com.artillexstudios.axapi.particle.ParticleTypes;
 import com.artillexstudios.axapi.placeholders.PlaceholderAPIHook;
 import com.artillexstudios.axapi.placeholders.Placeholders;
 import com.artillexstudios.axapi.scheduler.Scheduler;
@@ -148,6 +149,7 @@ public abstract class AxPlugin extends JavaPlugin {
             Holograms.startTicking();
         }
 
+        ParticleTypes.init();
         ClientboundPacketTypes.init();
         ServerboundPacketTypes.init();
         for (Player player : Bukkit.getOnlinePlayers()) {
