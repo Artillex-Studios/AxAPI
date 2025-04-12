@@ -215,4 +215,10 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
         super.channelRead(ctx, PacketTransformer.transformServerbound(out.buf()));
         out.buf().release();
     }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        LogUtils.error("Exception!", cause);
+        super.exceptionCaught(ctx, cause);
+    }
 }

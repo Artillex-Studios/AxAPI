@@ -36,6 +36,7 @@ public final class BossBar {
         this.color = color;
         this.style = style;
         this.flags.addAll(Arrays.asList(flags));
+        this.updatePacket();
     }
 
     public static BossBar create(Component title) {
