@@ -58,7 +58,6 @@ public class ClientboundEntityMetadataWrapper extends PacketWrapper {
         while ((i = buf.readUnsignedByte()) != 255) {
             int serializerId = buf.readVarInt();
             EntityDataSerializer<?> serializer = EntityDataSerializers.byId(serializerId);
-            LogUtils.info("Metadata wrapper: {}, {}", serializer, buf);
             this.items.add(new Metadata.DataItem(i, serializer, serializer.read(buf)));
         }
     }
