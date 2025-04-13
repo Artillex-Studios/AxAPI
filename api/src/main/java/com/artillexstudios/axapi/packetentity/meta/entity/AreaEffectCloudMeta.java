@@ -3,8 +3,8 @@ package com.artillexstudios.axapi.packetentity.meta.entity;
 import com.artillexstudios.axapi.packetentity.meta.EntityMeta;
 import com.artillexstudios.axapi.packetentity.meta.Metadata;
 import com.artillexstudios.axapi.packetentity.meta.serializer.Accessors;
-import com.artillexstudios.axapi.utils.ParticleArguments;
-import org.bukkit.Particle;
+import com.artillexstudios.axapi.particle.ParticleData;
+import com.artillexstudios.axapi.particle.ParticleTypes;
 
 public class AreaEffectCloudMeta extends EntityMeta {
 
@@ -36,11 +36,11 @@ public class AreaEffectCloudMeta extends EntityMeta {
         return this.metadata.get(Accessors.AREA_EFFECT_CLOUD_POINT);
     }
 
-    public void particle(ParticleArguments particle) {
+    public void particle(ParticleData<?> particle) {
         this.metadata.set(Accessors.AREA_EFFECT_CLOUD_PARTICLE, particle);
     }
 
-    public ParticleArguments particle() {
+    public ParticleData<?> particle() {
         return this.metadata.get(Accessors.AREA_EFFECT_CLOUD_PARTICLE);
     }
 
@@ -49,6 +49,6 @@ public class AreaEffectCloudMeta extends EntityMeta {
         this.metadata.define(Accessors.AREA_EFFECT_CLOUD_RADIUS, 0.5f);
         this.metadata.define(Accessors.AREA_EFFECT_CLOUD_COLOR, 0);
         this.metadata.define(Accessors.AREA_EFFECT_CLOUD_POINT, false);
-        this.metadata.define(Accessors.AREA_EFFECT_CLOUD_PARTICLE, new ParticleArguments(Particle.CLOUD, null));
+        this.metadata.define(Accessors.AREA_EFFECT_CLOUD_PARTICLE, new ParticleData<>(ParticleTypes.CLOUD));
     }
 }

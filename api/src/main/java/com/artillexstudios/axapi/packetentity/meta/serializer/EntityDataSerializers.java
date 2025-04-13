@@ -1,16 +1,20 @@
 package com.artillexstudios.axapi.packetentity.meta.serializer;
 
+import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
+import com.artillexstudios.axapi.particle.ParticleData;
+import com.artillexstudios.axapi.particle.ParticleOption;
+import com.artillexstudios.axapi.particle.ParticleTypes;
 import com.artillexstudios.axapi.utils.BlockPosition;
 import com.artillexstudios.axapi.utils.Direction;
 import com.artillexstudios.axapi.utils.GlobalPosition;
-import com.artillexstudios.axapi.utils.ParticleArguments;
 import com.artillexstudios.axapi.utils.Quaternion;
 import com.artillexstudios.axapi.utils.Vector3f;
 import com.artillexstudios.axapi.utils.Version;
 import com.artillexstudios.axapi.utils.VillagerData;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import net.kyori.adventure.text.Component;
@@ -192,16 +196,15 @@ public final class EntityDataSerializers {
             return Type.BOOLEAN;
         }
     };
-    // TODO: Implement properly
-    public static final EntityDataSerializer<ParticleArguments> PARTICLE = new EntityDataSerializer<>() {
+    public static final EntityDataSerializer<ParticleData<? extends ParticleOption>> PARTICLE = new EntityDataSerializer<>() {
         @Override
-        public void write(FriendlyByteBuf buf, ParticleArguments value) {
+        public void write(FriendlyByteBuf buf, ParticleData<? extends ParticleOption> value) {
+            ParticleTypes.write((ParticleData<ParticleOption>) value, buf);
         }
 
         @Override
-        public ParticleArguments read(FriendlyByteBuf buf) {
-            int particleId = buf.readVarInt();
-            return null;
+        public ParticleData<? extends ParticleOption> read(FriendlyByteBuf buf) {
+            return ParticleTypes.read(buf);
         }
 
         @Override
@@ -453,23 +456,24 @@ public final class EntityDataSerializers {
             return Type.ARMADILLO_STATE;
         }
     };
-    public static final EntityDataSerializer<List<ParticleArguments>> PARTICLES = new EntityDataSerializer<>() {
+    public static final EntityDataSerializer<List<ParticleData<? extends ParticleOption>>> PARTICLES = new EntityDataSerializer<>() {
         @Override
-        public void write(FriendlyByteBuf buf, List<ParticleArguments> value) {
+        public void write(FriendlyByteBuf buf, List<ParticleData<? extends ParticleOption>> value) {
             buf.writeVarInt(value.size());
-            for (ParticleArguments particleArguments : value) {
-                PARTICLE.write(buf, particleArguments);
+            for (ParticleData<? extends ParticleOption> option : value) {
+                PARTICLE.write(buf, option);
             }
         }
 
         @Override
-        public List<ParticleArguments> read(FriendlyByteBuf buf) {
+        public List<ParticleData<? extends ParticleOption>> read(FriendlyByteBuf buf) {
             int size = buf.readVarInt();
-            List<ParticleArguments> arguments = new ArrayList<>();
+            List<ParticleData<? extends ParticleOption>> options = new ArrayList<>();
             for (int i = 0; i < size; i++) {
-                arguments.add(PARTICLE.read(buf));
+                options.add(PARTICLE.read(buf));
             }
-            return arguments;
+
+            return options;
         }
 
         @Override
@@ -587,6 +591,9 @@ public final class EntityDataSerializers {
         int index = SERIALIZERS.size();
         SERIALIZERS.put(index, serializer);
         REVERSE_SERIALIZERS.put(serializer, index);
+        if (AxPlugin.getPlugin(AxPlugin.class).flags().DEBUG.get()) {
+            LogUtils.debug("Registering entitydata serializer: {}", serializer.type());
+        }
     }
 
     static {

@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.particle;
 
+import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.particle.option.ColorParticleOption;
 import com.artillexstudios.axapi.particle.option.DustColorTransitionParticleOption;
@@ -20,10 +21,13 @@ import com.artillexstudios.axapi.particle.type.TrailParticleType;
 import com.artillexstudios.axapi.particle.type.VarIntParticleType;
 import com.artillexstudios.axapi.particle.type.VibrationParticleType;
 import com.artillexstudios.axapi.utils.Version;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 
 public final class ParticleTypes {
     private static final Int2ObjectArrayMap<ParticleType<?>> registry = new Int2ObjectArrayMap<>();
+    private static final Object2IntArrayMap<ParticleType<?>> reverseRegistry = new Object2IntArrayMap<>();
     private static final ParticleType<?> AMBIENT_ENTITY_EFFECT = new SimpleParticleType();
     private static final ParticleType<?> DRIPPING_CHERRY_LEAVES = new SimpleParticleType();
     private static final ParticleType<?> FALLING_CHERRY_LEAVES = new SimpleParticleType();
@@ -314,8 +318,17 @@ public final class ParticleTypes {
         return new ParticleData<>(type, type.read(buf));
     }
 
+    public static void write(ParticleData<ParticleOption> data, FriendlyByteBuf buf) {
+        buf.writeVarInt(reverseRegistry.getInt(data.type()));
+        data.type().write(data.option(), buf);
+    }
+
     public static <T extends ParticleOption> ParticleType<T> register(ParticleType<T> type) {
         registry.put(registry.size(), type);
+        reverseRegistry.put(type, reverseRegistry.size());
+        if (AxPlugin.getPlugin(AxPlugin.class).flags().DEBUG.get()) {
+            LogUtils.debug("Registering particle: {}", type);
+        }
         return type;
     }
 }

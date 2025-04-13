@@ -1,13 +1,13 @@
 package com.artillexstudios.axapi.packetentity.meta.serializer;
 
 import com.artillexstudios.axapi.items.WrappedItemStack;
+import com.artillexstudios.axapi.particle.ParticleData;
+import com.artillexstudios.axapi.particle.ParticleOption;
 import com.artillexstudios.axapi.utils.Quaternion;
-import com.artillexstudios.axapi.utils.ParticleArguments;
 import com.artillexstudios.axapi.utils.Vector3f;
 import net.kyori.adventure.text.Component;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Pose;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
 
 import java.util.Optional;
@@ -32,7 +32,7 @@ public final class Accessors {
     public static final EntityDataAccessor<Float> AREA_EFFECT_CLOUD_RADIUS = EntityDataSerializers.FLOAT.createAccessor(8);
     public static final EntityDataAccessor<Integer> AREA_EFFECT_CLOUD_COLOR = EntityDataSerializers.INT.createAccessor(9);
     public static final EntityDataAccessor<Boolean> AREA_EFFECT_CLOUD_POINT = EntityDataSerializers.BOOLEAN.createAccessor(10);
-    public static final EntityDataAccessor<ParticleArguments> AREA_EFFECT_CLOUD_PARTICLE = EntityDataSerializers.PARTICLE.createAccessor(11);
+    public static final EntityDataAccessor<ParticleData<? extends ParticleOption>> AREA_EFFECT_CLOUD_PARTICLE = EntityDataSerializers.PARTICLE.createAccessor(11);
     public static final EntityDataAccessor<Integer> INTERPOLATION_DELAY = EntityDataSerializers.INT.createAccessor(8);
     public static final EntityDataAccessor<Integer> TRANSFORMATION_INTERPOLATION_DURATION = EntityDataSerializers.INT.createAccessor(9);
     public static final EntityDataAccessor<Integer> POSITION_INTERPOLATION_DURATION = EntityDataSerializers.INT.createAccessor(10);
