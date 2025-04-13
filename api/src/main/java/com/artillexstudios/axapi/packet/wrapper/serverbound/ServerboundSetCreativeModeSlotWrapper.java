@@ -8,7 +8,7 @@ import com.artillexstudios.axapi.packet.ServerboundPacketTypes;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
 import com.artillexstudios.axapi.utils.Version;
 
-public class ServerboundSetCreativeModeSlotWrapper extends PacketWrapper {
+public final class ServerboundSetCreativeModeSlotWrapper extends PacketWrapper {
     private int slot;
     private WrappedItemStack stack;
 

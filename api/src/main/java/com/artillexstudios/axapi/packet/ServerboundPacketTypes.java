@@ -45,9 +45,9 @@ public final class ServerboundPacketTypes {
     public static final PacketType MOVE_PLAYER_STATUS = new PacketType("MOVE_PLAYER_STATUS", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType MOVE_VEHICLE = new PacketType("MOVE_VEHICLE", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType PADDLE_BOAT = new PacketType("PADDLE_BOAT", Version.v1_18, Version.FUTURE_RELEASE);
-    public static final PacketType PICK_ITEM = new PacketType("PICK_ITEM", Version.v1_18, Version.v1_21);
-    public static final PacketType PICK_ITEM_FROM_BLOCK = new PacketType("PICK_ITEM_FROM_BLOCK", Version.v1_21_2, Version.FUTURE_RELEASE);
-    public static final PacketType PICK_ITEM_FROM_ENTITY = new PacketType("PICK_ITEM_FROM_ENTITY", Version.v1_21_2, Version.FUTURE_RELEASE);
+    public static final PacketType PICK_ITEM = new PacketType("PICK_ITEM", Version.v1_18, Version.v1_21_2);
+    public static final PacketType PICK_ITEM_FROM_BLOCK = new PacketType("PICK_ITEM_FROM_BLOCK", Version.v1_21_3, Version.FUTURE_RELEASE);
+    public static final PacketType PICK_ITEM_FROM_ENTITY = new PacketType("PICK_ITEM_FROM_ENTITY", Version.v1_21_3, Version.FUTURE_RELEASE);
     public static final PacketType PING_REQUEST = new PacketType("PING_REQUEST", Version.v1_20_2, Version.FUTURE_RELEASE);
     public static final PacketType PLACE_RECIPE = new PacketType("PLACE_RECIPE", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType PLAYER_ABILITIES = new PacketType("PLAYER_ABILITIES", Version.v1_18, Version.FUTURE_RELEASE);
