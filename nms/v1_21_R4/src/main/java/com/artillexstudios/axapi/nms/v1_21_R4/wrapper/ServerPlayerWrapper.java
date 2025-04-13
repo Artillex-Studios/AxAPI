@@ -37,7 +37,7 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
             .build();
     private static final FieldAccessor attributeAccessor = FieldAccessor.builder()
             .withClass(AttributeMap.class)
-            .withField("e")
+            .withField("d")
             .build();
     private final PacketTransformer transformer;
     private Player wrapped;

@@ -103,7 +103,7 @@ public interface FieldAccessor {
                 try {
                     this.field = this.clazz.getDeclaredField(this.fieldName);
                 } catch (NoSuchFieldException exception) {
-                    LogUtils.error("Failed to find field {}! Fields of class: {}", this.fieldName, String.join(", ", Arrays.stream(this.clazz.getDeclaredFields()).map(Field::getName).toList()), exception);
+                    LogUtils.error("Failed to find field {} of class {}! Fields of class: {}", this.fieldName, this.clazz.getName(), String.join(", ", Arrays.stream(this.clazz.getDeclaredFields()).map(Field::getName).toList()), exception);
                     return;
                 }
             } else if (this.fieldType != null) {
