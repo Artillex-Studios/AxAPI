@@ -15,11 +15,13 @@ import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.serializers.Serializer;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.mojang.authlib.GameProfile;
+import com.mojang.serialization.DynamicOps;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
@@ -32,6 +34,7 @@ import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.SignText;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -96,24 +99,13 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
         tag.putInt("y", pos.getY());
         tag.putInt("z", pos.getZ());
         tag.putString("id", "minecraft:oak_sign");
-
-        if (!tag.contains("front_text")) {
-            tag.put("front_text", new net.minecraft.nbt.CompoundTag());
-        }
-
-        net.minecraft.nbt.CompoundTag sideTag = tag.getCompound("front_text").orElseThrow();
-        if (!tag.contains("messages")) {
-            sideTag.put("messages", new ListTag());
-        }
-
-        ListTag messagesNbt = sideTag.getList("messages").orElseThrow();
-
+        SignText text = new SignText();
         for (int i = 0; i < 4; i++) {
-            String gson = ComponentSerializer.instance().toGson(i > signInput.getLines().length ? Component.empty() : signInput.getLines()[i]);
-
-            messagesNbt.add(i, net.minecraft.nbt.StringTag.valueOf(gson));
+            text.setMessage(i, ComponentSerializer.instance().toVanilla(i > signInput.getLines().length ? Component.empty() : signInput.getLines()[i]));
         }
 
+        DynamicOps<Tag> dynamicOps = MinecraftServer.getServer().registryAccess().createSerializationContext(NbtOps.INSTANCE);
+        tag.store("front_text", SignText.DIRECT_CODEC, dynamicOps, text);
         ClientboundBlockEntityDataPacket clientboundBlockEntityDataPacket = new ClientboundBlockEntityDataPacket(pos, BlockEntityType.SIGN, tag);
         ClientboundOpenSignEditorPacket openSignEditorPacket = new ClientboundOpenSignEditorPacket(pos, true);
         player.connection.send(clientboundBlockEntityDataPacket);
