@@ -106,21 +106,21 @@ public final class PacketTransformer {
         return wrapper;
     }
 
-    public static FriendlyByteBuf newByteBuf() {
+    public static FriendlyByteBufWrapper newByteBuf() {
         return newByteBuf(null, buf -> {
         });
     }
 
-    public static FriendlyByteBuf newByteBuf(ChannelHandlerContext ctx) {
+    public static FriendlyByteBufWrapper newByteBuf(ChannelHandlerContext ctx) {
         return newByteBuf(ctx, buf -> {
         });
     }
 
-    public static FriendlyByteBuf newByteBuf(Consumer<FriendlyByteBuf> consumer) {
+    public static FriendlyByteBufWrapper newByteBuf(Consumer<FriendlyByteBuf> consumer) {
         return newByteBuf(null, consumer);
     }
 
-    public static FriendlyByteBuf newByteBuf(ChannelHandlerContext ctx, Consumer<FriendlyByteBuf> consumer) {
+    public static FriendlyByteBufWrapper newByteBuf(ChannelHandlerContext ctx, Consumer<FriendlyByteBuf> consumer) {
         FriendlyByteBufWrapper wrapper = new FriendlyByteBufWrapper(new net.minecraft.network.FriendlyByteBuf(alloc(ctx)));
         consumer.accept(wrapper);
         return wrapper;

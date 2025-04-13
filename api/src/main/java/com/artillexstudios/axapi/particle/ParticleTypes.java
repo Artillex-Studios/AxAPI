@@ -323,6 +323,10 @@ public final class ParticleTypes {
         data.type().write(data.option(), buf);
     }
 
+    public static int getId(ParticleType<?> type) {
+        return reverseRegistry.getInt(type);
+    }
+
     public static <T extends ParticleOption> ParticleType<T> register(ParticleType<T> type) {
         registry.put(registry.size(), type);
         reverseRegistry.put(type, reverseRegistry.size());

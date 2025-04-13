@@ -71,7 +71,7 @@ public final class ServerboundSignUpdateWrapper extends PacketWrapper {
         for (int i = 0; i < 4; i++) {
             lines.add(buf.readUTF(384));
         }
-        this.lines = ComponentSerializer.instance().asAdventureFromJson(lines).toArray(new net.kyori.adventure.text.Component[0]);
+        this.lines = ComponentSerializer.instance().fromGsonList(lines).toArray(new net.kyori.adventure.text.Component[0]);
     }
 
     @Override

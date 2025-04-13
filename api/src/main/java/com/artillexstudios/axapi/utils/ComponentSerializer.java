@@ -10,7 +10,6 @@ import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public final class ComponentSerializer {
@@ -48,7 +47,7 @@ public final class ComponentSerializer {
         List<T> converted = new ArrayList<>(components.size());
         for (int i = 0; i < components.size(); i++) {
             Component component = components.get(i);
-            converted.add(toVanilla(component));
+            converted.add(this.toVanilla(component));
         }
 
         return converted;
@@ -58,33 +57,16 @@ public final class ComponentSerializer {
         List<Component> converted = new ArrayList<>(objects.size());
         for (int i = 0; i < objects.size(); i++) {
             Object component = objects.get(i);
-            converted.add(fromVanilla(component));
+            converted.add(this.fromVanilla(component));
         }
 
         return converted;
     }
 
-    public ArrayList<Component> asAdventureFromJson(List<String> jsonStrings) {
-        ArrayList<Component> adventures = new ArrayList<>(jsonStrings.size());
-        Iterator<String> var2 = jsonStrings.iterator();
-
-        while (var2.hasNext()) {
-            String json = var2.next();
-
-            try {
-                adventures.add(GsonComponentSerializer.gson().deserialize(json));
-            } catch (Exception exception) {
-                adventures.add(Component.empty());
-            }
-        }
-
-        return adventures;
-    }
-
     public List<String> toGsonList(List<Component> list) {
-        ArrayList<String> newList = new ArrayList<>();
+        ArrayList<String> newList = new ArrayList<>(list.size());
         for (Component component : list) {
-            newList.add(toGson(component));
+            newList.add(this.toGson(component));
         }
 
         return newList;
@@ -96,19 +78,23 @@ public final class ComponentSerializer {
 
     public Component fromGson(String string) {
         return this.gsonCache.get(string, s -> {
-            return GsonComponentSerializer.gson().deserialize(s);
+            try {
+                return GsonComponentSerializer.gson().deserialize(s);
+            } catch (Exception exception) {
+                return Component.empty();
+            }
         });
     }
 
     public List<Component> fromGsonList(List<String> list) {
-        ArrayList<Component> newList = new ArrayList<>();
+        ArrayList<Component> newList = new ArrayList<>(list.size());
         for (String line : list) {
-            newList.add(fromGson(line));
+            newList.add(this.fromGson(line));
         }
 
         return newList;
     }
-    
+
     public static ComponentSerializer instance() {
         return plugin.serializer();
     }
