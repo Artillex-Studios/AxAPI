@@ -69,7 +69,7 @@ public final class BossBar {
     }
 
     public void hide(Player player) {
-        if (this.viewers.remove(player)) {
+        if (!this.viewers.remove(player)) {
             return;
         }
 
