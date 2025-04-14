@@ -57,7 +57,7 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
         Connection connection = connectionAccessor.get(this.serverPlayer.connection, Connection.class);
         Channel channel = channelAccessor.get(connection, Channel.class);
 
-        if (!channel.pipeline().names().contains(ServerPlayerWrapper.PACKET_HANDLER)) {
+        if (!channel.pipeline().names().contains("encoder")) {
             return;
         }
 
@@ -66,7 +66,7 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
         }
 
         channel.eventLoop().submit(() -> {
-            channel.pipeline().addBefore(ServerPlayerWrapper.PACKET_HANDLER, ServerPlayerWrapper.AXAPI_HANDLER, new ChannelDuplexHandlerPacketListener(AxPlugin.getPlugin(AxPlugin.class).flags(), this.wrapped()));
+            channel.pipeline().addAfter("encoder", ServerPlayerWrapper.AXAPI_HANDLER, new ChannelDuplexHandlerPacketListener(AxPlugin.getPlugin(AxPlugin.class).flags(), this.wrapped()));
         });
     }
 
