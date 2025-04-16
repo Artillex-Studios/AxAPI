@@ -1,10 +1,14 @@
 package com.artillexstudios.axapi.nms.v1_21_R3.wrapper;
 
+import com.artillexstudios.axapi.AxPlugin;
+import com.artillexstudios.axapi.nms.v1_21_R3.packet.ChannelDuplexHandlerPacketListener;
 import com.artillexstudios.axapi.nms.v1_21_R3.packet.PacketTransformer;
+import com.artillexstudios.axapi.packet.PacketDebugMode;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
 import com.artillexstudios.axapi.reflection.FieldAccessor;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.PlayerTextures;
+import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
@@ -51,24 +55,25 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
     @Override
     public void inject() {
         this.update();
-        LogUtils.error("Inject called!");
-//        Connection connection = connectionAccessor.get(this.serverPlayer.connection, Connection.class);
-//        Channel channel = channelAccessor.get(connection, Channel.class);
-//
-//        if (!channel.pipeline().names().contains(ServerPlayerWrapper.PACKET_HANDLER)) {
-//            return;
-//        }
-//
-//        if (channel.pipeline().names().contains(ServerPlayerWrapper.AXAPI_HANDLER)) {
-//            return;
-//        }
-//
-//        channel.eventLoop().submit(() -> {
-//            FeatureFlags flags = AxPlugin.getPlugin(AxPlugin.class).flags();
-//            if (!flags.PACKET_DEBUG_MODES.contains(PacketDebugMode.NO_INJECT)) {
-//                channel.pipeline().addAfter(ServerPlayerWrapper.PACKET_HANDLER, ServerPlayerWrapper.AXAPI_HANDLER, new ChannelDuplexHandlerPacketListener(flags, this.wrapped()));
-//            }
-//        });
+
+        Connection connection = connectionAccessor.get(this.serverPlayer.connection, Connection.class);
+        Channel channel = channelAccessor.get(connection, Channel.class);
+
+        if (!channel.pipeline().names().contains(ServerPlayerWrapper.PACKET_HANDLER)) {
+            return;
+        }
+
+        if (channel.pipeline().names().contains(ServerPlayerWrapper.AXAPI_HANDLER)) {
+            return;
+        }
+
+        channel.eventLoop().submit(() -> {
+            FeatureFlags flags = AxPlugin.getPlugin(AxPlugin.class).flags();
+            if (!flags.PACKET_DEBUG_MODES.contains(PacketDebugMode.NO_INJECT)) {
+                LogUtils.error("Injected!");
+                channel.pipeline().addAfter(ServerPlayerWrapper.PACKET_HANDLER, ServerPlayerWrapper.AXAPI_HANDLER, new ChannelDuplexHandlerPacketListener(flags, this.wrapped()));
+            }
+        });
     }
 
     @Override
