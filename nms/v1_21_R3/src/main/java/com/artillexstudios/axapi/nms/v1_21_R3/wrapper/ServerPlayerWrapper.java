@@ -70,7 +70,7 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
         channel.eventLoop().submit(() -> {
             FeatureFlags flags = AxPlugin.getPlugin(AxPlugin.class).flags();
             if (!flags.PACKET_DEBUG_MODES.contains(PacketDebugMode.NO_INJECT)) {
-                channel.pipeline().addAfter(ServerPlayerWrapper.PACKET_HANDLER, ServerPlayerWrapper.AXAPI_HANDLER, new ChannelDuplexHandlerPacketListener(, this.wrapped()));
+                channel.pipeline().addAfter(ServerPlayerWrapper.PACKET_HANDLER, ServerPlayerWrapper.AXAPI_HANDLER, new ChannelDuplexHandlerPacketListener(flags, this.wrapped()));
             }
         });
     }
