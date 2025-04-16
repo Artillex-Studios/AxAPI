@@ -5,7 +5,6 @@ import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketType;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
 import com.artillexstudios.axapi.reflection.FieldAccessor;
-import com.artillexstudios.axapi.utils.logging.LogUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -161,7 +160,6 @@ public final class PacketTransformer {
         }
 
         if (packetId == -1) {
-            LogUtils.error("Unknown packet! {}", packet.type());
             throw new IllegalStateException();
         }
 
