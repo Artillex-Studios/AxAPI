@@ -38,7 +38,12 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             return;
         }
 
-        if (msg instanceof ClientboundBundlePacket bundlePacket && !this.flags.PACKET_DEBUG_MODES.contains(PacketDebugMode.NO_BUNDLE)) {
+        if (msg instanceof ClientboundBundlePacket bundlePacket) {
+            if (true) {
+                super.write(ctx, msg, promise);
+                return;
+            }
+
             if (this.flags.DEBUG_OUTGOING_PACKETS.get()) {
                 LogUtils.info("Bundle packet");
             }
