@@ -189,7 +189,7 @@ public abstract class AxPlugin extends JavaPlugin {
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(player);
-            wrapper.inject();
+            wrapper.uninject();
         }
 
         if (tracker != null) {
