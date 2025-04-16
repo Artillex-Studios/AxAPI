@@ -11,6 +11,11 @@ public final class ListFlag<Z> extends FeatureFlag<List<Z>> {
         this.flag = flag;
     }
 
+    public boolean contains(Z element) {
+        List<Z> list = this.get();
+        return list != null && list.contains(element);
+    }
+
     @Override
     public List<Z> transform(String string) {
         if (string == null) {

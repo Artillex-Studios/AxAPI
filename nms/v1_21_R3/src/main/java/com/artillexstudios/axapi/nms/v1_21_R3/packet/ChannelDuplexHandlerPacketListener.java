@@ -2,6 +2,7 @@ package com.artillexstudios.axapi.nms.v1_21_R3.packet;
 
 import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
+import com.artillexstudios.axapi.packet.PacketDebugMode;
 import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketEvents;
 import com.artillexstudios.axapi.packet.PacketSide;
@@ -32,12 +33,12 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
 
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-        if (!PacketEvents.INSTANCE.listening()) {
+        if (!PacketEvents.INSTANCE.listening() || this.flags.PACKET_DEBUG_MODES.contains(PacketDebugMode.NO_SENDING)) {
             super.write(ctx, msg, promise);
             return;
         }
 
-        if (msg instanceof ClientboundBundlePacket bundlePacket) {
+        if (msg instanceof ClientboundBundlePacket bundlePacket && !this.flags.PACKET_DEBUG_MODES.contains(PacketDebugMode.NO_BUNDLE)) {
             if (this.flags.DEBUG_OUTGOING_PACKETS.get()) {
                 LogUtils.info("Bundle packet");
             }
@@ -57,8 +58,10 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
                     });
                 });
 
-                PacketEvents.INSTANCE.callEvent(event);
-                if (event.cancelled()) {
+                if (!this.flags.PACKET_DEBUG_MODES.contains(PacketDebugMode.NO_CALL)) {
+                    PacketEvents.INSTANCE.callEvent(event);
+                }
+                if (event.cancelled() && !this.flags.PACKET_DEBUG_MODES.contains(PacketDebugMode.NO_CANCELLED)) {
                     FriendlyByteBufWrapper out = (FriendlyByteBufWrapper) event.directOut();
                     if (out != null) {
                         out.buf().release();
@@ -107,11 +110,13 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
         });
 
         try {
-            PacketEvents.INSTANCE.callEvent(event);
+            if (!this.flags.PACKET_DEBUG_MODES.contains(PacketDebugMode.NO_CALL)) {
+                PacketEvents.INSTANCE.callEvent(event);
+            }
         } catch (RuntimeException e) {
             LogUtils.info("Packet id: {}, class: {}, type: {}", packetId, msg.getClass(), type);
         }
-        if (event.cancelled()) {
+        if (event.cancelled() && !this.flags.PACKET_DEBUG_MODES.contains(PacketDebugMode.NO_CANCELLED)) {
             if (this.flags.DEBUG_OUTGOING_PACKETS.get()) {
                 LogUtils.info("Cancelled event!");
             }
@@ -151,7 +156,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (!PacketEvents.INSTANCE.listening()) {
+        if (!PacketEvents.INSTANCE.listening() || this.flags.PACKET_DEBUG_MODES.contains(PacketDebugMode.NO_INCOMING)) {
             super.channelRead(ctx, msg);
             return;
         }
@@ -177,8 +182,10 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             });
         });
 
-        PacketEvents.INSTANCE.callEvent(event);
-        if (event.cancelled()) {
+        if (!this.flags.PACKET_DEBUG_MODES.contains(PacketDebugMode.NO_CALL)) {
+            PacketEvents.INSTANCE.callEvent(event);
+        }
+        if (event.cancelled() && !this.flags.PACKET_DEBUG_MODES.contains(PacketDebugMode.NO_CANCELLED)) {
             if (this.flags.DEBUG_INCOMING_PACKETS.get()) {
                 LogUtils.info("Incoming cancelled event!");
             }
