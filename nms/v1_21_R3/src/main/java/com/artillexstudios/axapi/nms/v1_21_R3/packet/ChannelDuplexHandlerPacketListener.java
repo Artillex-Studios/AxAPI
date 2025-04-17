@@ -152,6 +152,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        LogUtils.info("READ");
         if (!PacketEvents.INSTANCE.listening()) {
             LogUtils.info("Not listening");
             super.channelRead(ctx, msg);
@@ -217,5 +218,11 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             LogUtils.info("Incoming changed!");
         }
         super.channelRead(ctx, PacketTransformer.transformServerbound(out.buf()));
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        super.exceptionCaught(ctx, cause);
+        LogUtils.error("Error ", cause);
     }
 }
