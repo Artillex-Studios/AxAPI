@@ -101,7 +101,7 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
         tag.putString("id", "minecraft:oak_sign");
         SignText text = new SignText();
         for (int i = 0; i < 4; i++) {
-            text.setMessage(i, ComponentSerializer.instance().toVanilla(i > signInput.getLines().length ? Component.empty() : signInput.getLines()[i]));
+            text = text.setMessage(i, ComponentSerializer.instance().toVanilla(i > signInput.getLines().length ? Component.empty() : signInput.getLines()[i]));
         }
 
         DynamicOps<Tag> dynamicOps = MinecraftServer.getServer().registryAccess().createSerializationContext(NbtOps.INSTANCE);
