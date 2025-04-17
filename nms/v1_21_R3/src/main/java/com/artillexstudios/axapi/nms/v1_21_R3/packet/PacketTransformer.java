@@ -5,6 +5,7 @@ import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketType;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
 import com.artillexstudios.axapi.reflection.FieldAccessor;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -152,6 +153,7 @@ public final class PacketTransformer {
 
     public static int packetId(Packet<?> packet) {
         net.minecraft.network.protocol.PacketType<?> type = packet.type();
+        LogUtils.info("Packet transformer get packetId! {}; type: {}", packet, type);
         int packetId;
         if (type.flow() == PacketFlow.CLIENTBOUND) {
             packetId = clientboundIds.getOrDefault(type, -1);
@@ -160,9 +162,11 @@ public final class PacketTransformer {
         }
 
         if (packetId == -1) {
+            LogUtils.info("Unknown packet! {}; type: {}", packet, type);
             throw new IllegalStateException();
         }
 
+        LogUtils.info("Packet id: {}", packetId);
         return packetId;
     }
 

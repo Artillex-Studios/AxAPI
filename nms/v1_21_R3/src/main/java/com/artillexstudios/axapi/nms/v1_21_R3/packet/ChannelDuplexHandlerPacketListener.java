@@ -100,12 +100,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             return;
         }
 
-        if (true) {
-            super.write(ctx, msg, promise);
-            return;
-        }
         int packetId = PacketTransformer.packetId((Packet<?>) msg);
-
         PacketType type = ClientboundPacketTypes.forPacketId(packetId);
         if (this.flags.DEBUG_OUTGOING_PACKETS.get()) {
             LogUtils.info("Packet id: {}, class: {}, type: {}", packetId, msg.getClass(), type);
