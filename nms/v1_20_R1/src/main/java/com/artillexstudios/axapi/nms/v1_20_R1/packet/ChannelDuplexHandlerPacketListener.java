@@ -92,14 +92,14 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             return;
         }
 
-        int packetId = PacketTransformer.packetId(PacketSide.CLIENT_BOUND, (Packet<?>) msg);
+        int packetId = PacketTransformer.packetId(PacketSide.CLIENT_BOUND, msg);
         PacketType type = ClientboundPacketTypes.forPacketId(packetId);
         if (this.flags.DEBUG_OUTGOING_PACKETS.get()) {
             LogUtils.info("Packet id: {}, class: {}, type: {}", packetId, msg.getClass(), type);
         }
 
         PacketEvent event = new PacketEvent(this.player, PacketSide.CLIENT_BOUND, type, () -> {
-            return PacketTransformer.transformClientbound(ctx, (Packet<?>) msg, buf -> {
+            return PacketTransformer.transformClientbound(ctx, msg, buf -> {
             });
         }, () -> {
             return PacketTransformer.newByteBuf(ctx, buf -> {
@@ -158,14 +158,14 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             return;
         }
 
-        int packetId = PacketTransformer.packetId(PacketSide.SERVER_BOUND, (Packet<?>) msg);
+        int packetId = PacketTransformer.packetId(PacketSide.SERVER_BOUND, msg);
         PacketType type = ServerboundPacketTypes.forPacketId(packetId);
         if (this.flags.DEBUG_INCOMING_PACKETS.get()) {
             LogUtils.info("Incoming packet id: {}, class: {}, type: {}", packetId, msg.getClass(), type);
         }
 
         PacketEvent event = new PacketEvent(this.player, PacketSide.SERVER_BOUND, type, () -> {
-            return PacketTransformer.transformServerbound(ctx, (Packet<?>) msg, buf -> {
+            return PacketTransformer.transformServerbound(ctx, msg, buf -> {
             });
         }, () -> {
             return PacketTransformer.newByteBuf(ctx, buf -> {

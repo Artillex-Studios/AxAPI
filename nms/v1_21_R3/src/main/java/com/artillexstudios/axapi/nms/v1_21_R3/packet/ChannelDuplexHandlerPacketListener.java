@@ -2,7 +2,6 @@ package com.artillexstudios.axapi.nms.v1_21_R3.packet;
 
 import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
-import com.artillexstudios.axapi.packet.PacketDebugMode;
 import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketEvents;
 import com.artillexstudios.axapi.packet.PacketSide;
@@ -33,17 +32,12 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
 
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-        if (!PacketEvents.INSTANCE.listening() || this.flags.PACKET_DEBUG_MODES.contains(PacketDebugMode.NO_SENDING)) {
+        if (!PacketEvents.INSTANCE.listening()) {
             super.write(ctx, msg, promise);
             return;
         }
 
         if (msg instanceof ClientboundBundlePacket bundlePacket) {
-            if (true) {
-                super.write(ctx, msg, promise);
-                return;
-            }
-
             if (this.flags.DEBUG_OUTGOING_PACKETS.get()) {
                 LogUtils.info("Bundle packet");
             }
@@ -63,10 +57,9 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
                     });
                 });
 
-                if (!this.flags.PACKET_DEBUG_MODES.contains(PacketDebugMode.NO_CALL)) {
-                    PacketEvents.INSTANCE.callEvent(event);
-                }
-                if (event.cancelled() && !this.flags.PACKET_DEBUG_MODES.contains(PacketDebugMode.NO_CANCELLED)) {
+
+                PacketEvents.INSTANCE.callEvent(event);
+                if (event.cancelled()) {
                     FriendlyByteBufWrapper out = (FriendlyByteBufWrapper) event.directOut();
                     if (out != null) {
                         out.buf().release();
@@ -100,14 +93,14 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             return;
         }
 
-        int packetId = PacketTransformer.packetId((Packet<?>) msg);
+        int packetId = PacketTransformer.packetId(msg);
         PacketType type = ClientboundPacketTypes.forPacketId(packetId);
         if (this.flags.DEBUG_OUTGOING_PACKETS.get()) {
             LogUtils.info("Packet id: {}, class: {}, type: {}", packetId, msg.getClass(), type);
         }
 
         PacketEvent event = new PacketEvent(this.player, PacketSide.CLIENT_BOUND, type, () -> {
-            return PacketTransformer.transformClientbound(ctx, (Packet<?>) msg, FriendlyByteBuf::readVarInt);
+            return PacketTransformer.transformClientbound(ctx, msg, FriendlyByteBuf::readVarInt);
         }, () -> {
             return PacketTransformer.newByteBuf(ctx, buf -> {
                 buf.writeVarInt(packetId);
@@ -115,13 +108,11 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
         });
 
         try {
-            if (!this.flags.PACKET_DEBUG_MODES.contains(PacketDebugMode.NO_CALL)) {
-                PacketEvents.INSTANCE.callEvent(event);
-            }
+            PacketEvents.INSTANCE.callEvent(event);
         } catch (RuntimeException e) {
             LogUtils.info("Packet id: {}, class: {}, type: {}", packetId, msg.getClass(), type);
         }
-        if (event.cancelled() && !this.flags.PACKET_DEBUG_MODES.contains(PacketDebugMode.NO_CANCELLED)) {
+        if (event.cancelled()) {
             if (this.flags.DEBUG_OUTGOING_PACKETS.get()) {
                 LogUtils.info("Cancelled event!");
             }
@@ -161,7 +152,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (!PacketEvents.INSTANCE.listening() || this.flags.PACKET_DEBUG_MODES.contains(PacketDebugMode.NO_INCOMING)) {
+        if (!PacketEvents.INSTANCE.listening()) {
             super.channelRead(ctx, msg);
             return;
         }
@@ -173,24 +164,22 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             return;
         }
 
-        int packetId = PacketTransformer.packetId((Packet<?>) msg);
+        int packetId = PacketTransformer.packetId(msg);
         PacketType type = ServerboundPacketTypes.forPacketId(packetId);
         if (this.flags.DEBUG_INCOMING_PACKETS.get()) {
             LogUtils.info("Incoming packet id: {}, class: {}, type: {}", packetId, msg.getClass(), type);
         }
 
         PacketEvent event = new PacketEvent(this.player, PacketSide.SERVER_BOUND, type, () -> {
-            return PacketTransformer.transformServerbound(ctx, (Packet<?>) msg, FriendlyByteBuf::readVarInt);
+            return PacketTransformer.transformServerbound(ctx, msg, FriendlyByteBuf::readVarInt);
         }, () -> {
             return PacketTransformer.newByteBuf(ctx, buf -> {
                 buf.writeVarInt(packetId);
             });
         });
 
-        if (!this.flags.PACKET_DEBUG_MODES.contains(PacketDebugMode.NO_CALL)) {
-            PacketEvents.INSTANCE.callEvent(event);
-        }
-        if (event.cancelled() && !this.flags.PACKET_DEBUG_MODES.contains(PacketDebugMode.NO_CANCELLED)) {
+        PacketEvents.INSTANCE.callEvent(event);
+        if (event.cancelled()) {
             if (this.flags.DEBUG_INCOMING_PACKETS.get()) {
                 LogUtils.info("Incoming cancelled event!");
             }

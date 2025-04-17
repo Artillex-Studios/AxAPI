@@ -3,12 +3,10 @@ package com.artillexstudios.axapi.nms.v1_21_R3.wrapper;
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.nms.v1_21_R3.packet.ChannelDuplexHandlerPacketListener;
 import com.artillexstudios.axapi.nms.v1_21_R3.packet.PacketTransformer;
-import com.artillexstudios.axapi.packet.PacketDebugMode;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
 import com.artillexstudios.axapi.reflection.FieldAccessor;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.PlayerTextures;
-import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
@@ -68,11 +66,7 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
         }
 
         channel.eventLoop().submit(() -> {
-            FeatureFlags flags = AxPlugin.getPlugin(AxPlugin.class).flags();
-            if (!flags.PACKET_DEBUG_MODES.contains(PacketDebugMode.NO_INJECT)) {
-                LogUtils.error("Injected!");
-                channel.pipeline().addAfter(ServerPlayerWrapper.PACKET_HANDLER, ServerPlayerWrapper.AXAPI_HANDLER, new ChannelDuplexHandlerPacketListener(flags, this.wrapped()));
-            }
+            channel.pipeline().addBefore(ServerPlayerWrapper.PACKET_HANDLER, ServerPlayerWrapper.AXAPI_HANDLER, new ChannelDuplexHandlerPacketListener(AxPlugin.getPlugin(AxPlugin.class).flags(), this.wrapped()));
         });
     }
 
