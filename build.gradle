@@ -86,6 +86,7 @@ allprojects {
         }
 
         implementation("org.yaml:snakeyaml:2.2")
+        implementation("com.zaxxer:HikariCP:6.3.0")
         implementation("io.github.revxrsal:zapper.api:1.1.5")
         implementation("net.kyori:adventure-platform-bukkit:4.3.0")
         implementation("net.kyori:adventure-text-minimessage:4.14.0")
@@ -136,12 +137,13 @@ allprojects {
 tasks.build.dependsOn(shadowJar)
 
 shadowJar {
+    relocate('dev.dejvokep.boostedyaml', 'com.artillexstudios.axapi.libs.boostedyaml')
     relocate('me.neznamy.yamlassist', 'com.artillexstudios.axapi.libs.yamlassist')
     relocate('org.apache.commons.math3', 'com.artillexstudios.axapi.libs.math3')
     relocate('com.github.benmanes', 'com.artillexstudios.axapi.libs.caffeine')
     relocate('org.yaml.snakeyaml', 'com.artillexstudios.axapi.libs.snakeyaml')
     relocate('com.alessiodp.libby', 'com.artillexstudios.axapi.libs.libby')
-    relocate('dev.dejvokep.boostedyaml', 'com.artillexstudios.axapi.libs.boostedyaml')
+    relocate('com.zaxxer.hikari', 'com.artillexstudios.axapi.libs.hikari')
 }
 
 allprojects.forEach {
