@@ -4,10 +4,12 @@ import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketSide;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import net.minecraft.network.ConnectionProtocol;
+import net.minecraft.network.VarInt;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -78,10 +80,19 @@ public final class PacketTransformer {
         return transformServerbound(null, packet, consumer);
     }
 
-    public static FriendlyByteBuf transformServerbound(ChannelHandlerContext ctx, Packet<?> packet, Consumer<FriendlyByteBuf> consumer) {
-        net.minecraft.network.FriendlyByteBuf buffer = new net.minecraft.network.FriendlyByteBuf(alloc(ctx));
-        packet.write(buffer);
-        FriendlyByteBufWrapper wrapper = new FriendlyByteBufWrapper(buffer);
+    public static FriendlyByteBufWrapper transformServerbound(ChannelHandlerContext ctx, Object packet, Consumer<FriendlyByteBuf> consumer) {
+        FriendlyByteBufWrapper wrapper;
+        if (packet instanceof Packet<?> packetObject) {
+            net.minecraft.network.FriendlyByteBuf buffer = new net.minecraft.network.FriendlyByteBuf(alloc(ctx));
+            packetObject.write(buffer);
+            wrapper = new FriendlyByteBufWrapper(buffer);
+        } else if (packet instanceof ByteBuf buffer) {
+            wrapper = new FriendlyByteBufWrapper(new net.minecraft.network.FriendlyByteBuf(buffer.copy()));
+        } else {
+            LogUtils.error("Unhandled packet class: {}", packet.getClass());
+            return null;
+        }
+
         consumer.accept(wrapper);
         return wrapper;
     }
@@ -100,10 +111,19 @@ public final class PacketTransformer {
         return transformClientbound(null, packet, consumer);
     }
 
-    public static FriendlyByteBuf transformClientbound(ChannelHandlerContext ctx, Packet<?> packet, Consumer<FriendlyByteBuf> consumer) {
-        net.minecraft.network.FriendlyByteBuf buffer = new net.minecraft.network.FriendlyByteBuf(alloc(ctx));
-        packet.write(buffer);
-        FriendlyByteBufWrapper wrapper = new FriendlyByteBufWrapper(buffer);
+    public static FriendlyByteBufWrapper transformClientbound(ChannelHandlerContext ctx, Object packet, Consumer<FriendlyByteBuf> consumer) {
+        FriendlyByteBufWrapper wrapper;
+        if (packet instanceof Packet<?> packetObject) {
+            net.minecraft.network.FriendlyByteBuf buffer = new net.minecraft.network.FriendlyByteBuf(alloc(ctx));
+            packetObject.write(buffer);
+            wrapper = new FriendlyByteBufWrapper(buffer);
+        } else if (packet instanceof ByteBuf buffer) {
+            wrapper = new FriendlyByteBufWrapper(new net.minecraft.network.FriendlyByteBuf(buffer.copy()));
+        } else {
+            LogUtils.error("Unhandled packet class: {}", packet.getClass());
+            return null;
+        }
+
         consumer.accept(wrapper);
         return wrapper;
     }
@@ -136,16 +156,28 @@ public final class PacketTransformer {
         return ctx == null ? Unpooled.buffer() : ctx.alloc().buffer();
     }
 
-    public static int packetId(PacketSide side, Packet<?> packet) {
+    public static int packetId(PacketSide side, Object input) {
         int packetId;
-        if (side == PacketSide.CLIENT_BOUND) {
-            packetId = clientboundCodec.packetId(packet);
-        } else {
-            packetId = serverboundCodec.packetId(packet);
-        }
+        if (input instanceof Packet<?> packet) {
+            if (side == PacketSide.CLIENT_BOUND) {
+                packetId = clientboundCodec.packetId(packet);
+            } else {
+                packetId = serverboundCodec.packetId(packet);
+            }
 
-        if (packetId == -1) {
-            throw new IllegalStateException();
+            if (packetId == -1) {
+                throw new IllegalStateException();
+            }
+
+        } else if (input instanceof ByteBuf buffer) {
+            int readerIndex = buffer.readerIndex();
+            int writerIndex = buffer.writerIndex();
+            packetId = VarInt.read(buffer);
+            buffer.readerIndex(readerIndex);
+            buffer.writerIndex(writerIndex);
+        } else {
+            LogUtils.error("Unhandled packet class: {}", input.getClass());
+            packetId = -1;
         }
 
         return packetId;
