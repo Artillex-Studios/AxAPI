@@ -152,9 +152,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        LogUtils.info("READ");
         if (!PacketEvents.INSTANCE.listening()) {
-            LogUtils.info("Not listening");
             super.channelRead(ctx, msg);
             return;
         }
@@ -162,17 +160,15 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
         if (msg instanceof ServerboundCustomPayloadPacket(
                 net.minecraft.network.protocol.common.custom.CustomPacketPayload payload
         )) {
-            LogUtils.info("1");
             super.channelRead(ctx, msg);
             return;
         }
 
-        LogUtils.info("2");
         int packetId = PacketTransformer.packetId(msg);
         PacketType type = ServerboundPacketTypes.forPacketId(packetId);
-//        if (this.flags.DEBUG_INCOMING_PACKETS.get()) {
+        if (this.flags.DEBUG_INCOMING_PACKETS.get()) {
             LogUtils.info("Incoming packet id: {}, class: {}, type: {}", packetId, msg.getClass(), type);
-//        }
+        }
 
         PacketEvent event = new PacketEvent(this.player, PacketSide.SERVER_BOUND, type, () -> {
             return PacketTransformer.transformServerbound(ctx, msg, FriendlyByteBuf::readVarInt);
@@ -218,11 +214,5 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             LogUtils.info("Incoming changed!");
         }
         super.channelRead(ctx, PacketTransformer.transformServerbound(out.buf()));
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        super.exceptionCaught(ctx, cause);
-        LogUtils.error("Error ", cause);
     }
 }
