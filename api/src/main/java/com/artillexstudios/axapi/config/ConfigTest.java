@@ -3,6 +3,7 @@ package com.artillexstudios.axapi.config;
 import com.artillexstudios.axapi.config.annotation.Comment;
 import com.artillexstudios.axapi.config.annotation.ConfigurationPart;
 import com.artillexstudios.axapi.config.annotation.Header;
+import com.artillexstudios.axapi.config.annotation.Hidden;
 import com.artillexstudios.axapi.config.annotation.Named;
 import com.artillexstudios.axapi.config.annotation.Serializable;
 import org.yaml.snakeyaml.DumperOptions;
@@ -37,6 +38,8 @@ public class ConfigTest implements ConfigurationPart {
         public int max;
         @Comment("this is the min")
         public int min;
+        @Hidden
+        public String secret = null;
 
         public CustomClass() {
             this(1, 2);

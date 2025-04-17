@@ -3,6 +3,7 @@ package com.artillexstudios.axapi.config.adapters.other;
 import com.artillexstudios.axapi.config.YamlConfiguration;
 import com.artillexstudios.axapi.config.adapters.TypeAdapter;
 import com.artillexstudios.axapi.config.adapters.TypeAdapterHolder;
+import com.artillexstudios.axapi.config.annotation.Hidden;
 import com.artillexstudios.axapi.config.annotation.Ignored;
 import com.artillexstudios.axapi.config.annotation.PostProcess;
 import com.artillexstudios.axapi.config.annotation.Serializable;
@@ -39,6 +40,10 @@ public final class ObjectAdapter implements TypeAdapter<Object, Map<String, Obje
 
                     Object found = castMap.get(this.configuration.keyRenamer().rename(field.getName()));
                     if (found == null) {
+                        if (field.isAnnotationPresent(Hidden.class)) {
+                            continue;
+                        }
+
                         castMap.put(this.configuration.keyRenamer().rename(field.getName()), field.get(instance));
                     } else {
                         field.set(instance, holder.deserialize(found, field.getGenericType()));
@@ -77,7 +82,12 @@ public final class ObjectAdapter implements TypeAdapter<Object, Map<String, Obje
                     continue;
                 }
 
-                map.put(this.configuration.keyRenamer().rename(field.getName()), holder.serialize(field.get(value), field.getGenericType()));
+                Object object = field.get(value);
+                if (field.isAnnotationPresent(Hidden.class) && object == null) {
+                    continue;
+                }
+
+                map.put(this.configuration.keyRenamer().rename(field.getName()), holder.serialize(object, field.getGenericType()));
             }
 
             return map;
