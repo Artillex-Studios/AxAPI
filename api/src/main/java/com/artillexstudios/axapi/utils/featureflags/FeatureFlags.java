@@ -1,7 +1,6 @@
 package com.artillexstudios.axapi.utils.featureflags;
 
 import com.artillexstudios.axapi.AxPlugin;
-import com.artillexstudios.axapi.packet.PacketDebugMode;
 
 import java.util.Arrays;
 import java.util.regex.Pattern;
@@ -18,7 +17,6 @@ public final class FeatureFlags {
     public final BooleanFlag PLACEHOLDER_API_HOOK;
     public final StringFlag PLACEHOLDER_API_IDENTIFIER;
     public final IntegerFlag COMPONENT_CACHE_SIZE;
-    public final ListFlag<PacketDebugMode> PACKET_DEBUG_MODES;
     private final AxPlugin plugin;
 
     public FeatureFlags(AxPlugin plugin) {
@@ -34,6 +32,5 @@ public final class FeatureFlags {
         this.PLACEHOLDER_API_HOOK = new BooleanFlag(plugin.getName() + "placeholderApiHook", false);
         this.PLACEHOLDER_API_IDENTIFIER = new StringFlag(plugin.getName() + "placeholderApiIdentifier", "");
         this.COMPONENT_CACHE_SIZE = new IntegerFlag(plugin.getName() + "componentCacheSize", 200);
-        this.PACKET_DEBUG_MODES = new ListFlag<>("packetDebug", new EnumFlag<>("", null, PacketDebugMode.class), null);
     }
 }
