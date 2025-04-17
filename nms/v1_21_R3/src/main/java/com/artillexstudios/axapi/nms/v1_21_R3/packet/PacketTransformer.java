@@ -183,7 +183,6 @@ public final class PacketTransformer {
             if (packetId == -1) {
                 throw new IllegalStateException();
             }
-
         } else if (input instanceof ByteBuf buffer) {
             int readerIndex = buffer.readerIndex();
             int writerIndex = buffer.writerIndex();
