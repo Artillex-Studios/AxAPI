@@ -5,6 +5,7 @@ import com.artillexstudios.axapi.config.adapters.TypeAdapterHolder;
 
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.List;
 
 public final class EnumAdapter implements TypeAdapter<Enum<?>, String> {
 
@@ -31,5 +32,12 @@ public final class EnumAdapter implements TypeAdapter<Enum<?>, String> {
     @Override
     public String serialize(TypeAdapterHolder holder, Enum<?> value, Type type) {
         return value.name();
+    }
+
+    @Override
+    public List<String> values(Enum<?> input) {
+        return Arrays.stream(input.getDeclaringClass().getEnumConstants())
+                .map(Enum::name)
+                .toList();
     }
 }

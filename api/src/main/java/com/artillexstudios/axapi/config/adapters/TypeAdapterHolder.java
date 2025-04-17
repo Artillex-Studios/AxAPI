@@ -5,6 +5,7 @@ import com.artillexstudios.axapi.config.adapters.collections.ListAdapter;
 import com.artillexstudios.axapi.config.adapters.collections.MapAdapter;
 import com.artillexstudios.axapi.config.adapters.other.BigDecimalAdapter;
 import com.artillexstudios.axapi.config.adapters.other.BigIntegerAdapter;
+import com.artillexstudios.axapi.config.adapters.other.DatabaseTypeAdapter;
 import com.artillexstudios.axapi.config.adapters.other.EnumAdapter;
 import com.artillexstudios.axapi.config.adapters.other.ItemStackAdapter;
 import com.artillexstudios.axapi.config.adapters.other.PatternAdapter;
@@ -19,6 +20,7 @@ import com.artillexstudios.axapi.config.adapters.primitive.LongAdapter;
 import com.artillexstudios.axapi.config.adapters.primitive.ShortAdapter;
 import com.artillexstudios.axapi.config.adapters.primitive.StringAdapter;
 import com.artillexstudios.axapi.config.annotation.Serializable;
+import com.artillexstudios.axapi.database.DatabaseType;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import org.bukkit.inventory.ItemStack;
 
@@ -66,6 +68,7 @@ public final class TypeAdapterHolder {
         this.adapters.put(ArrayList.class, new ListAdapter());
         this.adapters.put(Map.class, new MapAdapter());
         this.adapters.put(LinkedHashMap.class, new LinkedHashMapAdapter());
+        this.adapters.put(DatabaseType.class, new DatabaseTypeAdapter());
     }
 
     public void registerAdapter(Class<?> clazz, TypeAdapter<?, ?> adapter) {
@@ -82,6 +85,21 @@ public final class TypeAdapterHolder {
             return null;
         }
 
+        TypeAdapter<Object, Object> adapter = this.adapter(object, type);
+        return adapter.serialize(this, object, type);
+    }
+
+    // From the yaml
+    public Object deserialize(Object object, Type type) {
+        if (object == null) {
+            return null;
+        }
+
+        TypeAdapter<Object, Object> adapter = this.adapter(object, type);
+        return adapter.deserialize(this, object, type);
+    }
+
+    public TypeAdapter<Object, Object> adapter(Object object, Type type) {
         TypeAdapter<Object, Object> adapter = null;
         if (type instanceof Class<?> clazz) {
             if (clazz.isAnnotationPresent(Serializable.class)) {
@@ -115,48 +133,6 @@ public final class TypeAdapterHolder {
             throw new IllegalArgumentException();
         }
 
-        return adapter.serialize(this, object, type);
-    }
-
-    // From the yaml
-    public Object deserialize(Object object, Type type) {
-        if (object == null) {
-            return null;
-        }
-
-        TypeAdapter<?, ?> adapter = null;
-        if (type instanceof Class<?> clazz) {
-            if (clazz.isAnnotationPresent(Serializable.class)) {
-                adapter = this.adapters.get(Serializable.class);
-            } else if (Enum.class.isAssignableFrom(clazz)) {
-                adapter = this.adapters.get(Enum.class);
-            } else {
-                adapter = this.adapters.get(clazz);
-            }
-        }
-
-        if (adapter == null && type instanceof ParameterizedType parameterizedType) {
-            if (parameterizedType.getRawType().getClass().isAnnotationPresent(Serializable.class)) {
-                adapter = this.adapters.get(Serializable.class);
-            } else if (Enum.class.isAssignableFrom((Class<?>) parameterizedType.getRawType())) {
-                adapter = this.adapters.get(Enum.class);
-            } else {
-                adapter = this.adapters.get((Class<?>) parameterizedType.getRawType());
-            }
-        }
-
-        if (adapter == null) {
-            if (object.getClass().isAnnotationPresent(Serializable.class)) {
-                adapter = this.adapters.get(Serializable.class);
-            } else {
-                adapter = this.adapters.get(object.getClass());
-            }
-        }
-
-        if (adapter == null) {
-            throw new IllegalArgumentException();
-        }
-
-        return adapter.deserialize(this, object, type);
+        return adapter;
     }
 }
