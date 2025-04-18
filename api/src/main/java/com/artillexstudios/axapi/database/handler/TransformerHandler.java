@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.function.Function;
 
 public class TransformerHandler<T> implements ResultHandler<T> {
-    private final Pair<Function<?, List<?>>, Function<List<?>, ?>> transformer;
+    private final Pair<Function<Object, List<Object>>, Function<List<Object>, Object>> transformer;
     private final DatabaseHandler handler;
     private final Class<T> clazz;
 
