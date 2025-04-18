@@ -4,7 +4,10 @@ import com.artillexstudios.axapi.database.DatabaseConfig;
 import com.artillexstudios.axapi.database.DatabaseType;
 import com.zaxxer.hikari.HikariConfig;
 
-public class MySQLDatabaseType implements DatabaseType {
+import java.util.List;
+import java.util.UUID;
+
+public class MySQLDatabaseType extends DatabaseType {
     private final String relocated;
 
     public MySQLDatabaseType() {
@@ -13,6 +16,7 @@ public class MySQLDatabaseType implements DatabaseType {
 
     public MySQLDatabaseType(String relocated) {
         this.relocated = relocated;
+        this.registerTransformer(UUID.class, uuid -> List.of(uuid.toString()), object -> UUID.fromString(object.getFirst()));
     }
 
     @Override

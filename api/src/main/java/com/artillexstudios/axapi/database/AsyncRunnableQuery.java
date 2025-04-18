@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.database;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Supplier;
@@ -23,5 +24,9 @@ public class AsyncRunnableQuery<T> {
 
     public CompletableFuture<T> query(Object... parameters) {
         return CompletableFuture.supplyAsync(() -> query.query(parameters), executorSupplier.get());
+    }
+
+    public CompletableFuture<int[]> batch(List<Object[]> batch) {
+        return CompletableFuture.supplyAsync(() -> query.batch(batch), executorSupplier.get());
     }
 }

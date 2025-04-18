@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.database;
 
+import com.artillexstudios.axapi.utils.Pair;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 
 import java.sql.Connection;
@@ -8,14 +9,18 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
+import java.util.List;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class RunnableQuery<T> {
+    private final Function<Class<?>, Pair<Function<Object, List<Object>>, Function<List<Object>, Object>>> transformer;
     private final Supplier<Connection> connectionSupplier;
     private final ResultHandler<T> resultHandler;
     private final String sql;
 
-    public RunnableQuery(Supplier<Connection> connectionSupplier, ResultHandler<T> resultHandler, String sql) {
+    public RunnableQuery(Function<Class<?>, Pair<Function<Object, List<Object>>, Function<List<Object>, Object>>> transformer, Supplier<Connection> connectionSupplier, ResultHandler<T> resultHandler, String sql) {
+        this.transformer = transformer;
         this.connectionSupplier = connectionSupplier;
         this.resultHandler = resultHandler;
         this.sql = sql;
@@ -24,7 +29,22 @@ public class RunnableQuery<T> {
     public int update(Object... parameters) {
         try (Connection connection = this.connectionSupplier.get(); PreparedStatement statement = connection.prepareStatement(this.sql)) {
             for (int i = 0; i < parameters.length; i++) {
-                statement.setObject(i + 1, parameters[i]);
+                Object parameter = parameters[i];
+                if (parameter == null) {
+                    statement.setObject(i + 1, null);
+                } else {
+                    Pair<Function<Object, List<Object>>, Function<List<Object>, Object>> transformer = this.transformer.apply(parameter.getClass());
+                    if (transformer != null) {
+                        List<Object> out = transformer.first().apply(parameter);
+                        int j = i;
+                        for (; j < i + out.size(); j++) {
+                            statement.setObject(j + 1, parameter);
+                        }
+                        i = j;
+                    } else {
+                        statement.setObject(i + 1, parameter);
+                    }
+                }
             }
             return statement.executeUpdate();
         } catch (SQLException exception) {
@@ -36,7 +56,22 @@ public class RunnableQuery<T> {
     public T execute(Object... parameters) {
         try (Connection connection = this.connectionSupplier.get(); PreparedStatement statement = connection.prepareStatement(this.sql, Statement.RETURN_GENERATED_KEYS)) {
             for (int i = 0; i < parameters.length; i++) {
-                statement.setObject(i + 1, parameters[i]);
+                Object parameter = parameters[i];
+                if (parameter == null) {
+                    statement.setObject(i + 1, null);
+                } else {
+                    Pair<Function<Object, List<Object>>, Function<List<Object>, Object>> transformer = this.transformer.apply(parameter.getClass());
+                    if (transformer != null) {
+                        List<Object> out = transformer.first().apply(parameter);
+                        int j = i;
+                        for (; j < i + out.size(); j++) {
+                            statement.setObject(j + 1, parameter);
+                        }
+                        i = j;
+                    } else {
+                        statement.setObject(i + 1, parameter);
+                    }
+                }
             }
 
             statement.executeUpdate();
@@ -52,7 +87,22 @@ public class RunnableQuery<T> {
     public T query(Object... parameters) {
         try (Connection connection = this.connectionSupplier.get(); PreparedStatement statement = connection.prepareStatement(this.sql)) {
             for (int i = 0; i < parameters.length; i++) {
-                statement.setObject(i + 1, parameters[i]);
+                Object parameter = parameters[i];
+                if (parameter == null) {
+                    statement.setObject(i + 1, null);
+                } else {
+                    Pair<Function<Object, List<Object>>, Function<List<Object>, Object>> transformer = this.transformer.apply(parameter.getClass());
+                    if (transformer != null) {
+                        List<Object> out = transformer.first().apply(parameter);
+                        int j = i;
+                        for (; j < i + out.size(); j++) {
+                            statement.setObject(j + 1, parameter);
+                        }
+                        i = j;
+                    } else {
+                        statement.setObject(i + 1, parameter);
+                    }
+                }
             }
 
             try (ResultSet resultSet = statement.executeQuery()) {
@@ -60,6 +110,37 @@ public class RunnableQuery<T> {
             }
         } catch (SQLException exception) {
             LogUtils.error("An exception occurred while executing sql query {} with parameters: {}!", this.sql, Arrays.toString(parameters));
+            throw new RuntimeException(exception);
+        }
+    }
+
+    public int[] batch(List<Object[]> batch) {
+        try (Connection connection = this.connectionSupplier.get(); PreparedStatement statement = connection.prepareStatement(this.sql)) {
+            for (Object[] parameters : batch) {
+                for (int i = 0; i < parameters.length; i++) {
+                    Object parameter = parameters[i];
+                    if (parameter == null) {
+                        statement.setObject(i + 1, null);
+                    } else {
+                        Pair<Function<Object, List<Object>>, Function<List<Object>, Object>> transformer = this.transformer.apply(parameter.getClass());
+                        if (transformer != null) {
+                            List<Object> out = transformer.first().apply(parameter);
+                            int j = i;
+                            for (; j < i + out.size(); j++) {
+                                statement.setObject(j + 1, parameter);
+                            }
+                            i = j;
+                        } else {
+                            statement.setObject(i + 1, parameter);
+                        }
+                    }
+                }
+
+                statement.addBatch();
+            }
+            return statement.executeBatch();
+        } catch (SQLException exception) {
+            LogUtils.error("An exception occurred while executing sql query {} with parameters: {}!", this.sql, batch);
             throw new RuntimeException(exception);
         }
     }

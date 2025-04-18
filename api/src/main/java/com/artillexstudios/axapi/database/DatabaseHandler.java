@@ -3,6 +3,7 @@ package com.artillexstudios.axapi.database;
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.database.handler.SimpleHandler;
 import com.artillexstudios.axapi.database.impl.MySQLDatabaseType;
+import com.artillexstudios.axapi.utils.Pair;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -14,6 +15,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.function.Function;
 
 public class DatabaseHandler {
     private final AxPlugin plugin;
@@ -33,6 +36,14 @@ public class DatabaseHandler {
             config.addDataSourceProperty("url", this.config.url);
         }
         this.dataSource = new HikariDataSource(config);
+    }
+
+    public <T, Z> void addTransformer(Class<T> clazz, Function<T, List<Z>> from, Function<List<Z>, T> to) {
+        this.config.type.registerTransformer(clazz, from, to);
+    }
+
+    public Pair<Function<Object, List<Object>>, Function<List<Object>, Object>> transformer(Class<?> clazz) {
+        return this.config.type.transformers(clazz);
     }
 
     public <T> DatabaseQuery<T> query(String name) {

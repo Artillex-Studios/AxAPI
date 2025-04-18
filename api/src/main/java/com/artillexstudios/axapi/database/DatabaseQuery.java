@@ -16,7 +16,7 @@ public class DatabaseQuery<T> {
     }
 
     public RunnableQuery<T> create() {
-        return new RunnableQuery<>(handler::connection, this.resultHandler, this.sql);
+        return new RunnableQuery<>(handler::transformer, handler::connection, this.resultHandler, this.sql);
     }
 
     public AsyncRunnableQuery<T> createAsync() {

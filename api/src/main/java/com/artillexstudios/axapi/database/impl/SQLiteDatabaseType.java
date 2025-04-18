@@ -5,7 +5,10 @@ import com.artillexstudios.axapi.database.DatabaseConfig;
 import com.artillexstudios.axapi.database.DatabaseType;
 import com.zaxxer.hikari.HikariConfig;
 
-public class SQLiteDatabaseType implements DatabaseType {
+import java.util.List;
+import java.util.UUID;
+
+public class SQLiteDatabaseType extends DatabaseType {
     private final String relocated;
 
     public SQLiteDatabaseType() {
@@ -14,6 +17,7 @@ public class SQLiteDatabaseType implements DatabaseType {
 
     public SQLiteDatabaseType(String relocated) {
         this.relocated = relocated;
+        this.registerTransformer(UUID.class, uuid -> List.of(uuid.toString()), object -> UUID.fromString(object.getFirst()));
     }
 
     @Override
