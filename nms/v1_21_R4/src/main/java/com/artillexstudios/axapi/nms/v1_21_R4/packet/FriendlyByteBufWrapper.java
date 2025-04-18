@@ -17,20 +17,31 @@ import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.level.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
 public record FriendlyByteBufWrapper(RegistryFriendlyByteBuf buf) implements FriendlyByteBuf {
 
     @Override
-    public WrappedItemStack readItemStack() {
-        return new WrappedItemStack(ItemStack.OPTIONAL_STREAM_CODEC.decode(this.buf));
+    public WrappedItemStack readItemStack(com.artillexstudios.axapi.items.WrappedItemStack.CodecData codecData) {
+        return switch (codecData) {
+            case OPTIONAL_UNTRUSTED_STREAM_CODEC ->
+                    new WrappedItemStack(ItemStack.OPTIONAL_UNTRUSTED_STREAM_CODEC.decode(this.buf));
+            case OPTIONAL_STREAM_CODEC -> new WrappedItemStack(ItemStack.OPTIONAL_STREAM_CODEC.decode(this.buf));
+            case STREAM_CODEC -> new WrappedItemStack(ItemStack.STREAM_CODEC.decode(this.buf));
+        };
     }
 
     @Override
-    public void writeItemStack(com.artillexstudios.axapi.items.WrappedItemStack itemStack) {
-        ItemStack.OPTIONAL_STREAM_CODEC.encode(this.buf, ((WrappedItemStack) itemStack).asMinecraft());
+    public void writeItemStack(com.artillexstudios.axapi.items.WrappedItemStack wrappedItemStack, WrappedItemStack.CodecData codecData) {
+        switch (codecData) {
+            case OPTIONAL_UNTRUSTED_STREAM_CODEC ->
+                    ItemStack.OPTIONAL_UNTRUSTED_STREAM_CODEC.encode(this.buf, ((WrappedItemStack) wrappedItemStack).asMinecraft());
+            case OPTIONAL_STREAM_CODEC ->
+                    ItemStack.OPTIONAL_STREAM_CODEC.encode(this.buf, ((WrappedItemStack) wrappedItemStack).asMinecraft());
+            case STREAM_CODEC ->
+                    ItemStack.STREAM_CODEC.encode(this.buf, ((WrappedItemStack) wrappedItemStack).asMinecraft());
+        }
     }
 
     @Override
