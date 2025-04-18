@@ -35,7 +35,11 @@ public final class ServerboundSetCreativeModeSlotWrapper extends PacketWrapper {
     @Override
     public void write(FriendlyByteBuf out) {
         out.writeShort(this.slot);
-        out.writeItemStack(this.stack);
+        if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_4)) {
+            out.writeItemStack(this.stack, WrappedItemStack.CodecData.OPTIONAL_UNTRUSTED_STREAM_CODEC);
+        } else {
+            out.writeItemStack(this.stack);
+        }
     }
 
     @Override
