@@ -40,7 +40,7 @@ public final class ServerboundSetCreativeModeSlotWrapper extends PacketWrapper {
 
     @Override
     public void read(FriendlyByteBuf buf) {
-        this.slot = buf.readShort();
+        this.slot = Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_20_4) ? buf.readUnsignedShort() : buf.readShort();
         this.stack = buf.readItemStack();
     }
 

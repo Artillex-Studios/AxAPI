@@ -25,12 +25,12 @@ public record FriendlyByteBufWrapper(RegistryFriendlyByteBuf buf) implements Fri
 
     @Override
     public WrappedItemStack readItemStack() {
-        return new WrappedItemStack(ItemStack.OPTIONAL_STREAM_CODEC.decode(this.buf));
+        return new WrappedItemStack(ItemStack.OPTIONAL_UNTRUSTED_STREAM_CODEC.decode(this.buf));
     }
 
     @Override
     public void writeItemStack(com.artillexstudios.axapi.items.WrappedItemStack itemStack) {
-        ItemStack.OPTIONAL_STREAM_CODEC.encode(this.buf, ((WrappedItemStack) itemStack).asMinecraft());
+        ItemStack.OPTIONAL_UNTRUSTED_STREAM_CODEC.encode(this.buf, ((WrappedItemStack) itemStack).asMinecraft());
     }
 
     @Override
