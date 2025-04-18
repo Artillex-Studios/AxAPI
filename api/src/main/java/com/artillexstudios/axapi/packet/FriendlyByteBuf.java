@@ -19,9 +19,17 @@ public interface FriendlyByteBuf {
         return NMSHandlers.getNmsHandler().newBuf();
     }
 
-    WrappedItemStack readItemStack();
+    default WrappedItemStack readItemStack() {
+        return this.readItemStack(WrappedItemStack.CodecData.OPTIONAL_STREAM_CODEC);
+    }
 
-    void writeItemStack(WrappedItemStack wrappedItemStack);
+    WrappedItemStack readItemStack(WrappedItemStack.CodecData codecData);
+
+    default void writeItemStack(WrappedItemStack wrappedItemStack) {
+        this.writeItemStack(wrappedItemStack, WrappedItemStack.CodecData.OPTIONAL_STREAM_CODEC);
+    }
+
+    void writeItemStack(WrappedItemStack wrappedItemStack, WrappedItemStack.CodecData codecData);
 
     byte[] readByteArray();
 

@@ -23,13 +23,23 @@ import java.util.Optional;
 public record FriendlyByteBufWrapper(RegistryFriendlyByteBuf buf) implements FriendlyByteBuf {
 
     @Override
-    public WrappedItemStack readItemStack() {
-        return new com.artillexstudios.axapi.nms.v1_20_R4.items.WrappedItemStack(ItemStack.OPTIONAL_STREAM_CODEC.decode(this.buf));
+    public WrappedItemStack readItemStack(com.artillexstudios.axapi.items.WrappedItemStack.CodecData codecData) {
+        return switch (codecData) {
+            case OPTIONAL_UNTRUSTED_STREAM_CODEC, OPTIONAL_STREAM_CODEC ->
+                    new com.artillexstudios.axapi.nms.v1_20_R4.items.WrappedItemStack(ItemStack.OPTIONAL_STREAM_CODEC.decode(this.buf));
+            case STREAM_CODEC ->
+                    new com.artillexstudios.axapi.nms.v1_20_R4.items.WrappedItemStack(ItemStack.STREAM_CODEC.decode(this.buf));
+        };
     }
 
     @Override
-    public void writeItemStack(WrappedItemStack wrappedItemStack) {
-        ItemStack.OPTIONAL_STREAM_CODEC.encode(this.buf, ((com.artillexstudios.axapi.nms.v1_20_R4.items.WrappedItemStack) wrappedItemStack).itemStack);
+    public void writeItemStack(com.artillexstudios.axapi.items.WrappedItemStack wrappedItemStack, WrappedItemStack.CodecData codecData) {
+        switch (codecData) {
+            case OPTIONAL_UNTRUSTED_STREAM_CODEC, OPTIONAL_STREAM_CODEC ->
+                    ItemStack.OPTIONAL_STREAM_CODEC.encode(this.buf, ((com.artillexstudios.axapi.nms.v1_20_R4.items.WrappedItemStack) wrappedItemStack).asMinecraft());
+            case STREAM_CODEC ->
+                    ItemStack.STREAM_CODEC.encode(this.buf, ((com.artillexstudios.axapi.nms.v1_20_R4.items.WrappedItemStack) wrappedItemStack).asMinecraft());
+        }
     }
 
     @Override

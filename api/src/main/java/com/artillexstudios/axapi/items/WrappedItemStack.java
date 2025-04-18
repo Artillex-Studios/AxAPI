@@ -37,4 +37,10 @@ public interface WrappedItemStack extends Wrapper<ItemStack> {
     void finishEdit();
 
     WrappedItemStack copy();
+
+    enum CodecData {
+        OPTIONAL_STREAM_CODEC,
+        OPTIONAL_UNTRUSTED_STREAM_CODEC,
+        STREAM_CODEC;
+    }
 }
