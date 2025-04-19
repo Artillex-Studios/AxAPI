@@ -4,11 +4,12 @@ import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketType;
 import com.artillexstudios.axapi.packet.ServerboundPacketTypes;
-import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
 import com.artillexstudios.axapi.utils.BlockPosition;
+import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axapi.utils.Version;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +55,7 @@ public final class ServerboundSignUpdateWrapper extends PacketWrapper {
         }
 
         for (int i = 0; i < 4; i++) {
-            out.writeUTF(ComponentSerializer.instance().toGson(this.lines[i]));
+            out.writeUTF(LegacyComponentSerializer.legacySection().serialize(this.lines[i]));
         }
     }
 
@@ -71,7 +72,7 @@ public final class ServerboundSignUpdateWrapper extends PacketWrapper {
         for (int i = 0; i < 4; i++) {
             lines.add(buf.readUTF(384));
         }
-        this.lines = ComponentSerializer.instance().fromGsonList(lines).toArray(new net.kyori.adventure.text.Component[0]);
+        this.lines = StringUtils.formatList(lines).toArray(new net.kyori.adventure.text.Component[0]);
     }
 
     @Override

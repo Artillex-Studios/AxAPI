@@ -20,6 +20,7 @@ import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.GameProtocols;
 import net.minecraft.network.protocol.game.ServerGamePacketListener;
+import net.minecraft.network.protocol.game.ServerboundSignUpdatePacket;
 import net.minecraft.server.MinecraftServer;
 
 import java.util.function.Consumer;
@@ -135,6 +136,7 @@ public final class PacketTransformer {
         FriendlyByteBufWrapper wrapper;
         if (packet instanceof Packet<?>) {
             ByteBuf buffer = alloc(ctx);
+            ServerboundSignUpdatePacket
             clientboundCodec.encode(buffer, (Packet<? super ClientGamePacketListener>) packet);
             wrapper = new FriendlyByteBufWrapper(decorator.apply(buffer));
         } else if (packet instanceof ByteBuf buffer) {
