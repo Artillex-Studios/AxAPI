@@ -98,6 +98,7 @@ public final class ClientboundMerchantOffersWrapper extends PacketWrapper {
         this.containerId = buf.readContainerId();
         if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_19)) {
             int size = buf.readVarInt();
+            this.merchantOffers = new ArrayList<>(size);
             for (int i = 0; i < size; i++) {
                 this.merchantOffers.add(this.readOffer(buf));
             }
