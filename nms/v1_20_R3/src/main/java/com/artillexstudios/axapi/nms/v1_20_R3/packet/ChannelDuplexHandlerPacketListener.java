@@ -43,6 +43,12 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             List<Packet<ClientGamePacketListener>> packets = new ArrayList<>();
             for (Packet<ClientGamePacketListener> subPacket : bundlePacket.subPackets()) {
                 int packetId = PacketTransformer.packetId(PacketSide.CLIENT_BOUND, subPacket);
+                if (packetId == -1) {
+                    LogUtils.info("Unknown packet! Pipeline: {}", ctx.pipeline().names());
+                    packets.add(subPacket);
+                    continue;
+                }
+
                 PacketType type = ClientboundPacketTypes.forPacketId(packetId);
                 if (this.flags.DEBUG_OUTGOING_PACKETS.get()) {
                     LogUtils.info("(bundle) Packet id: {}, class: {}, type: {}", packetId, subPacket.getClass(), type);
@@ -93,6 +99,11 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
         }
 
         int packetId = PacketTransformer.packetId(PacketSide.CLIENT_BOUND, msg);
+        if (packetId == -1) {
+            LogUtils.info("Unknown packet! Pipeline: {}", ctx.pipeline().names());
+            super.write(ctx, msg, promise);
+            return;
+        }
         PacketType type = ClientboundPacketTypes.forPacketId(packetId);
         if (this.flags.DEBUG_OUTGOING_PACKETS.get()) {
             LogUtils.info("Packet id: {}, class: {}, type: {}", packetId, msg.getClass(), type);
@@ -161,6 +172,11 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
         }
 
         int packetId = PacketTransformer.packetId(PacketSide.SERVER_BOUND, msg);
+        if (packetId == -1) {
+            LogUtils.info("Unknown packet! Pipeline: {}", ctx.pipeline().names());
+            super.channelRead(ctx, msg);
+            return;
+        }
         PacketType type = ServerboundPacketTypes.forPacketId(packetId);
         if (this.flags.DEBUG_INCOMING_PACKETS.get()) {
             LogUtils.info("Incoming packet id: {}, class: {}, type: {}", packetId, msg.getClass(), type);
