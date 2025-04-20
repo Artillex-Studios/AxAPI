@@ -21,7 +21,7 @@ import java.util.WeakHashMap;
 public final class BossBar {
     private final UUID uuid = UUID.randomUUID();
     private final Set<Flag> flags = EnumSet.noneOf(Flag.class);
-    private final Set<Player> viewers = Collections.newSetFromMap(new WeakHashMap<>());
+    private final Set<Player> viewers = Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
     private final ClientboundBossEventWrapper removePacket = new ClientboundBossEventWrapper(this.uuid, ClientboundBossEventWrapper.REMOVE_ACTION);
     private Component title;
     private Color color;
@@ -135,9 +135,11 @@ public final class BossBar {
     }
 
     private void broadcast(PacketWrapper packetWrapper) {
-        for (Player viewer : this.viewers) {
-            ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(viewer);
-            wrapper.sendPacket(packetWrapper);
+        synchronized (this.viewers) {
+            for (Player viewer : this.viewers) {
+                ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(viewer);
+                wrapper.sendPacket(packetWrapper);
+            }
         }
     }
 
