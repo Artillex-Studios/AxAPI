@@ -578,6 +578,73 @@ public final class EntityDataSerializers {
         }
     };
 
+    public static final EntityDataSerializer<Integer> COW_VARIANT = new EntityDataSerializer<>() {
+        @Override
+        public void write(FriendlyByteBuf buf, Integer value) {
+            buf.writeVarInt(value);
+        }
+
+        @Override
+        public Integer read(FriendlyByteBuf buf) {
+            return buf.readVarInt();
+        }
+
+        @Override
+        public Type type() {
+            return Type.COW_VARIANT;
+        }
+    };
+
+    public static final EntityDataSerializer<Integer> CHICKEN_VARIANT = new EntityDataSerializer<>() {
+        @Override
+        public void write(FriendlyByteBuf buf, Integer value) {
+            buf.writeVarInt(value);
+        }
+
+        @Override
+        public Integer read(FriendlyByteBuf buf) {
+            return buf.readVarInt();
+        }
+
+        @Override
+        public Type type() {
+            return Type.CHICKEN_VARIANT;
+        }
+    };
+
+    public static final EntityDataSerializer<Integer> WOLF_SOUND_VARIANT = new EntityDataSerializer<>() {
+        @Override
+        public void write(FriendlyByteBuf buf, Integer value) {
+            buf.writeVarInt(value);
+        }
+
+        @Override
+        public Integer read(FriendlyByteBuf buf) {
+            return buf.readVarInt();
+        }
+
+        @Override
+        public Type type() {
+            return Type.WOLF_SOUND_VARIANT;
+        }
+    };
+
+    public static final EntityDataSerializer<Integer> PIG_VARIANT = new EntityDataSerializer<>() {
+        @Override
+        public void write(FriendlyByteBuf buf, Integer value) {
+            buf.writeVarInt(value);
+        }
+
+        @Override
+        public Integer read(FriendlyByteBuf buf) {
+            return buf.readVarInt();
+        }
+
+        @Override
+        public Type type() {
+            return Type.PIG_VARIANT;
+        }
+    };
 
     public static <T> EntityDataSerializer<T> byId(int id) {
         return (EntityDataSerializer<T>) SERIALIZERS.get(id);
@@ -612,7 +679,7 @@ public final class EntityDataSerializers {
         register(BLOCK_POSITION);
         register(OPTIONAL_BLOCK_POSITION);
         register(DIRECTION);
-        register(OPTIONAL_UUID);
+        register(OPTIONAL_UUID); // Optional livingentity reference in 1.21.5
         register(BLOCK_DATA);
         if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_19_3)) {
             register(OPTIONAL_BLOCK_DATA);
@@ -627,10 +694,20 @@ public final class EntityDataSerializers {
         register(POSE);
         if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_19)) {
             register(CAT_VARIANT);
+            if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_4)) {
+                register(COW_VARIANT);
+            }
             if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_20_4)) {
                 register(WOLF_VARIANT);
             }
+            if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_4)) {
+                register(WOLF_SOUND_VARIANT);
+            }
             register(FROG_VARIANT);
+            if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_4)) {
+                register(PIG_VARIANT);
+                register(CHICKEN_VARIANT);
+            }
             register(OPTIONAL_GLOBAL_POS);
             register(PAINTING_VARIANT);
             register(SNIFFER_STATE);
@@ -670,6 +747,11 @@ public final class EntityDataSerializers {
         DIRECTION,
         VILLAGER_DATA,
         OPTIONAL_UNSIGNED_INT,
-        OPTIONAL_GLOBAL_POS, OPTIONAL_BLOCK_DATA;
+        OPTIONAL_GLOBAL_POS,
+        OPTIONAL_BLOCK_DATA,
+        COW_VARIANT,
+        WOLF_SOUND_VARIANT,
+        PIG_VARIANT,
+        CHICKEN_VARIANT;
     }
 }
