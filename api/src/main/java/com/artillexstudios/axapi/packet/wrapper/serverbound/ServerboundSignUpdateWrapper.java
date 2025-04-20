@@ -1,22 +1,21 @@
 package com.artillexstudios.axapi.packet.wrapper.serverbound;
 
+import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketType;
 import com.artillexstudios.axapi.packet.ServerboundPacketTypes;
-import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
 import com.artillexstudios.axapi.utils.BlockPosition;
 import com.artillexstudios.axapi.utils.Version;
-import net.kyori.adventure.text.Component;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 public final class ServerboundSignUpdateWrapper extends PacketWrapper {
     private BlockPosition position;
     private boolean frontText;
-    private Component[] lines;
+    private String[] lines;
 
     public ServerboundSignUpdateWrapper(PacketEvent event) {
         super(event);
@@ -38,11 +37,11 @@ public final class ServerboundSignUpdateWrapper extends PacketWrapper {
         this.frontText = frontText;
     }
 
-    public Component[] lines() {
+    public String[] lines() {
         return this.lines;
     }
 
-    public void lines(Component[] lines) {
+    public void lines(String[] lines) {
         this.lines = lines;
     }
 
@@ -54,7 +53,7 @@ public final class ServerboundSignUpdateWrapper extends PacketWrapper {
         }
 
         for (int i = 0; i < 4; i++) {
-            out.writeUTF(ComponentSerializer.instance().toGson(this.lines[i]));
+            out.writeUTF(this.lines[i]);
         }
     }
 
@@ -67,11 +66,14 @@ public final class ServerboundSignUpdateWrapper extends PacketWrapper {
             this.frontText = true;
         }
 
-        List<String> lines = new ArrayList<>(4);
+        this.lines = new String[4];
         for (int i = 0; i < 4; i++) {
-            lines.add(buf.readUTF(384));
+            this.lines[i] = buf.readUTF(384);
         }
-        this.lines = ComponentSerializer.instance().fromGsonList(lines).toArray(new net.kyori.adventure.text.Component[0]);
+
+        if (AxPlugin.getPlugin(AxPlugin.class).flags().DEBUG.get()) {
+            LogUtils.debug("Read lines from sign: {}", Arrays.toString(this.lines));
+        }
     }
 
     @Override

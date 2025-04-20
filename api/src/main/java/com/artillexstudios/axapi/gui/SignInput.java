@@ -13,10 +13,10 @@ public class SignInput {
     private static final List<SignInput> inputs = new ArrayList<>();
     private final Player player;
     private final Component[] lines;
-    private final BiConsumer<Player, Component[]> listener;
+    private final BiConsumer<Player, String[]> listener;
     private final Location location;
 
-    public SignInput(Player player, Component[] lines, BiConsumer<Player, Component[]> listener) {
+    public SignInput(Player player, Component[] lines, BiConsumer<Player, String[]> listener) {
         this.player = player;
         this.lines = lines;
         this.listener = listener;
@@ -34,7 +34,7 @@ public class SignInput {
         return location;
     }
 
-    public BiConsumer<Player, Component[]> getListener() {
+    public BiConsumer<Player, String[]> getListener() {
         return listener;
     }
 
@@ -48,7 +48,8 @@ public class SignInput {
 
     public static class Builder {
         private Component[] lines = new Component[0];
-        private BiConsumer<Player, Component[]> response = (a, b) -> {};
+        private BiConsumer<Player, String[]> response = (a, b) -> {
+        };
 
         public Builder setLines(Component[] lines) {
             this.lines = lines;
@@ -60,7 +61,7 @@ public class SignInput {
             return this;
         }
 
-        public Builder setHandler(BiConsumer<Player, Component[]> response) {
+        public Builder setHandler(BiConsumer<Player, String[]> response) {
             this.response = response;
             return this;
         }
