@@ -1,6 +1,5 @@
 package com.artillexstudios.axapi.database;
 
-import com.artillexstudios.axapi.utils.Pair;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 
 import java.sql.Connection;
@@ -14,12 +13,12 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class RunnableQuery<T> {
-    private final Function<Class<?>, Pair<Function<Object, List<Object>>, Function<List<Object>, Object>>> transformer;
+    private final Function<Class<?>, Function<Object, List<Object>>> transformer;
     private final Supplier<Connection> connectionSupplier;
     private final ResultHandler<T> resultHandler;
     private final String sql;
 
-    public RunnableQuery(Function<Class<?>, Pair<Function<Object, List<Object>>, Function<List<Object>, Object>>> transformer, Supplier<Connection> connectionSupplier, ResultHandler<T> resultHandler, String sql) {
+    public RunnableQuery(Function<Class<?>, Function<Object, List<Object>>> transformer, Supplier<Connection> connectionSupplier, ResultHandler<T> resultHandler, String sql) {
         this.transformer = transformer;
         this.connectionSupplier = connectionSupplier;
         this.resultHandler = resultHandler;
@@ -33,9 +32,9 @@ public class RunnableQuery<T> {
                 if (parameter == null) {
                     statement.setObject(i + 1, null);
                 } else {
-                    Pair<Function<Object, List<Object>>, Function<List<Object>, Object>> transformer = this.transformer.apply(parameter.getClass());
+                    Function<Object, List<Object>> transformer = this.transformer.apply(parameter.getClass());
                     if (transformer != null) {
-                        List<Object> out = transformer.first().apply(parameter);
+                        List<Object> out = transformer.apply(parameter);
                         int j = i;
                         for (; j < i + out.size(); j++) {
                             statement.setObject(j + 1, parameter);
@@ -60,9 +59,9 @@ public class RunnableQuery<T> {
                 if (parameter == null) {
                     statement.setObject(i + 1, null);
                 } else {
-                    Pair<Function<Object, List<Object>>, Function<List<Object>, Object>> transformer = this.transformer.apply(parameter.getClass());
+                    Function<Object, List<Object>> transformer = this.transformer.apply(parameter.getClass());
                     if (transformer != null) {
-                        List<Object> out = transformer.first().apply(parameter);
+                        List<Object> out = transformer.apply(parameter);
                         int j = i;
                         for (; j < i + out.size(); j++) {
                             statement.setObject(j + 1, parameter);
@@ -75,7 +74,7 @@ public class RunnableQuery<T> {
             }
 
             statement.executeUpdate();
-            try (ResultSet resultSet = statement.getResultSet()) {
+            try (ResultSet resultSet = statement.getGeneratedKeys()) {
                 return this.resultHandler.handle(resultSet);
             }
         } catch (SQLException exception) {
@@ -91,9 +90,9 @@ public class RunnableQuery<T> {
                 if (parameter == null) {
                     statement.setObject(i + 1, null);
                 } else {
-                    Pair<Function<Object, List<Object>>, Function<List<Object>, Object>> transformer = this.transformer.apply(parameter.getClass());
+                    Function<Object, List<Object>> transformer = this.transformer.apply(parameter.getClass());
                     if (transformer != null) {
-                        List<Object> out = transformer.first().apply(parameter);
+                        List<Object> out = transformer.apply(parameter);
                         int j = i;
                         for (; j < i + out.size(); j++) {
                             statement.setObject(j + 1, parameter);
@@ -122,9 +121,9 @@ public class RunnableQuery<T> {
                     if (parameter == null) {
                         statement.setObject(i + 1, null);
                     } else {
-                        Pair<Function<Object, List<Object>>, Function<List<Object>, Object>> transformer = this.transformer.apply(parameter.getClass());
+                        Function<Object, List<Object>> transformer = this.transformer.apply(parameter.getClass());
                         if (transformer != null) {
-                            List<Object> out = transformer.first().apply(parameter);
+                            List<Object> out = transformer.apply(parameter);
                             int j = i;
                             for (; j < i + out.size(); j++) {
                                 statement.setObject(j + 1, parameter);

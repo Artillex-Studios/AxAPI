@@ -17,7 +17,7 @@ public class SQLiteDatabaseType extends DatabaseType {
 
     public SQLiteDatabaseType(String relocated) {
         this.relocated = relocated;
-        this.registerTransformer(UUID.class, uuid -> List.of(uuid.toString()), object -> UUID.fromString(object.getFirst()));
+        this.registerTransformer(UUID.class, uuid -> List.of(uuid.toString()));
     }
 
     @Override

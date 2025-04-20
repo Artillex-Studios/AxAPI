@@ -9,7 +9,7 @@ public interface TypeAdapter<T, Z> {
 
     Z serialize(TypeAdapterHolder holder, T value, Type type);
 
-    default List<String> values(T input) {
+    default List<String> values(Type type) {
         return List.of();
     }
 }

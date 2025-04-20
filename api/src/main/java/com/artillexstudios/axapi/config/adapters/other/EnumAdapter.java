@@ -35,9 +35,13 @@ public final class EnumAdapter implements TypeAdapter<Enum<?>, String> {
     }
 
     @Override
-    public List<String> values(Enum<?> input) {
-        return Arrays.stream(input.getDeclaringClass().getEnumConstants())
-                .map(Enum::name)
+    public List<String> values(Type type) {
+        if (!(type instanceof Class<?> clazz)) {
+            return List.of();
+        }
+
+        return Arrays.stream(clazz.getDeclaringClass().getEnumConstants())
+                .map(en -> ((Enum<?>) en).name())
                 .toList();
     }
 }

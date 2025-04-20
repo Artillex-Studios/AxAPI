@@ -26,7 +26,6 @@ public class SimpleHandler<T> implements ResultHandler<T> {
         this.columnName = columnName;
     }
 
-
     @Override
     public T handle(ResultSet resultSet) throws SQLException {
         if (!resultSet.next()) {

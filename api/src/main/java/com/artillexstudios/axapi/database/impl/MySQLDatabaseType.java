@@ -16,7 +16,7 @@ public class MySQLDatabaseType extends DatabaseType {
 
     public MySQLDatabaseType(String relocated) {
         this.relocated = relocated;
-        this.registerTransformer(UUID.class, uuid -> List.of(uuid.toString()), object -> UUID.fromString(object.getFirst()));
+        this.registerTransformer(UUID.class, uuid -> List.of(uuid.toString()));
     }
 
     @Override

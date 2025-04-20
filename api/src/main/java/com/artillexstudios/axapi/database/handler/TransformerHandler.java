@@ -23,7 +23,10 @@ public class TransformerHandler<T> implements ResultHandler<T> {
         }
 
         try {
-            return (T) Arrays.stream(clazz.getDeclaredConstructors()).filter(it -> it.getParameterCount() == columnCount).findFirst().orElseThrow().newInstance(objects);
+            return (T) Arrays.stream(this.clazz.getDeclaredConstructors()).filter(it -> it.getParameterCount() == columnCount)
+                    .findFirst()
+                    .orElseThrow()
+                    .newInstance(objects);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }

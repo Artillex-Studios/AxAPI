@@ -121,7 +121,7 @@ public final class TypeAdapterHolder {
             }
         }
 
-        if (adapter == null) {
+        if (adapter == null && object != null) {
             if (object.getClass().isAnnotationPresent(Serializable.class)) {
                 adapter = (TypeAdapter<Object, Object>) this.adapters.get(Serializable.class);
             } else {

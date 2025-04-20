@@ -29,7 +29,7 @@ public final class DatabaseTypeAdapter implements TypeAdapter<DatabaseType, Stri
     }
 
     @Override
-    public List<String> values(DatabaseType input) {
+    public List<String> values(Type type) {
         return DatabaseTypes.keys();
     }
 }

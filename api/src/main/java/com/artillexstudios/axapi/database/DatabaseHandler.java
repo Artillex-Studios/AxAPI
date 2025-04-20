@@ -38,11 +38,11 @@ public class DatabaseHandler {
         this.dataSource = new HikariDataSource(config);
     }
 
-    public <T, Z> void addTransformer(Class<T> clazz, Function<T, List<Z>> from, Function<List<Z>, T> to) {
-        this.config.type.registerTransformer(clazz, from, to);
+    public <T, Z> void addTransformer(Class<T> clazz, Function<T, List<Z>> from) {
+        this.config.type.registerTransformer(clazz, from);
     }
 
-    public Pair<Function<Object, List<Object>>, Function<List<Object>, Object>> transformer(Class<?> clazz) {
+    public Function<Object, List<Object>> transformer(Class<?> clazz) {
         return this.config.type.transformers(clazz);
     }
 
