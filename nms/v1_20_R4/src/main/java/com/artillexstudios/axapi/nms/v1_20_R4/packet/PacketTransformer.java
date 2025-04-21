@@ -4,6 +4,7 @@ import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketType;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
+import com.artillexstudios.axapi.reflection.ClassUtils;
 import com.artillexstudios.axapi.reflection.FieldAccessor;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import io.netty.buffer.ByteBuf;
@@ -179,11 +180,6 @@ public final class PacketTransformer {
             } else {
                 packetId = serverboundIds.getOrDefault(type, -1);
             }
-
-            if (packetId == -1) {
-                throw new IllegalStateException();
-            }
-
         } else if (input instanceof ByteBuf buffer) {
             int readerIndex = buffer.readerIndex();
             int writerIndex = buffer.writerIndex();
@@ -191,7 +187,7 @@ public final class PacketTransformer {
             buffer.readerIndex(readerIndex);
             buffer.writerIndex(writerIndex);
         } else {
-            LogUtils.error("Unhandled packet class: {}", input.getClass());
+            LogUtils.warn("Unhandled packet class: {}", ClassUtils.INSTANCE.debugClass(input.getClass()));
             packetId = -1;
         }
 

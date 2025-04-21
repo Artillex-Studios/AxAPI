@@ -4,6 +4,7 @@ import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketType;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
+import com.artillexstudios.axapi.reflection.ClassUtils;
 import com.artillexstudios.axapi.reflection.FieldAccessor;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import io.netty.buffer.ByteBuf;
@@ -188,10 +189,6 @@ public final class PacketTransformer {
             } else {
                 packetId = serverboundIds.getOrDefault(type, -1);
             }
-
-            if (packetId == -1) {
-                throw new IllegalStateException();
-            }
         } else if (input instanceof ByteBuf buffer) {
             int readerIndex = buffer.readerIndex();
             int writerIndex = buffer.writerIndex();
@@ -199,37 +196,7 @@ public final class PacketTransformer {
             buffer.readerIndex(readerIndex);
             buffer.writerIndex(writerIndex);
         } else {
-            Set<Class<?>> superClasses = new HashSet<>();
-            superClasses.add(input.getClass());
-            Class<?> clazz = input.getClass();
-            while (true) {
-                clazz = clazz.getSuperclass();
-                if (clazz == null || clazz == Object.class) {
-                    break;
-                }
-
-                superClasses.add(clazz);
-            }
-
-            List<Field> fields = new ArrayList<>();
-            for (Class<?> superClass : superClasses) {
-                fields.addAll(List.of(superClass.getDeclaredFields()));
-            }
-
-            List<Method> methods = new ArrayList<>();
-            for (Class<?> superClass : superClasses) {
-                methods.addAll(List.of(superClass.getDeclaredMethods()));
-            }
-
-            LogUtils.error("Unhandled packet class: {}", input.getClass());
-            LogUtils.error("Superclasses: {}", superClasses);
-            LogUtils.error("Methods: {}", String.join("method: ", methods.stream().map(method -> {
-                return method.getName() + ": " + String.join(", ", Arrays.stream(method.getParameters()).map(Parameter::getType).map(Class::getName).toList());
-            }).toList()));
-            LogUtils.error("Fields: {}", String.join("field: ", fields.stream().map(field -> {
-                return field.getName() + ": " + field.getType().getName();
-            }).toList()));
-
+            LogUtils.warn("Unhandled packet class: {}", ClassUtils.INSTANCE.debugClass(input.getClass()));
             packetId = -1;
         }
 
