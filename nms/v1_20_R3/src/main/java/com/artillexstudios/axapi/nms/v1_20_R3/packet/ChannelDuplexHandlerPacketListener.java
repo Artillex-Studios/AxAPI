@@ -228,4 +228,10 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
         }
         super.channelRead(ctx, PacketTransformer.transformServerbound(out.buf()));
     }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        LogUtils.error("Error on netty thread!", cause);
+        super.exceptionCaught(ctx, cause);
+    }
 }
