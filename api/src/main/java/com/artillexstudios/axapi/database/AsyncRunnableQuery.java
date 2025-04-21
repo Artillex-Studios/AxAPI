@@ -15,18 +15,18 @@ public class AsyncRunnableQuery<T> {
     }
 
     public CompletableFuture<Integer> update(Object... parameters) {
-        return CompletableFuture.supplyAsync(() -> query.update(parameters), executorSupplier.get());
+        return CompletableFuture.supplyAsync(() -> this.query.update(parameters), this.executorSupplier.get());
     }
 
     public CompletableFuture<T> execute(Object... parameters) {
-        return CompletableFuture.supplyAsync(() -> query.execute(parameters), executorSupplier.get());
+        return CompletableFuture.supplyAsync(() -> this.query.execute(parameters), this.executorSupplier.get());
     }
 
     public CompletableFuture<T> query(Object... parameters) {
-        return CompletableFuture.supplyAsync(() -> query.query(parameters), executorSupplier.get());
+        return CompletableFuture.supplyAsync(() -> this.query.query(parameters), this.executorSupplier.get());
     }
 
     public CompletableFuture<int[]> batch(List<Object[]> batch) {
-        return CompletableFuture.supplyAsync(() -> query.batch(batch), executorSupplier.get());
+        return CompletableFuture.supplyAsync(() -> this.query.batch(batch), this.executorSupplier.get());
     }
 }
