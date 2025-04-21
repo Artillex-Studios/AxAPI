@@ -3,6 +3,7 @@ package com.artillexstudios.axapi.reflection;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
@@ -10,19 +11,18 @@ import java.lang.reflect.Field;
 public enum ClassUtils {
     INSTANCE;
 
-    private final Cache<String, Boolean> CLASS_CACHE = Caffeine.newBuilder()
+    private final LoadingCache<String, Class<?>> CLASS_CACHE = Caffeine.newBuilder()
             .maximumSize(50)
-            .build();
+            .build(name -> {
+                try {
+                    return Class.forName(name, false, this.getClass().getClassLoader());
+                } catch (ClassNotFoundException exception) {
+                    return null;
+                }
+            });
 
     public boolean classExists(@NotNull String className) {
-        return Boolean.TRUE.equals(CLASS_CACHE.get(className, name -> {
-            try {
-                Class.forName(name, false, this.getClass().getClassLoader());
-                return true;
-            } catch (ClassNotFoundException exception) {
-                return false;
-            }
-        }));
+        return CLASS_CACHE.get(className) != null;
     }
 
     public <T> T newInstance(String clazz) {
@@ -41,6 +41,10 @@ public enum ClassUtils {
             LogUtils.error("An unexpected error occurred while finding class {}!", clazz, exception);
             throw new RuntimeException(exception);
         }
+    }
+
+    public boolean isClass(Class<?> clazz, String other) {
+        return CLASS_CACHE.get(other) == clazz;
     }
 
     public Field getDeclaredField(String clazz, String field) {
