@@ -178,8 +178,9 @@ public final class PacketTransformer {
             }
 
             if (packetId == -1) {
+                Class<?> clazz = input.getClass();
                 while (true) {
-                    Class<?> clazz = packet.getClass().getSuperclass();
+                    clazz = clazz.getSuperclass();
                     if (clazz == null || clazz == Object.class) {
                         break;
                     }

@@ -200,8 +200,9 @@ public final class PacketTransformer {
         } else {
             Set<Class<?>> superClasses = new HashSet<>();
             superClasses.add(input.getClass());
+            Class<?> clazz = input.getClass();
             while (true) {
-                Class<?> clazz = input.getClass().getSuperclass();
+                clazz = clazz.getSuperclass();
                 if (clazz == null || clazz == Object.class) {
                     break;
                 }
