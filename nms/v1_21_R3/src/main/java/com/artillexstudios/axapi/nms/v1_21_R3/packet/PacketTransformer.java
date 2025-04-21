@@ -21,6 +21,14 @@ import net.minecraft.network.protocol.game.GameProtocols;
 import net.minecraft.network.protocol.game.ServerGamePacketListener;
 import net.minecraft.server.MinecraftServer;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -190,7 +198,35 @@ public final class PacketTransformer {
             buffer.readerIndex(readerIndex);
             buffer.writerIndex(writerIndex);
         } else {
+            Set<Class<?>> superClasses = new HashSet<>();
+            superClasses.add(input.getClass());
+            while (true) {
+                Class<?> clazz = input.getClass().getSuperclass();
+                if (clazz == null || clazz == Object.class) {
+                    break;
+                }
+
+                superClasses.add(clazz);
+            }
+
+            List<Field> fields = new ArrayList<>();
+            for (Class<?> superClass : superClasses) {
+                fields.addAll(List.of(superClass.getDeclaredFields()));
+            }
+
+            List<Method> methods = new ArrayList<>();
+            for (Class<?> superClass : superClasses) {
+                methods.addAll(List.of(superClass.getDeclaredMethods()));
+            }
+
             LogUtils.error("Unhandled packet class: {}", input.getClass());
+            LogUtils.error("Superclasses: {}", superClasses);
+            LogUtils.error("Methods: {}", String.join("method: ", methods.stream().map(method -> {
+                return method.getName() + ": " + String.join(", ", Arrays.stream(method.getParameters()).map(Parameter::getType).map(Class::getName).toList());
+            }).toList()));
+            LogUtils.error("Fields: {}", String.join("field: ", fields.stream().map(field -> {
+                return field.getName() + ": " + field.getType().getName();
+            }).toList()));
             packetId = -1;
         }
 
