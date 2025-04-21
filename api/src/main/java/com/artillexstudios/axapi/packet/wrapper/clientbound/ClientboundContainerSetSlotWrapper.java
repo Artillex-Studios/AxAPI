@@ -6,6 +6,7 @@ import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketType;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
+import com.artillexstudios.axapi.utils.Version;
 
 public final class ClientboundContainerSetSlotWrapper extends PacketWrapper {
     private int containerId;
@@ -59,7 +60,7 @@ public final class ClientboundContainerSetSlotWrapper extends PacketWrapper {
 
     @Override
     public void read(FriendlyByteBuf buf) {
-        this.containerId = buf.readContainerId();
+        this.containerId = Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_2) ? buf.readContainerId() : buf.readByte();
         this.stateId = buf.readVarInt();
         this.slot = buf.readShort();
         this.stack = buf.readItemStack();
