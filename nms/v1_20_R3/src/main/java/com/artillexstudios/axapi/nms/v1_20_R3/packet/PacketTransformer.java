@@ -4,10 +4,12 @@ import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketSide;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
+import com.artillexstudios.axapi.reflection.FieldAccessor;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.VarInt;
 import net.minecraft.network.protocol.Packet;
@@ -18,6 +20,14 @@ import net.minecraft.network.protocol.game.ServerGamePacketListener;
 import java.util.function.Consumer;
 
 public final class PacketTransformer {
+    private static final FieldAccessor packetSetAccessor = FieldAccessor.builder()
+            .withClass(ConnectionProtocol.CodecData.class)
+            .withField("c")
+            .build();
+    private static final FieldAccessor classToIdAccessor = FieldAccessor.builder()
+            .withClass("net.minecraft.network.EnumProtocol$b")
+            .withField("b")
+            .build();
     private static final ConnectionProtocol.CodecData<?> clientboundCodec = ConnectionProtocol.PLAY.codec(PacketFlow.CLIENTBOUND);
     private static final ConnectionProtocol.CodecData<?> serverboundCodec = ConnectionProtocol.PLAY.codec(PacketFlow.SERVERBOUND);
 
@@ -168,7 +178,27 @@ public final class PacketTransformer {
             }
 
             if (packetId == -1) {
-                LogUtils.error("Unhandled packet! Class: {}", packet.getClass());
+                while (true) {
+                    Class<?> clazz = packet.getClass().getSuperclass();
+                    if (clazz == null || clazz == Object.class) {
+                        break;
+                    }
+
+                    Object packetSet;
+                    if (side == PacketSide.CLIENT_BOUND) {
+                        packetSet = packetSetAccessor.get(clientboundCodec);
+                    } else {
+                        packetSet = packetSetAccessor.get(serverboundCodec);
+                    }
+
+                    Object2IntMap<Class<? extends Packet<?>>> packets = classToIdAccessor.getUnchecked(packetSet);
+                    packetId = packets.getInt(clazz);
+
+                    if (packetId != -1) {
+                        break;
+                    }
+                }
+
                 return packetId;
             }
         } else if (input instanceof ByteBuf buffer) {
