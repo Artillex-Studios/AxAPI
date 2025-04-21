@@ -168,6 +168,10 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             return;
         }
 
+        if (ClassUtils.INSTANCE.isClass(msg.getClass(), "com.ticxo.modelengine.api.nms.network.ProtectedPacket")) {
+            msg = packetAccessor.get(msg);
+        }
+
         if (msg instanceof ServerboundCustomPayloadPacket(
                 net.minecraft.network.protocol.common.custom.CustomPacketPayload payload
         )) {
@@ -181,8 +185,9 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             LogUtils.info("Incoming packet id: {}, class: {}, type: {}", packetId, msg.getClass(), type);
         }
 
+        Object finalMsg = msg;
         PacketEvent event = new PacketEvent(this.player, PacketSide.SERVER_BOUND, type, () -> {
-            return PacketTransformer.transformServerbound(ctx, msg, FriendlyByteBuf::readVarInt);
+            return PacketTransformer.transformServerbound(ctx, finalMsg, FriendlyByteBuf::readVarInt);
         }, () -> {
             return PacketTransformer.newByteBuf(ctx, buf -> {
                 buf.writeVarInt(packetId);

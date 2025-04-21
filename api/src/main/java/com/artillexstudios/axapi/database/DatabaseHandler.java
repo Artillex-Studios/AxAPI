@@ -3,7 +3,6 @@ package com.artillexstudios.axapi.database;
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.database.handler.SimpleHandler;
 import com.artillexstudios.axapi.database.impl.MySQLDatabaseType;
-import com.artillexstudios.axapi.utils.Pair;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -44,6 +43,14 @@ public class DatabaseHandler {
 
     public Function<Object, List<Object>> transformer(Class<?> clazz) {
         return this.config.type.transformers(clazz);
+    }
+
+    public <T> DatabaseQuery<T> rawQuery(String sql) {
+        return this.rawQuery(sql, new SimpleHandler<>());
+    }
+
+    public <T> DatabaseQuery<T> rawQuery(String sql, ResultHandler<T> resultHandler) {
+        return new DatabaseQuery<>(this, resultHandler, sql);
     }
 
     public <T> DatabaseQuery<T> query(String name) {
