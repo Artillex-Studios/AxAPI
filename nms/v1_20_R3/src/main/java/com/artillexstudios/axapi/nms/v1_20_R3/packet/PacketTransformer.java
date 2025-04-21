@@ -168,9 +168,9 @@ public final class PacketTransformer {
             }
 
             if (packetId == -1) {
-                throw new IllegalStateException();
+                LogUtils.error("Unhandled packet! Class: {}", packet.getClass());
+                return packetId;
             }
-
         } else if (input instanceof ByteBuf buffer) {
             int readerIndex = buffer.readerIndex();
             int writerIndex = buffer.writerIndex();
