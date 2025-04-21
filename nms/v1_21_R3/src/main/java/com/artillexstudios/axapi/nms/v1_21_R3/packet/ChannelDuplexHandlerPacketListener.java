@@ -7,6 +7,8 @@ import com.artillexstudios.axapi.packet.PacketEvents;
 import com.artillexstudios.axapi.packet.PacketSide;
 import com.artillexstudios.axapi.packet.PacketType;
 import com.artillexstudios.axapi.packet.ServerboundPacketTypes;
+import com.artillexstudios.axapi.reflection.ClassUtils;
+import com.artillexstudios.axapi.reflection.FieldAccessor;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import io.netty.channel.ChannelDuplexHandler;
@@ -22,6 +24,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandler {
+    private static final FieldAccessor packetAccessor = FieldAccessor.builder()
+            .withClass("com.ticxo.modelengine.api.nms.network.ProtectedPacket")
+            .withField("packet")
+            .build();
     private final FeatureFlags flags;
     private final Player player;
 
@@ -35,6 +41,10 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
         if (!PacketEvents.INSTANCE.listening()) {
             super.write(ctx, msg, promise);
             return;
+        }
+
+        if (ClassUtils.INSTANCE.isClass(msg.getClass(), "com.ticxo.modelengine.api.nms.network.ProtectedPacket")) {
+            msg = packetAccessor.get(msg);
         }
 
         if (msg instanceof ClientboundBundlePacket bundlePacket) {
@@ -99,8 +109,9 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             LogUtils.info("Packet id: {}, class: {}, type: {}", packetId, msg.getClass(), type);
         }
 
+        Object finalMsg = msg;
         PacketEvent event = new PacketEvent(this.player, PacketSide.CLIENT_BOUND, type, () -> {
-            return PacketTransformer.transformClientbound(ctx, msg, FriendlyByteBuf::readVarInt);
+            return PacketTransformer.transformClientbound(ctx, finalMsg, FriendlyByteBuf::readVarInt);
         }, () -> {
             return PacketTransformer.newByteBuf(ctx, buf -> {
                 buf.writeVarInt(packetId);
