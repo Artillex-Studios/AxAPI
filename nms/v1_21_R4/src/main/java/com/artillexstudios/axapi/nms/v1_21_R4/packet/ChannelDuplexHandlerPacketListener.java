@@ -26,9 +26,11 @@ import java.util.List;
 
 public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandler {
     private static final FieldAccessor packetAccessor = FieldAccessor.builder()
+            .silent()
             .withClass("com.ticxo.modelengine.api.nms.network.ProtectedPacket")
             .withField("packet")
             .build();
+    private static final Class<?> protectedPacketClass = ClassUtils.INSTANCE.getClassOrNull("com.ticxo.modelengine.api.nms.network.ProtectedPacket");
     private final FeatureFlags flags;
     private final Player player;
     private final PacketTransformer transformer;
@@ -46,7 +48,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             return;
         }
 
-        if (ClassUtils.INSTANCE.isClass(msg.getClass(), "com.ticxo.modelengine.api.nms.network.ProtectedPacket")) {
+        if (ClassUtils.INSTANCE.classEquals(msg.getClass(), protectedPacketClass)) {
             msg = packetAccessor.get(msg);
         }
 
@@ -170,7 +172,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             return;
         }
 
-        if (ClassUtils.INSTANCE.isClass(msg.getClass(), "com.ticxo.modelengine.api.nms.network.ProtectedPacket")) {
+        if (ClassUtils.INSTANCE.classEquals(msg.getClass(), protectedPacketClass)) {
             msg = packetAccessor.get(msg);
         }
         

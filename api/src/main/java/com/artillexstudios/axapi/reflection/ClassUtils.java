@@ -49,6 +49,10 @@ public enum ClassUtils {
         return CLASS_CACHE.get(other) == clazz;
     }
 
+    public boolean classEquals(Class<?> clazz, Class<?> other) {
+        return clazz != null && clazz == other;
+    }
+
     public String debugClass(Class<?> clazz) {
         return this.debugClass(0, clazz);
     }

@@ -48,6 +48,7 @@ public interface FieldAccessor {
         private String fieldName = null;
         private Class<?> fieldType = null;
         private Integer fieldIndex = null;
+        private boolean silent = false;
 
         public Builder methodHandle() {
             this.type = AccessorType.METHOD_HANDLE;
@@ -64,6 +65,11 @@ public interface FieldAccessor {
             return this;
         }
 
+        public Builder silent() {
+            this.silent = true;
+            return this;
+        }
+
         public Builder withClass(Class<?> clazz) {
             this.clazz = clazz;
             this.tryFetchField();
@@ -71,7 +77,7 @@ public interface FieldAccessor {
         }
 
         public Builder withClass(String clazz) {
-            this.clazz = ClassUtils.INSTANCE.getClass(clazz);
+            this.clazz = ClassUtils.INSTANCE.getClassOrNull(clazz);
             this.tryFetchField();
             return this;
         }
@@ -103,6 +109,10 @@ public interface FieldAccessor {
                 try {
                     this.field = this.clazz.getDeclaredField(this.fieldName);
                 } catch (NoSuchFieldException exception) {
+                    if (this.silent) {
+                        return;
+                    }
+
                     LogUtils.error("Failed to find field {} of class {}! Fields of class: {}", this.fieldName, this.clazz.getName(), String.join(", ", Arrays.stream(this.clazz.getDeclaredFields()).map(Field::getName).toList()), exception);
                     return;
                 }
@@ -130,6 +140,10 @@ public interface FieldAccessor {
             try {
                 return this.type.createNew(this.field);
             } catch (IllegalAccessException exception) {
+                if (this.silent) {
+                    return null;
+                }
+
                 throw new RuntimeException(exception);
             }
         }
