@@ -60,12 +60,13 @@ public final class BossBar {
     }
 
     public void show(Player player) {
-        if (!this.viewers.add(player)) {
+        if (this.viewers.contains(player)) {
             return;
         }
 
         ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(player);
         wrapper.sendPacket(this.addPacket);
+        this.viewers.add(player);
     }
 
     public void hide(Player player) {
