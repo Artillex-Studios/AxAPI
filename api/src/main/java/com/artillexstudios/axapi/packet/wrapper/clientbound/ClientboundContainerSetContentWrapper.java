@@ -40,7 +40,7 @@ public final class ClientboundContainerSetContentWrapper extends PacketWrapper {
         int count = buf.readVarInt();
         this.items = new ObjectArrayList<>(count);
         for (int i = 0; i < count; i++) {
-            items.add(buf.readItemStack());
+            this.items.add(buf.readItemStack());
         }
         this.carriedItem = buf.readItemStack();
     }

@@ -8,7 +8,7 @@ import com.artillexstudios.axapi.packet.PacketType;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
 
 public final class ClientboundContainerSetSlotWrapper extends PacketWrapper {
-    private byte containerId;
+    private int containerId;
     private int stateId;
     private short slot;
     private WrappedItemStack stack;
@@ -41,7 +41,7 @@ public final class ClientboundContainerSetSlotWrapper extends PacketWrapper {
         this.stateId = stateId;
     }
 
-    public byte containerId() {
+    public int containerId() {
         return this.containerId;
     }
 
@@ -51,7 +51,7 @@ public final class ClientboundContainerSetSlotWrapper extends PacketWrapper {
 
     @Override
     public void write(FriendlyByteBuf out) {
-        out.writeByte(this.containerId);
+        out.writeContainerId(this.containerId);
         out.writeVarInt(this.stateId);
         out.writeShort(this.slot);
         out.writeItemStack(this.stack);
@@ -59,7 +59,7 @@ public final class ClientboundContainerSetSlotWrapper extends PacketWrapper {
 
     @Override
     public void read(FriendlyByteBuf buf) {
-        this.containerId = buf.readByte();
+        this.containerId = buf.readContainerId();
         this.stateId = buf.readVarInt();
         this.slot = buf.readShort();
         this.stack = buf.readItemStack();

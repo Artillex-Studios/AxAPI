@@ -12,7 +12,7 @@ import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataSerializ
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClientboundEntityMetadataWrapper extends PacketWrapper {
+public final class ClientboundEntityMetadataWrapper extends PacketWrapper {
     private int entityId;
     private List<Metadata.DataItem<?>> items;
 
