@@ -88,6 +88,7 @@ public final class PacketTransformer {
             wrapper = new FriendlyByteBufWrapper(buffer);
         } else if (packet instanceof ByteBuf buffer) {
             wrapper = new FriendlyByteBufWrapper(new net.minecraft.network.FriendlyByteBuf(buffer.copy()));
+            wrapper.readVarInt();
         } else {
             LogUtils.error("Unhandled packet class: {} Pipeline: {}", packet.getClass(), ctx.channel().pipeline().names());
             return null;
@@ -118,8 +119,8 @@ public final class PacketTransformer {
             packetObject.write(buffer);
             wrapper = new FriendlyByteBufWrapper(buffer);
         } else if (packet instanceof ByteBuf buffer) {
-            LogUtils.info("Clientbound buffer: {}, index: {}, index: {}", buffer, buffer.readerIndex(), buffer.writerIndex());
             wrapper = new FriendlyByteBufWrapper(new net.minecraft.network.FriendlyByteBuf(buffer.copy()));
+            wrapper.readVarInt();
         } else {
             LogUtils.error("Unhandled packet class: {} Pipeline: {}", packet.getClass(), ctx.channel().pipeline().names());
             return null;

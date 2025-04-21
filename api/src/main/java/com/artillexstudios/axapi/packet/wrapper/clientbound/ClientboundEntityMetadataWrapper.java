@@ -1,15 +1,13 @@
 package com.artillexstudios.axapi.packet.wrapper.clientbound;
 
+import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketType;
-import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
+import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
 import com.artillexstudios.axapi.packetentity.meta.Metadata;
 import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataSerializer;
 import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataSerializers;
-import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
-import com.artillexstudios.axapi.utils.logging.LogUtils;
-import org.apache.commons.math3.analysis.function.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,14 +52,11 @@ public class ClientboundEntityMetadataWrapper extends PacketWrapper {
     @Override
     public void read(FriendlyByteBuf buf) {
         this.entityId = buf.readVarInt();
-        LogUtils.info("Entity id: {}", this.entityId);
         this.items = new ArrayList<>();
         int i;
         while ((i = buf.readUnsignedByte()) != 255) {
-            LogUtils.info("Serializer0: {}", i);
             int serializerId = buf.readVarInt();
             EntityDataSerializer<?> serializer = EntityDataSerializers.byId(serializerId);
-            LogUtils.info("Serializer1: {}", serializer.type());
             this.items.add(new Metadata.DataItem(i, serializer, serializer.read(buf)));
         }
     }
