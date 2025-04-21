@@ -152,7 +152,7 @@ public interface FriendlyByteBuf {
             return this.readVarInt();
         }
 
-        return this.readByte();
+        return this.readUnsignedByte();
     }
 
     default void writeContainerId(int containerId) {
