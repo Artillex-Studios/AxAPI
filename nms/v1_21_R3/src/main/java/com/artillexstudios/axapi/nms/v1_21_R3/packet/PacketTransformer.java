@@ -115,7 +115,10 @@ public final class PacketTransformer {
             wrapper = new FriendlyByteBufWrapper(decorator.apply(buffer));
         } else if (packet instanceof ByteBuf buffer) {
             wrapper = new FriendlyByteBufWrapper(decorator.apply(buffer.copy()));
-        } else {
+        } else if (ClassUtils.INSTANCE.isClass(packet.getClass(), "com.ticxo.modelengine.api.nms.network.ProtectedPacket")) {
+            Object packetInstance = packetAccessor.get(packet);
+            return transformServerbound(ctx, packetInstance, consumer);
+        }  else {
             LogUtils.error("Unhandled packet class: {}", packet.getClass());
             return null;
         }
@@ -146,6 +149,9 @@ public final class PacketTransformer {
             wrapper = new FriendlyByteBufWrapper(decorator.apply(buffer));
         } else if (packet instanceof ByteBuf buffer) {
             wrapper = new FriendlyByteBufWrapper(decorator.apply(buffer.copy()));
+        } else if (ClassUtils.INSTANCE.isClass(packet.getClass(), "com.ticxo.modelengine.api.nms.network.ProtectedPacket")) {
+            Object packetInstance = packetAccessor.get(packet);
+            return transformClientbound(ctx, packetInstance, consumer);
         } else {
             LogUtils.error("Unhandled packet class: {}", packet.getClass());
             return null;
@@ -204,6 +210,7 @@ public final class PacketTransformer {
             buffer.writerIndex(writerIndex);
         } else if (ClassUtils.INSTANCE.isClass(input.getClass(), "com.ticxo.modelengine.api.nms.network.ProtectedPacket")) {
             Object packet = packetAccessor.get(input);
+            LogUtils.info("Protected packet! {}", packet.getClass());
             return packetId(packet);
         } else {
             Set<Class<?>> superClasses = new HashSet<>();
