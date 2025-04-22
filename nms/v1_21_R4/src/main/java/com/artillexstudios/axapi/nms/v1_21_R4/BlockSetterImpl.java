@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.nms.v1_21_R4;
 
 import com.artillexstudios.axapi.selection.BlockSetter;
+import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
@@ -18,8 +19,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class BlockSetterImpl implements BlockSetter {
+    private static final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
     private final ServerLevel level;
     private final ArrayList<ChunkPos> chunks = new ArrayList<>();
     private LevelChunk chunk = null;
@@ -81,10 +85,10 @@ public class BlockSetterImpl implements BlockSetter {
     private void relight() {
         var set = new HashSet<>(chunks);
         MinecraftServer.getServer().executeBlocking(() -> {
-//            var lightEngine = level.chunkSource.getLightEngine();
-//            lightEngine.starlight$serverRelightChunks(set, c -> {
-//            }, c -> {
-//            });
+            var lightEngine = level.chunkSource.getLightEngine();
+            lightEngine.starlight$serverRelightChunks(set, c -> {
+            }, c -> {
+            });
         });
     }
 
@@ -93,13 +97,13 @@ public class BlockSetterImpl implements BlockSetter {
         if (playerChunk == null) return;
         List<ServerPlayer> playersInRange = playerChunk.playerProvider.getPlayers(playerChunk.getPos(), false);
 
-//        executor.execute(() -> {
-//            ClientboundLevelChunkWithLightPacket lightPacket = new ClientboundLevelChunkWithLightPacket(chunk, level.getLightEngine(), null, null, false);
-//            int size = playersInRange.size();
-//            for (int i = 0; i < size; i++) {
-//                ServerPlayer player = playersInRange.get(i);
-//                player.connection.send(lightPacket);
-//            }
-//        });
+        executor.execute(() -> {
+            ClientboundLevelChunkWithLightPacket lightPacket = new ClientboundLevelChunkWithLightPacket(chunk, level.getLightEngine(), null, null, false);
+            int size = playersInRange.size();
+            for (int i = 0; i < size; i++) {
+                ServerPlayer player = playersInRange.get(i);
+                player.connection.send(lightPacket);
+            }
+        });
     }
 }
