@@ -25,129 +25,133 @@ import com.artillexstudios.axapi.utils.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
+
 public final class ParticleTypes {
     private static final Int2ObjectArrayMap<ParticleType<?>> registry = new Int2ObjectArrayMap<>();
     private static final Object2IntArrayMap<ParticleType<?>> reverseRegistry = new Object2IntArrayMap<>();
-    private static final ParticleType<?> AMBIENT_ENTITY_EFFECT = new SimpleParticleType();
-    private static final ParticleType<?> DRIPPING_CHERRY_LEAVES = new SimpleParticleType();
-    private static final ParticleType<?> FALLING_CHERRY_LEAVES = new SimpleParticleType();
-    private static final ParticleType<?> LANDING_CHERRY_LEAVES = new SimpleParticleType();
-    private static final ParticleType<?> GUST_DUST = new SimpleParticleType();
-    private static final ParticleType<?> GUST_EMITTER = new SimpleParticleType();
-    private static final ParticleType<?> GUST_EMITTER_SMALL = new SimpleParticleType();
-    private static final ParticleType<ColorParticleOption> TINTED_LEAVES = new ColorParticleType();
-    public static ParticleType<?> ANGRY_VILLAGER = new SimpleParticleType();
-    public static ParticleType<IntegerParticleOption> BLOCK = new VarIntParticleType();
-    public static ParticleType<IntegerParticleOption> BLOCK_MARKER = new VarIntParticleType();
-    public static ParticleType<?> BUBBLE = new SimpleParticleType();
-    public static ParticleType<?> CLOUD = new SimpleParticleType();
-    public static ParticleType<?> CRIT = new SimpleParticleType();
-    public static ParticleType<?> DAMAGE_INDICATOR = new SimpleParticleType();
-    public static ParticleType<?> DRAGON_BREATH = new SimpleParticleType();
-    public static ParticleType<?> DRIPPING_LAVA = new SimpleParticleType();
-    public static ParticleType<?> FALLING_LAVA = new SimpleParticleType();
-    public static ParticleType<?> LANDING_LAVA = new SimpleParticleType();
-    public static ParticleType<?> DRIPPING_WATER = new SimpleParticleType();
-    public static ParticleType<?> FALLING_WATER = new SimpleParticleType();
-    public static ParticleType<DustParticleOption> DUST = new DustParticleType();
-    public static ParticleType<DustColorTransitionParticleOption> DUST_COLOR_TRANSITION = new DustColorTransitionParticleType();
-    public static ParticleType<?> EFFECT = new SimpleParticleType();
-    public static ParticleType<?> ELDER_GUARDIAN = new SimpleParticleType();
-    public static ParticleType<?> ENCHANTED_HIT = new SimpleParticleType();
-    public static ParticleType<?> ENCHANT = new SimpleParticleType();
-    public static ParticleType<?> END_ROD = new SimpleParticleType();
-    public static ParticleType<IntegerParticleOption> ENTITY_EFFECT = new IntegerParticleType();
-    public static ParticleType<?> EXPLOSION_EMITTER = new SimpleParticleType();
-    public static ParticleType<?> EXPLOSION = new SimpleParticleType();
-    public static ParticleType<?> GUST = new SimpleParticleType();
-    public static ParticleType<?> SMALL_GUST = new SimpleParticleType();
-    public static ParticleType<?> GUST_EMITTER_LARGE = new SimpleParticleType();
-    public static ParticleType<?> SONIC_BOOM = new SimpleParticleType();
-    public static ParticleType<IntegerParticleOption> FALLING_DUST = new VarIntParticleType();
-    public static ParticleType<?> FIREWORK = new SimpleParticleType();
-    public static ParticleType<?> FISHING = new SimpleParticleType();
-    public static ParticleType<?> FLAME = new SimpleParticleType();
-    public static ParticleType<?> INFESTED = new SimpleParticleType();
-    public static ParticleType<?> CHERRY_LEAVES = new SimpleParticleType();
-    public static ParticleType<?> PALE_OAK_LEAVES = new SimpleParticleType();
-    public static ParticleType<?> SCULK_SOUL = new SimpleParticleType();
-    public static ParticleType<FloatParticleOption> SCULK_CHARGE = new FloatParticleType();
-    public static ParticleType<?> SCULK_CHARGE_POP = new SimpleParticleType();
-    public static ParticleType<?> SOUL_FIRE_FLAME = new SimpleParticleType();
-    public static ParticleType<?> SOUL = new SimpleParticleType();
-    public static ParticleType<?> FLASH = new SimpleParticleType();
-    public static ParticleType<?> HAPPY_VILLAGER = new SimpleParticleType();
-    public static ParticleType<?> COMPOSTER = new SimpleParticleType();
-    public static ParticleType<?> HEART = new SimpleParticleType();
-    public static ParticleType<?> INSTANT_EFFECT = new SimpleParticleType();
-    public static ParticleType<ItemStackParticleOption> ITEM = new ItemStackParticleType();
-    public static ParticleType<VibrationParticleOption> VIBRATION = new VibrationParticleType();
-    public static ParticleType<TrailParticleOption> TRAIL = new TrailParticleType();
-    public static ParticleType<?> ITEM_SLIME = new SimpleParticleType();
-    public static ParticleType<?> ITEM_COBWEB = new SimpleParticleType();
-    public static ParticleType<?> ITEM_SNOWBALL = new SimpleParticleType();
-    public static ParticleType<?> LARGE_SMOKE = new SimpleParticleType();
-    public static ParticleType<?> LAVA = new SimpleParticleType();
-    public static ParticleType<?> MYCELIUM = new SimpleParticleType();
-    public static ParticleType<?> NOTE = new SimpleParticleType();
-    public static ParticleType<?> POOF = new SimpleParticleType();
-    public static ParticleType<?> PORTAL = new SimpleParticleType();
-    public static ParticleType<?> RAIN = new SimpleParticleType();
-    public static ParticleType<?> SMOKE = new SimpleParticleType();
-    public static ParticleType<?> WHITE_SMOKE = new SimpleParticleType();
-    public static ParticleType<?> SNEEZE = new SimpleParticleType();
-    public static ParticleType<?> SPIT = new SimpleParticleType();
-    public static ParticleType<?> SQUID_INK = new SimpleParticleType();
-    public static ParticleType<?> SWEEP_ATTACK = new SimpleParticleType();
-    public static ParticleType<?> TOTEM_OF_UNDYING = new SimpleParticleType();
-    public static ParticleType<?> UNDERWATER = new SimpleParticleType();
-    public static ParticleType<?> SPLASH = new SimpleParticleType();
-    public static ParticleType<?> WITCH = new SimpleParticleType();
-    public static ParticleType<?> BUBBLE_POP = new SimpleParticleType();
-    public static ParticleType<?> CURRENT_DOWN = new SimpleParticleType();
-    public static ParticleType<?> BUBBLE_COLUMN_UP = new SimpleParticleType();
-    public static ParticleType<?> NAUTILUS = new SimpleParticleType();
-    public static ParticleType<?> DOLPHIN = new SimpleParticleType();
-    public static ParticleType<?> CAMPFIRE_COSY_SMOKE = new SimpleParticleType();
-    public static ParticleType<?> CAMPFIRE_SIGNAL_SMOKE = new SimpleParticleType();
-    public static ParticleType<?> DRIPPING_HONEY = new SimpleParticleType();
-    public static ParticleType<?> FALLING_HONEY = new SimpleParticleType();
-    public static ParticleType<?> LANDING_HONEY = new SimpleParticleType();
-    public static ParticleType<?> FALLING_NECTAR = new SimpleParticleType();
-    public static ParticleType<?> FALLING_SPORE_BLOSSOM = new SimpleParticleType();
-    public static ParticleType<?> ASH = new SimpleParticleType();
-    public static ParticleType<?> CRIMSON_SPORE = new SimpleParticleType();
-    public static ParticleType<?> WARPED_SPORE = new SimpleParticleType();
-    public static ParticleType<?> SPORE_BLOSSOM_AIR = new SimpleParticleType();
-    public static ParticleType<?> DRIPPING_OBSIDIAN_TEAR = new SimpleParticleType();
-    public static ParticleType<?> FALLING_OBSIDIAN_TEAR = new SimpleParticleType();
-    public static ParticleType<?> LANDING_OBSIDIAN_TEAR = new SimpleParticleType();
-    public static ParticleType<?> REVERSE_PORTAL = new SimpleParticleType();
-    public static ParticleType<?> WHITE_ASH = new SimpleParticleType();
-    public static ParticleType<?> SMALL_FLAME = new SimpleParticleType();
-    public static ParticleType<?> SNOWFLAKE = new SimpleParticleType();
-    public static ParticleType<?> DRIPPING_DRIPSTONE_LAVA = new SimpleParticleType();
-    public static ParticleType<?> FALLING_DRIPSTONE_LAVA = new SimpleParticleType();
-    public static ParticleType<?> DRIPPING_DRIPSTONE_WATER = new SimpleParticleType();
-    public static ParticleType<?> FALLING_DRIPSTONE_WATER = new SimpleParticleType();
-    public static ParticleType<?> GLOW_SQUID_INK = new SimpleParticleType();
-    public static ParticleType<?> GLOW = new SimpleParticleType();
-    public static ParticleType<?> WAX_ON = new SimpleParticleType();
-    public static ParticleType<?> WAX_OFF = new SimpleParticleType();
-    public static ParticleType<?> ELECTRIC_SPARK = new SimpleParticleType();
-    public static ParticleType<?> SCRAPE = new SimpleParticleType();
-    public static ParticleType<IntegerParticleOption> SHRIEK = new VarIntParticleType();
-    public static ParticleType<?> EGG_CRACK = new SimpleParticleType();
-    public static ParticleType<?> DUST_PLUME = new SimpleParticleType();
-    public static ParticleType<?> TRIAL_SPAWNER_DETECTION = new SimpleParticleType();
-    public static ParticleType<?> TRIAL_SPAWNER_DETECTION_OMINOUS = new SimpleParticleType();
-    public static ParticleType<?> VAULT_CONNECTION = new SimpleParticleType();
-    public static ParticleType<IntegerParticleOption> DUST_PILLAR = new VarIntParticleType();
-    public static ParticleType<?> OMINOUS_SPAWNING = new SimpleParticleType();
-    public static ParticleType<?> RAID_OMEN = new SimpleParticleType();
-    public static ParticleType<?> TRIAL_OMEN = new SimpleParticleType();
-    public static ParticleType<IntegerParticleOption> BLOCK_CRUMBLE = new VarIntParticleType();
-    public static ParticleType<IntegerParticleOption> FIREFLY = new VarIntParticleType();
+    public static final ParticleType<?> AMBIENT_ENTITY_EFFECT = new SimpleParticleType();
+    public static final ParticleType<?> DRIPPING_CHERRY_LEAVES = new SimpleParticleType();
+    public static final ParticleType<?> FALLING_CHERRY_LEAVES = new SimpleParticleType();
+    public static final ParticleType<?> LANDING_CHERRY_LEAVES = new SimpleParticleType();
+    public static final ParticleType<?> GUST_DUST = new SimpleParticleType();
+    public static final ParticleType<?> GUST_EMITTER = new SimpleParticleType();
+    public static final ParticleType<?> GUST_EMITTER_SMALL = new SimpleParticleType();
+    public static final ParticleType<ColorParticleOption> TINTED_LEAVES = new ColorParticleType();
+    public static final ParticleType<?> ANGRY_VILLAGER = new SimpleParticleType();
+    public static final ParticleType<IntegerParticleOption> BLOCK = new VarIntParticleType();
+    public static final ParticleType<IntegerParticleOption> BLOCK_MARKER = new VarIntParticleType();
+    public static final ParticleType<?> BUBBLE = new SimpleParticleType();
+    public static final ParticleType<?> CLOUD = new SimpleParticleType();
+    public static final ParticleType<?> CRIT = new SimpleParticleType();
+    public static final ParticleType<?> DAMAGE_INDICATOR = new SimpleParticleType();
+    public static final ParticleType<?> DRAGON_BREATH = new SimpleParticleType();
+    public static final ParticleType<?> DRIPPING_LAVA = new SimpleParticleType();
+    public static final ParticleType<?> FALLING_LAVA = new SimpleParticleType();
+    public static final ParticleType<?> LANDING_LAVA = new SimpleParticleType();
+    public static final ParticleType<?> DRIPPING_WATER = new SimpleParticleType();
+    public static final ParticleType<?> FALLING_WATER = new SimpleParticleType();
+    public static final ParticleType<DustParticleOption> DUST = new DustParticleType();
+    public static final ParticleType<DustColorTransitionParticleOption> DUST_COLOR_TRANSITION = new DustColorTransitionParticleType();
+    public static final ParticleType<?> EFFECT = new SimpleParticleType();
+    public static final ParticleType<?> ELDER_GUARDIAN = new SimpleParticleType();
+    public static final ParticleType<?> ENCHANTED_HIT = new SimpleParticleType();
+    public static final ParticleType<?> ENCHANT = new SimpleParticleType();
+    public static final ParticleType<?> END_ROD = new SimpleParticleType();
+    public static final ParticleType<IntegerParticleOption> ENTITY_EFFECT = new IntegerParticleType();
+    public static final ParticleType<?> EXPLOSION_EMITTER = new SimpleParticleType();
+    public static final ParticleType<?> EXPLOSION = new SimpleParticleType();
+    public static final ParticleType<?> GUST = new SimpleParticleType();
+    public static final ParticleType<?> SMALL_GUST = new SimpleParticleType();
+    public static final ParticleType<?> GUST_EMITTER_LARGE = new SimpleParticleType();
+    public static final ParticleType<?> SONIC_BOOM = new SimpleParticleType();
+    public static final ParticleType<IntegerParticleOption> FALLING_DUST = new VarIntParticleType();
+    public static final ParticleType<?> FIREWORK = new SimpleParticleType();
+    public static final ParticleType<?> FISHING = new SimpleParticleType();
+    public static final ParticleType<?> FLAME = new SimpleParticleType();
+    public static final ParticleType<?> INFESTED = new SimpleParticleType();
+    public static final ParticleType<?> CHERRY_LEAVES = new SimpleParticleType();
+    public static final ParticleType<?> PALE_OAK_LEAVES = new SimpleParticleType();
+    public static final ParticleType<?> SCULK_SOUL = new SimpleParticleType();
+    public static final ParticleType<FloatParticleOption> SCULK_CHARGE = new FloatParticleType();
+    public static final ParticleType<?> SCULK_CHARGE_POP = new SimpleParticleType();
+    public static final ParticleType<?> SOUL_FIRE_FLAME = new SimpleParticleType();
+    public static final ParticleType<?> SOUL = new SimpleParticleType();
+    public static final ParticleType<?> FLASH = new SimpleParticleType();
+    public static final ParticleType<?> HAPPY_VILLAGER = new SimpleParticleType();
+    public static final ParticleType<?> COMPOSTER = new SimpleParticleType();
+    public static final ParticleType<?> HEART = new SimpleParticleType();
+    public static final ParticleType<?> INSTANT_EFFECT = new SimpleParticleType();
+    public static final ParticleType<ItemStackParticleOption> ITEM = new ItemStackParticleType();
+    public static final ParticleType<VibrationParticleOption> VIBRATION = new VibrationParticleType();
+    public static final ParticleType<TrailParticleOption> TRAIL = new TrailParticleType();
+    public static final ParticleType<?> ITEM_SLIME = new SimpleParticleType();
+    public static final ParticleType<?> ITEM_COBWEB = new SimpleParticleType();
+    public static final ParticleType<?> ITEM_SNOWBALL = new SimpleParticleType();
+    public static final ParticleType<?> LARGE_SMOKE = new SimpleParticleType();
+    public static final ParticleType<?> LAVA = new SimpleParticleType();
+    public static final ParticleType<?> MYCELIUM = new SimpleParticleType();
+    public static final ParticleType<?> NOTE = new SimpleParticleType();
+    public static final ParticleType<?> POOF = new SimpleParticleType();
+    public static final ParticleType<?> PORTAL = new SimpleParticleType();
+    public static final ParticleType<?> RAIN = new SimpleParticleType();
+    public static final ParticleType<?> SMOKE = new SimpleParticleType();
+    public static final ParticleType<?> WHITE_SMOKE = new SimpleParticleType();
+    public static final ParticleType<?> SNEEZE = new SimpleParticleType();
+    public static final ParticleType<?> SPIT = new SimpleParticleType();
+    public static final ParticleType<?> SQUID_INK = new SimpleParticleType();
+    public static final ParticleType<?> SWEEP_ATTACK = new SimpleParticleType();
+    public static final ParticleType<?> TOTEM_OF_UNDYING = new SimpleParticleType();
+    public static final ParticleType<?> UNDERWATER = new SimpleParticleType();
+    public static final ParticleType<?> SPLASH = new SimpleParticleType();
+    public static final ParticleType<?> WITCH = new SimpleParticleType();
+    public static final ParticleType<?> BUBBLE_POP = new SimpleParticleType();
+    public static final ParticleType<?> CURRENT_DOWN = new SimpleParticleType();
+    public static final ParticleType<?> BUBBLE_COLUMN_UP = new SimpleParticleType();
+    public static final ParticleType<?> NAUTILUS = new SimpleParticleType();
+    public static final ParticleType<?> DOLPHIN = new SimpleParticleType();
+    public static final ParticleType<?> CAMPFIRE_COSY_SMOKE = new SimpleParticleType();
+    public static final ParticleType<?> CAMPFIRE_SIGNAL_SMOKE = new SimpleParticleType();
+    public static final ParticleType<?> DRIPPING_HONEY = new SimpleParticleType();
+    public static final ParticleType<?> FALLING_HONEY = new SimpleParticleType();
+    public static final ParticleType<?> LANDING_HONEY = new SimpleParticleType();
+    public static final ParticleType<?> FALLING_NECTAR = new SimpleParticleType();
+    public static final ParticleType<?> FALLING_SPORE_BLOSSOM = new SimpleParticleType();
+    public static final ParticleType<?> ASH = new SimpleParticleType();
+    public static final ParticleType<?> CRIMSON_SPORE = new SimpleParticleType();
+    public static final ParticleType<?> WARPED_SPORE = new SimpleParticleType();
+    public static final ParticleType<?> SPORE_BLOSSOM_AIR = new SimpleParticleType();
+    public static final ParticleType<?> DRIPPING_OBSIDIAN_TEAR = new SimpleParticleType();
+    public static final ParticleType<?> FALLING_OBSIDIAN_TEAR = new SimpleParticleType();
+    public static final ParticleType<?> LANDING_OBSIDIAN_TEAR = new SimpleParticleType();
+    public static final ParticleType<?> REVERSE_PORTAL = new SimpleParticleType();
+    public static final ParticleType<?> WHITE_ASH = new SimpleParticleType();
+    public static final ParticleType<?> SMALL_FLAME = new SimpleParticleType();
+    public static final ParticleType<?> SNOWFLAKE = new SimpleParticleType();
+    public static final ParticleType<?> DRIPPING_DRIPSTONE_LAVA = new SimpleParticleType();
+    public static final ParticleType<?> FALLING_DRIPSTONE_LAVA = new SimpleParticleType();
+    public static final ParticleType<?> DRIPPING_DRIPSTONE_WATER = new SimpleParticleType();
+    public static final ParticleType<?> FALLING_DRIPSTONE_WATER = new SimpleParticleType();
+    public static final ParticleType<?> GLOW_SQUID_INK = new SimpleParticleType();
+    public static final ParticleType<?> GLOW = new SimpleParticleType();
+    public static final ParticleType<?> WAX_ON = new SimpleParticleType();
+    public static final ParticleType<?> WAX_OFF = new SimpleParticleType();
+    public static final ParticleType<?> ELECTRIC_SPARK = new SimpleParticleType();
+    public static final ParticleType<?> SCRAPE = new SimpleParticleType();
+    public static final ParticleType<IntegerParticleOption> SHRIEK = new VarIntParticleType();
+    public static final ParticleType<?> EGG_CRACK = new SimpleParticleType();
+    public static final ParticleType<?> DUST_PLUME = new SimpleParticleType();
+    public static final ParticleType<?> TRIAL_SPAWNER_DETECTION = new SimpleParticleType();
+    public static final ParticleType<?> TRIAL_SPAWNER_DETECTION_OMINOUS = new SimpleParticleType();
+    public static final ParticleType<?> VAULT_CONNECTION = new SimpleParticleType();
+    public static final ParticleType<IntegerParticleOption> DUST_PILLAR = new VarIntParticleType();
+    public static final ParticleType<?> OMINOUS_SPAWNING = new SimpleParticleType();
+    public static final ParticleType<?> RAID_OMEN = new SimpleParticleType();
+    public static final ParticleType<?> TRIAL_OMEN = new SimpleParticleType();
+    public static final ParticleType<IntegerParticleOption> BLOCK_CRUMBLE = new VarIntParticleType();
+    public static final ParticleType<IntegerParticleOption> FIREFLY = new VarIntParticleType();
 
     public static void init() {
         if (Version.getServerVersion().isOlderThan(Version.v1_20_4)) {
@@ -315,6 +319,11 @@ public final class ParticleTypes {
     public static <T extends ParticleOption> ParticleData<T> read(FriendlyByteBuf buf) {
         int id = buf.readVarInt();
         ParticleType<T> type = (ParticleType<T>) registry.get(id);
+        if (type == null) {
+            LogUtils.error("Failed to find particle type with id {}! Report this on our issue tracker! Version: {} Particles: {}", id, Version.getServerVersion().nmsVersion(), particles());
+            return new ParticleData<>((ParticleType<T>) ParticleTypes.HEART, null);
+        }
+
         return new ParticleData<>(type, type.read(buf));
     }
 
@@ -334,5 +343,25 @@ public final class ParticleTypes {
             LogUtils.debug("Registering particle: {}", type);
         }
         return type;
+    }
+
+    private static Map<String, String> particles() {
+        Map<String, String> registered = new HashMap<>();
+        for (Field field : ParticleTypes.class.getFields()) {
+            try {
+                Object type = field.get(null);
+
+                int id = reverseRegistry.getOrDefault(type, -1);
+                if (id == -1) {
+                    registered.put(field.getName(), "Unregistered");
+                } else {
+                    registered.put(field.getName(), String.valueOf(id));
+                }
+            } catch (IllegalAccessException exception) {
+                continue;
+            }
+        }
+
+        return registered;
     }
 }
