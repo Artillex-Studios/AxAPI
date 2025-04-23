@@ -299,7 +299,7 @@ public final class ParticleTypes {
                 register(ParticleTypes.GUST_DUST);
             }
             register(ParticleTypes.TRIAL_SPAWNER_DETECTION);
-            if (Version.getServerVersion().isOlderThan(Version.v1_20_4)) {
+            if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_20_4)) {
                 register(ParticleTypes.TRIAL_SPAWNER_DETECTION_OMINOUS);
                 register(ParticleTypes.VAULT_CONNECTION);
                 register(ParticleTypes.DUST_PILLAR);
