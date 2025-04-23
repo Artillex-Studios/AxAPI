@@ -27,8 +27,8 @@ public class SimpleHandler<T> implements ResultHandler<T> {
     }
 
     @Override
-    public T handle(ResultSet resultSet) throws SQLException {
-        if (!resultSet.next()) {
+    public T handle(ResultSet resultSet, boolean checkNext) throws SQLException {
+        if (checkNext && !resultSet.next()) {
             return null;
         }
 

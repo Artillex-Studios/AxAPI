@@ -15,10 +15,10 @@ public class ListHandler<T> implements ResultHandler<List<T>> {
     }
 
     @Override
-    public List<T> handle(ResultSet resultSet) throws SQLException {
+    public List<T> handle(ResultSet resultSet, boolean checkNext) throws SQLException {
         ArrayList<T> objects = new ArrayList<>();
         while (resultSet.next()) {
-            objects.add(this.handler.handle(resultSet));
+            objects.add(this.handler.handle(resultSet, false));
         }
 
         return objects;

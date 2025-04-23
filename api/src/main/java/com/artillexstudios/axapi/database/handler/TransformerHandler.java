@@ -15,7 +15,11 @@ public class TransformerHandler<T> implements ResultHandler<T> {
     }
 
     @Override
-    public T handle(ResultSet resultSet) throws SQLException {
+    public T handle(ResultSet resultSet, boolean checkNext) throws SQLException {
+        if (checkNext && !resultSet.next()) {
+            return null;
+        }
+
         int columnCount = resultSet.getMetaData().getColumnCount();
         Object[] objects = new Object[columnCount];
         for (int i = 0; i < columnCount; i++) {
