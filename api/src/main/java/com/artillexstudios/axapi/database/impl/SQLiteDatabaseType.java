@@ -23,7 +23,7 @@ public class SQLiteDatabaseType extends DatabaseType {
     @Override
     public HikariConfig config(DatabaseConfig databaseConfig) {
         HikariConfig config = new HikariConfig();
-        config.setDataSourceClassName(this.relocated + ".JDBC");
+        config.setDriverClassName(this.relocated + ".JDBC");
         config.addDataSourceProperty("url", "jdbc:sqlite:" + AxPlugin.getPlugin(AxPlugin.class).getDataFolder() + "/data");
         config.setMaximumPoolSize(databaseConfig.pool.maximumPoolSize);
         config.setMinimumIdle(databaseConfig.pool.minimumIdle);

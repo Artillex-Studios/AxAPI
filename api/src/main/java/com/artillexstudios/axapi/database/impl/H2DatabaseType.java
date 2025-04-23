@@ -5,8 +5,6 @@ import com.artillexstudios.axapi.database.DatabaseConfig;
 import com.artillexstudios.axapi.database.DatabaseType;
 import com.zaxxer.hikari.HikariConfig;
 
-import java.util.UUID;
-
 public class H2DatabaseType extends DatabaseType {
     private final String relocated;
 
