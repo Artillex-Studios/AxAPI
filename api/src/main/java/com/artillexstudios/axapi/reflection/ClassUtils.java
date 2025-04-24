@@ -6,6 +6,7 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -80,6 +81,16 @@ public enum ClassUtils {
             builder.append("\t".repeat(indent + 1)).append("Type: ").append(declaredField.getType()).append(System.lineSeparator());
             builder.append("\t".repeat(indent + 1)).append("Generic type: ").append(declaredField.getGenericType()).append(System.lineSeparator());
             builder.append("\t".repeat(indent + 1)).append("Annotated type: ").append(declaredField.getAnnotatedType()).append(System.lineSeparator());
+        }
+        builder.append("\t".repeat(indent)).append("Methods: ").append(System.lineSeparator());
+        for (Method method : clazz.getDeclaredMethods()) {
+            builder.append("\t".repeat(indent + 1)).append("Name: ").append(method.getName()).append(System.lineSeparator());
+            builder.append("\t".repeat(indent + 1)).append("Modifiers: ").append(Modifier.toString(method.getModifiers())).append(System.lineSeparator());
+            builder.append("\t".repeat(indent + 1)).append("Type: ").append(method.getReturnType()).append(System.lineSeparator());
+            builder.append("\t".repeat(indent + 1)).append("Generic type: ").append(method.getGenericReturnType()).append(System.lineSeparator());
+            builder.append("\t".repeat(indent + 1)).append("Annotated type: ").append(method.getAnnotatedReturnType()).append(System.lineSeparator());
+            builder.append("\t".repeat(indent + 1)).append("Parameter count: ").append(method.getParameterCount()).append(System.lineSeparator());
+            builder.append("\t".repeat(indent + 1)).append("Parameters: ").append(Arrays.stream(method.getParameterTypes()).map(Class::getName)).append(System.lineSeparator());
         }
 
         Set<Class<?>> superClasses = new HashSet<>();

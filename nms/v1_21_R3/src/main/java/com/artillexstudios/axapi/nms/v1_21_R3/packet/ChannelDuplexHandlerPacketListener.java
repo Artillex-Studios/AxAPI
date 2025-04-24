@@ -29,7 +29,12 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             .withClass("com.ticxo.modelengine.api.nms.network.ProtectedPacket")
             .withField("packet")
             .build();
+    private static final FieldAccessor interactWrapperAccessor = FieldAccessor.builder()
+            .withClass("com.ticxo.modelengine.v1_21_R3.network.patch.ServerboundInteractPacketWrapper")
+            .withField("original")
+            .build();
     private static final Class<?> protectedPacketClass = ClassUtils.INSTANCE.getClassOrNull("com.ticxo.modelengine.api.nms.network.ProtectedPacket");
+    private static final Class<?> interactWrapperClass = ClassUtils.INSTANCE.getClassOrNull("com.ticxo.modelengine.v1_21_R3.network.patch.ServerboundInteractPacketWrapper");
     private final FeatureFlags flags;
     private final Player player;
 
@@ -172,6 +177,10 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
 
         if (ClassUtils.INSTANCE.classEquals(msg.getClass(), protectedPacketClass)) {
             msg = packetAccessor.get(msg);
+        }
+
+        if (ClassUtils.INSTANCE.classEquals(msg.getClass(), interactWrapperClass)) {
+            msg = interactWrapperAccessor.get(msg);
         }
 
         if (msg instanceof ServerboundCustomPayloadPacket(
