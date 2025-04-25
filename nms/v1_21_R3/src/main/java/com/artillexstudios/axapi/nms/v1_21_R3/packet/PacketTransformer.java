@@ -100,11 +100,7 @@ public final class PacketTransformer {
         FriendlyByteBufWrapper wrapper;
         if (packet instanceof Packet<?>) {
             ByteBuf buffer = alloc(ctx);
-            try {
-                serverboundCodec.encode(buffer, (Packet<? super ServerGamePacketListener>) packet);
-            } catch (Exception e) {
-                LogUtils.info("Unable to transform serverbound! Class data: {}", ClassUtils.INSTANCE.debugClass(packet.getClass()));
-            }
+            serverboundCodec.encode(buffer, (Packet<? super ServerGamePacketListener>) packet);
             wrapper = new FriendlyByteBufWrapper(decorator.apply(buffer));
         } else if (packet instanceof ByteBuf buffer) {
             wrapper = new FriendlyByteBufWrapper(decorator.apply(buffer.copy()));

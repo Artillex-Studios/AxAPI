@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.nms.v1_20_R3.packet;
 
 import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
+import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketEvents;
 import com.artillexstudios.axapi.packet.PacketSide;
@@ -36,6 +37,11 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             return;
         }
 
+        if (!(msg instanceof Packet<?>)) {
+            super.write(ctx, msg, promise);
+            return;
+        }
+
         if (msg instanceof ClientboundBundlePacket bundlePacket) {
             if (this.flags.DEBUG_OUTGOING_PACKETS.get()) {
                 LogUtils.info("Bundle packet");
@@ -44,9 +50,8 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             for (Packet<ClientGamePacketListener> subPacket : bundlePacket.subPackets()) {
                 int packetId = PacketTransformer.packetId(PacketSide.CLIENT_BOUND, subPacket);
                 if (packetId == -1) {
-                    LogUtils.info("Unknown packet! Pipeline: {}", ctx.pipeline().names());
-                    packets.add(subPacket);
-                    continue;
+                    super.write(ctx, msg, promise);
+                    return;
                 }
 
                 PacketType type = ClientboundPacketTypes.forPacketId(packetId);
@@ -55,8 +60,22 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
                 }
 
                 PacketEvent event = new PacketEvent(this.player, PacketSide.CLIENT_BOUND, type, () -> {
-                    return PacketTransformer.transformClientbound(ctx, subPacket, buf -> {
-                    });
+                    try {
+                        FriendlyByteBuf buf = PacketTransformer.transformClientbound(ctx, msg, FriendlyByteBuf::readVarInt);
+                        if (buf == null) {
+                            super.write(ctx, msg, promise);
+                            return null;
+                        }
+
+                        return buf;
+                    } catch (Exception exception) {
+                        try {
+                            super.write(ctx, msg, promise);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                        return null;
+                    }
                 }, () -> {
                     return PacketTransformer.newByteBuf(ctx, buf -> {
                         buf.writeVarInt(packetId);
@@ -100,25 +119,43 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
 
         int packetId = PacketTransformer.packetId(PacketSide.CLIENT_BOUND, msg);
         if (packetId == -1) {
-            LogUtils.info("Unknown packet! Pipeline: {}", ctx.pipeline().names());
             super.write(ctx, msg, promise);
             return;
         }
+
         PacketType type = ClientboundPacketTypes.forPacketId(packetId);
         if (this.flags.DEBUG_OUTGOING_PACKETS.get()) {
             LogUtils.info("Packet id: {}, class: {}, type: {}", packetId, msg.getClass(), type);
         }
 
         PacketEvent event = new PacketEvent(this.player, PacketSide.CLIENT_BOUND, type, () -> {
-            return PacketTransformer.transformClientbound(ctx, msg, buf -> {
-            });
+            try {
+                FriendlyByteBuf buf = PacketTransformer.transformClientbound(ctx, msg, FriendlyByteBuf::readVarInt);
+                if (buf == null) {
+                    super.write(ctx, msg, promise);
+                    return null;
+                }
+
+                return buf;
+            } catch (Exception exception) {
+                try {
+                    super.write(ctx, msg, promise);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                return null;
+            }
         }, () -> {
             return PacketTransformer.newByteBuf(ctx, buf -> {
                 buf.writeVarInt(packetId);
             });
         });
 
-        PacketEvents.INSTANCE.callEvent(event);
+        try {
+            PacketEvents.INSTANCE.callEvent(event);
+        } catch (RuntimeException e) {
+            LogUtils.info("Packet id: {}, class: {}, type: {}", packetId, msg.getClass(), type);
+        }
         if (event.cancelled()) {
             if (this.flags.DEBUG_OUTGOING_PACKETS.get()) {
                 LogUtils.info("Cancelled event!");
@@ -164,6 +201,11 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             return;
         }
 
+        if (!(msg instanceof Packet<?>)) {
+            super.channelRead(ctx, msg);
+            return;
+        }
+
         if (msg instanceof ServerboundCustomPayloadPacket(
                 net.minecraft.network.protocol.common.custom.CustomPacketPayload payload
         )) {
@@ -173,18 +215,32 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
 
         int packetId = PacketTransformer.packetId(PacketSide.SERVER_BOUND, msg);
         if (packetId == -1) {
-            LogUtils.info("Unknown packet! Pipeline: {}", ctx.pipeline().names());
             super.channelRead(ctx, msg);
             return;
         }
+
         PacketType type = ServerboundPacketTypes.forPacketId(packetId);
         if (this.flags.DEBUG_INCOMING_PACKETS.get()) {
             LogUtils.info("Incoming packet id: {}, class: {}, type: {}", packetId, msg.getClass(), type);
         }
 
-        PacketEvent event = new PacketEvent(this.player, PacketSide.SERVER_BOUND, type, () -> {
-            return PacketTransformer.transformServerbound(ctx, msg, buf -> {
-            });
+        PacketEvent event = new PacketEvent(this.player, PacketSide.CLIENT_BOUND, type, () -> {
+            try {
+                FriendlyByteBuf buf = PacketTransformer.transformServerbound(ctx, msg, FriendlyByteBuf::readVarInt);
+                if (buf == null) {
+                    super.channelRead(ctx, msg);
+                    return null;
+                }
+
+                return buf;
+            } catch (Exception exception) {
+                try {
+                    super.channelRead(ctx, msg);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                return null;
+            }
         }, () -> {
             return PacketTransformer.newByteBuf(ctx, buf -> {
                 buf.writeVarInt(packetId);
@@ -227,11 +283,5 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             LogUtils.info("Incoming changed!");
         }
         super.channelRead(ctx, PacketTransformer.transformServerbound(out.buf()));
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        LogUtils.error("Error on netty thread!", cause);
-        super.exceptionCaught(ctx, cause);
     }
 }

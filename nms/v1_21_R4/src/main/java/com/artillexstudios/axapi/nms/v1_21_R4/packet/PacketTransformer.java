@@ -105,7 +105,7 @@ public final class PacketTransformer {
         FriendlyByteBufWrapper wrapper;
         if (packet instanceof Packet<?>) {
             ByteBuf buffer = alloc(ctx);
-            serverboundCodec.encode(buffer, (Packet<? super ServerGamePacketListener>) packet);
+            this.serverboundCodec.encode(buffer, (Packet<? super ServerGamePacketListener>) packet);
             wrapper = new FriendlyByteBufWrapper(decorator.apply(buffer));
         } else if (packet instanceof ByteBuf buffer) {
             wrapper = new FriendlyByteBufWrapper(decorator.apply(buffer.copy()));
