@@ -1,7 +1,6 @@
 package com.artillexstudios.axapi.nms.v1_21_R3.wrapper;
 
-import com.artillexstudios.axapi.AxPlugin;
-import com.artillexstudios.axapi.nms.v1_21_R3.packet.ChannelDuplexHandlerPacketListener;
+import com.artillexstudios.axapi.nms.v1_21_R3.packet.PacketEncoder;
 import com.artillexstudios.axapi.nms.v1_21_R3.packet.PacketTransformer;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
 import com.artillexstudios.axapi.reflection.FieldAccessor;
@@ -66,7 +65,7 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
         }
 
         channel.eventLoop().submit(() -> {
-            channel.pipeline().addBefore(ServerPlayerWrapper.PACKET_HANDLER, ServerPlayerWrapper.AXAPI_HANDLER, new ChannelDuplexHandlerPacketListener(AxPlugin.getPlugin(AxPlugin.class).flags(), this.wrapped()));
+            channel.pipeline().addBefore("encoder", ServerPlayerWrapper.AXAPI_HANDLER, new PacketEncoder(this));
         });
     }
 
