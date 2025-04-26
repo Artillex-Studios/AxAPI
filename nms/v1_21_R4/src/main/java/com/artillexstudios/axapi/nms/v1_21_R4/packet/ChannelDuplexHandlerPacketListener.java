@@ -64,7 +64,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
 
                 PacketEvent event = new PacketEvent(this.player, PacketSide.CLIENT_BOUND, type, () -> {
                     try {
-                        FriendlyByteBuf buf = this.transformer.transformClientbound(ctx, msg, FriendlyByteBuf::readVarInt);
+                        FriendlyByteBuf buf = this.transformer.transformClientbound(ctx, subPacket, FriendlyByteBuf::readVarInt);
                         if (buf == null) {
                             super.write(ctx, msg, promise);
                             return null;
@@ -227,7 +227,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             LogUtils.info("Incoming packet id: {}, class: {}, type: {}", packetId, msg.getClass(), type);
         }
 
-        PacketEvent event = new PacketEvent(this.player, PacketSide.CLIENT_BOUND, type, () -> {
+        PacketEvent event = new PacketEvent(this.player, PacketSide.SERVER_BOUND, type, () -> {
             try {
                 FriendlyByteBuf buf = this.transformer.transformServerbound(ctx, msg, FriendlyByteBuf::readVarInt);
                 if (buf == null) {

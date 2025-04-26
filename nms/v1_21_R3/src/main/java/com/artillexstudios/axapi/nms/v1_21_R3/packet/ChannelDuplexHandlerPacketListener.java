@@ -63,14 +63,12 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
                     try {
                         FriendlyByteBuf buf = PacketTransformer.transformClientbound(ctx, subPacket, FriendlyByteBuf::readVarInt);
                         if (buf == null) {
-                            LogUtils.error("Buf is null!");
                             super.write(ctx, msg, promise);
                             return null;
                         }
 
                         return buf;
                     } catch (Exception exception) {
-                        LogUtils.error("Buf is null due to exception!", exception);
                         try {
                             super.write(ctx, msg, promise);
                         } catch (Exception e) {
@@ -134,14 +132,13 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             try {
                 FriendlyByteBuf buf = PacketTransformer.transformClientbound(ctx, msg, FriendlyByteBuf::readVarInt);
                 if (buf == null) {
-                    LogUtils.error("Buf is null!");
+                    ;
                     super.write(ctx, msg, promise);
                     return null;
                 }
 
                 return buf;
             } catch (Exception exception) {
-                LogUtils.error("Buf is null due to exception!", exception);
                 try {
                     super.write(ctx, msg, promise);
                 } catch (Exception e) {
