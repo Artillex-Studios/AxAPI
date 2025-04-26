@@ -25,7 +25,7 @@ public final class AxMetrics {
     private final FeatureFlags flags;
     private final long pluginId;
     private ScheduledExecutorService executorService;
-    private final YamlConfiguration metricsConfig;
+    private final YamlConfiguration<?> metricsConfig;
     private final String pluginName;
 
     public AxMetrics(AxPlugin plugin, long pluginId) {

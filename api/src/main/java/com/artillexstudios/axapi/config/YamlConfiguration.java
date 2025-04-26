@@ -17,6 +17,7 @@ import com.artillexstudios.axapi.config.service.Writer;
 import com.artillexstudios.axapi.config.service.implementation.FileCreator;
 import com.artillexstudios.axapi.config.service.implementation.FileWriter;
 import com.artillexstudios.axapi.config.service.implementation.YamlFormatter;
+import com.artillexstudios.axapi.reflection.ClassUtils;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import it.unimi.dsi.fastutil.Pair;
 import it.unimi.dsi.fastutil.ints.IntIntPair;
@@ -37,17 +38,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
-public final class YamlConfiguration implements ConfigurationGetter {
+public final class YamlConfiguration<T extends ConfigurationPart> implements ConfigurationGetter {
     private final LinkedHashMap<String, Object> contents = new LinkedHashMap<>();
     private final Map<String, Comment> comments = new HashMap<>();
     private final TypeAdapterHolder holder = new TypeAdapterHolder();
-    private final YamlConfiguration.Builder builder;
+    private final YamlConfiguration.Builder<T> builder;
     private final YamlConstructor constructor;
     private final FileCreator creator;
     private final Handler reader;
     private final Yaml yaml;
 
-    YamlConfiguration(YamlConfiguration.Builder builder) {
+    YamlConfiguration(YamlConfiguration.Builder<T> builder) {
         this.builder = builder;
         this.creator = new FileCreator(this.builder.writer);
         this.constructor = new YamlConstructor(builder.loaderOptions);
@@ -56,12 +57,12 @@ public final class YamlConfiguration implements ConfigurationGetter {
         this.reader = this.builder.clazz == null ? new FileConfigurationReader(this.yaml, this.constructor, this.holder) : new ClassConfigurationReader(this.yaml, this.constructor, this.holder, this.builder.keyRenamer, this.builder.clazz);
     }
 
-    public static YamlConfiguration.Builder of(Path path, Class<? extends ConfigurationPart> clazz) {
-        return new Builder(path, clazz);
+    public static <T extends ConfigurationPart> YamlConfiguration.Builder<T> of(Path path, Class<T> clazz) {
+        return new Builder<>(path, clazz);
     }
 
-    public static YamlConfiguration.Builder of(Path path) {
-        return new Builder(path, null);
+    public static YamlConfiguration.Builder<?> of(Path path) {
+        return new Builder<>(path, null);
     }
 
     public boolean load() {
@@ -75,7 +76,7 @@ public final class YamlConfiguration implements ConfigurationGetter {
         }
 
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(this.builder.path.toFile()))) {
-            Pair<Map<String, Object>, Map<String, Comment>> read = this.reader.read(bufferedInputStream);
+            Pair<Map<String, Object>, Map<String, Comment>> read = this.reader.read(bufferedInputStream, null);
             this.contents.putAll(read.first());
 
             this.comments.putAll(read.second());
@@ -85,6 +86,30 @@ public final class YamlConfiguration implements ConfigurationGetter {
 
         this.save();
         return true;
+    }
+
+    public T create() {
+        boolean createFile = this.creator.create(this.builder.path, this.builder.defaults);
+        if (!createFile) {
+            return null;
+        }
+
+        if (this.builder.configVersionPath != null && this.runUpdaters()) {
+            this.save();
+        }
+
+        T instance = ClassUtils.INSTANCE.create(this.builder.clazz);
+        try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(this.builder.path.toFile()))) {
+            Pair<Map<String, Object>, Map<String, Comment>> read = this.reader.read(bufferedInputStream, instance);
+            this.contents.putAll(read.first());
+
+            this.comments.putAll(read.second());
+        } catch (IOException exception) {
+            return null;
+        }
+
+        this.save();
+        return instance;
     }
 
     public boolean save() {
@@ -139,7 +164,7 @@ public final class YamlConfiguration implements ConfigurationGetter {
     }
 
     @Override
-    public <T> T get(String path, Class<T> clazz) {
+    public <Z> Z get(String path, Class<Z> clazz) {
         if (this.builder.clazz == null) {
             return clazz.cast(this.holder.deserialize(this.get(path), clazz));
         }
@@ -246,69 +271,69 @@ public final class YamlConfiguration implements ConfigurationGetter {
     }
 
 
-    public static class Builder {
+    public static class Builder<T extends ConfigurationPart> {
         private final Path path;
-        private final Class<? extends ConfigurationPart> clazz;
+        private final Class<T> clazz;
         private final Map<IntIntPair, com.artillexstudios.axapi.config.ConfigurationUpdater> updaters = new LinkedHashMap<>();
         private final Map<Class<?>, TypeAdapter<?, ?>> adapters = new HashMap<>();
         private InputStream defaults;
-        private DumperOptions dumperOptions = new DumperOptions();
-        private LoaderOptions loaderOptions = new LoaderOptions();
+        private final DumperOptions dumperOptions = new DumperOptions();
+        private final LoaderOptions loaderOptions = new LoaderOptions();
         private Formatter formatter = new YamlFormatter();
         private Writer writer = new FileWriter();
         private KeyRenamer keyRenamer = new LowerKebabCaseRenamer();
         private int configVersion = 0;
         private String configVersionPath = null;
 
-        private Builder(Path path, Class<? extends ConfigurationPart> clazz) {
+        private Builder(Path path, Class<T> clazz) {
             this.path = path;
             this.clazz = clazz;
             this.dumperOptions.setProcessComments(true);
             this.loaderOptions.setProcessComments(true);
         }
 
-        public Builder addUpdater(int fromVersion, int toVersion, com.artillexstudios.axapi.config.ConfigurationUpdater updater) {
+        public Builder<T> addUpdater(int fromVersion, int toVersion, com.artillexstudios.axapi.config.ConfigurationUpdater updater) {
             this.updaters.put(IntIntPair.of(fromVersion, toVersion), updater);
             return this;
         }
 
-        public Builder withDefaults(InputStream defaults) {
+        public Builder<T> withDefaults(InputStream defaults) {
             this.defaults = defaults;
             return this;
         }
 
-        public Builder withDumperOptions(Consumer<DumperOptions> dumperOptions) {
+        public Builder<T> withDumperOptions(Consumer<DumperOptions> dumperOptions) {
             dumperOptions.accept(this.dumperOptions);
             return this;
         }
 
-        public Builder withLoaderOptions(Consumer<LoaderOptions> loaderOptions) {
+        public Builder<T> withLoaderOptions(Consumer<LoaderOptions> loaderOptions) {
             loaderOptions.accept(this.loaderOptions);
             return this;
         }
 
-        public Builder configVersion(int configVersion, String configVersionPath) {
+        public Builder<T> configVersion(int configVersion, String configVersionPath) {
             this.configVersion = configVersion;
             this.configVersionPath = configVersionPath;
             return this;
         }
 
-        public Builder registerAdapter(Class<?> clazz, TypeAdapter<?, ?> adapter) {
+        public Builder<T> registerAdapter(Class<?> clazz, TypeAdapter<?, ?> adapter) {
             this.adapters.put(clazz, adapter);
             return this;
         }
 
-        public Builder withKeyRenamer(KeyRenamer keyRenamer) {
+        public Builder<T> withKeyRenamer(KeyRenamer keyRenamer) {
             this.keyRenamer = keyRenamer;
             return this;
         }
 
-        public Builder withFormatter(Formatter formatter) {
+        public Builder<T> withFormatter(Formatter formatter) {
             this.formatter = formatter;
             return this;
         }
 
-        public Builder withWriter(Writer writer) {
+        public Builder<T> withWriter(Writer writer) {
             this.writer = writer;
             return this;
         }
@@ -317,9 +342,9 @@ public final class YamlConfiguration implements ConfigurationGetter {
             return this.keyRenamer;
         }
 
-        public YamlConfiguration build() {
-            this.adapters.put(Serializable.class, new ObjectAdapter(this));
-            return new YamlConfiguration(this);
+        public YamlConfiguration<T> build() {
+            this.adapters.put(Serializable.class, new ObjectAdapter<>(this));
+            return new YamlConfiguration<>(this);
         }
     }
 }

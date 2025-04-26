@@ -8,7 +8,7 @@ import java.util.Map;
 
 public interface Handler {
 
-    Pair<Map<String, Object>, Map<String, Comment>> read(InputStream stream);
+    Pair<Map<String, Object>, Map<String, Comment>> read(InputStream stream, Object instance);
 
     String write(Map<String, Object> contents, Map<String, Comment> comments);
 }

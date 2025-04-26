@@ -37,7 +37,7 @@ public final class FileConfigurationReader implements Handler {
     }
 
     @Override
-    public Pair<Map<String, Object>, Map<String, Comment>> read(InputStream stream) {
+    public Pair<Map<String, Object>, Map<String, Comment>> read(InputStream stream, Object instance) {
         LinkedHashMap<String, Object> contents = new LinkedHashMap<>();
         Map<String, Comment> comments = new HashMap<>();
         this.load("", (MappingNode) this.yaml.compose(new UnicodeReader(stream)), contents, comments);

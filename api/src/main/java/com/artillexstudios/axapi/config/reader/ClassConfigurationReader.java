@@ -53,13 +53,13 @@ public final class ClassConfigurationReader implements Handler {
     }
 
     @Override
-    public Pair<Map<String, Object>, Map<String, Comment>> read(InputStream stream) {
+    public Pair<Map<String, Object>, Map<String, Comment>> read(InputStream stream, Object instance) {
         Map<String, Object> map = this.yaml.load(stream);
         LinkedHashMap<String, Object> ordered = new LinkedHashMap<>();
         Map<String, Comment> comments = new HashMap<>();
         map = map == null ? new HashMap<>() : map;
         try {
-            this.readClass(map, ordered, this.clazz);
+            this.readClass(map, ordered, this.clazz, instance);
             this.readComments("", comments, this.clazz);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
@@ -182,7 +182,7 @@ public final class ClassConfigurationReader implements Handler {
         }
     }
 
-    private void readClass(Map<String, Object> from, LinkedHashMap<String, Object> to, Class<?> clazz) throws IllegalAccessException {
+    private void readClass(Map<String, Object> from, LinkedHashMap<String, Object> to, Class<?> clazz, Object instance) throws IllegalAccessException {
         for (Field field : clazz.getFields()) {
             if (Modifier.isFinal(field.getModifiers()) || field.isAnnotationPresent(Ignored.class) || !Modifier.isStatic(field.getModifiers())) {
                 continue;
@@ -193,13 +193,13 @@ public final class ClassConfigurationReader implements Handler {
             String name = named != null ? named.value() : this.renamer.rename(field.getName());
             Object found = from.get(name);
             if (found == null) {
-                found = field.get(null);
+                found = field.get(instance);
             } else {
                 found = this.holder.deserialize(found, type);
             }
 
             to.put(name, found);
-            field.set(null, found);
+            field.set(instance, found);
         }
 
         for (Method method : clazz.getMethods()) {
@@ -208,7 +208,7 @@ public final class ClassConfigurationReader implements Handler {
             }
 
             try {
-                method.invoke(null);
+                method.invoke(instance);
             } catch (InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
@@ -223,7 +223,7 @@ public final class ClassConfigurationReader implements Handler {
             String name = named == null ? this.renamer.rename(subClass.getSimpleName()) : named.value();
             Map<String, Object> newContents = (Map<String, Object>) from.getOrDefault(name, new LinkedHashMap<>());
             to.put(name, newContents);
-            this.readClass(newContents, to, subClass);
+            this.readClass(newContents, to, subClass, instance);
         }
     }
 }

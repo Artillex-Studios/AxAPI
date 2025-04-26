@@ -6,6 +6,7 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -52,6 +53,19 @@ public enum ClassUtils {
 
     public boolean classEquals(Class<?> clazz, Class<?> other) {
         return clazz != null && clazz == other;
+    }
+
+    public <T> T create(Class<T> clazz, Object... arguments) {
+        Class<?>[] classes = arguments.length == 0 ? new Class[0] : Arrays.stream(arguments)
+                .map(Object::getClass)
+                .toArray(Class[]::new);
+
+        try {
+            return clazz.getDeclaredConstructor(classes).newInstance(arguments);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException exception) {
+            LogUtils.error("Failed to initialize class {} with arguments {}!", clazz.getName(), Arrays.toString(arguments));
+            return null;
+        }
     }
 
     public String debugClass(Class<?> clazz) {

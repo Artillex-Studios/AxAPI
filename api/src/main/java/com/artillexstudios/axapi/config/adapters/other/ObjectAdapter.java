@@ -3,6 +3,7 @@ package com.artillexstudios.axapi.config.adapters.other;
 import com.artillexstudios.axapi.config.YamlConfiguration;
 import com.artillexstudios.axapi.config.adapters.TypeAdapter;
 import com.artillexstudios.axapi.config.adapters.TypeAdapterHolder;
+import com.artillexstudios.axapi.config.annotation.ConfigurationPart;
 import com.artillexstudios.axapi.config.annotation.Hidden;
 import com.artillexstudios.axapi.config.annotation.Ignored;
 import com.artillexstudios.axapi.config.annotation.PostProcess;
@@ -16,10 +17,10 @@ import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public final class ObjectAdapter implements TypeAdapter<Object, Map<String, Object>> {
-    private final YamlConfiguration.Builder configuration;
+public final class ObjectAdapter<T extends ConfigurationPart> implements TypeAdapter<Object, Map<String, Object>> {
+    private final YamlConfiguration.Builder<T> configuration;
 
-    public ObjectAdapter(YamlConfiguration.Builder configuration) {
+    public ObjectAdapter(YamlConfiguration.Builder<T> configuration) {
         this.configuration = configuration;
     }
 

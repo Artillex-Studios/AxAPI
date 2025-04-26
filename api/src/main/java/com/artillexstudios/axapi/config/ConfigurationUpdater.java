@@ -1,7 +1,9 @@
 package com.artillexstudios.axapi.config;
 
+import com.artillexstudios.axapi.config.annotation.ConfigurationPart;
+
 @FunctionalInterface
 public interface ConfigurationUpdater {
 
-    void update(YamlConfiguration config);
+    <T extends ConfigurationPart> void update(YamlConfiguration<T> config);
 }
