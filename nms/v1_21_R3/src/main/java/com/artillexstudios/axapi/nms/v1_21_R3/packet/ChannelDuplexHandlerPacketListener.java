@@ -61,7 +61,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
 
                 PacketEvent event = new PacketEvent(this.player, PacketSide.CLIENT_BOUND, type, () -> {
                     try {
-                        FriendlyByteBuf buf = PacketTransformer.transformClientbound(ctx, msg, FriendlyByteBuf::readVarInt);
+                        FriendlyByteBuf buf = PacketTransformer.transformClientbound(ctx, subPacket, FriendlyByteBuf::readVarInt);
                         if (buf == null) {
                             LogUtils.error("Buf is null!");
                             super.write(ctx, msg, promise);
