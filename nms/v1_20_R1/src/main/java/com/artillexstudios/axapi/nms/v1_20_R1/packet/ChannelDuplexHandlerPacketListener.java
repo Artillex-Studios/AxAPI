@@ -61,7 +61,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
 
                 PacketEvent event = new PacketEvent(this.player, PacketSide.CLIENT_BOUND, type, () -> {
                     try {
-                        FriendlyByteBuf buf = PacketTransformer.transformClientbound(ctx, subPacket, FriendlyByteBuf::readVarInt);
+                        FriendlyByteBuf buf = PacketTransformer.transformClientbound(ctx, subPacket, fbb -> {});
                         if (buf == null) {
                             super.write(ctx, msg, promise);
                             return null;
@@ -130,7 +130,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
 
         PacketEvent event = new PacketEvent(this.player, PacketSide.CLIENT_BOUND, type, () -> {
             try {
-                FriendlyByteBuf buf = PacketTransformer.transformClientbound(ctx, msg, FriendlyByteBuf::readVarInt);
+                FriendlyByteBuf buf = PacketTransformer.transformClientbound(ctx, msg, fbb -> {});
                 if (buf == null) {
                     super.write(ctx, msg, promise);
                     return null;
@@ -224,7 +224,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
 
         PacketEvent event = new PacketEvent(this.player, PacketSide.SERVER_BOUND, type, () -> {
             try {
-                FriendlyByteBuf buf = PacketTransformer.transformServerbound(ctx, msg, FriendlyByteBuf::readVarInt);
+                FriendlyByteBuf buf = PacketTransformer.transformServerbound(ctx, msg, fbb -> {});
                 if (buf == null) {
                     super.channelRead(ctx, msg);
                     return null;
