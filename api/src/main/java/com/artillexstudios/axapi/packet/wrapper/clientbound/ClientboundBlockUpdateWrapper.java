@@ -20,7 +20,6 @@ public final class ClientboundBlockUpdateWrapper extends PacketWrapper {
     }
 
     public ClientboundBlockUpdateWrapper(BlockPosition position, Material material) {
-        super(null);
         this.position = position;
         this.blockData = material.createBlockData();
     }

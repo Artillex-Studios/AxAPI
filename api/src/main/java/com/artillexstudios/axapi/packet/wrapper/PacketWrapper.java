@@ -12,8 +12,13 @@ public abstract class PacketWrapper {
 
     public PacketWrapper(PacketEvent event) {
         if (event != null) {
+            FriendlyByteBuf buf = event.in();
+            if (buf == null) {
+                return;
+            }
+
             event.setWrapper(this);
-            this.read(event.in());
+            this.read(buf);
         }
     }
 
