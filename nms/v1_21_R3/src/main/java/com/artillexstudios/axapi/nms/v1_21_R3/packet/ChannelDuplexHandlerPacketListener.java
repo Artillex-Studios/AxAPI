@@ -63,12 +63,14 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
                     try {
                         FriendlyByteBuf buf = PacketTransformer.transformClientbound(ctx, msg, FriendlyByteBuf::readVarInt);
                         if (buf == null) {
+                            LogUtils.error("Buf is null!");
                             super.write(ctx, msg, promise);
                             return null;
                         }
 
                         return buf;
                     } catch (Exception exception) {
+                        LogUtils.error("Buf is null due to exception!", exception);
                         try {
                             super.write(ctx, msg, promise);
                         } catch (Exception e) {
@@ -132,12 +134,14 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             try {
                 FriendlyByteBuf buf = PacketTransformer.transformClientbound(ctx, msg, FriendlyByteBuf::readVarInt);
                 if (buf == null) {
+                    LogUtils.error("Buf is null!");
                     super.write(ctx, msg, promise);
                     return null;
                 }
 
                 return buf;
             } catch (Exception exception) {
+                LogUtils.error("Buf is null due to exception!", exception);
                 try {
                     super.write(ctx, msg, promise);
                 } catch (Exception e) {
@@ -224,7 +228,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             LogUtils.info("Incoming packet id: {}, class: {}, type: {}", packetId, msg.getClass(), type);
         }
 
-        PacketEvent event = new PacketEvent(this.player, PacketSide.CLIENT_BOUND, type, () -> {
+        PacketEvent event = new PacketEvent(this.player, PacketSide.SERVER_BOUND, type, () -> {
             try {
                 FriendlyByteBuf buf = PacketTransformer.transformServerbound(ctx, msg, FriendlyByteBuf::readVarInt);
                 if (buf == null) {
