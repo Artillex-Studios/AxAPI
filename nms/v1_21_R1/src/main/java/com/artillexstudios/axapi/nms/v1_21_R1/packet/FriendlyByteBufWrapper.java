@@ -164,6 +164,16 @@ public record FriendlyByteBufWrapper(RegistryFriendlyByteBuf buf) implements Fri
     }
 
     @Override
+    public void writeVarLong(long value) {
+        this.buf.writeVarLong(value);
+    }
+
+    @Override
+    public long readVarLong() {
+        return this.buf.readVarLong();
+    }
+
+    @Override
     public void writeLong(long value) {
         this.buf.writeLong(value);
     }

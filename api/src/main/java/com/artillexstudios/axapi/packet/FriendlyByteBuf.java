@@ -79,6 +79,10 @@ public interface FriendlyByteBuf {
 
     int readInt();
 
+    void writeVarLong(long value);
+
+    long readVarLong();
+
     void writeLong(long value);
 
     long readLong();
