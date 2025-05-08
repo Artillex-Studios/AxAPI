@@ -66,20 +66,12 @@ public final class EntityDataSerializers {
     public static final EntityDataSerializer<Long> LONG = new EntityDataSerializer<>() {
         @Override
         public void write(FriendlyByteBuf buf, Long value) {
-            if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_4)) {
-                buf.writeVarLong(value);
-            } else {
-                buf.writeLong(value);
-            }
+            buf.writeVarLong(value);
         }
 
         @Override
         public Long read(FriendlyByteBuf buf) {
-            if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_4)) {
-                return buf.readVarLong();
-            }
-
-            return buf.readLong();
+            return buf.readVarLong();
         }
 
         @Override
