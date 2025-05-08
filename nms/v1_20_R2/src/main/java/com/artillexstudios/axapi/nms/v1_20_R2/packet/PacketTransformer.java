@@ -178,31 +178,7 @@ public final class PacketTransformer {
                 packetId = serverboundCodec.packetId(packet);
             }
 
-            if (packetId == -1) {
-                Class<?> clazz = input.getClass();
-                while (true) {
-                    clazz = clazz.getSuperclass();
-                    if (clazz == null || clazz == Object.class) {
-                        break;
-                    }
-
-                    Object packetSet;
-                    if (side == PacketSide.CLIENT_BOUND) {
-                        packetSet = packetSetAccessor.get(clientboundCodec);
-                    } else {
-                        packetSet = packetSetAccessor.get(serverboundCodec);
-                    }
-
-                    Object2IntMap<Class<? extends Packet<?>>> packets = classToIdAccessor.getUnchecked(packetSet);
-                    packetId = packets.getInt(clazz);
-
-                    if (packetId != -1) {
-                        break;
-                    }
-                }
-
-                return packetId;
-            }
+            return packetId;
         } else if (input instanceof ByteBuf buffer) {
             int readerIndex = buffer.readerIndex();
             int writerIndex = buffer.writerIndex();

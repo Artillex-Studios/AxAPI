@@ -176,26 +176,7 @@ public final class PacketTransformer {
                 packetId = ConnectionProtocol.PLAY.getPacketId(PacketFlow.SERVERBOUND, packet);
             }
 
-            if (packetId == -1) {
-                Class<?> clazz = input.getClass();
-                while (true) {
-                    clazz = clazz.getSuperclass();
-                    if (clazz == null || clazz == Object.class) {
-                        break;
-                    }
-
-                    Map<PacketFlow, Object> packetSets = flowsAccessor.getUnchecked(ConnectionProtocol.PLAY);
-                    Object packetSet = packetSets.get(side == PacketSide.CLIENT_BOUND ? PacketFlow.CLIENTBOUND : PacketFlow.SERVERBOUND);
-                    Object2IntMap<Class<? extends Packet<?>>> packets = classToIdAccessor.getUnchecked(packetSet);
-                    packetId = packets.getInt(clazz);
-
-                    if (packetId != -1) {
-                        break;
-                    }
-                }
-
-                return packetId;
-            }
+            return packetId;
         } else if (input instanceof ByteBuf buffer) {
             int readerIndex = buffer.readerIndex();
             int writerIndex = buffer.writerIndex();
