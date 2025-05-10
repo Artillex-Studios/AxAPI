@@ -15,8 +15,12 @@ public class DatabaseQuery<T> {
         this.sql = sql;
     }
 
+    public void execute(Object... parameters) {
+        this.create().execute(parameters);
+    }
+
     public RunnableQuery<T> create() {
-        return new RunnableQuery<>(handler::transformer, handler::connection, this.resultHandler, this.sql);
+        return new RunnableQuery<>(this.handler::transformer, this.handler::connection, this.resultHandler, this.sql);
     }
 
     public AsyncRunnableQuery<T> createAsync() {

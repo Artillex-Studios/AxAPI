@@ -50,7 +50,7 @@ public class DatabaseHandler {
     }
 
     public <T> DatabaseQuery<T> rawQuery(String sql, ResultHandler<T> resultHandler) {
-        return new DatabaseQuery<>(this, resultHandler, sql);
+        return new DatabaseQuery<>(this, resultHandler, this.processSQL(sql));
     }
 
     public <T> DatabaseQuery<T> query(String name) {
@@ -58,7 +58,7 @@ public class DatabaseHandler {
     }
 
     public <T> DatabaseQuery<T> query(String name, ResultHandler<T> resultHandler) {
-        return new DatabaseQuery<>(this, resultHandler, this.fetchQuery(name));
+        return new DatabaseQuery<>(this, resultHandler, this.processSQL(this.fetchQuery(name)));
     }
 
     private String fetchQuery(String name) {
@@ -68,6 +68,10 @@ public class DatabaseHandler {
             LogUtils.error("An exception occurred while fetching query {}!", name, exception);
             throw new RuntimeException(exception);
         }
+    }
+
+    private String processSQL(String sql) {
+        return sql.replace("$table_prefix", this.config.tablePrefix());
     }
 
     private String fetchQuery0(String name) throws IOException {

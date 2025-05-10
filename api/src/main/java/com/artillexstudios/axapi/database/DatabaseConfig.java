@@ -18,6 +18,7 @@ public class DatabaseConfig {
     @Hidden
     public String url = null;
     public Pool pool = new Pool();
+    private String tablePrefix;
 
     @Serializable
     public static class Pool {
@@ -34,5 +35,13 @@ public class DatabaseConfig {
                 this.maximumPoolSize = 1;
             }
         }
+    }
+
+    public String tablePrefix() {
+        return this.tablePrefix;
+    }
+
+    public void tablePrefix(String tablePrefix) {
+        this.tablePrefix = tablePrefix;
     }
 }
