@@ -97,10 +97,10 @@ allprojects {
         compileOnly("com.github.ben-manes.caffeine:caffeine:2.9.2")
         compileOnly("me.clip:placeholderapi:2.11.5")
 
-        implementation("com.github.Artillex-Studios.Lamp:common:cc49e8a098") {
+        implementation("com.github.Artillex-Studios.Lamp:common:c60ac3c398") {
             exclude group: 'net.kyori', module: 'adventure'
         }
-        implementation("com.github.Artillex-Studios.Lamp:bukkit:cc49e8a098") {
+        implementation("com.github.Artillex-Studios.Lamp:bukkit:c60ac3c398") {
             exclude group: 'net.kyori', module: 'adventure'
         }
     }
