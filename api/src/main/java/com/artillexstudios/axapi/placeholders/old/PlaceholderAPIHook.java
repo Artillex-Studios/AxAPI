@@ -1,4 +1,4 @@
-package com.artillexstudios.axapi.placeholders;
+package com.artillexstudios.axapi.placeholders.old;
 
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.utils.logging.LogUtils;

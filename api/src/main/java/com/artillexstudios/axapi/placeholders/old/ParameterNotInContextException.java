@@ -1,4 +1,4 @@
-package com.artillexstudios.axapi.placeholders;
+package com.artillexstudios.axapi.placeholders.old;
 
 public final class ParameterNotInContextException extends Exception {
 

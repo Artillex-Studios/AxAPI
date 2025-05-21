@@ -19,8 +19,8 @@ import com.artillexstudios.axapi.packet.wrapper.serverbound.ServerboundSignUpdat
 import com.artillexstudios.axapi.packetentity.PacketEntity;
 import com.artillexstudios.axapi.packetentity.tracker.EntityTracker;
 import com.artillexstudios.axapi.particle.ParticleTypes;
-import com.artillexstudios.axapi.placeholders.PlaceholderAPIHook;
-import com.artillexstudios.axapi.placeholders.Placeholders;
+import com.artillexstudios.axapi.placeholders.old.PlaceholderAPIHook;
+import com.artillexstudios.axapi.placeholders.old.Placeholders;
 import com.artillexstudios.axapi.scheduler.Scheduler;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;

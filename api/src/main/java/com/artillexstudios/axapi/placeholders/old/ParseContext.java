@@ -1,4 +1,4 @@
-package com.artillexstudios.axapi.placeholders;
+package com.artillexstudios.axapi.placeholders.old;
 
 public enum ParseContext {
     PLACEHOLDER_API,

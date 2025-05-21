@@ -1,4 +1,4 @@
-package com.artillexstudios.axapi.placeholders;
+package com.artillexstudios.axapi.placeholders.old;
 
 import com.artillexstudios.axapi.utils.Pair;
 import com.artillexstudios.axapi.utils.functions.ThrowingFunction;
