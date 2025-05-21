@@ -16,25 +16,42 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class DatabaseHandler {
     private final AxPlugin plugin;
     private final DatabaseConfig config;
+    private final Supplier<Connection> connectionSupplier;
     private HikariDataSource dataSource;
+
+    public DatabaseHandler(AxPlugin plugin, DatabaseConfig config, Supplier<Connection> connectionSupplier) {
+        this.plugin = plugin;
+        this.config = config;
+        this.connectionSupplier = connectionSupplier;
+    }
 
     public DatabaseHandler(AxPlugin plugin, DatabaseConfig config) {
         this.plugin = plugin;
         this.config = config;
-        this.init();
+        this.connectionSupplier = this.createHikariConfig();
     }
 
-    private void init() {
+    private Supplier<Connection> createHikariConfig() {
         HikariConfig config = this.config.type.config(this.config);
         config.setPoolName("axapi-" + this.plugin.getName() + "-database-pool");
         if (this.config.url != null && !(this.config.type instanceof MySQLDatabaseType)) {
             config.addDataSourceProperty("url", this.config.url);
         }
         this.dataSource = new HikariDataSource(config);
+
+        return () -> {
+            try {
+                return this.dataSource.getConnection();
+            } catch (SQLException exception) {
+                LogUtils.error("Failed to acquire connection from datasource!", exception);
+                throw new RuntimeException(exception);
+            }
+        };
     }
 
     public <T, Z> void addTransformer(Class<T> clazz, Function<T, List<Z>> from) {
@@ -107,12 +124,7 @@ public class DatabaseHandler {
     }
 
     public Connection connection() {
-        try {
-            return this.dataSource.getConnection();
-        } catch (SQLException exception) {
-            LogUtils.error("Failed to acquire connection from datasource!", exception);
-            throw new RuntimeException(exception);
-        }
+        return this.connectionSupplier.get();
     }
 
     public void close() {
