@@ -31,7 +31,7 @@ public class MessageUtils {
     }
 
     public static void sendMessage(CommandSender sender, String prefix, String message, TagResolver... resolvers) {
-        if (message.isEmpty()) {
+        if (message == null || message.isEmpty()) {
             return;
         }
 
@@ -44,7 +44,7 @@ public class MessageUtils {
     }
 
     public void sendFormatted(CommandSender sender, String message, TagResolver... resolvers) {
-        if (message.isEmpty()) {
+        if (message == null || message.isEmpty()) {
             return;
         }
 
@@ -58,7 +58,7 @@ public class MessageUtils {
 
     public void sendLang(CommandSender commandSender, String message, TagResolver... resolvers) {
         String configString = config.getString(message);
-        if (configString.isEmpty()) {
+        if (configString == null || configString.isEmpty()) {
             return;
         }
 
@@ -74,7 +74,7 @@ public class MessageUtils {
 
     public void sendLang(CommandSender sender, String message, Map<String, String> replacements) {
         String parsed = config.getString(message);
-        if (parsed.isEmpty()) {
+        if (parsed == null || parsed.isEmpty()) {
             return;
         }
 
