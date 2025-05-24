@@ -1,6 +1,6 @@
 package com.artillexstudios.axapi.placeholders;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @FunctionalInterface
 public interface PlaceholderArgumentResolver<T> {

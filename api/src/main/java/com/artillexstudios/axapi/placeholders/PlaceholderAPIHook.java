@@ -1,4 +1,4 @@
-package com.artillexstudios.axapi.placeholders.old;
+package com.artillexstudios.axapi.placeholders;
 
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
@@ -11,20 +11,19 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Locale;
 
-public final class PlaceholderAPIHook extends PlaceholderExpansion {
-    private static final AxPlugin plugin = AxPlugin.getPlugin(AxPlugin.class);
+public class PlaceholderAPIHook extends PlaceholderExpansion {
+    private final AxPlugin plugin;
 
-    @Override
-    public boolean persist() {
-        return true;
+    public PlaceholderAPIHook(AxPlugin plugin) {
+        this.plugin = plugin;
     }
 
     @NotNull
     @Override
     public String getIdentifier() {
-        String identifier = plugin.flags().PLACEHOLDER_API_IDENTIFIER.get();
+        String identifier = this.plugin.flags().PLACEHOLDER_API_IDENTIFIER.get();
         if (identifier.isBlank()) {
-            String pluginName = plugin.getName().toLowerCase(Locale.ENGLISH);
+            String pluginName = this.plugin.getName().toLowerCase(Locale.ENGLISH);
             LogUtils.error("PlaceholderAPI identifier is not set up! Please set it! Defaulting to {}", pluginName);
             return pluginName;
         }
@@ -47,21 +46,17 @@ public final class PlaceholderAPIHook extends PlaceholderExpansion {
     @Nullable
     @Override
     public String onPlaceholderRequest(Player player, @NotNull String params) {
-        return Placeholders.parse(params, Context.builder(ParseContext.PLACEHOLDER_API, ResolutionType.ONLINE)
-                .add(Player.class, player)
-        );
+        return PlaceholderHandler.parse("%" + params + "%", player);
     }
 
     @Nullable
     @Override
     public String onRequest(OfflinePlayer player, @NotNull String params) {
-        return Placeholders.parse(params, Context.builder(ParseContext.PLACEHOLDER_API, ResolutionType.OFFLINE)
-                .add(OfflinePlayer.class, player)
-        );
+        return PlaceholderHandler.parse("%" + params + "%", player);
     }
 
     @Override
     public @NotNull List<String> getPlaceholders() {
-        return Placeholders.placeholders(ParseContext.PLACEHOLDER_API);
+        return PlaceholderHandler.placeholders(this.plugin.flags().PLACEHOLDER_API_IDENTIFIER.get());
     }
 }

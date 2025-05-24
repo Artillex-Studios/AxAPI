@@ -107,7 +107,24 @@ public enum ClassUtils {
             builder.append("\t".repeat(indent + 1)).append("Parameters: ").append(Arrays.stream(method.getParameterTypes()).map(Class::getName)).append(System.lineSeparator());
         }
 
+        Set<Class<?>> superClasses = this.superClasses(clazz);
+        builder.append("\t".repeat(indent)).append("Super classes: ").append(System.lineSeparator());
+        for (Class<?> superClass : superClasses) {
+            builder.append("\t".repeat(indent + 1)).append(debugClass(indent + 1, superClass)).append(System.lineSeparator());
+        }
+
+        return builder.toString();
+    }
+
+    public Set<Class<?>> superClasses(Class<?> clazz) {
+        return this.superClasses(clazz, false);
+    }
+
+    public Set<Class<?>> superClasses(Class<?> clazz, boolean self) {
         Set<Class<?>> superClasses = new HashSet<>();
+        if (self) {
+            superClasses.add(clazz);
+        }
         while (true) {
             clazz = clazz.getSuperclass();
             if (clazz == null || clazz == Object.class) {
@@ -116,11 +133,7 @@ public enum ClassUtils {
 
             superClasses.add(clazz);
         }
-        builder.append("\t".repeat(indent)).append("Super classes: ").append(System.lineSeparator());
-        for (Class<?> superClass : superClasses) {
-            builder.append("\t".repeat(indent + 1)).append(debugClass(indent + 1, superClass)).append(System.lineSeparator());
-        }
 
-        return builder.toString();
+        return superClasses;
     }
 }
