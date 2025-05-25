@@ -88,7 +88,7 @@ public final class YamlConfiguration<T extends ConfigurationPart> implements Con
         return true;
     }
 
-    public T create() {
+    public T create(T instance) {
         boolean createFile = this.creator.create(this.builder.path, this.builder.defaults);
         if (!createFile) {
             return null;
@@ -98,7 +98,6 @@ public final class YamlConfiguration<T extends ConfigurationPart> implements Con
             this.save();
         }
 
-        T instance = ClassUtils.INSTANCE.create(this.builder.clazz);
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(this.builder.path.toFile()))) {
             Pair<Map<String, Object>, Map<String, Comment>> read = this.reader.read(bufferedInputStream, instance);
             this.contents.putAll(read.first());
@@ -110,6 +109,10 @@ public final class YamlConfiguration<T extends ConfigurationPart> implements Con
 
         this.save();
         return instance;
+    }
+
+    public T create() {
+        return this.create(ClassUtils.INSTANCE.create(this.builder.clazz));
     }
 
     public boolean save() {
