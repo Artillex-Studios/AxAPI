@@ -28,7 +28,7 @@ public class PlaceholderHandler {
     }
 
     public static <T, Z> void registerTransformer(Class<T> fromClazz, Class<Z> toClazz, ThrowingFunction<T, Z, PlaceholderParameterNotInContextException> transformer) {
-        transformers.put(fromClazz, Pair.create(toClazz, (ThrowingFunction<Object, Object, PlaceholderParameterNotInContextException>) transformer));
+        transformers.put(toClazz, Pair.create(fromClazz, (ThrowingFunction<Object, Object, PlaceholderParameterNotInContextException>) transformer));
     }
 
     public static void register(String placeholder, ThrowingFunction<PlaceholderContext, String, PlaceholderException> handler) {
