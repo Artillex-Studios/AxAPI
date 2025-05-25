@@ -1,9 +1,12 @@
 package com.artillexstudios.axapi.placeholders;
 
+import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.placeholders.exception.PlaceholderException;
 import com.artillexstudios.axapi.placeholders.exception.PlaceholderParameterNotInContextException;
 import com.artillexstudios.axapi.utils.Pair;
+import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.functions.ThrowingFunction;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +16,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.regex.Matcher;
 
 public class PlaceholderHandler {
+    private static final FeatureFlags flags = AxPlugin.getPlugin(AxPlugin.class).flags();
     private static final ConcurrentLinkedDeque<Placeholder> placeholders = new ConcurrentLinkedDeque<>();
     private static final ConcurrentHashMap<Class<?>, Pair<Class<?>, ThrowingFunction<Object, Object, PlaceholderParameterNotInContextException>>> transformers = new ConcurrentHashMap<>();
 
@@ -60,13 +64,18 @@ public class PlaceholderHandler {
         for (Placeholder placeholder : placeholders) {
             Matcher match = placeholder.match(line);
             if (!match.find()) {
+                if (flags.DEBUG.get()) {
+                    LogUtils.warn("Matcher no find! Line: {}, placeholder: {}, regex: {}", line, placeholder.placeholder(), placeholder.pattern());
+                }
                 continue;
             }
 
             try {
                 line = match.replaceAll(placeholder.handler().apply(placeholder.newContext(parameters, match)));
             } catch (PlaceholderException exception) {
-                exception.printStackTrace();
+                if (flags.DEBUG.get()) {
+                    LogUtils.warn("Placeholder parse! Line: {}", line, exception);
+                }
                 continue;
             }
         }
