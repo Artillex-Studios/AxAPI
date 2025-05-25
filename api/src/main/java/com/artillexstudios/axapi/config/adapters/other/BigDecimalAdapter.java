@@ -13,9 +13,11 @@ public final class BigDecimalAdapter implements TypeAdapter<BigDecimal, String> 
     public BigDecimal deserialize(TypeAdapterHolder holder, Object input, Type type) {
         if (input instanceof String str) {
             return new BigDecimal(str);
+        } else if (input instanceof Number number) {
+            return BigDecimal.valueOf(number.doubleValue());
         }
 
-        return null;
+        throw new IllegalArgumentException("Can't convert %s into a BigDecimal!".formatted(input.getClass()));
     }
 
     @Override

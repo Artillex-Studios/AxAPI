@@ -9,6 +9,7 @@ import com.artillexstudios.axapi.items.component.type.ItemLore;
 import com.artillexstudios.axapi.items.component.type.ProfileProperties;
 import com.artillexstudios.axapi.items.component.type.Unbreakable;
 import com.artillexstudios.axapi.items.component.type.Unit;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 import com.artillexstudios.axapi.utils.mutable.MutableObject;
 import com.google.common.collect.Lists;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
@@ -33,6 +34,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class ItemBuilder {
     private static final UUID NIL_UUID = new UUID(0, 0);
@@ -54,25 +56,28 @@ public class ItemBuilder {
         } else {
             this.stack = WrappedItemStack.wrap(new ItemStack(getMaterial(type)));
         }
-        Optional.ofNullable(map.get("item-flags")).ifPresent(flags -> this.flags.addAll(getItemFlags((List<String>) flags)));
 
-        Optional.ofNullable(map.get("name")).ifPresent(name -> this.setName((String) name, this.resolvers));
-        Optional.ofNullable(map.get("color")).ifPresent(color -> this.setColor((String) color));
-        Optional.ofNullable(map.get("texture")).ifPresent(string -> this.setTextureValue((String) string));
-        Optional.ofNullable(map.get("custom-model-data")).ifPresent(number -> {
-            if (number instanceof Integer num) {
-                this.legacyModelData(num);
-            } else if (number instanceof Map<?, ?> model) {
-                this.customModelData((Map<Object, Object>) model);
-            }
+        safeMap(map, "item-flags", List.class, flags -> {
+            this.flags.addAll(getItemFlags((List<String>) flags));
         });
-        Optional.ofNullable(map.get("amount")).ifPresent(amount -> stack.setAmount((int) amount));
-        Optional.ofNullable(map.get("glow")).ifPresent(glow -> this.glow((boolean) glow));
-        Optional.ofNullable(map.get("lore")).ifPresent(lore -> this.setLore((List<String>) lore, this.resolvers));
-        Optional.ofNullable(map.get("enchants")).ifPresent(enchants -> this.addEnchants(createEnchantmentsMap((List<String>) enchants)));
-        Optional.ofNullable(map.get("potion")).ifPresent(potion -> this.setPotion((String) potion));
-        Optional.ofNullable(map.get("unbreakable")).ifPresent(unbreakable -> this.stack.set(DataComponents.unbreakable(), new Unbreakable(!this.flags.contains(ItemFlag.HIDE_UNBREAKABLE))));
-        Optional.ofNullable(map.get("item-model")).ifPresent(model -> this.stack.set(DataComponents.itemModel(), Key.key((String) model)));
+        safeMap(map, "name", String.class, this::setName);
+        safeMap(map, "color", String.class, this::setColor);
+        safeMap(map, "texture", String.class, this::setTextureValue);
+        safeMap(map, "custom-model-data", Integer.class, this::legacyModelData);
+        safeMap(map, "custom-model-data", Map.class, this::customModelData);
+        safeMap(map, "amount", Integer.class, this.stack::setAmount);
+        safeMap(map, "glow", Boolean.class, this::glow);
+        safeMap(map, "lore", List.class, this::setLore);
+        safeMap(map, "enchants", List.class, enchants -> {
+            this.addEnchants(createEnchantmentsMap((List<String>) enchants));
+        });
+        safeMap(map, "potion", String.class, this::setPotion);
+        safeMap(map, "unbreakable", Object.class, unbreakable -> {
+            this.stack.set(DataComponents.unbreakable(), new Unbreakable(!this.flags.contains(ItemFlag.HIDE_UNBREAKABLE)));
+        });
+        safeMap(map, "item-model", String.class, model -> {
+            this.stack.set(DataComponents.itemModel(), Key.key(model));
+        });
 
         try {
             if (this.flags.contains(ItemFlag.HIDE_POTION_EFFECTS)) {
@@ -80,6 +85,20 @@ public class ItemBuilder {
             }
         } catch (Exception ignored) {
         }
+    }
+
+    private static <T> void safeMap(Map<Object, Object> map, String key, Class<T> clazz, Consumer<T> consumer) {
+        Object o = map.get(key);
+        if (o == null) {
+            return;
+        }
+
+        if (!clazz.isInstance(o)) {
+            LogUtils.warn("Failed to safely map {} from {}, because it isn't a {}, but a {}!", key, map, clazz, o.getClass());
+            return;
+        }
+
+        consumer.accept(clazz.cast(o));
     }
 
     public ItemBuilder(Map<Object, Object> map, Map<String, String> replacements) {

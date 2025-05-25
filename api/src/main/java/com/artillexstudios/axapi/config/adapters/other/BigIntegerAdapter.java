@@ -4,6 +4,7 @@ import com.artillexstudios.axapi.config.adapters.TypeAdapter;
 import com.artillexstudios.axapi.config.adapters.TypeAdapterHolder;
 
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.UUID;
 
@@ -13,9 +14,11 @@ public final class BigIntegerAdapter implements TypeAdapter<BigInteger, String> 
     public BigInteger deserialize(TypeAdapterHolder holder, Object input, Type type) {
         if (input instanceof String str) {
             return new BigInteger(str);
+        } else if (input instanceof Number number) {
+            return BigInteger.valueOf(number.longValue());
         }
 
-        return null;
+        throw new IllegalArgumentException("Can't convert %s into a BigInteger!".formatted(input.getClass()));
     }
 
     @Override
