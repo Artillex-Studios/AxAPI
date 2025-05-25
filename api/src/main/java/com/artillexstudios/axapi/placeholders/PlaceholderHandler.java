@@ -124,7 +124,10 @@ public class PlaceholderHandler {
     }
 
     public static <T> Pair<Class<?>, ThrowingFunction<Object, Object, PlaceholderParameterNotInContextException>> transformer(Class<T> clazz) {
+        if (flags.DEBUG.get()) {
+            LogUtils.debug("Transformers: {}", transformers);
+        }
+
         return transformers.get(clazz);
     }
-
 }
