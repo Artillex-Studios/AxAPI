@@ -2,8 +2,6 @@ package com.artillexstudios.axapi.placeholders;
 
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.placeholders.exception.PlaceholderException;
-import com.artillexstudios.axapi.placeholders.exception.PlaceholderParameterNotInContextException;
-import com.artillexstudios.axapi.utils.Pair;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.functions.ThrowingFunction;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
@@ -11,14 +9,14 @@ import com.artillexstudios.axapi.utils.logging.LogUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 
 public class PlaceholderHandler {
     private static final FeatureFlags flags = AxPlugin.getPlugin(AxPlugin.class).flags();
-    private static final ConcurrentLinkedDeque<Placeholder> placeholders = new ConcurrentLinkedDeque<>();
-    private static final ConcurrentHashMap<Class<?>, Pair<Class<?>, ThrowingFunction<Object, Object, PlaceholderParameterNotInContextException>>> transformers = new ConcurrentHashMap<>();
+    private static final ConcurrentLinkedQueue<Placeholder> placeholders = new ConcurrentLinkedQueue<>();
+    private static final ConcurrentLinkedQueue<PlaceholderTransformer<Object, Object>> transformers = new ConcurrentLinkedQueue<>();
 
     void test() {
         register("wins_<koth>", new PlaceholderArguments(new PlaceholderArgument<>("koth", null)), ctx -> {
@@ -27,8 +25,8 @@ public class PlaceholderHandler {
         });
     }
 
-    public static <T, Z> void registerTransformer(Class<T> fromClazz, Class<Z> toClazz, ThrowingFunction<T, Z, PlaceholderParameterNotInContextException> transformer) {
-        transformers.put(toClazz, Pair.create(fromClazz, (ThrowingFunction<Object, Object, PlaceholderParameterNotInContextException>) transformer));
+    public static <T, Z> void registerTransformer(Class<T> fromClazz, Class<Z> toClazz, Function<T, Z> transformer) {
+        transformers.add((PlaceholderTransformer<Object, Object>) new PlaceholderTransformer<>(fromClazz, toClazz, transformer));
     }
 
     public static void register(String placeholder, ThrowingFunction<PlaceholderContext, String, PlaceholderException> handler) {
@@ -123,11 +121,7 @@ public class PlaceholderHandler {
                 .toList();
     }
 
-    public static <T> Pair<Class<?>, ThrowingFunction<Object, Object, PlaceholderParameterNotInContextException>> transformer(Class<T> clazz) {
-        if (flags.DEBUG.get()) {
-            LogUtils.debug("Transformers: {}", transformers);
-        }
-
-        return transformers.get(clazz);
+    public static ConcurrentLinkedQueue<PlaceholderTransformer<Object, Object>> transformers() {
+        return transformers;
     }
 }

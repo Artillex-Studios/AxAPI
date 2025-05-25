@@ -47,26 +47,46 @@ public class PlaceholderParameters {
     }
 
     public <T> T resolve(Class<T> clazz) throws PlaceholderParameterNotInContextException {
-        T object = this.raw(clazz);
-        if (flags.DEBUG.get()) {
-            LogUtils.debug("Resolving class {}!", clazz);
+        T resolved = this.raw(clazz);
+
+        if (resolved != null) {
+            return resolved;
         }
 
-        if (object == null) {
-            Pair<Class<?>, ThrowingFunction<Object, Object, PlaceholderParameterNotInContextException>> transformer = PlaceholderHandler.transformer(clazz);
-            if (flags.DEBUG.get()) {
-                LogUtils.debug("Transformer for class: {}, {}!", clazz, transformer);
+        for (PlaceholderTransformer<Object, Object> transformer : PlaceholderHandler.transformers()) {
+            if (!transformer.to().equals(clazz)) {
+                continue;
             }
 
-            if (transformer == null) {
-                throw EXCEPTION;
+            try {
+                Object other = this.resolve(transformer.from());
+                return (T) transformer.function().apply(other);
+            } catch (PlaceholderParameterNotInContextException ignored) {
+                continue;
             }
-
-            Object resolved = this.resolve(transformer.first());
-            object = (T) transformer.second().apply(resolved);
         }
 
-        return object;
+        throw EXCEPTION;
+//        T object = this.raw(clazz);
+//        if (flags.DEBUG.get()) {
+//            LogUtils.debug("Resolving class {}!", clazz);
+//        }
+//
+//        if (object == null) {
+//            Pair<Class<?>, ThrowingFunction<Object, Object, PlaceholderParameterNotInContextException>> transformer = PlaceholderHandler.transformer(clazz);
+//            if (flags.DEBUG.get()) {
+//                LogUtils.debug("Transformer for class: {}, {}!", clazz, transformer);
+//            }
+//
+//            if (transformer == null) {
+//                throw EXCEPTION;
+//            }
+//
+//            Object resolved = this.resolve(transformer.first());
+//            object = (T) transformer.second().apply(resolved);
+//        }
+//
+//        return object;
     }
 
     public <T> T raw(Class<T> clazz) {
