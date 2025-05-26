@@ -52,6 +52,12 @@ public class PlaceholderHandler {
         return parse(line, (PlaceholderParameters) null);
     }
 
+    public static <T> String parse(String line, Class<T> clazz, T value) {
+        return parse(line, new PlaceholderParameters()
+                .withParameter(clazz, value)
+        );
+    }
+
     public static String parse(String line, Object... objects) {
         return parse(line, new PlaceholderParameters()
                 .withParameters(objects)

@@ -116,6 +116,10 @@ public enum ClassUtils {
         return builder.toString();
     }
 
+    public Class<?>[] interfaces(Class<?> clazz) {
+        return clazz.getInterfaces();
+    }
+
     public Set<Class<?>> superClasses(Class<?> clazz) {
         return this.superClasses(clazz, false);
     }

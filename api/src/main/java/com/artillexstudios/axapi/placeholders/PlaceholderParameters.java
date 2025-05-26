@@ -3,13 +3,13 @@ package com.artillexstudios.axapi.placeholders;
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.placeholders.exception.PlaceholderParameterNotInContextException;
 import com.artillexstudios.axapi.reflection.ClassUtils;
-import com.artillexstudios.axapi.utils.Pair;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
-import com.artillexstudios.axapi.utils.functions.ThrowingFunction;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class PlaceholderParameters {
     private static final FeatureFlags flags = AxPlugin.getPlugin(AxPlugin.class).flags();
@@ -25,7 +25,9 @@ public class PlaceholderParameters {
     }
 
     public <T> PlaceholderParameters withParameter(T value) {
-        for (Class<?> clazz : ClassUtils.INSTANCE.superClasses(value.getClass(), true)) {
+        Set<Class<?>> classes = ClassUtils.INSTANCE.superClasses(value.getClass(), true);
+        classes.addAll(List.of(ClassUtils.INSTANCE.interfaces(value.getClass())));
+        for (Class<?> clazz : classes) {
             if (flags.DEBUG.get()) {
                 LogUtils.debug("Adding parameter class {} with value {}!", clazz, value);
             }
