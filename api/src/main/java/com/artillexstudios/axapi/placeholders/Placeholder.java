@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 public record Placeholder(String placeholder, PlaceholderArguments arguments, Pattern pattern,
                           ThrowingFunction<PlaceholderContext, String, PlaceholderException> handler) {
-    private static final Pattern placeholderRegex = Pattern.compile("<([^>]+)>");
+    private static final Pattern placeholderRegex = Pattern.compile("<([a-zA-Z0-9]+)>");
 
     public Placeholder(String placeholder, PlaceholderArguments arguments, ThrowingFunction<PlaceholderContext, String, PlaceholderException> handler) {
         this(placeholder, arguments, pattern(placeholder), handler);
