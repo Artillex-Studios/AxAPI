@@ -6,6 +6,8 @@ import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.functions.ThrowingFunction;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +17,7 @@ import java.util.regex.Matcher;
 
 public class PlaceholderHandler {
     private static final FeatureFlags flags = AxPlugin.getPlugin(AxPlugin.class).flags();
-    private static final ConcurrentLinkedQueue<Placeholder> placeholders = new ConcurrentLinkedQueue<>();
+    private static final List<Placeholder> placeholders = new ArrayList<>();
     private static final ConcurrentLinkedQueue<PlaceholderTransformer<Object, Object>> transformers = new ConcurrentLinkedQueue<>();
 
     void test() {
@@ -43,8 +45,11 @@ public class PlaceholderHandler {
 
     public static void register(String placeholder, PlaceholderArguments arguments, ThrowingFunction<PlaceholderContext, String, PlaceholderException> handler, PlaceholderFormatter formatter) {
         List<String> formatted = formatter.format(placeholder);
-        for (String string : formatted) {
-            placeholders.add(new Placeholder(string, arguments, handler));
+        synchronized (placeholders) {
+            for (String string : formatted) {
+                placeholders.add(new Placeholder(string, arguments, handler));
+            }
+            placeholders.sort(Comparator.comparing(Placeholder::placeholder).reversed());
         }
     }
 
@@ -65,26 +70,28 @@ public class PlaceholderHandler {
     }
 
     public static String parse(String line, PlaceholderParameters parameters) {
-        for (Placeholder placeholder : placeholders) {
-            Matcher match = placeholder.match(line);
-            if (!match.find()) {
-                if (flags.DEBUG.get()) {
-                    LogUtils.warn("Matcher no find! Line: {}, placeholder: {}, regex: {}", line, placeholder.placeholder(), placeholder.pattern());
+        synchronized (placeholders) {
+            for (Placeholder placeholder : placeholders) {
+                Matcher match = placeholder.match(line);
+                if (!match.find()) {
+                    if (flags.DEBUG.get()) {
+                        LogUtils.warn("Matcher no find! Line: {}, placeholder: {}, regex: {}", line, placeholder.placeholder(), placeholder.pattern());
+                    }
+                    continue;
                 }
-                continue;
+
+                try {
+                    line = match.replaceAll(placeholder.handler().apply(placeholder.newContext(parameters, match)));
+                } catch (PlaceholderException exception) {
+                    if (flags.DEBUG.get()) {
+                        LogUtils.warn("Placeholder parse! Line: {}", line, exception);
+                    }
+                    continue;
+                }
             }
 
-            try {
-                line = match.replaceAll(placeholder.handler().apply(placeholder.newContext(parameters, match)));
-            } catch (PlaceholderException exception) {
-                if (flags.DEBUG.get()) {
-                    LogUtils.warn("Placeholder parse! Line: {}", line, exception);
-                }
-                continue;
-            }
+            return line;
         }
-
-        return line;
     }
 
     public static Map<String, String> mapped(Object... objects) {
@@ -95,20 +102,22 @@ public class PlaceholderHandler {
 
     public static Map<String, String> mapped(PlaceholderParameters parameters) {
         Map<String, String> map = new HashMap<>();
-        for (Placeholder placeholder : placeholders) {
-            if (placeholder.arguments().arguments().length != 0) {
-                continue;
+        synchronized (placeholders) {
+            for (Placeholder placeholder : placeholders) {
+                if (placeholder.arguments().arguments().length != 0) {
+                    continue;
+                }
+
+                String parsed = PlaceholderHandler.parse(placeholder.placeholder(), parameters);
+                if (parsed.equals(placeholder.placeholder())) {
+                    continue;
+                }
+
+                map.put(placeholder.placeholder(), parsed);
             }
 
-            String parsed = PlaceholderHandler.parse(placeholder.placeholder(), parameters);
-            if (parsed.equals(placeholder.placeholder())) {
-                continue;
-            }
-
-            map.put(placeholder.placeholder(), parsed);
+            return map;
         }
-
-        return map;
     }
 
     public static List<String> placeholders() {
@@ -116,15 +125,17 @@ public class PlaceholderHandler {
     }
 
     public static List<String> placeholders(String prefix) {
-        return placeholders.stream()
-                .map(placeholder -> {
-                    if (prefix == null) {
-                        return placeholder.placeholder();
-                    }
+        synchronized (placeholders) {
+            return placeholders.stream()
+                    .map(placeholder -> {
+                        if (prefix == null) {
+                            return placeholder.placeholder();
+                        }
 
-                    return "%" + prefix + "_" + placeholder.placeholder().replace("%", "") + "%";
-                })
-                .toList();
+                        return "%" + prefix + "_" + placeholder.placeholder().replace("%", "") + "%";
+                    })
+                    .toList();
+        }
     }
 
     public static ConcurrentLinkedQueue<PlaceholderTransformer<Object, Object>> transformers() {
