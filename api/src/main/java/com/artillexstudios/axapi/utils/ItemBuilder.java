@@ -32,7 +32,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -247,8 +246,7 @@ public class ItemBuilder {
 
     public static boolean contains(String string, TagResolver... resolvers) {
         for (TagResolver resolver : resolvers) {
-            if (resolver instanceof TagResolver.Single) {
-                TagResolver.Single s = (TagResolver.Single) resolver;
+            if (resolver instanceof TagResolver.Single s) {
                 if (string.contains(s.key())) {
                     return true;
                 }
@@ -258,11 +256,15 @@ public class ItemBuilder {
         return false;
     }
 
-    public static List<String> toTagResolver(List<String> lore, TagResolver... resolvers) {
-        List<String> newLore = new ArrayList<>(lore);
+    public static <T> List<String> toTagResolver(List<T> lore, TagResolver... resolvers) {
+        List<String> newLore = new ArrayList<>(lore.size());
         for (int i = 0; i < lore.size(); i++) {
-            String toFormat = newLore.get(i);
-            newLore.set(i, toTagResolver(toFormat, resolvers));
+            if (!(lore.get(i) instanceof String string)) {
+                LogUtils.warn("Failed to turn {} into TagResolvers, because it was not a string, but a {}!", lore.get(i), lore.get(i).getClass());
+                continue;
+            }
+
+            newLore.add(toTagResolver(string, resolvers));
         }
 
         return newLore;
