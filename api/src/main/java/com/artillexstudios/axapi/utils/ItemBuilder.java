@@ -98,7 +98,11 @@ public class ItemBuilder {
             return;
         }
 
-        consumer.accept(clazz.cast(o));
+        try {
+            consumer.accept(clazz.cast(o));
+        } catch (ClassCastException exception) {
+            LogUtils.warn("Failed to safely map {} from {}, because it isn't a {}, but a {}!", key, map, clazz, o.getClass());
+        }
     }
 
     public ItemBuilder(Map<Object, Object> map, Map<String, String> replacements) {
