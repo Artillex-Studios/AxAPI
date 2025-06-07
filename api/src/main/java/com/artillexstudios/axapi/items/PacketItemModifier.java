@@ -47,6 +47,7 @@ public class PacketItemModifier {
                         for (Pair<EquipmentSlot, WrappedItemStack> item : wrapper.items()) {
                             PacketItemModifier.callModify(item.second(), event.player(), PacketItemModifier.Context.EQUIPMENT);
                         }
+                        wrapper.markDirty();
                     } else if (event.type() == ClientboundPacketTypes.MERCHANT_OFFERS) {
                         ClientboundMerchantOffersWrapper wrapper = new ClientboundMerchantOffersWrapper(event);
                         for (MerchantOffer offer : wrapper.merchantOffers()) {
@@ -64,6 +65,7 @@ public class PacketItemModifier {
                                 PacketItemModifier.callModify(stack, event.player(), PacketItemModifier.Context.DROPPED_ITEM);
                             }
                         }
+                        wrapper.markDirty();
                     }
                 }
 

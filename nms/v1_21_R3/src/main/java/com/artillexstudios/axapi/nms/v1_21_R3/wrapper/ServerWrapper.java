@@ -1,5 +1,7 @@
 package com.artillexstudios.axapi.nms.v1_21_R3.wrapper;
 
+import com.artillexstudios.axapi.nms.v1_21_R3.packet.PacketTransformer;
+import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.reflection.FieldAccessor;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.server.MinecraftServer;
@@ -44,6 +46,11 @@ public final class ServerWrapper implements com.artillexstudios.axapi.nms.wrappe
         }
 
         return ((CraftServer) Bukkit.getServer()).getOfflinePlayer(profile);
+    }
+
+    @Override
+    public Object transformPacket(FriendlyByteBuf buf) {
+        return PacketTransformer.transformClientbound(buf);
     }
 
     @Override

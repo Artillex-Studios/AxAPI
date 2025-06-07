@@ -24,6 +24,7 @@ public final class ClientboundContainerSetSlotWrapper extends PacketWrapper {
 
     public void stack(WrappedItemStack stack) {
         this.stack = stack;
+        this.markDirty();
     }
 
     public short slot() {
@@ -32,6 +33,7 @@ public final class ClientboundContainerSetSlotWrapper extends PacketWrapper {
 
     public void slot(short slot) {
         this.slot = slot;
+        this.markDirty();
     }
 
     public int stateId() {
@@ -40,6 +42,7 @@ public final class ClientboundContainerSetSlotWrapper extends PacketWrapper {
 
     public void stateId(int stateId) {
         this.stateId = stateId;
+        this.markDirty();
     }
 
     public int containerId() {
@@ -48,6 +51,7 @@ public final class ClientboundContainerSetSlotWrapper extends PacketWrapper {
 
     public void containerId(byte containerId) {
         this.containerId = containerId;
+        this.markDirty();
     }
 
     @Override

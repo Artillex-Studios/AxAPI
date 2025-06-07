@@ -49,11 +49,11 @@ public final class PacketTransformer {
         return transformClientbound(buf.buf());
     }
 
-    public Packet<?> transformClientbound(FriendlyByteBuf buf) {
+    public static Packet<?> transformClientbound(FriendlyByteBuf buf) {
         return transformClientbound(((FriendlyByteBufWrapper) buf).buf());
     }
 
-    public Packet<? super ClientGamePacketListener> transformClientbound(net.minecraft.network.FriendlyByteBuf buf) {
+    public static Packet<? super ClientGamePacketListener> transformClientbound(net.minecraft.network.FriendlyByteBuf buf) {
         try {
             return clientboundCodec.decode(buf);
         } finally {

@@ -31,10 +31,12 @@ public final class ClientboundMerchantOffersWrapper extends PacketWrapper {
 
     public void setContainerId(int containerId) {
         this.containerId = containerId;
+        this.markDirty();
     }
 
     public void addMerchantOffer(MerchantOffer offer) {
         this.merchantOffers.add(offer);
+        this.markDirty();
     }
 
     public List<MerchantOffer> merchantOffers() {
@@ -47,6 +49,7 @@ public final class ClientboundMerchantOffersWrapper extends PacketWrapper {
 
     public void setVillagerLevel(int villagerLevel) {
         this.villagerLevel = villagerLevel;
+        this.markDirty();
     }
 
     public int villagerXp() {
@@ -55,6 +58,7 @@ public final class ClientboundMerchantOffersWrapper extends PacketWrapper {
 
     public void setVillagerXp(int villagerXp) {
         this.villagerXp = villagerXp;
+        this.markDirty();
     }
 
     public boolean showProgress() {
@@ -63,6 +67,7 @@ public final class ClientboundMerchantOffersWrapper extends PacketWrapper {
 
     public void setShowProgress(boolean showProgress) {
         this.showProgress = showProgress;
+        this.markDirty();
     }
 
     public boolean canRestock() {
@@ -71,6 +76,7 @@ public final class ClientboundMerchantOffersWrapper extends PacketWrapper {
 
     public void setCanRestock(boolean canRestock) {
         this.canRestock = canRestock;
+        this.markDirty();
     }
 
     @Override

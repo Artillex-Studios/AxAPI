@@ -56,6 +56,7 @@ public final class ClientboundContainerSetContentWrapper extends PacketWrapper {
 
     public void setContainerId(int containerId) {
         this.containerId = containerId;
+        this.markDirty();
     }
 
     public int stateId() {
@@ -64,6 +65,7 @@ public final class ClientboundContainerSetContentWrapper extends PacketWrapper {
 
     public void setStateId(int stateId) {
         this.stateId = stateId;
+        this.markDirty();
     }
 
     public List<WrappedItemStack> items() {
@@ -72,6 +74,7 @@ public final class ClientboundContainerSetContentWrapper extends PacketWrapper {
 
     public void setItems(List<WrappedItemStack> items) {
         this.items = items;
+        this.markDirty();
     }
 
     public WrappedItemStack carriedItem() {
@@ -80,5 +83,6 @@ public final class ClientboundContainerSetContentWrapper extends PacketWrapper {
 
     public void setCarriedItem(WrappedItemStack carriedItem) {
         this.carriedItem = carriedItem;
+        this.markDirty();
     }
 }

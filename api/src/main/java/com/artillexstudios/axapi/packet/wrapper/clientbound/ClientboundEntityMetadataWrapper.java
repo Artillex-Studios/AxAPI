@@ -34,6 +34,7 @@ public final class ClientboundEntityMetadataWrapper extends PacketWrapper {
 
     public void setItems(List<Metadata.DataItem<?>> items) {
         this.items = items;
+        this.markDirty();
     }
 
     @Override

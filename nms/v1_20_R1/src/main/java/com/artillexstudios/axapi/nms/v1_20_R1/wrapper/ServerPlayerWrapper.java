@@ -89,7 +89,7 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
         this.update();
 
         if (packet instanceof PacketWrapper wrapper) {
-            this.serverPlayer.connection.send(PacketTransformer.transformClientbound(wrapper));
+            this.serverPlayer.connection.send((Packet<?>) wrapper.cached());
             return;
         }
 

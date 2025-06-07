@@ -69,7 +69,6 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
         }
 
         channel.eventLoop().submit(() -> {
-            // TODO: Correct packet handler
             channel.pipeline().addBefore(ServerPlayerWrapper.PACKET_HANDLER, ServerPlayerWrapper.AXAPI_HANDLER, new ChannelDuplexHandlerPacketListener(AxPlugin.getPlugin(AxPlugin.class).flags(), this));
         });
     }
@@ -93,7 +92,7 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
         this.update();
 
         if (packet instanceof PacketWrapper wrapper) {
-            this.serverPlayer.connection.send(this.transformer.transformClientbound(wrapper));
+            this.serverPlayer.connection.send((Packet<?>) wrapper.cached());
             return;
         }
 

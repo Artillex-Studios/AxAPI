@@ -57,6 +57,7 @@ public final class ClientboundSetEquipmentWrapper extends PacketWrapper {
 
     public void entityId(int entityId) {
         this.entityId = entityId;
+        this.markDirty();
     }
 
     public List<Pair<EquipmentSlot, WrappedItemStack>> items() {
@@ -65,5 +66,6 @@ public final class ClientboundSetEquipmentWrapper extends PacketWrapper {
 
     public void items(List<Pair<EquipmentSlot, WrappedItemStack>> items) {
         this.items = items;
+        this.markDirty();
     }
 }

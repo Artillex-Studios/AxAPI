@@ -5,30 +5,19 @@ import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketSide;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
 import com.artillexstudios.axapi.reflection.ClassUtils;
-import com.artillexstudios.axapi.reflection.FieldAccessor;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ServerGamePacketListener;
 
-import java.util.Map;
 import java.util.function.Consumer;
 
 public final class PacketTransformer {
-    private static final FieldAccessor flowsAccessor = FieldAccessor.builder()
-            .withClass(ConnectionProtocol.class)
-            .withField("k")
-            .build();
-    private static final FieldAccessor classToIdAccessor = FieldAccessor.builder()
-            .withClass("net.minecraft.network.EnumProtocol$a")
-            .withField("b")
-            .build();
 
     public static Packet<?> transformClientbound(PacketWrapper wrapper) {
         FriendlyByteBufWrapper buf = new FriendlyByteBufWrapper(new net.minecraft.network.FriendlyByteBuf(Unpooled.buffer()));
