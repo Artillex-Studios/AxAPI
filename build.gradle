@@ -123,10 +123,10 @@ allprojects {
                     project.shadow.component(publication)
                     artifactId = "axapi"
 
-                    print(project.name)
-                    if (project.name == "apiapi") {
+                    println("Project: ${project.name}")
+                    if (project.name == "api") {
                         artifact tasks.javadocJar
-                        print(project.name)
+                        println("Publishing: ${project.name}")
                     }
                 }
             }
