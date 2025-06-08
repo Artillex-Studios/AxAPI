@@ -122,9 +122,15 @@ allprojects {
                 shadow(MavenPublication) { publication ->
                     project.shadow.component(publication)
                     artifactId = "axapi"
+                    artifact tasks.javadocJar
                 }
             }
         }
+    }
+
+    tasks.register('javadocJar', Jar) {
+        archiveClassifier.set('javadoc')
+        from javadoc
     }
 
     publishToMavenLocal {
