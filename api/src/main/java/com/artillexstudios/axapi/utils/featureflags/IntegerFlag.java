@@ -1,10 +1,10 @@
 package com.artillexstudios.axapi.utils.featureflags;
 
 public final class IntegerFlag extends FeatureFlag<Integer> {
-    public static final IntegerFlag TRANSFORMER = new IntegerFlag("", 0);
+    public static final IntegerFlag TRANSFORMER = new IntegerFlag(0);
 
-    public IntegerFlag(String property, Integer def) {
-        super(property, def);
+    public IntegerFlag(Integer def) {
+        super(def);
     }
 
     @Override

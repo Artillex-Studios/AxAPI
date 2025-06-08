@@ -1,6 +1,5 @@
 package com.artillexstudios.axapi.placeholders;
 
-import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.placeholders.exception.PlaceholderParameterNotInContextException;
 import com.artillexstudios.axapi.reflection.ClassUtils;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
@@ -12,12 +11,11 @@ import java.util.Map;
 import java.util.Set;
 
 public class PlaceholderParameters {
-    private static final FeatureFlags flags = AxPlugin.getPlugin(AxPlugin.class).flags();
     private static final PlaceholderParameterNotInContextException EXCEPTION = new PlaceholderParameterNotInContextException();
     private final Map<Class<?>, Object> values = new IdentityHashMap<>();
 
     public <T> PlaceholderParameters withParameter(Class<T> clazz, T value) {
-        if (flags.DEBUG.get()) {
+        if (FeatureFlags.DEBUG.get()) {
             LogUtils.debug("Adding parameter class {} with value {}!", clazz, value);
         }
         this.values.put(clazz, value);
@@ -28,7 +26,7 @@ public class PlaceholderParameters {
         Set<Class<?>> classes = ClassUtils.INSTANCE.superClasses(value.getClass(), true);
         classes.addAll(List.of(ClassUtils.INSTANCE.interfaces(value.getClass())));
         for (Class<?> clazz : classes) {
-            if (flags.DEBUG.get()) {
+            if (FeatureFlags.DEBUG.get()) {
                 LogUtils.debug("Adding parameter class {} with value {}!", clazz, value);
             }
 
@@ -49,13 +47,13 @@ public class PlaceholderParameters {
     }
 
     public <T> T resolve(Class<T> clazz) throws PlaceholderParameterNotInContextException {
-        if (flags.DEBUG.get()) {
+        if (FeatureFlags.DEBUG.get()) {
             LogUtils.debug("Resolving class {}! Current values: {}", clazz, this.values);
         }
         T resolved = this.raw(clazz);
 
         if (resolved != null) {
-            if (flags.DEBUG.get()) {
+            if (FeatureFlags.DEBUG.get()) {
                 LogUtils.debug("Found resolved!");
             }
             return resolved;
@@ -63,7 +61,7 @@ public class PlaceholderParameters {
 
         for (PlaceholderTransformer<Object, Object> transformer : PlaceholderHandler.transformers()) {
             if (!transformer.to().equals(clazz)) {
-                if (flags.DEBUG.get()) {
+                if (FeatureFlags.DEBUG.get()) {
                     LogUtils.debug("Transformer from: {}, transformer to: {}, class: {}", transformer.from(), transformer.to(), clazz);
                 }
                 continue;
@@ -73,7 +71,7 @@ public class PlaceholderParameters {
                 Object other = this.resolve(transformer.from());
                 return (T) transformer.function().apply(other);
             } catch (PlaceholderParameterNotInContextException ignored) {
-                if (flags.DEBUG.get()) {
+                if (FeatureFlags.DEBUG.get()) {
                     LogUtils.debug("Failed! transformer from: {}, transformer to: {}, class: {}", transformer.from(), transformer.to(), clazz);
                 }
                 continue;

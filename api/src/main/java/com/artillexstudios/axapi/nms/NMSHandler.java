@@ -16,12 +16,8 @@ import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public interface NMSHandler {
-    Logger log = LoggerFactory.getLogger(NMSHandler.class);
-    String PACKET_HANDLER = "packet_handler";
 
     Serializer<Object, Component> componentSerializer();
 

@@ -4,9 +4,7 @@ import com.artillexstudios.axapi.config.adapters.TypeAdapter;
 import com.artillexstudios.axapi.config.adapters.TypeAdapterHolder;
 
 import java.lang.reflect.Type;
-import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.UUID;
 
 public final class BigIntegerAdapter implements TypeAdapter<BigInteger, String> {
 

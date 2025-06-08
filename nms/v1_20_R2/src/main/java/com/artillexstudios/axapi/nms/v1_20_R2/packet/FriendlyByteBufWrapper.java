@@ -49,12 +49,12 @@ public record FriendlyByteBufWrapper(net.minecraft.network.FriendlyByteBuf buf) 
 
     @Override
     public Component readComponent() {
-        return ComponentSerializer.instance().fromVanilla(this.buf.readComponent());
+        return ComponentSerializer.INSTANCE.fromVanilla(this.buf.readComponent());
     }
 
     @Override
     public void writeComponent(Component component) {
-        this.buf.writeComponent(ComponentSerializer.instance().<net.minecraft.network.chat.Component>toVanilla(component));
+        this.buf.writeComponent(ComponentSerializer.INSTANCE.<net.minecraft.network.chat.Component>toVanilla(component));
     }
 
     @Override

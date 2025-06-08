@@ -1,6 +1,5 @@
 package com.artillexstudios.axapi.packetentity.meta.serializer;
 
-import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
@@ -14,6 +13,7 @@ import com.artillexstudios.axapi.utils.Quaternion;
 import com.artillexstudios.axapi.utils.Vector3f;
 import com.artillexstudios.axapi.utils.Version;
 import com.artillexstudios.axapi.utils.VillagerData;
+import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
@@ -658,7 +658,7 @@ public final class EntityDataSerializers {
         int index = SERIALIZERS.size();
         SERIALIZERS.put(index, serializer);
         REVERSE_SERIALIZERS.put(serializer, index);
-        if (AxPlugin.getPlugin(AxPlugin.class).flags().DEBUG.get()) {
+        if (FeatureFlags.DEBUG.get()) {
             LogUtils.debug("Registering entitydata serializer: {}", serializer.type());
         }
     }

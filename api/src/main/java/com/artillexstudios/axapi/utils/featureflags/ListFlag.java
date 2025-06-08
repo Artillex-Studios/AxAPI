@@ -6,8 +6,8 @@ import java.util.List;
 public final class ListFlag<Z> extends FeatureFlag<List<Z>> {
     private final FeatureFlag<Z> flag;
 
-    public ListFlag(String property, FeatureFlag<Z> flag, List<Z> def) {
-        super(property, def);
+    public ListFlag(FeatureFlag<Z> flag, List<Z> def) {
+        super(def);
         this.flag = flag;
     }
 

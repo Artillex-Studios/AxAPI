@@ -22,11 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandler {
-    private final FeatureFlags flags;
     private final Player player;
 
-    public ChannelDuplexHandlerPacketListener(FeatureFlags flags, Player player) {
-        this.flags = flags;
+    public ChannelDuplexHandlerPacketListener(Player player) {
         this.player = player;
     }
 
@@ -43,7 +41,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
         }
 
         if (msg instanceof ClientboundBundlePacket bundlePacket) {
-            if (this.flags.DEBUG_OUTGOING_PACKETS.get()) {
+            if (FeatureFlags.DEBUG_OUTGOING_PACKETS.get()) {
                 LogUtils.info("Bundle packet");
             }
             List<Packet<ClientGamePacketListener>> packets = new ArrayList<>();
@@ -55,13 +53,14 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
                 }
 
                 PacketType type = ClientboundPacketTypes.forPacketId(packetId);
-                if (this.flags.DEBUG_OUTGOING_PACKETS.get()) {
+                if (FeatureFlags.DEBUG_OUTGOING_PACKETS.get()) {
                     LogUtils.info("(bundle) Packet id: {}, class: {}, type: {}", packetId, subPacket.getClass(), type);
                 }
 
                 PacketEvent event = new PacketEvent(this.player, PacketSide.CLIENT_BOUND, type, () -> {
                     try {
-                        FriendlyByteBuf buf = PacketTransformer.transformClientbound(ctx, subPacket, fbb -> {});
+                        FriendlyByteBuf buf = PacketTransformer.transformClientbound(ctx, subPacket, fbb -> {
+                        });
                         if (buf == null) {
                             super.write(ctx, msg, promise);
                             return null;
@@ -124,13 +123,14 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
         }
 
         PacketType type = ClientboundPacketTypes.forPacketId(packetId);
-        if (this.flags.DEBUG_OUTGOING_PACKETS.get()) {
+        if (FeatureFlags.DEBUG_OUTGOING_PACKETS.get()) {
             LogUtils.info("Packet id: {}, class: {}, type: {}", packetId, msg.getClass(), type);
         }
 
         PacketEvent event = new PacketEvent(this.player, PacketSide.CLIENT_BOUND, type, () -> {
             try {
-                FriendlyByteBuf buf = PacketTransformer.transformClientbound(ctx, msg, fbb -> {});
+                FriendlyByteBuf buf = PacketTransformer.transformClientbound(ctx, msg, fbb -> {
+                });
                 if (buf == null) {
                     super.write(ctx, msg, promise);
                     return null;
@@ -157,7 +157,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             LogUtils.info("Packet id: {}, class: {}, type: {}", packetId, msg.getClass(), type);
         }
         if (event.cancelled()) {
-            if (this.flags.DEBUG_OUTGOING_PACKETS.get()) {
+            if (FeatureFlags.DEBUG_OUTGOING_PACKETS.get()) {
                 LogUtils.info("Cancelled event!");
             }
 
@@ -181,14 +181,14 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
 
         FriendlyByteBufWrapper out = (FriendlyByteBufWrapper) event.directOut();
         if (out == null) {
-            if (this.flags.DEBUG_OUTGOING_PACKETS.get()) {
+            if (FeatureFlags.DEBUG_OUTGOING_PACKETS.get()) {
                 LogUtils.info("Unchanged!");
             }
             super.write(ctx, msg, promise);
             return;
         }
 
-        if (this.flags.DEBUG_OUTGOING_PACKETS.get()) {
+        if (FeatureFlags.DEBUG_OUTGOING_PACKETS.get()) {
             LogUtils.info("Changed!");
         }
         super.write(ctx, PacketTransformer.transformClientbound(out.buf()), promise);
@@ -218,13 +218,14 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
         }
 
         PacketType type = ServerboundPacketTypes.forPacketId(packetId);
-        if (this.flags.DEBUG_INCOMING_PACKETS.get()) {
+        if (FeatureFlags.DEBUG_INCOMING_PACKETS.get()) {
             LogUtils.info("Incoming packet id: {}, class: {}, type: {}", packetId, msg.getClass(), type);
         }
 
         PacketEvent event = new PacketEvent(this.player, PacketSide.SERVER_BOUND, type, () -> {
             try {
-                FriendlyByteBuf buf = PacketTransformer.transformServerbound(ctx, msg, fbb -> {});
+                FriendlyByteBuf buf = PacketTransformer.transformServerbound(ctx, msg, fbb -> {
+                });
                 if (buf == null) {
                     super.channelRead(ctx, msg);
                     return null;
@@ -247,7 +248,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
 
         PacketEvents.INSTANCE.callEvent(event);
         if (event.cancelled()) {
-            if (this.flags.DEBUG_INCOMING_PACKETS.get()) {
+            if (FeatureFlags.DEBUG_INCOMING_PACKETS.get()) {
                 LogUtils.info("Incoming cancelled event!");
             }
             FriendlyByteBufWrapper in = (FriendlyByteBufWrapper) event.directIn();
@@ -270,14 +271,14 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
 
         FriendlyByteBufWrapper out = (FriendlyByteBufWrapper) event.directOut();
         if (out == null) {
-            if (this.flags.DEBUG_INCOMING_PACKETS.get()) {
+            if (FeatureFlags.DEBUG_INCOMING_PACKETS.get()) {
                 LogUtils.info("Incoming unchanged!");
             }
             super.channelRead(ctx, msg);
             return;
         }
 
-        if (this.flags.DEBUG_INCOMING_PACKETS.get()) {
+        if (FeatureFlags.DEBUG_INCOMING_PACKETS.get()) {
             LogUtils.info("Incoming changed!");
         }
         super.channelRead(ctx, PacketTransformer.transformServerbound(out.buf()));

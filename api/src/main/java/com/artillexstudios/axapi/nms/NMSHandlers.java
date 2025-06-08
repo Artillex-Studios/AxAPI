@@ -1,8 +1,8 @@
 package com.artillexstudios.axapi.nms;
 
 import com.artillexstudios.axapi.AxPlugin;
-import com.artillexstudios.axapi.utils.logging.LogUtils;
 import com.artillexstudios.axapi.utils.Version;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 
 public class NMSHandlers {
     private static NMSHandler nmsHandler;

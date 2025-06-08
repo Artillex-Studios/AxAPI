@@ -9,9 +9,9 @@ import com.artillexstudios.axapi.nms.wrapper.WorldWrapper;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
 import com.artillexstudios.axapi.reflection.FieldAccessor;
 import com.artillexstudios.axapi.utils.PaperUtils;
+import com.artillexstudios.axapi.utils.Version;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
-import com.artillexstudios.axapi.utils.Version;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -20,7 +20,6 @@ import it.unimi.dsi.fastutil.objects.ReferenceSets;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -39,17 +38,16 @@ public final class EntityTracker {
             .withField("tracker")
             .withClass("com.artillexstudios.axapi.nms.%s.entity.PacketEntity".formatted(Version.getServerVersion().nmsVersion()))
             .build();
-    private final JavaPlugin instance = AxPlugin.getPlugin(AxPlugin.class);
     private ScheduledExecutorService service;
-    private final FeatureFlags flags;
+    private final AxPlugin instance;
 
-    public EntityTracker(FeatureFlags flags) {
-        this.flags = flags;
+    public EntityTracker(AxPlugin instance) {
+        this.instance = instance;
     }
 
     public void startTicking() {
         this.shutdown();
-        this.service = new ExceptionReportingScheduledThreadPool(this.flags.PACKET_ENTITY_TRACKER_THREADS.get(), new ThreadFactoryBuilder().setNameFormat(this.instance.getName() + "-EntityTracker-%s").build());
+        this.service = new ExceptionReportingScheduledThreadPool(FeatureFlags.PACKET_ENTITY_TRACKER_THREADS.get(), new ThreadFactoryBuilder().setNameFormat(this.instance.getName() + "-EntityTracker-%s").build());
         this.service.scheduleAtFixedRate(() -> {
             try {
                 this.process();
@@ -61,7 +59,7 @@ public final class EntityTracker {
                     // (But people don't like seeing errors, so this is the solution until I find out what causes the tracker to throw a CME)
                     //
                     // Please don't hunt me for this, I didn't want to do it.
-                    if (this.flags.DEBUG.get()) {
+                    if (FeatureFlags.DEBUG.get()) {
                         LogUtils.error("Caught ConcurrentModificationException when processing packet entities!", exception);
                     }
                     return;
@@ -128,7 +126,7 @@ public final class EntityTracker {
         AtomicInteger integer = new AtomicInteger();
         TrackedEntity[] array = this.entityMap.values().toArray(new TrackedEntity[0]);
         int length = array.length;
-        for (int i = 0; i < this.flags.PACKET_ENTITY_TRACKER_THREADS.get(); i++) {
+        for (int i = 0; i < FeatureFlags.PACKET_ENTITY_TRACKER_THREADS.get(); i++) {
             this.service.execute(() -> {
                 int l = length;
                 int index;

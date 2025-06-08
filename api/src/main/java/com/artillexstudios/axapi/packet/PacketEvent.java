@@ -16,7 +16,6 @@ public final class PacketEvent {
     private FriendlyByteBuf inBuf;
     private PacketWrapper wrapper;
     private boolean cancelled = false;
-    private boolean handled = false;
 
     public PacketEvent(Player player, PacketSide side, PacketType type, Supplier<FriendlyByteBuf> in, Supplier<FriendlyByteBuf> out) {
         this.player = player;
@@ -76,8 +75,8 @@ public final class PacketEvent {
         return this.inBuf;
     }
 
-    public boolean handled() {
-        return this.handled;
+    public void cancelled(boolean cancelled) {
+        this.cancelled = cancelled;
     }
 
     public boolean cancelled() {

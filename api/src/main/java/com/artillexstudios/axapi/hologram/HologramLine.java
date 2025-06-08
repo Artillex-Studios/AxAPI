@@ -11,6 +11,7 @@ import com.artillexstudios.axapi.packetentity.meta.entity.ArmorStandMeta;
 import com.artillexstudios.axapi.packetentity.meta.entity.ItemEntityMeta;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
 import com.artillexstudios.axapi.utils.StringUtils;
+import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.placeholder.Placeholder;
 import com.artillexstudios.axapi.utils.placeholder.StaticPlaceholder;
 import org.bukkit.Location;
@@ -86,7 +87,7 @@ public class HologramLine {
                             }
                         }
 
-                        for (Pattern pattern : plugin.flags().PLACEHOLDER_PATTERNS.get()) {
+                        for (Pattern pattern : FeatureFlags.PLACEHOLDER_PATTERNS.get()) {
                             Matcher matcher = pattern.matcher(content);
                             if (matcher.find()) {
                                 hasPlaceholders = true;
@@ -150,7 +151,7 @@ public class HologramLine {
                         }
                     }
 
-                    for (Pattern pattern : plugin.flags().PLACEHOLDER_PATTERNS.get()) {
+                    for (Pattern pattern : FeatureFlags.PLACEHOLDER_PATTERNS.get()) {
                         Matcher matcher = pattern.matcher(reference.get());
                         if (matcher.find()) {
                             hasPlaceholders = true;

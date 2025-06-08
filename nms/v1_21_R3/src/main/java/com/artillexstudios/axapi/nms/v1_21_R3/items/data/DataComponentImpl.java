@@ -172,14 +172,14 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
                     return;
                 }
 
-                itemStack.set(net.minecraft.core.component.DataComponents.CUSTOM_NAME, ComponentSerializer.instance().toVanilla(component));
+                itemStack.set(net.minecraft.core.component.DataComponents.CUSTOM_NAME, ComponentSerializer.INSTANCE.toVanilla(component));
             }
 
             @Override
             public Component get(Object item) {
                 ItemStack itemStack = (ItemStack) item;
                 net.minecraft.network.chat.Component component = itemStack.get(net.minecraft.core.component.DataComponents.CUSTOM_NAME);
-                return component == null ? Component.empty() : ComponentSerializer.instance().fromVanilla(component);
+                return component == null ? Component.empty() : ComponentSerializer.INSTANCE.fromVanilla(component);
             }
         };
     }
@@ -196,14 +196,14 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
                     return;
                 }
 
-                itemStack.set(net.minecraft.core.component.DataComponents.ITEM_NAME, ComponentSerializer.instance().toVanilla(component));
+                itemStack.set(net.minecraft.core.component.DataComponents.ITEM_NAME, ComponentSerializer.INSTANCE.toVanilla(component));
             }
 
             @Override
             public Component get(Object item) {
                 ItemStack itemStack = (ItemStack) item;
                 net.minecraft.network.chat.Component component = itemStack.get(net.minecraft.core.component.DataComponents.ITEM_NAME);
-                return component == null ? Component.empty() : ComponentSerializer.instance().fromVanilla(component);
+                return component == null ? Component.empty() : ComponentSerializer.INSTANCE.fromVanilla(component);
             }
         };
     }
@@ -244,14 +244,14 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
                     return;
                 }
 
-                itemStack.set(net.minecraft.core.component.DataComponents.LORE, new net.minecraft.world.item.component.ItemLore(ComponentSerializer.instance().toVanillaList(itemLore.lines()), ComponentSerializer.instance().toVanillaList(itemLore.styledLines())));
+                itemStack.set(net.minecraft.core.component.DataComponents.LORE, new net.minecraft.world.item.component.ItemLore(ComponentSerializer.INSTANCE.toVanillaList(itemLore.lines()), ComponentSerializer.INSTANCE.toVanillaList(itemLore.styledLines())));
             }
 
             @Override
             public ItemLore get(Object item) {
                 ItemStack itemStack = (ItemStack) item;
                 net.minecraft.world.item.component.ItemLore lore = itemStack.get(net.minecraft.core.component.DataComponents.LORE);
-                return new ItemLore(lore == null ? List.of() : ComponentSerializer.instance().fromVanillaList(new ArrayList<>(lore.lines())), lore == null ? List.of() : ComponentSerializer.instance().fromVanillaList(new ArrayList<>(lore.styledLines())));
+                return new ItemLore(lore == null ? List.of() : ComponentSerializer.INSTANCE.fromVanillaList(new ArrayList<>(lore.lines())), lore == null ? List.of() : ComponentSerializer.INSTANCE.fromVanillaList(new ArrayList<>(lore.styledLines())));
             }
         };
     }

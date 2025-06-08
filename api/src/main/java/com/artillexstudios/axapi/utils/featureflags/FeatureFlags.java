@@ -6,31 +6,29 @@ import java.util.Arrays;
 import java.util.regex.Pattern;
 
 public final class FeatureFlags {
-    public final BooleanFlag PACKET_ENTITY_TRACKER_ENABLED;
-    public final BooleanFlag DEBUG;
-    public final BooleanFlag DEBUG_INCOMING_PACKETS;
-    public final BooleanFlag DEBUG_OUTGOING_PACKETS;
-    public final BooleanFlag USE_LEGACY_HEX_FORMATTER;
-    public final IntegerFlag PACKET_ENTITY_TRACKER_THREADS;
-    public final LongFlag HOLOGRAM_UPDATE_TICKS;
-    public final ListFlag<Pattern> PLACEHOLDER_PATTERNS;
-    public final BooleanFlag PLACEHOLDER_API_HOOK;
-    public final StringFlag PLACEHOLDER_API_IDENTIFIER;
-    public final IntegerFlag COMPONENT_CACHE_SIZE;
-    private final AxPlugin plugin;
+    public static final BooleanFlag PACKET_ENTITY_TRACKER_ENABLED = new BooleanFlag(false);
+    public static final BooleanFlag DEBUG = new BooleanFlag(false);
+    public static final BooleanFlag DEBUG_INCOMING_PACKETS = new BooleanFlag(false);
+    public static final BooleanFlag DEBUG_OUTGOING_PACKETS = new BooleanFlag(false);
+    public static final BooleanFlag USE_LEGACY_HEX_FORMATTER = new BooleanFlag(false);
+    public static final IntegerFlag PACKET_ENTITY_TRACKER_THREADS = new IntegerFlag(3);
+    public static final LongFlag HOLOGRAM_UPDATE_TICKS = new LongFlag(0L);
+    public static final ListFlag<Pattern> PLACEHOLDER_PATTERNS = new ListFlag<>(PatternFlag.TRANSFORMER, Arrays.asList(Pattern.compile("%.+%"), Pattern.compile("<.+>")));
+    public static final BooleanFlag PLACEHOLDER_API_HOOK = new BooleanFlag(false);
+    public static final StringFlag PLACEHOLDER_API_IDENTIFIER = new StringFlag("");
+    public static final IntegerFlag COMPONENT_CACHE_SIZE = new IntegerFlag(200);
 
-    public FeatureFlags(AxPlugin plugin) {
-        this.plugin = plugin;
-        this.PACKET_ENTITY_TRACKER_ENABLED = new BooleanFlag(plugin.getName() + "enableEntityTracker", false);
-        this.DEBUG = new BooleanFlag(plugin.getName() + "debug", false);
-        this.DEBUG_INCOMING_PACKETS = new BooleanFlag(plugin.getName() + "debugIncomingPackets", false);
-        this.DEBUG_OUTGOING_PACKETS = new BooleanFlag(plugin.getName() + "debugOutgoingPackets", false);
-        this.USE_LEGACY_HEX_FORMATTER = new BooleanFlag(plugin.getName() + "useLegacyHexFormat", false);
-        this.PACKET_ENTITY_TRACKER_THREADS = new IntegerFlag(plugin.getName() + "entityTrackerThreads", 3);
-        this.HOLOGRAM_UPDATE_TICKS = new LongFlag(plugin.getName() + "hologramUpdateTicks", 0L);
-        this.PLACEHOLDER_PATTERNS = new ListFlag<>(plugin.getName() + "placeholderPatterns", PatternFlag.TRANSFORMER, Arrays.asList(Pattern.compile("%.+%"), Pattern.compile("<.+>")));
-        this.PLACEHOLDER_API_HOOK = new BooleanFlag(plugin.getName() + "placeholderApiHook", false);
-        this.PLACEHOLDER_API_IDENTIFIER = new StringFlag(plugin.getName() + "placeholderApiIdentifier", "");
-        this.COMPONENT_CACHE_SIZE = new IntegerFlag(plugin.getName() + "componentCacheSize", 200);
+    public static void refresh(AxPlugin plugin) {
+        PACKET_ENTITY_TRACKER_ENABLED.refresh(plugin.getName() + "enableEntityTracker");
+        DEBUG.refresh(plugin.getName() + "debug");
+        DEBUG_INCOMING_PACKETS.refresh(plugin.getName() + "debugIncomingPackets");
+        DEBUG_OUTGOING_PACKETS.refresh(plugin.getName() + "debugOutgoingPackets");
+        USE_LEGACY_HEX_FORMATTER.refresh(plugin.getName() + "useLegacyHexFormat");
+        PACKET_ENTITY_TRACKER_THREADS.refresh(plugin.getName() + "entityTrackerThreads");
+        HOLOGRAM_UPDATE_TICKS.refresh(plugin.getName() + "hologramUpdateTicks");
+        PLACEHOLDER_PATTERNS.refresh(plugin.getName() + "placeholderPatterns");
+        PLACEHOLDER_API_HOOK.refresh(plugin.getName() + "placeholderApiHook");
+        PLACEHOLDER_API_IDENTIFIER.refresh(plugin.getName() + "placeholderApiIdentifier");
+        COMPONENT_CACHE_SIZE.refresh(plugin.getName() + "componentCacheSize");
     }
 }

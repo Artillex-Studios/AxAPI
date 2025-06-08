@@ -59,12 +59,12 @@ public record FriendlyByteBufWrapper(RegistryFriendlyByteBuf buf) implements Fri
 
     @Override
     public Component readComponent() {
-        return ComponentSerializer.instance().fromVanilla(ComponentSerialization.TRUSTED_STREAM_CODEC.decode(this.buf));
+        return ComponentSerializer.INSTANCE.fromVanilla(ComponentSerialization.TRUSTED_STREAM_CODEC.decode(this.buf));
     }
 
     @Override
     public void writeComponent(Component component) {
-        ComponentSerialization.TRUSTED_STREAM_CODEC.encode(buf, ComponentSerializer.instance().toVanilla(component));
+        ComponentSerialization.TRUSTED_STREAM_CODEC.encode(buf, ComponentSerializer.INSTANCE.toVanilla(component));
     }
 
     @Override

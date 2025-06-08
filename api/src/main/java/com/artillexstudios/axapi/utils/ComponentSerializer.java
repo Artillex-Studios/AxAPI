@@ -1,8 +1,8 @@
 package com.artillexstudios.axapi.utils;
 
-import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.serializers.Serializer;
+import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import net.kyori.adventure.text.Component;
@@ -12,25 +12,26 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class ComponentSerializer {
-    private static AxPlugin plugin;
-    private final Serializer<Object, Component> serializer = NMSHandlers.getNmsHandler().componentSerializer();
-    private final Cache<Component, Object> componentCache;
-    private final Cache<Object, Component> vanillaCache;
-    private final Cache<String, Component> gsonCache;
+public enum ComponentSerializer {
+    INSTANCE;
 
-    public ComponentSerializer(AxPlugin instance) {
-        plugin = instance;
+    private Serializer<Object, Component> serializer;
+    private Cache<Component, Object> componentCache;
+    private Cache<Object, Component> vanillaCache;
+    private Cache<String, Component> gsonCache;
+
+    public void refresh() {
+        serializer = NMSHandlers.getNmsHandler().componentSerializer();
         this.componentCache = Caffeine.newBuilder()
-                .maximumSize(instance.flags().COMPONENT_CACHE_SIZE.get())
+                .maximumSize(FeatureFlags.COMPONENT_CACHE_SIZE.get())
                 .expireAfterAccess(Duration.ofMinutes(5))
                 .build();
         this.vanillaCache = Caffeine.newBuilder()
-                .maximumSize(instance.flags().COMPONENT_CACHE_SIZE.get())
+                .maximumSize(FeatureFlags.COMPONENT_CACHE_SIZE.get())
                 .expireAfterAccess(Duration.ofMinutes(5))
                 .build();
         this.gsonCache = Caffeine.newBuilder()
-                .maximumSize(instance.flags().COMPONENT_CACHE_SIZE.get())
+                .maximumSize(FeatureFlags.COMPONENT_CACHE_SIZE.get())
                 .expireAfterAccess(Duration.ofMinutes(5))
                 .build();
     }
@@ -93,9 +94,5 @@ public final class ComponentSerializer {
         }
 
         return newList;
-    }
-
-    public static ComponentSerializer instance() {
-        return plugin.serializer();
     }
 }

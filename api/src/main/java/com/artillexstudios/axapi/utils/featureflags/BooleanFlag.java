@@ -1,10 +1,10 @@
 package com.artillexstudios.axapi.utils.featureflags;
 
 public final class BooleanFlag extends FeatureFlag<Boolean> {
-    public static final BooleanFlag TRANSFORMER = new BooleanFlag("", true);
+    public static final BooleanFlag TRANSFORMER = new BooleanFlag(true);
 
-    public BooleanFlag(String property, Boolean def) {
-        super(property, def);
+    public BooleanFlag(Boolean def) {
+        super(def);
     }
 
     @Override

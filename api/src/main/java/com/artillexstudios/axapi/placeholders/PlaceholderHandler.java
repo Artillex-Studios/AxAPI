@@ -1,6 +1,5 @@
 package com.artillexstudios.axapi.placeholders;
 
-import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.placeholders.exception.PlaceholderException;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.functions.ThrowingFunction;
@@ -16,7 +15,6 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 
 public class PlaceholderHandler {
-    private static final FeatureFlags flags = AxPlugin.getPlugin(AxPlugin.class).flags();
     private static final List<Placeholder> placeholders = new ArrayList<>();
     private static final ConcurrentLinkedQueue<PlaceholderTransformer<Object, Object>> transformers = new ConcurrentLinkedQueue<>();
 
@@ -74,7 +72,7 @@ public class PlaceholderHandler {
             for (Placeholder placeholder : placeholders) {
                 Matcher match = placeholder.match(line);
                 if (!match.find()) {
-                    if (flags.DEBUG.get()) {
+                    if (FeatureFlags.DEBUG.get()) {
                         LogUtils.warn("Matcher no find! Line: {}, placeholder: {}, regex: {}", line, placeholder.placeholder(), placeholder.pattern());
                     }
                     continue;
@@ -83,7 +81,7 @@ public class PlaceholderHandler {
                 try {
                     line = match.replaceAll(placeholder.handler().apply(placeholder.newContext(parameters, match)));
                 } catch (PlaceholderException exception) {
-                    if (flags.DEBUG.get()) {
+                    if (FeatureFlags.DEBUG.get()) {
                         LogUtils.warn("Placeholder parse! Line: {}", line, exception);
                     }
                     continue;

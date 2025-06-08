@@ -17,7 +17,6 @@ import com.artillexstudios.axapi.utils.MerchantOffer;
 import com.artillexstudios.axapi.utils.Pair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 public class PacketItemModifier {
     private static boolean listening = false;

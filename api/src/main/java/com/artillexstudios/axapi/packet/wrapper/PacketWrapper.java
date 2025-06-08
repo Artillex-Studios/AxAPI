@@ -1,7 +1,6 @@
 package com.artillexstudios.axapi.packet.wrapper;
 
 import com.artillexstudios.axapi.nms.wrapper.ServerWrapper;
-import com.artillexstudios.axapi.nms.wrapper.WrapperRegistry;
 import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketEvent;

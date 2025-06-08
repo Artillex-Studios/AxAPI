@@ -78,7 +78,7 @@ public class Serializers {
         typeTransformers.put(EntityDataSerializers.Type.COMPONENT, new Transformer<Component>() {
             @Override
             public Component transform(Object other) {
-                return ComponentSerializer.instance().toVanilla((net.kyori.adventure.text.Component) other);
+                return ComponentSerializer.INSTANCE.toVanilla((net.kyori.adventure.text.Component) other);
             }
 
             @Override
@@ -90,7 +90,7 @@ public class Serializers {
         typeTransformers.put(EntityDataSerializers.Type.OPTIONAL_COMPONENT, new Transformer<Optional<Component>>() {
             @Override
             public Optional<Component> transform(Object other) {
-                return ((Optional<net.kyori.adventure.text.Component>) other).map(ComponentSerializer.instance()::toVanilla);
+                return ((Optional<net.kyori.adventure.text.Component>) other).map(ComponentSerializer.INSTANCE::toVanilla);
             }
 
             @Override

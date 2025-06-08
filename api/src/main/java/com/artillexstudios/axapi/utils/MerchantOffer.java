@@ -1,7 +1,6 @@
 package com.artillexstudios.axapi.utils;
 
 import com.artillexstudios.axapi.items.WrappedItemStack;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.Optional;
 

@@ -1,10 +1,10 @@
 package com.artillexstudios.axapi.utils.featureflags;
 
 public final class StringFlag extends FeatureFlag<String> {
-    public static final StringFlag TRANSFORMER = new StringFlag("", "");
+    public static final StringFlag TRANSFORMER = new StringFlag("");
 
-    public StringFlag(String property, String def) {
-        super(property, def);
+    public StringFlag(String def) {
+        super(def);
     }
 
     @Override

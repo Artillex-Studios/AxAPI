@@ -40,8 +40,6 @@ import java.net.URLClassLoader;
 
 public abstract class AxPlugin extends JavaPlugin {
     public EntityTracker tracker;
-    private final FeatureFlags flags = new FeatureFlags(this);
-    private ComponentSerializer serializer;
 
     public AxPlugin() {
         DependencyManager manager = new DependencyManager(this.getDescription(), new File(this.getDataFolder(), "libs"), URLClassLoaderWrapper.wrap((URLClassLoader) this.getClassLoader()));
@@ -55,10 +53,11 @@ public abstract class AxPlugin extends JavaPlugin {
         this.dependencies(wrapper);
         manager.load();
 
-        this.updateFlags(this.flags);
+        FeatureFlags.refresh(this);
+        this.updateFlags();
     }
 
-    public void updateFlags(FeatureFlags flags) {
+    public void updateFlags() {
 
     }
 
@@ -69,13 +68,13 @@ public abstract class AxPlugin extends JavaPlugin {
             return;
         }
 
+        ComponentSerializer.INSTANCE.refresh();
         DataComponents.setDataComponentImpl(NMSHandlers.getNmsHandler().dataComponents());
         Scheduler.scheduler.init(this);
-        serializer = new ComponentSerializer(this);
 
-        if (this.flags.PACKET_ENTITY_TRACKER_ENABLED.get()) {
-            tracker = new EntityTracker(this.flags);
-            tracker.startTicking();
+        if (FeatureFlags.PACKET_ENTITY_TRACKER_ENABLED.get()) {
+            this.tracker = new EntityTracker(this);
+            this.tracker.startTicking();
         }
 
         PacketEvents.INSTANCE.addListener(new PacketListener() {
@@ -115,11 +114,11 @@ public abstract class AxPlugin extends JavaPlugin {
                 ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(event.getPlayer());
                 wrapper.uninject();
 
-                if (tracker == null) {
+                if (AxPlugin.this.tracker == null) {
                     return;
                 }
 
-                tracker.untrackFor(ServerPlayerWrapper.wrap(event.getPlayer()));
+                AxPlugin.this.tracker.untrackFor(ServerPlayerWrapper.wrap(event.getPlayer()));
             }
 
             @EventHandler
@@ -135,16 +134,16 @@ public abstract class AxPlugin extends JavaPlugin {
 
             @EventHandler
             public void onPlayerChangedWorldEvent(@NotNull final PlayerChangedWorldEvent event) {
-                if (tracker == null) {
+                if (AxPlugin.this.tracker == null) {
                     return;
                 }
 
-                tracker.untrackFor(ServerPlayerWrapper.wrap(event.getPlayer()));
+                AxPlugin.this.tracker.untrackFor(ServerPlayerWrapper.wrap(event.getPlayer()));
             }
         }, this);
         Bukkit.getPluginManager().registerEvents(new AnvilListener(), this);
 
-        if (this.flags.HOLOGRAM_UPDATE_TICKS.get() > 0) {
+        if (FeatureFlags.HOLOGRAM_UPDATE_TICKS.get() > 0) {
             Holograms.startTicking();
         }
 
@@ -158,7 +157,7 @@ public abstract class AxPlugin extends JavaPlugin {
 
         this.enable();
 
-        if (this.flags.PLACEHOLDER_API_HOOK.get() && Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+        if (FeatureFlags.PLACEHOLDER_API_HOOK.get() && Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new PlaceholderAPIHook(this).register();
         }
     }
@@ -202,14 +201,6 @@ public abstract class AxPlugin extends JavaPlugin {
 
     public void reload() {
 
-    }
-
-    public FeatureFlags flags() {
-        return this.flags;
-    }
-
-    public ComponentSerializer serializer() {
-        return this.serializer;
     }
 
     public long reloadWithTime() {

@@ -115,7 +115,7 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
         ListTag messagesNbt = sideTag.getList("messages", Tag.TAG_STRING);
 
         for (int i = 0; i < 4; i++) {
-            String gson = ComponentSerializer.instance().toGson(i > signInput.getLines().length ? Component.empty() : signInput.getLines()[i]);
+            String gson = ComponentSerializer.INSTANCE.toGson(i > signInput.getLines().length ? Component.empty() : signInput.getLines()[i]);
 
             messagesNbt.add(i, net.minecraft.nbt.StringTag.valueOf(gson));
         }
@@ -131,7 +131,7 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
 
     @Override
     public void setTitle(Inventory inventory, Component title) {
-        net.minecraft.network.chat.Component nmsTitle = ComponentSerializer.instance().toVanilla(title);
+        net.minecraft.network.chat.Component nmsTitle = ComponentSerializer.INSTANCE.toVanilla(title);
         for (HumanEntity viewer : inventory.getViewers()) {
             CraftPlayer craftPlayer = (CraftPlayer) viewer;
             ServerPlayer serverPlayer = craftPlayer.getHandle();
@@ -166,7 +166,7 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
         Location location = anvilInput.location();
         AnvilMenu anvilMenu = new AnvilMenu(serverPlayer.nextContainerCounter(), serverPlayer.getInventory(), ContainerLevelAccess.create(((CraftWorld) location.getWorld()).getHandle(), new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ())));
         anvilMenu.checkReachable = false;
-        anvilMenu.setTitle(ComponentSerializer.instance().toVanilla(anvilInput.title()));
+        anvilMenu.setTitle(ComponentSerializer.INSTANCE.toVanilla(anvilInput.title()));
 
         Inventory inventory = ((AbstractContainerMenu) anvilMenu).getBukkitView().getTopInventory();
         inventory.setItem(0, anvilInput.itemStack().toBukkit());

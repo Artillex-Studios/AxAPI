@@ -2,6 +2,7 @@ package com.artillexstudios.axapi.hologram;
 
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.executor.ExceptionReportingScheduledThreadPool;
+import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
@@ -28,7 +29,7 @@ public class Holograms {
                     line.update();
                 });
             });
-        }, 0, plugin.flags().HOLOGRAM_UPDATE_TICKS.get() * 50, TimeUnit.MILLISECONDS);
+        }, 0, FeatureFlags.HOLOGRAM_UPDATE_TICKS.get() * 50, TimeUnit.MILLISECONDS);
     }
 
     public static void shutdown() {

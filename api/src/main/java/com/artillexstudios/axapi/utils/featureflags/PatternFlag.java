@@ -3,10 +3,10 @@ package com.artillexstudios.axapi.utils.featureflags;
 import java.util.regex.Pattern;
 
 public final class PatternFlag extends FeatureFlag<Pattern> {
-    public static final PatternFlag TRANSFORMER = new PatternFlag("", Pattern.compile(" "));
+    public static final PatternFlag TRANSFORMER = new PatternFlag(Pattern.compile(" "));
 
-    public PatternFlag(String property, Pattern def) {
-        super(property, def);
+    public PatternFlag(Pattern def) {
+        super(def);
     }
 
     @Override

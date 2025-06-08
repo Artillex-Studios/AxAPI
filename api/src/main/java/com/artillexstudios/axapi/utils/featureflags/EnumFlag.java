@@ -5,8 +5,8 @@ import java.util.Arrays;
 public final class EnumFlag<T extends Enum<?>> extends FeatureFlag<T> {
     private final Class<T> clazz;
 
-    public EnumFlag(String property, T def, Class<T> clazz) {
-        super(property, def);
+    public EnumFlag(T def, Class<T> clazz) {
+        super(def);
         this.clazz = clazz;
     }
 

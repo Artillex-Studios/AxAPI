@@ -1,7 +1,7 @@
 package com.artillexstudios.axapi.scheduler.impl;
 
-import com.artillexstudios.axapi.scheduler.Scheduler;
 import com.artillexstudios.axapi.reflection.ClassUtils;
+import com.artillexstudios.axapi.scheduler.Scheduler;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class SchedulerHandler {

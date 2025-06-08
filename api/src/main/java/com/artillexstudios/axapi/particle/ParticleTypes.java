@@ -1,6 +1,5 @@
 package com.artillexstudios.axapi.particle;
 
-import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.particle.option.ColorParticleOption;
 import com.artillexstudios.axapi.particle.option.DustColorTransitionParticleOption;
@@ -22,6 +21,7 @@ import com.artillexstudios.axapi.particle.type.VarIntParticleType;
 import com.artillexstudios.axapi.particle.type.VibrationParticleType;
 import com.artillexstudios.axapi.utils.Maps;
 import com.artillexstudios.axapi.utils.Version;
+import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
@@ -340,7 +340,7 @@ public final class ParticleTypes {
     public static <T extends ParticleOption> ParticleType<T> register(ParticleType<T> type) {
         registry.put(registry.size(), type);
         reverseRegistry.put(type, reverseRegistry.size());
-        if (AxPlugin.getPlugin(AxPlugin.class).flags().DEBUG.get()) {
+        if (FeatureFlags.DEBUG.get()) {
             LogUtils.debug("Registering particle: {}", type);
         }
         return type;

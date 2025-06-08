@@ -6,7 +6,6 @@ dependencies {
 }
 
 tasks.register('javadocJar', Jar) {
-    archiveBaseName.set('api')
     archiveClassifier.set('javadoc')
     from javadoc
 }

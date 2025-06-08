@@ -22,7 +22,6 @@ import java.util.concurrent.TimeUnit;
 
 public final class AxMetrics {
     private final MetricsCollectorRegistry registry;
-    private final FeatureFlags flags;
     private final long pluginId;
     private ScheduledExecutorService executorService;
     private final YamlConfiguration<?> metricsConfig;
@@ -31,7 +30,6 @@ public final class AxMetrics {
     public AxMetrics(AxPlugin plugin, long pluginId) {
         this.pluginId = pluginId;
         this.registry = new MetricsCollectorRegistry(plugin);
-        this.flags = plugin.flags();
         this.pluginName = plugin.getName();
 
         Path path = plugin.getDataFolder().toPath();
@@ -104,12 +102,12 @@ public final class AxMetrics {
                 }
                 LogUtils.warn("Regenerated server uuid, because it was already in use!");
             } else if (response.statusCode() == 200) {
-                if (this.flags.DEBUG.get()) {
+                if (FeatureFlags.DEBUG.get()) {
                     LogUtils.debug("Sent metrics successfully!");
                 }
             }
         } catch (RuntimeException exception) {
-            if (this.flags.DEBUG.get()) {
+            if (FeatureFlags.DEBUG.get()) {
                 LogUtils.debug("Caught exception while sending metrics! Body: {}", obj, exception.getCause());
             }
         }

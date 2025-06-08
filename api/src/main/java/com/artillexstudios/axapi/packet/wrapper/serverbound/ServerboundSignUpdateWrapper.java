@@ -1,6 +1,5 @@
 package com.artillexstudios.axapi.packet.wrapper.serverbound;
 
-import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketType;
@@ -8,6 +7,7 @@ import com.artillexstudios.axapi.packet.ServerboundPacketTypes;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
 import com.artillexstudios.axapi.utils.BlockPosition;
 import com.artillexstudios.axapi.utils.Version;
+import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 
 import java.util.Arrays;
@@ -71,7 +71,7 @@ public final class ServerboundSignUpdateWrapper extends PacketWrapper {
             this.lines[i] = buf.readUTF(384);
         }
 
-        if (AxPlugin.getPlugin(AxPlugin.class).flags().DEBUG.get()) {
+        if (FeatureFlags.DEBUG.get()) {
             LogUtils.debug("Read lines from sign: {}", Arrays.toString(this.lines));
         }
     }

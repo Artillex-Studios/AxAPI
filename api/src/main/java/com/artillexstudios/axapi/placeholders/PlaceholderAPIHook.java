@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.placeholders;
 
 import com.artillexstudios.axapi.AxPlugin;
+import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
@@ -21,7 +22,7 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
     @NotNull
     @Override
     public String getIdentifier() {
-        String identifier = this.plugin.flags().PLACEHOLDER_API_IDENTIFIER.get();
+        String identifier = FeatureFlags.PLACEHOLDER_API_IDENTIFIER.get();
         if (identifier.isBlank()) {
             String pluginName = this.plugin.getName().toLowerCase(Locale.ENGLISH);
             LogUtils.error("PlaceholderAPI identifier is not set up! Please set it! Defaulting to {}", pluginName);
@@ -46,7 +47,7 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
     @Nullable
     @Override
     public String onPlaceholderRequest(Player player, @NotNull String params) {
-        if (this.plugin.flags().DEBUG.get()) {
+        if (FeatureFlags.DEBUG.get()) {
             LogUtils.debug("Requesting placeholders for {} user, with parameters: {}!", player, params);
         }
 
@@ -56,7 +57,7 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
     @Nullable
     @Override
     public String onRequest(OfflinePlayer player, @NotNull String params) {
-        if (this.plugin.flags().DEBUG.get()) {
+        if (FeatureFlags.DEBUG.get()) {
             LogUtils.debug("Requesting placeholders for {} user, with parameters: {}!", player, params);
         }
 
@@ -65,6 +66,6 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
 
     @Override
     public @NotNull List<String> getPlaceholders() {
-        return PlaceholderHandler.placeholders(this.plugin.flags().PLACEHOLDER_API_IDENTIFIER.get());
+        return PlaceholderHandler.placeholders(FeatureFlags.PLACEHOLDER_API_IDENTIFIER.get());
     }
 }

@@ -1,6 +1,5 @@
 package com.artillexstudios.axapi.nms.v1_21_R4.wrapper;
 
-import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.nms.v1_21_R4.packet.ChannelDuplexHandlerPacketListener;
 import com.artillexstudios.axapi.nms.v1_21_R4.packet.PacketTransformer;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
@@ -69,7 +68,7 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
         }
 
         channel.eventLoop().submit(() -> {
-            channel.pipeline().addBefore(ServerPlayerWrapper.PACKET_HANDLER, ServerPlayerWrapper.AXAPI_HANDLER, new ChannelDuplexHandlerPacketListener(AxPlugin.getPlugin(AxPlugin.class).flags(), this));
+            channel.pipeline().addBefore(ServerPlayerWrapper.PACKET_HANDLER, ServerPlayerWrapper.AXAPI_HANDLER, new ChannelDuplexHandlerPacketListener(this));
         });
     }
 
@@ -107,7 +106,7 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
     @Override
     public void message(Component message) {
         this.update();
-        this.serverPlayer.connection.send(new ClientboundSystemChatPacket((net.minecraft.network.chat.Component) ComponentSerializer.instance().toVanilla(message), false));
+        this.serverPlayer.connection.send(new ClientboundSystemChatPacket((net.minecraft.network.chat.Component) ComponentSerializer.INSTANCE.toVanilla(message), false));
     }
 
     @Override

@@ -5,7 +5,6 @@ import com.artillexstudios.axapi.config.adapters.TypeAdapterHolder;
 
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
 public final class BigDecimalAdapter implements TypeAdapter<BigDecimal, String> {
 
