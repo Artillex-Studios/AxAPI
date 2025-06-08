@@ -124,7 +124,7 @@ allprojects {
                     artifactId = "axapi"
 
                     print(project.name)
-                    if (project.name == "api") {
+                    if (project.name == "apiapi") {
                         artifact tasks.javadocJar
                         print(project.name)
                     }
