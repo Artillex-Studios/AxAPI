@@ -20,6 +20,11 @@ public final class ClientboundEntityMetadataWrapper extends PacketWrapper {
         super(event);
     }
 
+    public ClientboundEntityMetadataWrapper(int entityId, List<Metadata.DataItem<?>> items) {
+        this.entityId = entityId;
+        this.items = items;
+    }
+
     public int entityId() {
         return this.entityId;
     }

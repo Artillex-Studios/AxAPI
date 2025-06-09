@@ -18,6 +18,13 @@ public final class ClientboundContainerSetSlotWrapper extends PacketWrapper {
         super(event);
     }
 
+    public ClientboundContainerSetSlotWrapper(int containerId, int stateId, short slot, WrappedItemStack stack) {
+        this.containerId = containerId;
+        this.stateId = stateId;
+        this.slot = slot;
+        this.stack = stack;
+    }
+
     public WrappedItemStack stack() {
         return this.stack;
     }

@@ -22,6 +22,13 @@ public final class ClientboundContainerSetContentWrapper extends PacketWrapper {
         super(event);
     }
 
+    public ClientboundContainerSetContentWrapper(int containerId, int stateId, List<WrappedItemStack> items, WrappedItemStack carriedItem) {
+        this.containerId = containerId;
+        this.stateId = stateId;
+        this.items = items;
+        this.carriedItem = carriedItem;
+    }
+
     @Override
     public void write(FriendlyByteBuf out) {
         out.writeContainerId(this.containerId);

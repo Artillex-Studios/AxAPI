@@ -20,6 +20,11 @@ public final class ClientboundSetEquipmentWrapper extends PacketWrapper {
         super(event);
     }
 
+    public ClientboundSetEquipmentWrapper(int entityId, List<Pair<EquipmentSlot, WrappedItemStack>> items) {
+        this.entityId = entityId;
+        this.items = items;
+    }
+
     @Override
     public void write(FriendlyByteBuf out) {
         out.writeVarInt(this.entityId);

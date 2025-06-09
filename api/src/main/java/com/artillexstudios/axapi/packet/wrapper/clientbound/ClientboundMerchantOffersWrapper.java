@@ -25,6 +25,15 @@ public final class ClientboundMerchantOffersWrapper extends PacketWrapper {
         super(event);
     }
 
+    public ClientboundMerchantOffersWrapper(int containerId, List<MerchantOffer> merchantOffers, int villagerLevel, int villagerXp, boolean showProgress, boolean canRestock) {
+        this.containerId = containerId;
+        this.merchantOffers = merchantOffers;
+        this.villagerLevel = villagerLevel;
+        this.villagerXp = villagerXp;
+        this.showProgress = showProgress;
+        this.canRestock = canRestock;
+    }
+
     public int containerId() {
         return this.containerId;
     }
