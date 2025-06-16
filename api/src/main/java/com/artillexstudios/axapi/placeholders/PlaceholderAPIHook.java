@@ -61,7 +61,7 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
             LogUtils.debug("Requesting placeholders for {} user, with parameters: {}!", player, params);
         }
 
-        return PlaceholderHandler.parse("%" + params + "%", player);
+        return PlaceholderHandler.parse("%" + params + "%", OfflinePlayer.class, player);
     }
 
     @Override

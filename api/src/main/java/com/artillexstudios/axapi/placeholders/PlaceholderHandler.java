@@ -4,6 +4,8 @@ import com.artillexstudios.axapi.placeholders.exception.PlaceholderException;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.functions.ThrowingFunction;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -17,6 +19,11 @@ import java.util.regex.Matcher;
 public class PlaceholderHandler {
     private static final List<Placeholder> placeholders = new ArrayList<>();
     private static final ConcurrentLinkedQueue<PlaceholderTransformer<Object, Object>> transformers = new ConcurrentLinkedQueue<>();
+
+    static {
+        registerTransformer(Player.class, OfflinePlayer.class, player -> player);
+        registerTransformer(OfflinePlayer.class, Player.class, OfflinePlayer::getPlayer);
+    }
 
     void test() {
         register("wins_<koth>", new PlaceholderArguments(new PlaceholderArgument<>("koth", null)), ctx -> {
