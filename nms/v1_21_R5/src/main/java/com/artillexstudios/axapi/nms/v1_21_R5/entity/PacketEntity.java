@@ -407,11 +407,11 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
                 }
 
 
-                String legacy = legacyCache.get(content.get(), (minecraftComponent) -> {
+                String legacy = null;/*legacyCache.get(content.get(), (minecraftComponent) -> {
                     String gsonText = Serializer.toJson((Component) minecraftComponent, MinecraftServer.getServer().registryAccess());
                     net.kyori.adventure.text.Component gsonComponent = GsonComponentSerializer.gson().deserialize(gsonText);
                     return LEGACY_COMPONENT_SERIALIZER.serialize(gsonComponent);
-                });
+                });*/
 
                 if (legacy == null) {
                     return values;
@@ -427,7 +427,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
                 Component component = (Component) componentCache.get(legacy, (legacyText) -> {
                     net.kyori.adventure.text.Component formatted = StringUtils.format(legacyText);
                     String gson = GsonComponentSerializer.gson().serialize(formatted);
-                    return Component.Serializer.fromJson(gson, MinecraftServer.getServer().registryAccess());
+                    return Component.empty();
                 });
 
                 iterator.remove();
