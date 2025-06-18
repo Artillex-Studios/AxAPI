@@ -28,15 +28,15 @@ import java.util.Optional;
 public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper {
     private static final FieldAccessor connectionAccessor = FieldAccessor.builder()
             .withClass("net.minecraft.server.network.ServerCommonPacketListenerImpl")
-            .withField("connection") // TODO: revert to e
+            .withField("e")
             .build();
     private static final FieldAccessor channelAccessor = FieldAccessor.builder()
             .withClass("net.minecraft.network.NetworkManager")
-            .withField("channel") // TODO: revert to n
+            .withField("n")
             .build();
     private static final FieldAccessor attributeAccessor = FieldAccessor.builder()
             .withClass(AttributeMap.class)
-            .withField("supplier") // TODO: revert to d
+            .withField("d")
             .build();
     private final PacketTransformer transformer;
     private Player wrapped;

@@ -32,7 +32,7 @@ public final class PacketTransformer {
     private final StreamCodec<ByteBuf, Packet<? super ServerGamePacketListener>> serverboundCodec;
     private static final FieldAccessor toIdAccessor = FieldAccessor.builder()
             .withClass(IdDispatchCodec.class)
-            .withField("toId") // TODO: revert to d
+            .withField("d")
             .build();
     private static final Object2IntMap<PacketType> clientboundIds = toIdAccessor.getUnchecked(clientboundCodec);
     private final Object2IntMap<PacketType> serverboundIds;
