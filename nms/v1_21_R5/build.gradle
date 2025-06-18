@@ -14,7 +14,7 @@ tasks {
         dependsOn(reobfJar)
     }
 
-    reobfJar {
-        mustRunAfter(shadowJar)
-    }
+//    reobfJar {
+//        mustRunAfter(shadowJar)
+//    }
 }
