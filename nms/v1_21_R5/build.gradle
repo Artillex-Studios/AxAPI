@@ -10,9 +10,9 @@ dependencies {
 }
 
 tasks {
-    build {
-        dependsOn(reobfJar)
-    }
+//    build {
+//        dependsOn(reobfJar)
+//    }
 
 //    reobfJar {
 //        mustRunAfter(shadowJar)
