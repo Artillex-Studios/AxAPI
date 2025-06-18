@@ -14,6 +14,7 @@ public final class ServerboundPacketTypes {
     public static final PacketType BLOCK_ENTITY_TAG_QUERY = new PacketType("BLOCK_ENTITY_TAG_QUERY", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType BUNDLE_ITEM_SELECT = new PacketType("BUNDLE_ITEM_SELECT", Version.v1_21_2, Version.FUTURE_RELEASE);
     public static final PacketType CHANGE_DIFFICULTY = new PacketType("CHANGE_DIFFICULTY", Version.v1_18, Version.FUTURE_RELEASE);
+    public static final PacketType CHANGE_GAMEMODE = new PacketType("CHANGE_GAMEMODE", Version.v1_21_5, Version.FUTURE_RELEASE);
     public static final PacketType CHAT_ACK = new PacketType("CHAT_ACK", Version.v1_19, Version.FUTURE_RELEASE);
     public static final PacketType CHAT_COMMAND = new PacketType("CHAT_COMMAND", Version.v1_19, Version.FUTURE_RELEASE);
     public static final PacketType CHAT_COMMAND_SIGNED = new PacketType("CHAT_COMMAND_SIGNED", Version.v1_20_4, Version.FUTURE_RELEASE);
@@ -77,6 +78,7 @@ public final class ServerboundPacketTypes {
     public static final PacketType TEST_INSTANCE_BLOCK_ACTION = new PacketType("TEST_INSTANCE_BLOCK_ACTION", Version.v1_21_4, Version.FUTURE_RELEASE);
     public static final PacketType USE_ITEM_ON = new PacketType("USE_ITEM_ON", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType USE_ITEM = new PacketType("USE_ITEM", Version.v1_18, Version.FUTURE_RELEASE);
+    private static final PacketType CUSTOM_CLICK_ACTION = new PacketType("CUSTOM_CLICK_ACTION", Version.v1_21_5, Version.FUTURE_RELEASE);
 
 
     public static void init() {
@@ -84,6 +86,7 @@ public final class ServerboundPacketTypes {
         register(BLOCK_ENTITY_TAG_QUERY);
         register(BUNDLE_ITEM_SELECT);
         register(CHANGE_DIFFICULTY);
+        register(CHANGE_GAMEMODE);
         register(CHAT_ACK);
         register(CHAT_COMMAND);
         register(CHAT_COMMAND_SIGNED);
@@ -151,6 +154,7 @@ public final class ServerboundPacketTypes {
         register(TEST_INSTANCE_BLOCK_ACTION);
         register(USE_ITEM_ON);
         register(USE_ITEM);
+        register(CUSTOM_CLICK_ACTION);
     }
 
     public static void register(PacketType packetType) {

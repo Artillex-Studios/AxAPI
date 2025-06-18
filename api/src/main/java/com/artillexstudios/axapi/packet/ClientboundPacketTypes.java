@@ -157,6 +157,9 @@ public final class ClientboundPacketTypes {
     public static final PacketType PROJECTILE_POWER = new PacketType("PROJECTILE_POWER", Version.v1_20_4, Version.FUTURE_RELEASE);
     public static final PacketType CUSTOM_REPORT_DETAILS = new PacketType("CUSTOM_REPORT_DETAILS", Version.v1_21, Version.FUTURE_RELEASE);
     public static final PacketType SERVER_LINKS = new PacketType("SERVER_LINKS", Version.v1_21, Version.FUTURE_RELEASE);
+    public static final PacketType WAYPOINT = new PacketType("WAYPOINT", Version.v1_21_5, Version.FUTURE_RELEASE);
+    public static final PacketType CLEAR_DIALOG = new PacketType("CLEAR_DIALOG", Version.v1_21_5, Version.FUTURE_RELEASE);
+    public static final PacketType SHOW_DIALOG = new PacketType("SHOW_DIALOG", Version.v1_21_5, Version.FUTURE_RELEASE);
 
     public static void init() {
         register(BUNDLE_DELIMITER); // 1.19.4
@@ -306,6 +309,9 @@ public final class ClientboundPacketTypes {
         register(PROJECTILE_POWER);
         register(CUSTOM_REPORT_DETAILS);
         register(SERVER_LINKS);
+        register(WAYPOINT);
+        register(CLEAR_DIALOG);
+        register(SHOW_DIALOG);
     }
 
     public static void register(PacketType packetType) {
