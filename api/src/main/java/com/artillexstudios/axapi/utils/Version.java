@@ -36,7 +36,8 @@ public enum Version {
     private static int protocolVersion;
 
     static {
-        final FastMethodInvoker methodInvoker = FastMethodInvoker.create("net.minecraft.SharedConstants", "c");
+        // TODO: revert back to c when 1.21.6 testing is done
+        final FastMethodInvoker methodInvoker = FastMethodInvoker.create("net.minecraft.SharedConstants", "getProtocolVersion");
         final int protocolVersion = methodInvoker.invoke(null);
 
         for (Version value : values()) {

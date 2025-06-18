@@ -19,7 +19,7 @@ public final class ServerWrapper implements com.artillexstudios.axapi.nms.wrappe
     private static final MinecraftServer server = MinecraftServer.getServer();
     private static final FieldAccessor entityCounterAccessor = FieldAccessor.builder()
             .withClass(Entity.class)
-            .withField("c")
+            .withField("ENTITY_COUNTER") // TODO: revert to c
             .build();
     private static final AtomicInteger entityCounter = entityCounterAccessor.get(null, AtomicInteger.class);
 
