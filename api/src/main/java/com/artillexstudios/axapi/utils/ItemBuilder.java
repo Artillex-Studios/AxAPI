@@ -62,8 +62,9 @@ public class ItemBuilder {
         safeMap(map, "name", String.class, this::setName);
         safeMap(map, "color", String.class, this::setColor);
         safeMap(map, "texture", String.class, this::setTextureValue);
-        safeMap(map, "custom-model-data", Integer.class, this::legacyModelData);
-        safeMap(map, "custom-model-data", Map.class, this::customModelData);
+        safeMap(map, "custom-model-data", Map.of(Integer.class, value -> this.legacyModelData((Integer) value),
+                Map.class, value -> this.customModelData((Map<Object, Object>) value))
+        );
         safeMap(map, "amount", Integer.class, this.stack::setAmount);
         safeMap(map, "glow", Boolean.class, this::glow);
         safeMap(map, "lore", List.class, this::setLore);
@@ -83,6 +84,28 @@ public class ItemBuilder {
                 this.stack.set(DataComponents.hideAdditionalTooltip(), Unit.INSTANCE);
             }
         } catch (Exception ignored) {
+        }
+    }
+
+    private static void safeMap(Map<Object, Object> map, String key, Map<Class, Consumer<Object>> classes) {
+        Object o = map.get(key);
+        if (o == null) {
+            return;
+        }
+
+        for (Map.Entry<Class, Consumer<Object>> entry : classes.entrySet()) {
+            Class<Object> clazz = entry.getKey();
+            Consumer<Object> consumer = entry.getValue();
+            if (!clazz.isInstance(o)) {
+                continue;
+            }
+
+            try {
+                consumer.accept(clazz.cast(o));
+                break;
+            } catch (ClassCastException exception) {
+                LogUtils.warn("Failed to safely map {} from {}, because it isn't a {}, but a {}!", key, map, clazz, o.getClass());
+            }
         }
     }
 
