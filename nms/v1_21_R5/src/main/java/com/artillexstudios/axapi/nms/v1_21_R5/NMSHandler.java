@@ -14,12 +14,13 @@ import com.artillexstudios.axapi.nms.wrapper.WrapperRegistry;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.serializers.Serializer;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
-import com.artillexstudios.axapi.utils.logging.LogUtils;
+import com.google.gson.JsonElement;
 import com.mojang.authlib.GameProfile;
 import com.mojang.serialization.DynamicOps;
-import com.mojang.serialization.JavaOps;
+import com.mojang.serialization.JsonOps;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
@@ -58,7 +59,7 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     @Override
     public Serializer<Object, Component> componentSerializer() {
         return new Serializer<>() {
-            private final RegistryOps<Object> javaOps = MinecraftServer.getServer().registryAccess().createSerializationContext(JavaOps.INSTANCE);
+            private final RegistryOps<JsonElement> jsonOps = MinecraftServer.getServer().registryAccess().createSerializationContext(JsonOps.INSTANCE);
 
             @Override
             public Component serialize(Object object) {
@@ -66,16 +67,17 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
                     throw new IllegalArgumentException("Can only serialize component!");
                 }
 
-                Object serialized = ComponentSerialization.CODEC.encodeStart(javaOps, component).getOrThrow();
-                // TODO: Figure out what this is, and what I can do with it
-                LogUtils.warn("Serializing component {}! Into: {}, class: {}", component, serialized, serialized.getClass());
+                JsonElement serialized = ComponentSerialization.CODEC.encodeStart(this.jsonOps, component)
+                        .getOrThrow();
 
-                return Component.empty();
+                return GsonComponentSerializer.gson().deserializeFromTree(serialized);
             }
 
             @Override
             public Object deserialize(Component value) {
-                return net.minecraft.network.chat.Component.empty();
+                JsonElement jsonElement = GsonComponentSerializer.gson().serializeToTree(value);
+                return ComponentSerialization.CODEC.decode(this.jsonOps, jsonElement).getOrThrow()
+                        .getFirst();
             }
         };
     }
