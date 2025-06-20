@@ -78,7 +78,7 @@ public final class ServerboundPacketTypes {
     public static final PacketType TEST_INSTANCE_BLOCK_ACTION = new PacketType("TEST_INSTANCE_BLOCK_ACTION", Version.v1_21_4, Version.FUTURE_RELEASE);
     public static final PacketType USE_ITEM_ON = new PacketType("USE_ITEM_ON", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType USE_ITEM = new PacketType("USE_ITEM", Version.v1_18, Version.FUTURE_RELEASE);
-    private static final PacketType CUSTOM_CLICK_ACTION = new PacketType("CUSTOM_CLICK_ACTION", Version.v1_21_5, Version.FUTURE_RELEASE);
+    public static final PacketType CUSTOM_CLICK_ACTION = new PacketType("CUSTOM_CLICK_ACTION", Version.v1_21_5, Version.FUTURE_RELEASE);
 
 
     public static void init() {

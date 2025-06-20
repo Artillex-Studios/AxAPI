@@ -275,6 +275,11 @@ public record FriendlyByteBufWrapper(RegistryFriendlyByteBuf buf) implements Fri
     }
 
     @Override
+    public FriendlyByteBuf slice(int beginIndex, int length) {
+        return PacketTransformer.wrap(this.buf.slice(beginIndex, length));
+    }
+
+    @Override
     public int readableBytes() {
         return this.buf.readableBytes();
     }

@@ -262,6 +262,11 @@ public record FriendlyByteBufWrapper(net.minecraft.network.FriendlyByteBuf buf) 
     }
 
     @Override
+    public FriendlyByteBuf slice(int beginIndex, int length) {
+        return PacketTransformer.wrap(this.buf.slice(beginIndex, length));
+    }
+
+    @Override
     public int readableBytes() {
         return this.buf.readableBytes();
     }

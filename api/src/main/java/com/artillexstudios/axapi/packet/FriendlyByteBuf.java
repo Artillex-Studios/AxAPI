@@ -121,6 +121,8 @@ public interface FriendlyByteBuf {
 
     FriendlyByteBuf copy();
 
+    FriendlyByteBuf slice(int beginIndex, int length);
+
     int readableBytes();
 
     void release();
