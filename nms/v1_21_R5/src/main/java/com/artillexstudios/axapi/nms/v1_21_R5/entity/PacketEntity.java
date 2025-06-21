@@ -15,6 +15,7 @@ import com.artillexstudios.axapi.packetentity.meta.EntityMeta;
 import com.artillexstudios.axapi.packetentity.meta.EntityMetaFactory;
 import com.artillexstudios.axapi.packetentity.meta.Metadata;
 import com.artillexstudios.axapi.packetentity.tracker.EntityTracker;
+import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
 import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axapi.utils.placeholder.Placeholder;
@@ -23,7 +24,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import io.netty.buffer.Unpooled;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -403,11 +403,10 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
                 }
 
 
-                String legacy = null;/*legacyCache.get(content.get(), (minecraftComponent) -> {
-                    String gsonText = Serializer.toJson((Component) minecraftComponent, MinecraftServer.getServer().registryAccess());
-                    net.kyori.adventure.text.Component gsonComponent = GsonComponentSerializer.gson().deserialize(gsonText);
-                    return LEGACY_COMPONENT_SERIALIZER.serialize(gsonComponent);
-                });*/
+                String legacy = legacyCache.get(content.get(), (minecraftComponent) -> {
+                    net.kyori.adventure.text.Component component = ComponentSerializer.INSTANCE.fromVanilla(minecraftComponent);
+                    return LEGACY_COMPONENT_SERIALIZER.serialize(component);
+                });
 
                 if (legacy == null) {
                     return values;
@@ -422,8 +421,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
 
                 Component component = (Component) componentCache.get(legacy, (legacyText) -> {
                     net.kyori.adventure.text.Component formatted = StringUtils.format(legacyText);
-                    String gson = GsonComponentSerializer.gson().serialize(formatted);
-                    return Component.empty();
+                    return ComponentSerializer.INSTANCE.toVanilla(formatted);
                 });
 
                 iterator.remove();
