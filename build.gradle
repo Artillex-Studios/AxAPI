@@ -85,12 +85,6 @@ allprojects {
         implementation("net.kyori:adventure-text-serializer-plain:4.22.0")
         implementation("net.kyori:adventure-text-serializer-gson:4.22.0")
         implementation("net.kyori:adventure-text-minimessage:4.14.0")
-        constraints {
-            implementation('net.kyori:adventure-text-minimessage:4.14.0') {
-                because 'Yes.'
-            }
-        }
-
         implementation("io.github.revxrsal:zapper.api:1.1.5")
         implementation("net.kyori:adventure-api:4.22.0")
         implementation("com.zaxxer:HikariCP:6.3.0")
@@ -162,12 +156,6 @@ shadowJar {
 }
 
 allprojects.forEach {
-    configurations.configureEach {
-        resolutionStrategy {
-            force 'net.kyori:adventure-text-minimessage:4.14.0'
-        }
-    }
-
     it.afterEvaluate {
         println(it.name + " " + it.group + " " + it.version)
     }
