@@ -142,6 +142,12 @@ allprojects {
             build
         }
     }
+
+    configurations.configureEach {
+        resolutionStrategy {
+            force 'net.kyori:adventure-text-minimessage:4.14.0'
+        }
+    }
 }
 
 tasks.build.dependsOn(shadowJar)
