@@ -16,7 +16,7 @@ dependencies {
     implementation("net.kyori:adventure-text-serializer-legacy:4.22.0")
     implementation("net.kyori:adventure-text-serializer-plain:4.22.0")
     implementation("net.kyori:adventure-text-serializer-gson:4.22.0") {
-        exclude group: 'com.google.code', module: 'gson'
+        exclude group: 'com.google.code.gson', module: 'gson'
     }
     implementation("net.kyori:adventure-text-minimessage:4.14.0")
     implementation("io.github.revxrsal:zapper.api:1.1.5")
