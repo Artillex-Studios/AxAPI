@@ -13,7 +13,9 @@ import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketEvents;
 import com.artillexstudios.axapi.packet.PacketListener;
 import com.artillexstudios.axapi.packet.ServerboundPacketTypes;
+import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundAddEntityWrapper;
 import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundBlockUpdateWrapper;
+import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundSetPassengersWrapper;
 import com.artillexstudios.axapi.packet.wrapper.serverbound.ServerboundInteractWrapper;
 import com.artillexstudios.axapi.packet.wrapper.serverbound.ServerboundSignUpdateWrapper;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
@@ -37,6 +39,7 @@ import revxrsal.zapper.classloader.URLClassLoaderWrapper;
 
 import java.io.File;
 import java.net.URLClassLoader;
+import java.util.List;
 
 public abstract class AxPlugin extends JavaPlugin {
     public EntityTracker tracker;
@@ -78,6 +81,24 @@ public abstract class AxPlugin extends JavaPlugin {
         }
 
         PacketEvents.INSTANCE.addListener(new PacketListener() {
+
+            @Override
+            public void onPacketSending(PacketEvent event) {
+                if (event.type() == ClientboundPacketTypes.ADD_ENTITY) {
+                    ClientboundAddEntityWrapper wrapper = new ClientboundAddEntityWrapper(event);
+                    int entityId = wrapper.entityId();
+                    PacketEntity rider = AxPlugin.this.tracker.findRider(entityId);
+
+                    if (rider == null) {
+                        return;
+                    }
+
+                    ClientboundSetPassengersWrapper passengersWrapper = new ClientboundSetPassengersWrapper(entityId, List.of(rider.id()));
+                    ServerPlayerWrapper serverPlayerWrapper = ServerPlayerWrapper.wrap(event.player());
+                    serverPlayerWrapper.sendPacket(passengersWrapper);
+                }
+            }
+
             @Override
             public void onPacketReceive(PacketEvent event) {
                 if (event.type() == ServerboundPacketTypes.INTERACT) {

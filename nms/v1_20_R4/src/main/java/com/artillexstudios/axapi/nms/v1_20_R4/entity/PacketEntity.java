@@ -352,6 +352,11 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     }
 
     @Override
+    public int riddenEntity() {
+        return this.riddenEntityId;
+    }
+
+    @Override
     public void rotate(float yaw, float pitch) {
         this.location.setYaw(yaw);
         this.location.setPitch(pitch);

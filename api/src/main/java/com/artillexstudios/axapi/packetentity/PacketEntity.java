@@ -80,6 +80,8 @@ public interface PacketEntity {
 
     void unRide(int entityId);
 
+    int riddenEntity();
+
     void rotate(float yaw, float pitch);
 
     void rotateHead(float yaw);

@@ -113,6 +113,16 @@ public final class EntityTracker {
         }
     }
 
+    public PacketEntity findRider(int vehicleId) {
+        for (EntityTracker.TrackedEntity tracker : this.entityMap.values()) {
+            if (tracker.entity.riddenEntity() == vehicleId) {
+                return tracker.entity;
+            }
+        }
+
+        return null;
+    }
+
     public void process() {
         // We can safely keep a cache of players in the worlds, as we can spare tracking a new player a tick later
         // This also reduces the strain on the GC as less objects are wasted (ServerPlayerWrapper)
