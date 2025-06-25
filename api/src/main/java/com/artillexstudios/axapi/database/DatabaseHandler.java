@@ -39,6 +39,7 @@ public class DatabaseHandler {
     private Supplier<Connection> createHikariConfig() {
         HikariConfig config = this.config.type.config(this.config);
         config.setPoolName("axapi-" + this.plugin.getName() + "-database-pool");
+        this.editConfig(config);
         if (this.config.url != null && !(this.config.type instanceof MySQLDatabaseType)) {
             config.addDataSourceProperty("url", this.config.url);
         }
@@ -52,6 +53,10 @@ public class DatabaseHandler {
                 throw new RuntimeException(exception);
             }
         };
+    }
+
+    public void editConfig(HikariConfig config) {
+
     }
 
     public <T, Z> void addTransformer(Class<T> clazz, Function<T, List<Z>> from) {
