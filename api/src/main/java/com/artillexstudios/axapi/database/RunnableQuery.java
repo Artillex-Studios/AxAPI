@@ -32,19 +32,7 @@ public class RunnableQuery<T> {
                 if (parameter == null) {
                     statement.setObject(i + 1, null);
                 } else {
-                    Function<Object, List<Object>> transformer = this.transformer.apply(parameter.getClass());
-                    if (transformer != null) {
-                        List<Object> out = transformer.apply(parameter);
-                        int k = 0;
-                        int j = i;
-                        for (; j < i + out.size(); j++) {
-                            statement.setObject(j + 1, out.get(k));
-                            k++;
-                        }
-                        i = j;
-                    } else {
-                        statement.setObject(i + 1, parameter);
-                    }
+                    i = this.applyParameter(parameter, i, statement);
                 }
             }
             return statement.executeUpdate();
@@ -61,19 +49,7 @@ public class RunnableQuery<T> {
                 if (parameter == null) {
                     statement.setObject(i + 1, null);
                 } else {
-                    Function<Object, List<Object>> transformer = this.transformer.apply(parameter.getClass());
-                    if (transformer != null) {
-                        List<Object> out = transformer.apply(parameter);
-                        int k = 0;
-                        int j = i;
-                        for (; j < i + out.size(); j++) {
-                            statement.setObject(j + 1, out.get(k));
-                            k++;
-                        }
-                        i = j;
-                    } else {
-                        statement.setObject(i + 1, parameter);
-                    }
+                    i = this.applyParameter(parameter, i, statement);
                 }
             }
 
@@ -94,19 +70,7 @@ public class RunnableQuery<T> {
                 if (parameter == null) {
                     statement.setObject(i + 1, null);
                 } else {
-                    Function<Object, List<Object>> transformer = this.transformer.apply(parameter.getClass());
-                    if (transformer != null) {
-                        List<Object> out = transformer.apply(parameter);
-                        int k = 0;
-                        int j = i;
-                        for (; j < i + out.size(); j++) {
-                            statement.setObject(j + 1, out.get(k));
-                            k++;
-                        }
-                        i = j;
-                    } else {
-                        statement.setObject(i + 1, parameter);
-                    }
+                    i = this.applyParameter(parameter, i, statement);
                 }
             }
 
@@ -127,19 +91,7 @@ public class RunnableQuery<T> {
                     if (parameter == null) {
                         statement.setObject(i + 1, null);
                     } else {
-                        Function<Object, List<Object>> transformer = this.transformer.apply(parameter.getClass());
-                        if (transformer != null) {
-                            List<Object> out = transformer.apply(parameter);
-                            int k = 0;
-                            int j = i;
-                            for (; j < i + out.size(); j++) {
-                                statement.setObject(j + 1, out.get(k));
-                                k++;
-                            }
-                            i = j;
-                        } else {
-                            statement.setObject(i + 1, parameter);
-                        }
+                        i = this.applyParameter(parameter, i, statement);
                     }
                 }
 
@@ -150,5 +102,22 @@ public class RunnableQuery<T> {
             LogUtils.error("An exception occurred while executing sql query {} with parameters: {}!", this.sql, batch);
             throw new RuntimeException(exception);
         }
+    }
+
+    private int applyParameter(Object parameter, int i, PreparedStatement statement) throws SQLException {
+        Function<Object, List<Object>> transformer = this.transformer.apply(parameter.getClass());
+        if (transformer != null) {
+            List<Object> out = transformer.apply(parameter);
+            int k = 0;
+            int j = i;
+            for (; j < i + out.size(); j++) {
+                statement.setObject(j + 1, out.get(k));
+                k++;
+            }
+            i = j;
+        } else {
+            statement.setObject(i + 1, parameter);
+        }
+        return i;
     }
 }
