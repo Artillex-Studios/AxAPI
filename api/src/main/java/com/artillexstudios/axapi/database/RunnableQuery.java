@@ -35,9 +35,11 @@ public class RunnableQuery<T> {
                     Function<Object, List<Object>> transformer = this.transformer.apply(parameter.getClass());
                     if (transformer != null) {
                         List<Object> out = transformer.apply(parameter);
+                        int k = 0;
                         int j = i;
                         for (; j < i + out.size(); j++) {
-                            statement.setObject(j + 1, parameter);
+                            statement.setObject(j + 1, out.get(k));
+                            k++;
                         }
                         i = j;
                     } else {
@@ -62,9 +64,11 @@ public class RunnableQuery<T> {
                     Function<Object, List<Object>> transformer = this.transformer.apply(parameter.getClass());
                     if (transformer != null) {
                         List<Object> out = transformer.apply(parameter);
+                        int k = 0;
                         int j = i;
                         for (; j < i + out.size(); j++) {
-                            statement.setObject(j + 1, parameter);
+                            statement.setObject(j + 1, out.get(k));
+                            k++;
                         }
                         i = j;
                     } else {
@@ -93,9 +97,11 @@ public class RunnableQuery<T> {
                     Function<Object, List<Object>> transformer = this.transformer.apply(parameter.getClass());
                     if (transformer != null) {
                         List<Object> out = transformer.apply(parameter);
+                        int k = 0;
                         int j = i;
                         for (; j < i + out.size(); j++) {
-                            statement.setObject(j + 1, parameter);
+                            statement.setObject(j + 1, out.get(k));
+                            k++;
                         }
                         i = j;
                     } else {
@@ -124,9 +130,11 @@ public class RunnableQuery<T> {
                         Function<Object, List<Object>> transformer = this.transformer.apply(parameter.getClass());
                         if (transformer != null) {
                             List<Object> out = transformer.apply(parameter);
+                            int k = 0;
                             int j = i;
                             for (; j < i + out.size(); j++) {
-                                statement.setObject(j + 1, parameter);
+                                statement.setObject(j + 1, out.get(k));
+                                k++;
                             }
                             i = j;
                         } else {
