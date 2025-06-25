@@ -118,6 +118,7 @@ public class RunnableQuery<T> {
         } else {
             statement.setObject(i + 1, parameter);
         }
+
         return i;
     }
 }
