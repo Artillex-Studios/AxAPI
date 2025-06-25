@@ -210,8 +210,8 @@ public abstract class AxPlugin extends JavaPlugin {
             wrapper.uninject();
         }
 
-        if (tracker != null) {
-            tracker.shutdown();
+        if (this.tracker != null) {
+            this.tracker.shutdown();
         }
         Holograms.shutdown();
     }

@@ -22,7 +22,7 @@ public final class AsyncUtils {
 
             @Override
             public Thread newThread(@NotNull Runnable runnable) {
-                return new Thread(null, runnable, AxPlugin.getPlugin(AxPlugin.class).getName() + "-Async-Processor-Thread-" + counter.getAndIncrement());
+                return new Thread(null, runnable, AxPlugin.getPlugin(AxPlugin.class).getName() + "-Async-Processor-Thread-" + this.counter.getAndIncrement());
             }
         });
     }
