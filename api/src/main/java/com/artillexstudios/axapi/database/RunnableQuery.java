@@ -27,14 +27,7 @@ public class RunnableQuery<T> {
 
     public int update(Object... parameters) {
         try (Connection connection = this.connectionSupplier.get(); PreparedStatement statement = connection.prepareStatement(this.sql)) {
-            for (int i = 0; i < parameters.length; i++) {
-                Object parameter = parameters[i];
-                if (parameter == null) {
-                    statement.setObject(i + 1, null);
-                } else {
-                    i = this.applyParameter(parameter, i, statement);
-                }
-            }
+            this.handleStatement(parameters, statement);
             return statement.executeUpdate();
         } catch (SQLException exception) {
             LogUtils.error("An exception occurred while executing sql query {} with parameters: {}!", this.sql, Arrays.toString(parameters));
@@ -44,14 +37,7 @@ public class RunnableQuery<T> {
 
     public T execute(Object... parameters) {
         try (Connection connection = this.connectionSupplier.get(); PreparedStatement statement = connection.prepareStatement(this.sql, Statement.RETURN_GENERATED_KEYS)) {
-            for (int i = 0; i < parameters.length; i++) {
-                Object parameter = parameters[i];
-                if (parameter == null) {
-                    statement.setObject(i + 1, null);
-                } else {
-                    i = this.applyParameter(parameter, i, statement);
-                }
-            }
+            this.handleStatement(parameters, statement);
 
             statement.executeUpdate();
             try (ResultSet resultSet = statement.getGeneratedKeys()) {
@@ -65,14 +51,7 @@ public class RunnableQuery<T> {
 
     public T query(Object... parameters) {
         try (Connection connection = this.connectionSupplier.get(); PreparedStatement statement = connection.prepareStatement(this.sql)) {
-            for (int i = 0; i < parameters.length; i++) {
-                Object parameter = parameters[i];
-                if (parameter == null) {
-                    statement.setObject(i + 1, null);
-                } else {
-                    i = this.applyParameter(parameter, i, statement);
-                }
-            }
+            this.handleStatement(parameters, statement);
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 return this.resultHandler.handle(resultSet);
@@ -86,14 +65,7 @@ public class RunnableQuery<T> {
     public int[] batch(List<Object[]> batch) {
         try (Connection connection = this.connectionSupplier.get(); PreparedStatement statement = connection.prepareStatement(this.sql)) {
             for (Object[] parameters : batch) {
-                for (int i = 0; i < parameters.length; i++) {
-                    Object parameter = parameters[i];
-                    if (parameter == null) {
-                        statement.setObject(i + 1, null);
-                    } else {
-                        i = this.applyParameter(parameter, i, statement);
-                    }
-                }
+                this.handleStatement(parameters, statement);
 
                 statement.addBatch();
             }
@@ -104,21 +76,26 @@ public class RunnableQuery<T> {
         }
     }
 
-    private int applyParameter(Object parameter, int i, PreparedStatement statement) throws SQLException {
-        Function<Object, List<Object>> transformer = this.transformer.apply(parameter.getClass());
-        if (transformer != null) {
-            List<Object> out = transformer.apply(parameter);
-            int k = 0;
-            int j = i;
-            for (; j < i + out.size(); j++) {
-                statement.setObject(j + 1, out.get(k));
-                k++;
+    private void handleStatement(Object[] parameters, PreparedStatement statement) throws SQLException {
+        for (int i = 0; i < parameters.length; i++) {
+            Object parameter = parameters[i];
+            if (parameter == null) {
+                statement.setObject(i + 1, null);
+            } else {
+                Function<Object, List<Object>> transformer = this.transformer.apply(parameter.getClass());
+                if (transformer != null) {
+                    List<Object> out = transformer.apply(parameter);
+                    int k = 0;
+                    int j = i;
+                    for (; j < i + out.size(); j++) {
+                        statement.setObject(j + 1, out.get(k));
+                        k++;
+                    }
+                    i = j;
+                } else {
+                    statement.setObject(i + 1, parameter);
+                }
             }
-            i = j;
-        } else {
-            statement.setObject(i + 1, parameter);
         }
-
-        return i;
     }
 }
