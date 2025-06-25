@@ -35,13 +35,15 @@ public enum PacketEvents {
                 }
 
                 FriendlyByteBuf directIn = event.directIn();
-                if (directIn != null) {
-                    directIn.readerIndex(1);
+                Integer readerIndex = event.readerIndex();
+                if (directIn != null && readerIndex != null) {
+                    directIn.readerIndex(readerIndex);
                 }
                 PacketWrapper wrapper = event.wrapper();
                 if (wrapper != null && lastWrapper != wrapper) {
                     FriendlyByteBuf out = event.out();
-                    out.writerIndex(1);
+                    Integer writerIndex = event.writerIndex();
+                    out.writerIndex(writerIndex);
                     wrapper.write(out);
                     lastWrapper = wrapper;
                 }
@@ -56,13 +58,15 @@ public enum PacketEvents {
                 }
 
                 FriendlyByteBuf directIn = event.directIn();
-                if (directIn != null) {
-                    directIn.readerIndex(1);
+                Integer readerIndex = event.readerIndex();
+                if (directIn != null && readerIndex != null) {
+                    directIn.readerIndex(readerIndex);
                 }
                 PacketWrapper wrapper = event.wrapper();
                 if (wrapper != null && lastWrapper != wrapper) {
                     FriendlyByteBuf out = event.out();
-                    out.writerIndex(1);
+                    Integer writerIndex = event.writerIndex();
+                    out.writerIndex(writerIndex);
                     wrapper.write(out);
                     lastWrapper = wrapper;
                 }

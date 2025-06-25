@@ -15,6 +15,8 @@ public final class PacketEvent {
     private FriendlyByteBuf outBuf;
     private FriendlyByteBuf inBuf;
     private PacketWrapper wrapper;
+    private Integer readerIndex;
+    private Integer writerIndex;
     private boolean cancelled = false;
 
     public PacketEvent(Player player, PacketSide side, PacketType type, Supplier<FriendlyByteBuf> in, Supplier<FriendlyByteBuf> out) {
@@ -41,6 +43,7 @@ public final class PacketEvent {
         if (this.inBuf == null) {
             FriendlyByteBuf returning = this.in.get();
             this.inBuf = returning;
+            this.readerIndex = returning.readerIndex();
             return returning;
         }
 
@@ -51,6 +54,7 @@ public final class PacketEvent {
         if (this.outBuf == null) {
             FriendlyByteBuf returning = this.out.get();
             this.outBuf = returning;
+            this.writerIndex = returning.writerIndex();
             return returning;
         }
 
@@ -73,6 +77,15 @@ public final class PacketEvent {
     @Nullable
     public FriendlyByteBuf directIn() {
         return this.inBuf;
+    }
+
+    @Nullable
+    public Integer readerIndex() {
+        return this.readerIndex;
+    }
+
+    public Integer writerIndex() {
+        return this.writerIndex;
     }
 
     public void cancelled(boolean cancelled) {
