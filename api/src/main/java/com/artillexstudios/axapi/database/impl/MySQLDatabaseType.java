@@ -22,7 +22,7 @@ public class MySQLDatabaseType extends DatabaseType {
     @Override
     public HikariConfig config(DatabaseConfig databaseConfig) {
         HikariConfig config = new HikariConfig();
-        config.setDriverClassName(this.relocated + ".jdbc.Driver");
+        config.setDriverClassName(this.relocated + ".cj.jdbc.Driver");
         config.setMaximumPoolSize(databaseConfig.pool.maximumPoolSize);
         config.setMinimumIdle(databaseConfig.pool.minimumIdle);
         config.setMaxLifetime(databaseConfig.pool.maximumLifetime);
