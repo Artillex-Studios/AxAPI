@@ -30,6 +30,7 @@ public class MySQLDatabaseType extends DatabaseType {
         config.setConnectionTimeout(databaseConfig.pool.connectionTimeout);
         config.addDataSourceProperty("user", databaseConfig.username);
         config.addDataSourceProperty("password", databaseConfig.password);
+        config.addDataSourceProperty("allowMultiQueries", "true");
         config.setJdbcUrl(databaseConfig.url == null ? "jdbc:mysql://" + databaseConfig.address + ":" + databaseConfig.port + "/" + databaseConfig.database : databaseConfig.url);
         return config;
     }
