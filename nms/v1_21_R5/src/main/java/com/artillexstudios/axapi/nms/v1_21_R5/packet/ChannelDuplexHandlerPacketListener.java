@@ -17,6 +17,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
+import net.minecraft.network.protocol.game.ServerGamePacketListener;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -184,7 +185,13 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
         if (FeatureFlags.DEBUG_OUTGOING_PACKETS.get()) {
             LogUtils.info("Changed!");
         }
-        super.write(ctx, this.transformer.transformClientbound(out.buf()), promise);
+        Packet<? super ClientGamePacketListener> transformed = this.transformer.transformClientbound(out.buf());
+        if (transformed == null) {
+            super.write(ctx, msg, promise);
+            return;
+        }
+
+        super.write(ctx, transformed, promise);
     }
 
     @Override
@@ -271,6 +278,12 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
         if (FeatureFlags.DEBUG_INCOMING_PACKETS.get()) {
             LogUtils.info("Incoming changed!");
         }
-        super.channelRead(ctx, this.transformer.transformServerbound(out.buf()));
+        Packet<? super ServerGamePacketListener> transformed = this.transformer.transformServerbound(out.buf());
+        if (transformed == null) {
+            super.channelRead(ctx, msg);
+            return;
+        }
+
+        super.channelRead(ctx, transformed);
     }
 }

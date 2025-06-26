@@ -4,6 +4,8 @@ import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
+import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -12,6 +14,7 @@ import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.v1_20_R3.block.data.CraftBlockData;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 public record FriendlyByteBufWrapper(net.minecraft.network.FriendlyByteBuf buf) implements FriendlyByteBuf {
@@ -44,6 +47,9 @@ public record FriendlyByteBufWrapper(net.minecraft.network.FriendlyByteBuf buf) 
 
     @Override
     public void writeByteArray(byte[] bytes) {
+        if (FeatureFlags.DEBUG.get()) {
+            LogUtils.debug("Writing byteArray: {}", Arrays.toString(bytes));
+        }
         this.buf.writeByteArray(bytes);
     }
 
@@ -54,6 +60,10 @@ public record FriendlyByteBufWrapper(net.minecraft.network.FriendlyByteBuf buf) 
 
     @Override
     public void writeComponent(Component component) {
+        if (FeatureFlags.DEBUG.get()) {
+            LogUtils.debug("Writing component: {}", component);
+        }
+
         this.buf.writeComponent(ComponentSerializer.INSTANCE.<net.minecraft.network.chat.Component>toVanilla(component));
     }
 
@@ -64,6 +74,10 @@ public record FriendlyByteBufWrapper(net.minecraft.network.FriendlyByteBuf buf) 
 
     @Override
     public void writeVarInt(int varInt) {
+        if (FeatureFlags.DEBUG.get()) {
+            LogUtils.debug("Writing varint: {}", varInt);
+        }
+
         this.buf.writeVarInt(varInt);
     }
 
