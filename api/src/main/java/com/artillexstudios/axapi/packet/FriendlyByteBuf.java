@@ -190,4 +190,26 @@ public interface FriendlyByteBuf {
     default UUID readUUID() {
         return new UUID(this.readLong(), this.readLong());
     }
+
+    default int[] readVarIntArray() {
+        int readableBytes = this.readableBytes();
+        int size = this.readVarInt();
+        if (size > readableBytes) {
+            throw new IllegalStateException();
+        }
+
+        int[] array = new int[size];
+        for (int i = 0; i < size; i++) {
+            array[i] = this.readVarInt();
+        }
+
+        return array;
+    }
+
+    default void writeVarIntArray(int[] array) {
+        this.writeVarInt(array.length);
+        for (int i : array) {
+            this.writeVarInt(i);
+        }
+    }
 }
