@@ -33,8 +33,13 @@ public class TransformerHandler<T> implements ResultHandler<T> {
                         Class<?>[] parameterTypes = constructor.getParameterTypes();
                         for (int i = 0; i < parameterTypes.length; i++) {
                             Class<?> clazz = parameterTypes[i];
-                            Object objectClass = objects[i];
-                            if (!clazz.isInstance(objectClass)) {
+                            Object object = objects[i];
+                            // If we don't know the type, skip it
+                            if (object == null) {
+                                continue;
+                            }
+
+                            if (!clazz.isInstance(object)) {
                                 return false;
                             }
                         }
