@@ -2,7 +2,6 @@ package com.artillexstudios.axapi.packet;
 
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
@@ -11,20 +10,16 @@ public final class PacketEvent {
     private final PacketType type;
     private final PacketSide side;
     private final Supplier<FriendlyByteBuf> in;
-    private final Supplier<FriendlyByteBuf> out;
-    private FriendlyByteBuf outBuf;
-    private FriendlyByteBuf inBuf;
+    private FriendlyByteBuf cachedIn;
+    private FriendlyByteBuf directOut;
     private PacketWrapper wrapper;
-    private Integer readerIndex;
-    private Integer writerIndex;
     private boolean cancelled = false;
 
-    public PacketEvent(Player player, PacketSide side, PacketType type, Supplier<FriendlyByteBuf> in, Supplier<FriendlyByteBuf> out) {
+    public PacketEvent(Player player, PacketSide side, PacketType type, Supplier<FriendlyByteBuf> in) {
         this.player = player;
         this.side = side;
         this.type = type;
         this.in = in;
-        this.out = out;
     }
 
     public Player player() {
@@ -40,25 +35,19 @@ public final class PacketEvent {
     }
 
     public FriendlyByteBuf in() {
-        if (this.inBuf == null) {
-            FriendlyByteBuf returning = this.in.get();
-            this.inBuf = returning;
-            this.readerIndex = returning.readerIndex();
-            return returning;
+        FriendlyByteBuf byteBuf = this.cachedIn;
+        if (byteBuf == null) {
+             this.cachedIn = byteBuf = this.in.get();
         }
 
-        return this.inBuf;
+        return byteBuf.slice(byteBuf.readerIndex(), byteBuf.readableBytes());
     }
 
     public FriendlyByteBuf out() {
-        if (this.outBuf == null) {
-            FriendlyByteBuf returning = this.out.get();
-            this.outBuf = returning;
-            this.writerIndex = returning.writerIndex();
-            return returning;
-        }
-
-        return this.outBuf;
+        FriendlyByteBuf buf = FriendlyByteBuf.alloc();
+        buf.writeVarInt(this.side == PacketSide.CLIENT_BOUND ? ClientboundPacketTypes.forPacketType(this.type) : ServerboundPacketTypes.forPacketType(this.type));
+        this.directOut = buf;
+        return buf;
     }
 
     public void setWrapper(PacketWrapper wrapper) {
@@ -69,23 +58,12 @@ public final class PacketEvent {
         return this.wrapper;
     }
 
-    @Nullable
     public FriendlyByteBuf directOut() {
-        return this.outBuf;
+        return this.directOut;
     }
 
-    @Nullable
     public FriendlyByteBuf directIn() {
-        return this.inBuf;
-    }
-
-    @Nullable
-    public Integer readerIndex() {
-        return this.readerIndex;
-    }
-
-    public Integer writerIndex() {
-        return this.writerIndex;
+        return this.cachedIn;
     }
 
     public void cancelled(boolean cancelled) {

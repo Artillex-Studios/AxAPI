@@ -45,7 +45,12 @@ public final class PacketTransformer {
 
     public static Packet<ClientGamePacketListener> transformClientbound(net.minecraft.network.FriendlyByteBuf buf) {
         try {
-            return (Packet<ClientGamePacketListener>) clientboundCodec.createPacket(buf.readVarInt(), buf);
+            try {
+                return (Packet<ClientGamePacketListener>) clientboundCodec.createPacket(buf.readVarInt(), buf);
+            } catch (Exception exception) {
+                LogUtils.error("Failed to transform packet!", exception);
+                return null;
+            }
         } finally {
             buf.release();
         }
@@ -53,7 +58,12 @@ public final class PacketTransformer {
 
     public static Packet<ServerGamePacketListener> transformServerbound(net.minecraft.network.FriendlyByteBuf buf) {
         try {
-            return (Packet<ServerGamePacketListener>) serverboundCodec.createPacket(buf.readVarInt(), buf);
+            try {
+                return (Packet<ServerGamePacketListener>) serverboundCodec.createPacket(buf.readVarInt(), buf);
+            } catch (Exception exception) {
+                LogUtils.error("Failed to transform packet!", exception);
+                return null;
+            }
         } finally {
             buf.release();
         }

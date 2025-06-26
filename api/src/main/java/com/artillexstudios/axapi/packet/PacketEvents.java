@@ -23,52 +23,32 @@ public enum PacketEvents {
         }
 
         PacketListener[] baked = this.baked;
-        PacketWrapper lastWrapper = null;
-        int bakedLength = baked.length;
-        if (event.side() == PacketSide.SERVER_BOUND) {
-            for (int i = 0; i < bakedLength; i++) {
+        for (PacketListener listener : baked) {
+            if (event.side() == PacketSide.CLIENT_BOUND) {
                 try {
-                    baked[i].onPacketReceive(event);
+                    listener.onPacketSending(event);
                 } catch (Throwable throwable) {
-                    LogUtils.error("Exception while running packet event! Buffer: {}", event.in(), throwable);
-                    return;
+                    LogUtils.error("Failed to read clientbound packet!", throwable);
+                    continue;
                 }
 
-                FriendlyByteBuf directIn = event.directIn();
-                Integer readerIndex = event.readerIndex();
-                if (directIn != null && readerIndex != null) {
-                    directIn.readerIndex(readerIndex);
-                }
                 PacketWrapper wrapper = event.wrapper();
-                if (wrapper != null && lastWrapper != wrapper) {
+                if (wrapper != null) {
                     FriendlyByteBuf out = event.out();
-                    Integer writerIndex = event.writerIndex();
-                    out.writerIndex(writerIndex);
                     wrapper.write(out);
-                    lastWrapper = wrapper;
                 }
-            }
-        } else {
-            for (int i = 0; i < bakedLength; i++) {
+            } else {
                 try {
-                    baked[i].onPacketSending(event);
+                    listener.onPacketReceive(event);
                 } catch (Throwable throwable) {
-                    LogUtils.error("Exception while running packet event! Buffer: {}", event.in(), throwable);
-                    return;
+                    LogUtils.error("Failed to read serverbound packet!", throwable);
+                    continue;
                 }
 
-                FriendlyByteBuf directIn = event.directIn();
-                Integer readerIndex = event.readerIndex();
-                if (directIn != null && readerIndex != null) {
-                    directIn.readerIndex(readerIndex);
-                }
                 PacketWrapper wrapper = event.wrapper();
-                if (wrapper != null && lastWrapper != wrapper) {
+                if (wrapper != null) {
                     FriendlyByteBuf out = event.out();
-                    Integer writerIndex = event.writerIndex();
-                    out.writerIndex(writerIndex);
                     wrapper.write(out);
-                    lastWrapper = wrapper;
                 }
             }
         }

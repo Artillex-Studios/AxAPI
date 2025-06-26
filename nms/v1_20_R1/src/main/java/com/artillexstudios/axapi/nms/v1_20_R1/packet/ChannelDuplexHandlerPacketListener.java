@@ -75,10 +75,6 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
                         }
                         return null;
                     }
-                }, () -> {
-                    return PacketTransformer.newByteBuf(ctx, buf -> {
-                        buf.writeVarInt(packetId);
-                    });
                 });
 
                 PacketEvents.INSTANCE.callEvent(event);
@@ -145,10 +141,6 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
                 }
                 return null;
             }
-        }, () -> {
-            return PacketTransformer.newByteBuf(ctx, buf -> {
-                buf.writeVarInt(packetId);
-            });
         });
 
         try {
@@ -240,10 +232,6 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
                 }
                 return null;
             }
-        }, () -> {
-            return PacketTransformer.newByteBuf(ctx, buf -> {
-                buf.writeVarInt(packetId);
-            });
         });
 
         PacketEvents.INSTANCE.callEvent(event);

@@ -50,7 +50,12 @@ public final class PacketTransformer {
 
     public static Packet<? super ClientGamePacketListener> transformClientbound(net.minecraft.network.FriendlyByteBuf buf) {
         try {
-            return clientboundCodec.decode(buf);
+            try {
+                return clientboundCodec.decode(buf);
+            } catch (Exception exception) {
+                LogUtils.error("Failed to transform packet!", exception);
+                return null;
+            }
         } finally {
             buf.release();
         }
@@ -58,7 +63,12 @@ public final class PacketTransformer {
 
     public static Packet<? super ServerGamePacketListener> transformServerbound(net.minecraft.network.FriendlyByteBuf buf) {
         try {
-            return serverboundCodec.decode(buf);
+            try {
+                return serverboundCodec.decode(buf);
+            } catch (Exception exception) {
+                LogUtils.error("Failed to transform packet!", exception);
+                return null;
+            }
         } finally {
             buf.release();
         }
