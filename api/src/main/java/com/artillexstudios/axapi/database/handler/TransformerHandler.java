@@ -27,10 +27,23 @@ public class TransformerHandler<T> implements ResultHandler<T> {
         }
 
         try {
-            return (T) Arrays.stream(this.clazz.getDeclaredConstructors()).filter(it -> it.getParameterCount() == columnCount)
+            return this.clazz.cast(Arrays.stream(this.clazz.getDeclaredConstructors())
+                    .filter(it -> it.getParameterCount() == columnCount)
+                    .filter(constructor -> {
+                        Class<?>[] parameterTypes = constructor.getParameterTypes();
+                        for (int i = 0; i < parameterTypes.length; i++) {
+                            Class<?> clazz = parameterTypes[i];
+                            Object objectClass = objects[i];
+                            if (!clazz.isInstance(objectClass)) {
+                                return false;
+                            }
+                        }
+
+                        return true;
+                    })
                     .findFirst()
                     .orElseThrow()
-                    .newInstance(objects);
+                    .newInstance(objects));
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
