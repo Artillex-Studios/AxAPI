@@ -93,7 +93,7 @@ public abstract class AxPlugin extends JavaPlugin {
                         return;
                     }
 
-                    ClientboundSetPassengersWrapper passengersWrapper = new ClientboundSetPassengersWrapper(entityId, List.of(rider.id()));
+                    ClientboundSetPassengersWrapper passengersWrapper = new ClientboundSetPassengersWrapper(entityId, new int[]{rider.id()});
                     ServerPlayerWrapper serverPlayerWrapper = ServerPlayerWrapper.wrap(event.player());
                     serverPlayerWrapper.sendPacket(passengersWrapper);
                 }
