@@ -15,7 +15,7 @@ public final class LogUtils {
         debug(LoggerFactory.getLogger(STACK_WALKER.getCallerClass()), message, DebugMode.ALL);
     }
 
-    private static void debug(Logger logger, String message, DebugMode mode) {
+    public static void debug(Logger logger, String message, DebugMode mode) {
         if (mode == DebugMode.CONSOLE || mode == DebugMode.ALL) {
             logger.info(message);
         }
@@ -33,7 +33,7 @@ public final class LogUtils {
         debug(LoggerFactory.getLogger(STACK_WALKER.getCallerClass()), message, object, DebugMode.ALL);
     }
 
-    private static void debug(Logger logger, String message, Object object, DebugMode mode) {
+    public static void debug(Logger logger, String message, Object object, DebugMode mode) {
         if (mode == DebugMode.CONSOLE || mode == DebugMode.ALL) {
             logger.info(message, object);
         }
@@ -52,7 +52,7 @@ public final class LogUtils {
         debug(LoggerFactory.getLogger(STACK_WALKER.getCallerClass()), message, object, object2, DebugMode.ALL);
     }
 
-    private static void debug(Logger logger, String message, Object object, Object object2, DebugMode mode) {
+    public static void debug(Logger logger, String message, Object object, Object object2, DebugMode mode) {
         if (mode == DebugMode.CONSOLE || mode == DebugMode.ALL) {
             logger.info(message, object, object2);
         }
@@ -72,7 +72,7 @@ public final class LogUtils {
         debug(LoggerFactory.getLogger(STACK_WALKER.getCallerClass()), message, object, object2, object3, mode);
     }
 
-    private static void debug(Logger logger, String message, Object object, Object object2, Object object3, DebugMode mode) {
+    public static void debug(Logger logger, String message, Object object, Object object2, Object object3, DebugMode mode) {
         if (mode == DebugMode.CONSOLE || mode == DebugMode.ALL) {
             logger.info(message, object, object2, object3);
         }
@@ -93,7 +93,7 @@ public final class LogUtils {
         debug(LoggerFactory.getLogger(STACK_WALKER.getCallerClass()), message, object, object2, object3, object4, mode);
     }
 
-    private static void debug(Logger logger, String message, Object object, Object object2, Object object3, Object object4, DebugMode mode) {
+    public static void debug(Logger logger, String message, Object object, Object object2, Object object3, Object object4, DebugMode mode) {
         if (mode == DebugMode.CONSOLE || mode == DebugMode.ALL) {
             logger.info(message, object, object2, object3, object4);
         }
@@ -115,7 +115,7 @@ public final class LogUtils {
         debug(LoggerFactory.getLogger(STACK_WALKER.getCallerClass()), message, DebugMode.ALL, arguments);
     }
 
-    private static void debug(Logger logger, String message, DebugMode mode, Object... arguments) {
+    public static void debug(Logger logger, String message, DebugMode mode, Object... arguments) {
         if (mode == DebugMode.CONSOLE || mode == DebugMode.ALL) {
             logger.info(message, arguments);
         }
@@ -139,5 +139,9 @@ public final class LogUtils {
 
     public static void info(String message, Object... arguments) {
         LoggerFactory.getLogger(STACK_WALKER.getCallerClass()).info(message, arguments);
+    }
+
+    public static Logger logger() {
+        return LoggerFactory.getLogger(STACK_WALKER.getCallerClass());
     }
 }
