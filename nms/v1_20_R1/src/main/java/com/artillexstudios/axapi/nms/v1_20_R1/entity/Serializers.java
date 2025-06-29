@@ -1,11 +1,18 @@
 package com.artillexstudios.axapi.nms.v1_20_R1.entity;
 
 import com.artillexstudios.axapi.nms.v1_20_R1.items.WrappedItemStack;
+import com.artillexstudios.axapi.nms.v1_20_R1.packet.FriendlyByteBufWrapper;
+import com.artillexstudios.axapi.nms.v1_20_R1.packet.PacketTransformer;
 import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataSerializers;
+import com.artillexstudios.axapi.particle.ParticleData;
+import com.artillexstudios.axapi.particle.ParticleOption;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.ParticleArguments;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Rotations;
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.world.entity.Pose;
@@ -125,8 +132,12 @@ public class Serializers {
         typeTransformers.put(EntityDataSerializers.Type.PARTICLE, new Transformer<ParticleOptions>() {
             @Override
             public ParticleOptions transform(Object other) {
-                ParticleArguments arguments = (ParticleArguments) other;
-                return CraftParticle.toNMS(arguments.particle(), arguments.data());
+                ParticleData<ParticleOption> data = (ParticleData<ParticleOption>) other;
+                FriendlyByteBufWrapper wrapper = PacketTransformer.newByteBuf();
+                com.artillexstudios.axapi.particle.ParticleTypes.write(data, wrapper);
+                Holder<ParticleType<?>> particleTypeHolder = BuiltInRegistries.PARTICLE_TYPE.asHolderIdMap().byIdOrThrow(wrapper.readVarInt());
+                ParticleType value = particleTypeHolder.value();
+                return value.getDeserializer().fromNetwork(value, wrapper.buf());
             }
 
             @Override

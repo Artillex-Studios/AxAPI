@@ -39,7 +39,6 @@ import revxrsal.zapper.classloader.URLClassLoaderWrapper;
 
 import java.io.File;
 import java.net.URLClassLoader;
-import java.util.List;
 
 public abstract class AxPlugin extends JavaPlugin {
     public EntityTracker tracker;

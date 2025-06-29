@@ -1,19 +1,23 @@
 package com.artillexstudios.axapi.nms.v1_20_R3.entity;
 
 import com.artillexstudios.axapi.nms.v1_20_R3.items.WrappedItemStack;
-import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataAccessor;
+import com.artillexstudios.axapi.nms.v1_20_R3.packet.FriendlyByteBufWrapper;
+import com.artillexstudios.axapi.nms.v1_20_R3.packet.PacketTransformer;
 import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataSerializers;
+import com.artillexstudios.axapi.particle.ParticleData;
+import com.artillexstudios.axapi.particle.ParticleOption;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
-import com.artillexstudios.axapi.utils.ParticleArguments;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Rotations;
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.craftbukkit.v1_20_R3.CraftParticle;
 import org.bukkit.craftbukkit.v1_20_R3.block.data.CraftBlockData;
 import org.bukkit.util.EulerAngle;
 import org.joml.Quaternionf;
@@ -126,8 +130,12 @@ public class Serializers {
         typeTransformers.put(EntityDataSerializers.Type.PARTICLE, new Transformer<ParticleOptions>() {
             @Override
             public ParticleOptions transform(Object other) {
-                ParticleArguments arguments = (ParticleArguments) other;
-                return CraftParticle.createParticleParam(arguments.particle(), arguments.data());
+                ParticleData<ParticleOption> data = (ParticleData<ParticleOption>) other;
+                FriendlyByteBufWrapper wrapper = (FriendlyByteBufWrapper) PacketTransformer.newByteBuf();
+                com.artillexstudios.axapi.particle.ParticleTypes.write(data, wrapper);
+                Holder<ParticleType<?>> particleTypeHolder = BuiltInRegistries.PARTICLE_TYPE.asHolderIdMap().byIdOrThrow(wrapper.readVarInt());
+                ParticleType value = particleTypeHolder.value();
+                return value.getDeserializer().fromNetwork(value, wrapper.buf());
             }
 
             @Override
