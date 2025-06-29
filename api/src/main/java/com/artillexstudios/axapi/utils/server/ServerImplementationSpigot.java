@@ -6,6 +6,8 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -28,5 +30,10 @@ public class ServerImplementationSpigot implements ServerImplementation {
     @Override
     public boolean isChunkGenerated(World world, int x, int z) {
         return true;
+    }
+
+    @Override
+    public InventoryHolder getHolder(Inventory inventory, boolean useSnapshot) {
+        return inventory.getHolder();
     }
 }

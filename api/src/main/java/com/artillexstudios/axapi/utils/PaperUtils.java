@@ -9,6 +9,8 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -64,6 +66,10 @@ public class PaperUtils {
 
     public static boolean isChunkGenerated(World world, int x, int z) {
         return IMPLEMENTATION.isChunkGenerated(world, x, z);
+    }
+
+    public static InventoryHolder getHolder(Inventory inventory, boolean useSnapshot) {
+        return IMPLEMENTATION.getHolder(inventory, useSnapshot);
     }
 
     public static boolean isPaper() {
