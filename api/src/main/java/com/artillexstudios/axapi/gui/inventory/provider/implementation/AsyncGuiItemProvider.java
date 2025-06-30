@@ -7,17 +7,18 @@ import com.artillexstudios.axapi.items.WrappedItemStack;
 
 import java.util.concurrent.CompletableFuture;
 
-public class CachingGuiItemProvider implements GuiItemProvider {
-    private final WrappedItemStack stack;
-    private final GuiItem guiItem;
+public class AsyncGuiItemProvider implements GuiItemProvider {
+    private final GuiItem item;
 
-    public CachingGuiItemProvider(GuiItem guiItem) {
-        this.stack = guiItem.stack().get();
-        this.guiItem = guiItem;
+    public AsyncGuiItemProvider(GuiItem item) {
+        this.item = item;
     }
 
     @Override
     public CompletableFuture<GuiItem> provide(HashMapContext context) {
-        return CompletableFuture.completedFuture(new GuiItem(() -> this.stack, this.guiItem.eventConsumer()));
+        return CompletableFuture.supplyAsync(() -> {
+            WrappedItemStack wrappedItemStack = this.item.stack().get();
+            return new GuiItem(() -> wrappedItemStack, this.item.eventConsumer());
+        });
     }
 }

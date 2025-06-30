@@ -14,7 +14,7 @@ public class GuiTest {
                 .rows(6)
                 .build();
 
-        gui.setItem(0, new GuiItem(WrappedItemStack.wrap(new ItemStack(Material.STONE)), event -> {
+        gui.setItem(0, new GuiItem(() -> WrappedItemStack.wrap(new ItemStack(Material.STONE)), event -> {
 
         }));
     }

@@ -4,10 +4,11 @@ import com.artillexstudios.axapi.items.WrappedItemStack;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-public record GuiItem(WrappedItemStack stack, Consumer<InventoryClickEvent> eventConsumer) {
+public record GuiItem(Supplier<WrappedItemStack> stack, Consumer<InventoryClickEvent> eventConsumer) {
 
-    public GuiItem(WrappedItemStack stack) {
+    public GuiItem(Supplier<WrappedItemStack> stack) {
         this(stack, event -> {});
     }
 }
