@@ -17,6 +17,7 @@ public final class FeatureFlags {
     public static final BooleanFlag PLACEHOLDER_API_HOOK = new BooleanFlag(false);
     public static final StringFlag PLACEHOLDER_API_IDENTIFIER = new StringFlag("");
     public static final IntegerFlag COMPONENT_CACHE_SIZE = new IntegerFlag(200);
+    public static final BooleanFlag GUI_WAIT_FOR_ALL = new BooleanFlag(false);
 
     public static void refresh(AxPlugin plugin) {
         PACKET_ENTITY_TRACKER_ENABLED.refresh(plugin.getName() + "enableEntityTracker");
@@ -30,5 +31,6 @@ public final class FeatureFlags {
         PLACEHOLDER_API_HOOK.refresh(plugin.getName() + "placeholderApiHook");
         PLACEHOLDER_API_IDENTIFIER.refresh(plugin.getName() + "placeholderApiIdentifier");
         COMPONENT_CACHE_SIZE.refresh(plugin.getName() + "componentCacheSize");
+        GUI_WAIT_FOR_ALL.refresh(plugin.getName() + "guiWaitForAll");
     }
 }
