@@ -84,6 +84,10 @@ public abstract class AxPlugin extends JavaPlugin {
             @Override
             public void onPacketSending(PacketEvent event) {
                 if (event.type() == ClientboundPacketTypes.ADD_ENTITY) {
+                    if (AxPlugin.this.tracker == null) {
+                        return;
+                    }
+
                     ClientboundAddEntityWrapper wrapper = new ClientboundAddEntityWrapper(event);
                     int entityId = wrapper.entityId();
                     PacketEntity rider = AxPlugin.this.tracker.findRider(entityId);
