@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.gui.inventory.provider.implementation;
 
 import com.artillexstudios.axapi.context.HashMapContext;
+import com.artillexstudios.axapi.gui.inventory.BakedGuiItem;
 import com.artillexstudios.axapi.gui.inventory.GuiItem;
 import com.artillexstudios.axapi.gui.inventory.provider.GuiItemProvider;
 
@@ -14,7 +15,7 @@ public class SimpleGuiItemProvider implements GuiItemProvider {
     }
 
     @Override
-    public CompletableFuture<GuiItem> provide(HashMapContext context) {
-        return CompletableFuture.completedFuture(this.item);
+    public CompletableFuture<BakedGuiItem> provide(HashMapContext context) {
+        return CompletableFuture.completedFuture(new BakedGuiItem(this.item.stack().get().toBukkit(), this.item.eventConsumer()));
     }
 }

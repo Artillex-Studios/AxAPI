@@ -33,6 +33,44 @@ public final class MutableInteger implements Mutable<Integer> {
         return this.value;
     }
 
+    public void increment(int amount) {
+        this.value += amount;
+    }
+
+    public void increment() {
+        this.value++;
+    }
+
+    public int incrementAndGet() {
+        this.value++;
+        return this.value;
+    }
+
+    public int getAndIncrement() {
+        int prev = this.value;
+        this.value++;
+        return prev;
+    }
+
+    public void decrement(int amount) {
+        this.value -= amount;
+    }
+
+    public void decrement() {
+        this.value--;
+    }
+
+    public int decrementAndGet() {
+        this.value--;
+        return this.value;
+    }
+
+    public int getAndDecrement() {
+        int prev = this.value;
+        this.value--;
+        return prev;
+    }
+
     @Override
     public boolean equals(Object object) {
         if (!(object instanceof MutableInteger that)) {

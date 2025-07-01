@@ -59,6 +59,10 @@ public abstract class Gui {
         return this.type;
     }
 
+    public Int2ObjectArrayMap<GuiItemProvider> providers() {
+        return this.providers;
+    }
+
     public void open(Player player) {
 
     }
