@@ -10,11 +10,11 @@ public class GuiTest {
 
     public static void test() {
         DynamicGui gui = GuiBuilder.createDynamic()
-                .title(Component.text("oreo"))
+                .title(ctx -> Component.text("oreo"))
                 .rows(6)
                 .build();
 
-        gui.setItem(0, new GuiItem(() -> WrappedItemStack.wrap(new ItemStack(Material.STONE)), event -> {
+        gui.setItem(0, new GuiItem(ctx -> WrappedItemStack.wrap(new ItemStack(Material.STONE)), event -> {
 
         }));
     }

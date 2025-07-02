@@ -7,6 +7,6 @@ public class DynamicGuiBuilder extends GuiBuilder<DynamicGui> {
 
     @Override
     public DynamicGui build() {
-        return null;
+        return new DynamicGui(this.titleProvider, this.type, this.rows);
     }
 }

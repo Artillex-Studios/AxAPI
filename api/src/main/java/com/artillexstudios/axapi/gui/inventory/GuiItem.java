@@ -1,14 +1,15 @@
 package com.artillexstudios.axapi.gui.inventory;
 
+import com.artillexstudios.axapi.context.HashMapContext;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
 import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
-public record GuiItem(Supplier<WrappedItemStack> stack, Consumer<InventoryClickEvent> eventConsumer) {
+public record GuiItem(Function<HashMapContext, WrappedItemStack> stack, Consumer<InventoryClickEvent> eventConsumer) {
 
-    public GuiItem(Supplier<WrappedItemStack> stack) {
+    public GuiItem(Function<HashMapContext, WrappedItemStack> stack) {
         this(stack, event -> {});
     }
 }

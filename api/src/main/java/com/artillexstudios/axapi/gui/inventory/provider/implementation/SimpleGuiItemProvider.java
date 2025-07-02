@@ -16,6 +16,6 @@ public class SimpleGuiItemProvider implements GuiItemProvider {
 
     @Override
     public CompletableFuture<BakedGuiItem> provide(HashMapContext context) {
-        return CompletableFuture.completedFuture(new BakedGuiItem(this.item.stack().get().toBukkit(), this.item.eventConsumer()));
+        return CompletableFuture.completedFuture(new BakedGuiItem(this.item.stack().apply(context).toBukkit(), this.item.eventConsumer()));
     }
 }

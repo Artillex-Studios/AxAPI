@@ -7,6 +7,6 @@ public class StaticGuiBuilder extends GuiBuilder<StaticGui> {
 
     @Override
     public StaticGui build() {
-        return null;
+        return new StaticGui(this.titleProvider, this.type, this.rows);
     }
 }

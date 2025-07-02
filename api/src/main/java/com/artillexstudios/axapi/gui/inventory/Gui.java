@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.gui.inventory;
 
+import com.artillexstudios.axapi.context.HashMapContext;
 import com.artillexstudios.axapi.gui.inventory.provider.GuiItemProvider;
 import com.artillexstudios.axapi.gui.inventory.provider.implementation.CachingGuiItemProvider;
 import com.artillexstudios.axapi.gui.inventory.provider.implementation.EmptyGuiItemProvider;
@@ -13,11 +14,12 @@ import java.util.function.Function;
 public abstract class Gui {
     private final Int2ObjectArrayMap<GuiItemProvider> providers = new Int2ObjectArrayMap<>();
     private final InventoryType type;
-    private Component title;
+    private boolean disableAllInteractions;
+    private Function<HashMapContext, Component> titleProvider;
     private int rows;
 
-    public Gui(Component title, InventoryType type, int rows) {
-        this.title = title;
+    public Gui(Function<HashMapContext, Component> titleProvider, InventoryType type, int rows) {
+        this.titleProvider = titleProvider;
         this.type = type;
         this.rows = rows;
 
@@ -29,6 +31,14 @@ public abstract class Gui {
         for (int i = 0; i < size; i++) {
             this.providers.put(i, EmptyGuiItemProvider.INSTANCE);
         }
+    }
+
+    public void disableAllInteractions() {
+        this.disableAllInteractions = true;
+    }
+
+    public boolean isDisableAllInteractions() {
+        return this.disableAllInteractions;
     }
 
     public void setItem(int slot, GuiItem item) {
@@ -47,12 +57,8 @@ public abstract class Gui {
         return this.rows;
     }
 
-    public Component title() {
-        return this.title;
-    }
-
-    public void title(Component title) {
-        this.title = title;
+    public Component provideTitle(HashMapContext context) {
+        return this.titleProvider.apply(context);
     }
 
     public InventoryType type() {
@@ -64,6 +70,7 @@ public abstract class Gui {
     }
 
     public void open(Player player) {
-
+        InventoryRenderer renderer = InventoryRenderers.getRenderer(player);
+        renderer.render(this);
     }
 }

@@ -4,6 +4,8 @@ import com.artillexstudios.axapi.dependencies.DependencyManagerWrapper;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.gui.AnvilListener;
 import com.artillexstudios.axapi.gui.SignInput;
+import com.artillexstudios.axapi.gui.inventory.InventoryRenderers;
+import com.artillexstudios.axapi.gui.inventory.listener.InventoryClickListener;
 import com.artillexstudios.axapi.hologram.Holograms;
 import com.artillexstudios.axapi.items.component.DataComponents;
 import com.artillexstudios.axapi.nms.NMSHandlers;
@@ -135,6 +137,7 @@ public abstract class AxPlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new Listener() {
             @EventHandler
             public void onPlayerQuitEvent(@NotNull final PlayerQuitEvent event) {
+                InventoryRenderers.disconnect(event.getPlayer().getUniqueId());
                 ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(event.getPlayer());
                 wrapper.uninject();
 
@@ -166,6 +169,7 @@ public abstract class AxPlugin extends JavaPlugin {
             }
         }, this);
         Bukkit.getPluginManager().registerEvents(new AnvilListener(), this);
+        Bukkit.getPluginManager().registerEvents(new InventoryClickListener(), this);
 
         if (FeatureFlags.HOLOGRAM_UPDATE_TICKS.get() > 0) {
             Holograms.startTicking();

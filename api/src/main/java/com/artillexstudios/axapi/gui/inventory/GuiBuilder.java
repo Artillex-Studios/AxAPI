@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.gui.inventory;
 
+import com.artillexstudios.axapi.context.HashMapContext;
 import com.artillexstudios.axapi.gui.inventory.builder.DynamicGuiBuilder;
 import com.artillexstudios.axapi.gui.inventory.builder.PaginatedGuiBuilder;
 import com.artillexstudios.axapi.gui.inventory.builder.StaticGuiBuilder;
@@ -7,10 +8,12 @@ import com.google.common.base.Preconditions;
 import net.kyori.adventure.text.Component;
 import org.bukkit.event.inventory.InventoryType;
 
+import java.util.function.Function;
+
 public abstract class GuiBuilder<T extends Gui> {
-    private InventoryType type;
-    private Component title;
-    private int rows;
+    protected InventoryType type;
+    protected Function<HashMapContext, Component> titleProvider;
+    protected int rows;
 
     public static DynamicGuiBuilder createDynamic() {
         return new DynamicGuiBuilder();
@@ -24,8 +27,8 @@ public abstract class GuiBuilder<T extends Gui> {
         return new PaginatedGuiBuilder();
     }
 
-    public GuiBuilder<T> title(Component title) {
-        this.title = Preconditions.checkNotNull(title);
+    public GuiBuilder<T> title(Function<HashMapContext, Component> titleProvider) {
+        this.titleProvider = Preconditions.checkNotNull(titleProvider);
         return this;
     }
 

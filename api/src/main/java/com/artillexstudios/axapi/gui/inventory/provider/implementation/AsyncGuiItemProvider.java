@@ -18,7 +18,7 @@ public class AsyncGuiItemProvider implements GuiItemProvider {
     @Override
     public CompletableFuture<BakedGuiItem> provide(HashMapContext context) {
         return CompletableFuture.supplyAsync(() -> {
-            WrappedItemStack wrappedItemStack = this.item.stack().get();
+            WrappedItemStack wrappedItemStack = this.item.stack().apply(context);
             return new BakedGuiItem(wrappedItemStack.toBukkit(), this.item.eventConsumer());
         });
     }
