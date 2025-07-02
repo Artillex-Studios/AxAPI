@@ -12,11 +12,11 @@ import org.bukkit.event.inventory.InventoryType;
 import java.util.function.Function;
 
 public abstract class Gui {
-    private final Int2ObjectArrayMap<GuiItemProvider> providers = new Int2ObjectArrayMap<>();
-    private final InventoryType type;
-    private boolean disableAllInteractions;
-    private Function<HashMapContext, Component> titleProvider;
-    private int rows;
+    protected final Int2ObjectArrayMap<GuiItemProvider> providers = new Int2ObjectArrayMap<>();
+    protected final InventoryType type;
+    protected boolean disableAllInteractions;
+    protected Function<HashMapContext, Component> titleProvider;
+    protected int rows;
 
     public Gui(Function<HashMapContext, Component> titleProvider, InventoryType type, int rows) {
         this.titleProvider = titleProvider;

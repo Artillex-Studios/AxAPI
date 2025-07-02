@@ -16,6 +16,6 @@ public class PaginatedGuiBuilder extends GuiBuilder<PaginatedGui> {
 
     @Override
     public PaginatedGui build() {
-        return new PaginatedGui(this.titleProvider, this.type, this.rows);
+        return new PaginatedGui(this.titleProvider, this.type, this.rows, this.providers);
     }
 }
