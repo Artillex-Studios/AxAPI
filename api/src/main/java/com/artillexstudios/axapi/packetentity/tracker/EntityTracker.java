@@ -144,7 +144,7 @@ public final class EntityTracker {
                     TrackedEntity tracked = array[index];
                     tracked.preTick();
                     if (tracked.world == null) {
-                        LogUtils.error("Failed to track entity with id {} due to it being in a null world! Removing the entity!", tracked.entity.id());
+                        LogUtils.warn("Failed to track entity with id {} due to it being in a null world! Removing the entity!", tracked.entity.id());
                         this.entityMap.remove(tracked.entity.id());
                         continue;
                     }
