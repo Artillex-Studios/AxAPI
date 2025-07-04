@@ -6,6 +6,7 @@ import com.artillexstudios.axapi.gui.inventory.builder.PaginatedGuiBuilder;
 import com.artillexstudios.axapi.gui.inventory.builder.StaticGuiBuilder;
 import com.google.common.base.Preconditions;
 import net.kyori.adventure.text.Component;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 
 import java.util.function.Function;
@@ -42,5 +43,5 @@ public abstract class GuiBuilder<T extends Gui> {
         return this;
     }
 
-    public abstract T build();
+    public abstract T build(Player player);
 }

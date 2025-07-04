@@ -12,7 +12,7 @@ public class GuiTest {
         DynamicGui gui = GuiBuilder.createDynamic()
                 .title(ctx -> Component.text("oreo"))
                 .rows(6)
-                .build();
+                .build(null);
 
         gui.setItem(0, new GuiItem(ctx -> WrappedItemStack.wrap(new ItemStack(Material.STONE)), event -> {
 

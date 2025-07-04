@@ -12,23 +12,26 @@ import org.bukkit.event.inventory.InventoryType;
 import java.util.function.Function;
 
 public abstract class Gui {
+    protected final Player player;
     protected final Int2ObjectArrayMap<GuiItemProvider> providers = new Int2ObjectArrayMap<>();
     protected final InventoryType type;
     protected boolean disableAllInteractions;
     protected Function<HashMapContext, Component> titleProvider;
     protected int rows;
+    protected int size;
 
-    public Gui(Function<HashMapContext, Component> titleProvider, InventoryType type, int rows) {
+    public Gui(Player player, Function<HashMapContext, Component> titleProvider, InventoryType type, int rows) {
+        this.player = player;
         this.titleProvider = titleProvider;
         this.type = type;
         this.rows = rows;
 
-        int size = rows * 9;
+        this.size = rows * 9;
         if (this.type != InventoryType.CHEST) {
-            size = this.type.getDefaultSize();
+            this.size = this.type.getDefaultSize();
         }
 
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < this.size; i++) {
             this.providers.put(i, EmptyGuiItemProvider.INSTANCE);
         }
     }
@@ -69,8 +72,8 @@ public abstract class Gui {
         return this.providers;
     }
 
-    public void open(Player player) {
-        InventoryRenderer renderer = InventoryRenderers.getRenderer(player);
+    public void open() {
+        InventoryRenderer renderer = InventoryRenderers.getRenderer(this.player);
         renderer.render(this);
     }
 }
