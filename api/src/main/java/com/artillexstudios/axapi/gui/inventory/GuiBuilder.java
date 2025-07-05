@@ -12,7 +12,7 @@ import org.bukkit.event.inventory.InventoryType;
 import java.util.function.Function;
 
 public abstract class GuiBuilder<T extends Gui> {
-    protected InventoryType type;
+    protected InventoryType type = InventoryType.CHEST;
     protected Function<HashMapContext, Component> titleProvider;
     protected int rows;
 
