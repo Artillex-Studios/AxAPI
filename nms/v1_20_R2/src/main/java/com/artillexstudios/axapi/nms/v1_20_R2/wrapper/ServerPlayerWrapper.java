@@ -102,7 +102,10 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
     @Override
     public void message(Component message) {
         this.update();
-        this.serverPlayer.connection.send(new ClientboundSystemChatPacket((net.minecraft.network.chat.Component) ComponentSerializer.INSTANCE.toVanilla(message), false));
+        LogUtils.debug("Component pre parse: {}", message);
+        net.minecraft.network.chat.Component component = ComponentSerializer.INSTANCE.toVanilla(message);
+        LogUtils.debug("Component post parse: {}", component);
+        this.serverPlayer.connection.send(new ClientboundSystemChatPacket(component, false));
     }
 
     @Override
