@@ -122,6 +122,7 @@ shadowJar {
     relocate('com.github.benmanes', 'com.artillexstudios.axapi.libs.caffeine')
     relocate('org.yaml.snakeyaml', 'com.artillexstudios.axapi.libs.snakeyaml')
     relocate('com.zaxxer.hikari', 'com.artillexstudios.axapi.libs.hikari')
+    relocate('net.kyori', 'com.artillexstudios.axapi.libs.kyori')
 }
 
 allprojects.forEach {

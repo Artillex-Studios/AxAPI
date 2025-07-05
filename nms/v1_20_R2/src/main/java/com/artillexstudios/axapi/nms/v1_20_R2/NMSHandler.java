@@ -14,7 +14,6 @@ import com.artillexstudios.axapi.nms.wrapper.WrapperRegistry;
 import com.artillexstudios.axapi.serializers.Serializer;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
-import com.google.gson.JsonElement;
 import com.mojang.authlib.GameProfile;
 import io.netty.buffer.Unpooled;
 import net.kyori.adventure.key.Key;
@@ -25,7 +24,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
@@ -71,12 +69,7 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
 
             @Override
             public Object deserialize(Component value) {
-                JsonElement jsonTree = GsonComponentSerializer.gson().serializer().toJsonTree(value);
-                LogUtils.debug("Component deserialize: {}", value);
-                LogUtils.debug("JSON tree: {}", jsonTree);
-                MutableComponent components = net.minecraft.network.chat.Component.Serializer.fromJson(jsonTree);
-                LogUtils.debug("Vanilla component: {}", components);
-                return components;
+                return net.minecraft.network.chat.Component.Serializer.fromJson(GsonComponentSerializer.gson().serializer().toJsonTree(value));
             }
         };
     }
