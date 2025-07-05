@@ -36,6 +36,12 @@ public class InventoryRenderer implements InventoryHolder {
         this.player = player;
     }
 
+    public void queue(Gui gui) {
+        Thread.ofVirtual().start(() -> {
+            this.render(gui);
+        });
+    }
+
     @Blocking
     public void render(Gui gui) {
         // If we are currently rendering the same gui, we can safely return
@@ -62,7 +68,12 @@ public class InventoryRenderer implements InventoryHolder {
             CompletableFuture.allOf(futures).whenComplete((v, throwable) -> {
                 for (int i = 0; i < futures.length; i++) {
                     BakedGuiItem item = futures[i].join();
-                    this.items.put(i, item);
+                    BakedGuiItem previous = this.items.put(i, item);
+                    // Don't update it we already have it there
+                    if (previous != null && previous.stack().equals(item.stack())) {
+                        continue;
+                    }
+
                     this.inventory.setItem(i, item.stack());
                 }
 
@@ -85,7 +96,12 @@ public class InventoryRenderer implements InventoryHolder {
                 CompletableFuture<BakedGuiItem> provide = provider.provide(context);
                 futures[slot] = provide;
                 provide.thenAccept(item -> {
-                    this.items.put(slot.intValue(), item);
+                    BakedGuiItem previous = this.items.put(slot.intValue(), item);
+                    // Don't update it we already have it there
+                    if (previous != null && previous.stack().equals(item.stack())) {
+                        return;
+                    }
+
                     this.inventory.setItem(slot, item.stack());
                 });
             });
