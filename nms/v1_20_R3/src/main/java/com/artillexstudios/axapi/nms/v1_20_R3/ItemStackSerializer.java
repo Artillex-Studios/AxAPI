@@ -14,7 +14,6 @@ import net.minecraft.nbt.TagParser;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.datafix.fixes.References;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 
@@ -38,7 +37,6 @@ public enum ItemStackSerializer {
     }
 
     public ItemStack deserializeFromBytes(byte[] bytes) {
-        CraftPlayer
         try (ByteArrayInputStream stream = new ByteArrayInputStream(bytes)) {
             CompoundTag compound = NbtIo.readCompressed(stream, NbtAccounter.unlimitedHeap());
             int dataVersion = compound.getInt("DataVersion");
