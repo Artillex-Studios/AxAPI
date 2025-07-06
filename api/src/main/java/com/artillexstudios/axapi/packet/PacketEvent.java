@@ -40,6 +40,10 @@ public final class PacketEvent {
              this.cachedIn = byteBuf = this.in.get();
         }
 
+        if (byteBuf == null) {
+            return null;
+        }
+
         return byteBuf.slice(byteBuf.readerIndex(), byteBuf.readableBytes());
     }
 
