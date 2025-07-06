@@ -5,6 +5,7 @@ import com.artillexstudios.axapi.gui.inventory.Gui;
 import com.artillexstudios.axapi.gui.inventory.GuiItem;
 import com.artillexstudios.axapi.gui.inventory.provider.GuiItemProvider;
 import com.artillexstudios.axapi.gui.inventory.provider.implementation.EmptyGuiItemProvider;
+import com.artillexstudios.axapi.reflection.ClassUtils;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import com.artillexstudios.axapi.utils.mutable.MutableInteger;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
@@ -30,12 +31,36 @@ public class PaginatedGui extends Gui {
     }
 
     public <T> void addItem(T item) {
-        Function<Object, GuiItemProvider> guiItemProviderProvider = (Function<Object, GuiItemProvider>) this.customProviders.get(item.getClass());
+        Function<Object, GuiItemProvider> guiItemProviderProvider = this.provide(item);
         if (guiItemProviderProvider == null) {
             throw new IllegalStateException("No custom provider for class " + item.getClass() + "!");
         }
 
         this.otherProviders.add(guiItemProviderProvider.apply(item));
+    }
+
+    private Function<Object, GuiItemProvider> provide(Object item) {
+        Class<?> clazz = item.getClass();
+        Function<?, GuiItemProvider> function = this.customProviders.get(clazz);
+        if (function != null) {
+            return (Function<Object, GuiItemProvider>) function;
+        }
+
+        for (Class<?> cl : ClassUtils.INSTANCE.superClasses(clazz)) {
+            function = this.customProviders.get(cl);
+            if (function != null) {
+                return (Function<Object, GuiItemProvider>) function;
+            }
+        }
+
+        for (Class<?> cl : ClassUtils.INSTANCE.interfaces(clazz)) {
+            function = this.customProviders.get(cl);
+            if (function != null) {
+                return (Function<Object, GuiItemProvider>) function;
+            }
+        }
+
+        return null;
     }
 
     @Override
