@@ -37,30 +37,39 @@ public class InventoryRenderer implements InventoryHolder {
     }
 
     public void queue(Gui gui) {
+        LogUtils.debug("Enqueued!");
         Thread.ofVirtual().start(() -> {
+            LogUtils.debug("Running from thread!");
             this.render(gui);
         });
     }
 
     @Blocking
     public void render(Gui gui) {
+        LogUtils.debug("Rendering");
         // If we are currently rendering the same gui, we can safely return
         if (this.currentGui == gui) {
+            LogUtils.debug("Same gui");
             if (!this.renderLock.tryAcquire()) {
+                LogUtils.debug("Couldn't acquire lock");
                 return;
             }
         } else {
+            LogUtils.debug("Acquiring lock");
             this.renderLock.acquireUninterruptibly();
+            LogUtils.debug("Lock acquired");
         }
 
+        LogUtils.debug("Setting current gui");
         this.currentGui = gui;
         HashMapContext context = new HashMapContext()
                 .with(ContextKey.of("player", Player.class), this.player);
 
         boolean newInventory = this.buildInventory(gui, context);
-
+        LogUtils.debug("Built new inventory? {}, inv: {}", newInventory, this.inventory);
         CompletableFuture<BakedGuiItem>[] futures = new CompletableFuture[gui.providers().size()];
         if (FeatureFlags.GUI_WAIT_FOR_ALL.get()) {
+            LogUtils.debug("Waiting for all");
             gui.providers().forEach((slot, provider) -> {
                 futures[slot] = provider.provide(context);
             });
@@ -86,22 +95,30 @@ public class InventoryRenderer implements InventoryHolder {
                 this.renderLock.release();
             });
         } else {
+            LogUtils.debug("Not waiting");
             if (newInventory) {
+                LogUtils.debug("New inventory");
                 Scheduler.get().runAt(this.player.getLocation(), () -> {
+                    LogUtils.debug("Opening");
                     this.player.openInventory(this.inventory);
                 });
             }
 
             gui.providers().forEach((slot, provider) -> {
                 CompletableFuture<BakedGuiItem> provide = provider.provide(context);
+                LogUtils.debug("provide! slot: {}, provider: {}", slot, provider);
                 futures[slot] = provide;
                 provide.thenAccept(item -> {
+                    LogUtils.debug("Adding to items");
                     BakedGuiItem previous = this.items.put(slot.intValue(), item);
                     // Don't update it we already have it there
                     if (previous != null && previous.stack().equals(item.stack())) {
+                        LogUtils.debug("Didn't set");
+
                         return;
                     }
 
+                    LogUtils.debug("Inventory setItem");
                     this.inventory.setItem(slot, item.stack());
                 });
             });
@@ -110,6 +127,7 @@ public class InventoryRenderer implements InventoryHolder {
                     LogUtils.error("An exception occurred");
                 }
 
+                LogUtils.debug("Lock release");
                 this.renderLock.release();
             });
         }
