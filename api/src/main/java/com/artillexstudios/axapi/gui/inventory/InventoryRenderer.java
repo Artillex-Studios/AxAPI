@@ -60,12 +60,13 @@ public class InventoryRenderer implements InventoryHolder {
             LogUtils.debug("Lock acquired");
         }
 
-        LogUtils.debug("Setting current gui");
-        this.currentGui = gui;
         HashMapContext context = new HashMapContext()
                 .with(ContextKey.of("player", Player.class), this.player);
+        LogUtils.debug("Setting current gui");
 
         boolean newInventory = this.buildInventory(gui, context);
+        this.currentGui = gui;
+
         LogUtils.debug("Built new inventory? {}, inv: {}", newInventory, this.inventory);
         CompletableFuture<BakedGuiItem>[] futures = new CompletableFuture[gui.providers().size()];
         if (FeatureFlags.GUI_WAIT_FOR_ALL.get()) {
