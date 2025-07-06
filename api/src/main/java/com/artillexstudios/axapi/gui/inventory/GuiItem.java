@@ -4,12 +4,13 @@ import com.artillexstudios.axapi.context.HashMapContext;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-public record GuiItem(Function<HashMapContext, WrappedItemStack> stack, Consumer<InventoryClickEvent> eventConsumer) {
+public record GuiItem(Function<HashMapContext, WrappedItemStack> stack,
+                      BiConsumer<HashMapContext, InventoryClickEvent> eventConsumer) {
 
     public GuiItem(Function<HashMapContext, WrappedItemStack> stack) {
-        this(stack, event -> {});
+        this(stack, (ctx, event) -> {});
     }
 }

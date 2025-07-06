@@ -4,7 +4,7 @@ import com.artillexstudios.axapi.gui.inventory.GuiBuilder;
 import com.artillexstudios.axapi.gui.inventory.implementation.DynamicGui;
 import org.bukkit.entity.Player;
 
-public class DynamicGuiBuilder extends GuiBuilder<DynamicGui> {
+public class DynamicGuiBuilder extends GuiBuilder<DynamicGui, DynamicGuiBuilder> {
 
     @Override
     public DynamicGui build(Player player) {

@@ -28,7 +28,7 @@ public class InventoryRenderer implements InventoryHolder {
     private final Semaphore renderLock = new Semaphore(1, true);
     private final Int2ObjectMap<BakedGuiItem> items = Int2ObjectMaps.synchronize(new Int2ObjectArrayMap<>());
     private final Player player;
-    private boolean closed = false;
+    private boolean closed = true;
     private Inventory inventory;
     private Gui currentGui;
 
@@ -98,7 +98,7 @@ public class InventoryRenderer implements InventoryHolder {
                 this.renderLock.release();
             });
         } else {
-            LogUtils.debug("Not waiting");
+            LogUtils.debug("Not waiting, closed: {}", this.closed);
             if (newInventory || this.closed) {
                 this.closed = false;
                 LogUtils.debug("New inventory");
@@ -118,7 +118,6 @@ public class InventoryRenderer implements InventoryHolder {
                     // Don't update it we already have it there
                     if (previous != null && previous.stack().equals(item.stack())) {
                         LogUtils.debug("Didn't set");
-
                         return;
                     }
 

@@ -19,7 +19,7 @@ public class CachingGuiItemProvider implements GuiItemProvider {
     @Override
     public CompletableFuture<BakedGuiItem> provide(HashMapContext context) {
         if (this.future == null) {
-            this.bakedGuiItem = new BakedGuiItem(this.guiItem.stack().apply(context).toBukkit(), this.guiItem.eventConsumer());
+            this.bakedGuiItem = new BakedGuiItem(this.guiItem.stack().apply(context).toBukkit(), event -> this.guiItem.eventConsumer().accept(context, event));
             this.future = CompletableFuture.completedFuture(this.bakedGuiItem);
         }
 

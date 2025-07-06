@@ -95,9 +95,14 @@ public class PaginatedGui extends Gui {
         return this.page;
     }
 
+    // 3 max pages, current page: 2 -> we are on the last page
     public void page(int page) {
-        if (page > this.maxPages() + 1) {
+        if (page + 1 >= this.maxPages()) {
             throw new IllegalStateException("Max pages: " + this.maxPages());
+        }
+
+        if (page < 0) {
+            throw new IllegalStateException("Min page is 0!");
         }
 
         this.page = page;
@@ -105,6 +110,14 @@ public class PaginatedGui extends Gui {
 
     public int maxPages() {
         return Math.ceilDiv(this.otherProviders.size(), this.pageSize);
+    }
+
+    public boolean hasNextPage() {
+        return this.page + 1 < this.maxPages();
+    }
+
+    public boolean hasPreviousPage() {
+        return this.page > 0;
     }
 
     @Override

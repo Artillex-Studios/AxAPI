@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.gui.inventory;
 
 import com.artillexstudios.axapi.gui.inventory.implementation.DynamicGui;
+import com.artillexstudios.axapi.gui.inventory.provider.implementation.AsyncGuiItemProvider;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
@@ -14,8 +15,8 @@ public class GuiTest {
                 .rows(6)
                 .build(null);
 
-        gui.setItem(0, new GuiItem(ctx -> WrappedItemStack.wrap(new ItemStack(Material.STONE)), event -> {
+        gui.setItem(0, new AsyncGuiItemProvider(new GuiItem(ctx -> WrappedItemStack.wrap(new ItemStack(Material.STONE)), (ctx, event) -> {
 
-        }));
+        })));
     }
 }

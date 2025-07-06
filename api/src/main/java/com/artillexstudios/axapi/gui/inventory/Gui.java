@@ -3,8 +3,8 @@ package com.artillexstudios.axapi.gui.inventory;
 import com.artillexstudios.axapi.context.ContextKey;
 import com.artillexstudios.axapi.context.HashMapContext;
 import com.artillexstudios.axapi.gui.inventory.provider.GuiItemProvider;
-import com.artillexstudios.axapi.gui.inventory.provider.implementation.CachingGuiItemProvider;
 import com.artillexstudios.axapi.gui.inventory.provider.implementation.EmptyGuiItemProvider;
+import com.artillexstudios.axapi.gui.inventory.provider.implementation.SimpleGuiItemProvider;
 import com.artillexstudios.axapi.scheduler.Scheduler;
 import com.artillexstudios.axapi.utils.PaperUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
@@ -50,7 +50,7 @@ public abstract class Gui {
     }
 
     public void setItem(int slot, GuiItem item) {
-        this.setItem(slot, item, CachingGuiItemProvider::new);
+        this.setItem(slot, item, SimpleGuiItemProvider::new);
     }
 
     public void setItem(int slot, GuiItem item, Function<GuiItem, GuiItemProvider> provider) {

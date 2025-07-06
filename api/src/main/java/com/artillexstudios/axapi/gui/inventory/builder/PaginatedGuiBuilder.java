@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 import java.util.HashMap;
 import java.util.function.Function;
 
-public class PaginatedGuiBuilder extends GuiBuilder<PaginatedGui> {
+public class PaginatedGuiBuilder extends GuiBuilder<PaginatedGui, PaginatedGuiBuilder> {
     private final HashMap<Class<?>, Function<?, GuiItemProvider>> providers = new HashMap<>();
 
     public <T> PaginatedGuiBuilder withProvider(Class<T> clazz, Function<T, GuiItemProvider> provider) {

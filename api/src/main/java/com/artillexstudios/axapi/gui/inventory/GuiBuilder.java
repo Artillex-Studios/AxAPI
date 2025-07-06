@@ -11,7 +11,7 @@ import org.bukkit.event.inventory.InventoryType;
 
 import java.util.function.Function;
 
-public abstract class GuiBuilder<T extends Gui> {
+public abstract class GuiBuilder<T extends Gui, Z extends GuiBuilder<T, Z>> {
     protected InventoryType type = InventoryType.CHEST;
     protected Function<HashMapContext, Component> titleProvider = ctx -> Component.empty();
     protected int rows;
@@ -28,19 +28,19 @@ public abstract class GuiBuilder<T extends Gui> {
         return new PaginatedGuiBuilder();
     }
 
-    public GuiBuilder<T> title(Function<HashMapContext, Component> titleProvider) {
+    public Z title(Function<HashMapContext, Component> titleProvider) {
         this.titleProvider = Preconditions.checkNotNull(titleProvider);
-        return this;
+        return (Z) this;
     }
 
-    public GuiBuilder<T> rows(int rows) {
+    public Z rows(int rows) {
         this.rows = rows;
-        return this;
+        return (Z) this;
     }
 
-    public GuiBuilder<T> inventoryType(InventoryType type) {
+    public Z inventoryType(InventoryType type) {
         this.type = type;
-        return this;
+        return (Z) this;
     }
 
     public abstract T build(Player player);
