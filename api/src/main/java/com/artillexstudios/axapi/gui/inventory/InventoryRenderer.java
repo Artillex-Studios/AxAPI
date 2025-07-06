@@ -1,6 +1,5 @@
 package com.artillexstudios.axapi.gui.inventory;
 
-import com.artillexstudios.axapi.context.ContextKey;
 import com.artillexstudios.axapi.context.HashMapContext;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.scheduler.Scheduler;
@@ -29,6 +28,7 @@ public class InventoryRenderer implements InventoryHolder {
     private final Semaphore renderLock = new Semaphore(1, true);
     private final Int2ObjectMap<BakedGuiItem> items = Int2ObjectMaps.synchronize(new Int2ObjectArrayMap<>());
     private final Player player;
+    private boolean closed = false;
     private Inventory inventory;
     private Gui currentGui;
 
@@ -61,7 +61,8 @@ public class InventoryRenderer implements InventoryHolder {
         }
 
         HashMapContext context = new HashMapContext()
-                .with(ContextKey.of("player", Player.class), this.player);
+                .with(GuiKeys.PLAYER, this.player)
+                .with(GuiKeys.GUI, gui);
         LogUtils.debug("Setting current gui");
 
         boolean newInventory = this.buildInventory(gui, context);
@@ -87,7 +88,8 @@ public class InventoryRenderer implements InventoryHolder {
                     this.inventory.setItem(i, item.stack());
                 }
 
-                if (newInventory) {
+                if (newInventory || this.closed) {
+                    this.closed = false;
                     Scheduler.get().runAt(this.player.getLocation(), () -> {
                         this.player.openInventory(this.inventory);
                     });
@@ -97,7 +99,8 @@ public class InventoryRenderer implements InventoryHolder {
             });
         } else {
             LogUtils.debug("Not waiting");
-            if (newInventory) {
+            if (newInventory || this.closed) {
+                this.closed = false;
                 LogUtils.debug("New inventory");
                 Scheduler.get().runAt(this.player.getLocation(), () -> {
                     LogUtils.debug("Opening");
@@ -182,6 +185,7 @@ public class InventoryRenderer implements InventoryHolder {
 
     public void handleClose(InventoryCloseEvent event) {
         // TODO: Handle close
+        this.closed = true;
     }
 
     @NotNull

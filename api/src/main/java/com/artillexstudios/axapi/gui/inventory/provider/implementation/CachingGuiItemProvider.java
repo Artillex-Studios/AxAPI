@@ -9,6 +9,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class CachingGuiItemProvider implements GuiItemProvider {
     private final GuiItem guiItem;
+    private BakedGuiItem bakedGuiItem;
     private CompletableFuture<BakedGuiItem> future;
 
     public CachingGuiItemProvider(GuiItem guiItem) {
@@ -18,7 +19,8 @@ public class CachingGuiItemProvider implements GuiItemProvider {
     @Override
     public CompletableFuture<BakedGuiItem> provide(HashMapContext context) {
         if (this.future == null) {
-            this.future = CompletableFuture.completedFuture(new BakedGuiItem(this.guiItem.stack().apply(context).toBukkit(), this.guiItem.eventConsumer()));
+            this.bakedGuiItem = new BakedGuiItem(this.guiItem.stack().apply(context).toBukkit(), this.guiItem.eventConsumer());
+            this.future = CompletableFuture.completedFuture(this.bakedGuiItem);
         }
 
         return this.future;

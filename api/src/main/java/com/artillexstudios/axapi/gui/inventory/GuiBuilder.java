@@ -13,7 +13,7 @@ import java.util.function.Function;
 
 public abstract class GuiBuilder<T extends Gui> {
     protected InventoryType type = InventoryType.CHEST;
-    protected Function<HashMapContext, Component> titleProvider;
+    protected Function<HashMapContext, Component> titleProvider = ctx -> Component.empty();
     protected int rows;
 
     public static DynamicGuiBuilder createDynamic() {
