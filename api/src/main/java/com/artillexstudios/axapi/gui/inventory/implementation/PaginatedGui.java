@@ -97,7 +97,7 @@ public class PaginatedGui extends Gui {
 
     // 3 max pages, current page: 2 -> we are on the last page
     public void page(int page) {
-        if (page + 1 >= this.maxPages()) {
+        if (page >= this.maxPages()) {
             throw new IllegalStateException("Max pages: " + this.maxPages());
         }
 
