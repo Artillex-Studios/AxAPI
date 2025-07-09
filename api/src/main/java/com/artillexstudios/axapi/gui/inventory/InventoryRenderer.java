@@ -25,6 +25,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Semaphore;
 
 public class InventoryRenderer implements InventoryHolder {
+    // TODO: Limit interactions based on time
     private final Semaphore renderLock = new Semaphore(1, true);
     private final Int2ObjectMap<BakedGuiItem> items = Int2ObjectMaps.synchronize(new Int2ObjectArrayMap<>());
     private final Player player;

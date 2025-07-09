@@ -18,12 +18,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class PaginatedGui extends Gui {
     private final HashMap<Class<?>, Function<?, GuiItemProvider>> customProviders;
     private final List<GuiItemProvider> otherProviders = new ArrayList<>();
     private int page = 0;
     private int pageSize = this.size;
+    private Supplier<List<?>> itemsProvider;
 
     public PaginatedGui(Player player, Function<HashMapContext, Component> titleProvider, InventoryType type, int rows, HashMap<Class<?>, Function<?, GuiItemProvider>> providers) {
         super(player, titleProvider, type, rows);
@@ -32,11 +34,33 @@ public class PaginatedGui extends Gui {
 
     public <T> void addItem(T item) {
         Function<Object, GuiItemProvider> guiItemProviderProvider = this.provide(item);
-        if (guiItemProviderProvider == null) {
-            throw new IllegalStateException("No custom provider for class " + item.getClass() + "!");
-        }
-
         this.otherProviders.add(guiItemProviderProvider.apply(item));
+    }
+
+    public <T> void setItems(List<T> items, boolean same) {
+        this.otherProviders.clear();
+        if (!same) {
+            for (T item : items) {
+                this.addItem(item);
+            }
+        } else {
+            Function<Object, GuiItemProvider> provider = null;
+            for (T item : items) {
+                if (provider == null) {
+                    provider = this.provide(item);
+                }
+
+                this.otherProviders.add(provider.apply(item));
+            }
+        }
+    }
+
+    public <T> void setItems(List<T> items) {
+        this.setItems(items, false);
+    }
+
+    public void setItemsProvider(Supplier<List<?>> itemsProvider) {
+        this.itemsProvider = itemsProvider;
     }
 
     private Function<Object, GuiItemProvider> provide(Object item) {
@@ -60,7 +84,7 @@ public class PaginatedGui extends Gui {
             }
         }
 
-        return null;
+        throw new IllegalStateException("No custom provider for class " + item.getClass() + "!");
     }
 
     @Override
@@ -93,6 +117,16 @@ public class PaginatedGui extends Gui {
 
     public int page() {
         return this.page;
+    }
+
+    @Override
+    public void open() {
+        if (this.itemsProvider != null) {
+            List<?> objects = this.itemsProvider.get();
+            this.setItems(objects, true);
+        }
+
+        super.open();
     }
 
     // 3 max pages, current page: 2 -> we are on the last page
