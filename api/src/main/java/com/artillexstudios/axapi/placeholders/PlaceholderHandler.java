@@ -1,9 +1,12 @@
 package com.artillexstudios.axapi.placeholders;
 
 import com.artillexstudios.axapi.placeholders.exception.PlaceholderException;
+import com.artillexstudios.axapi.placeholders.exception.PlaceholderParameterNotInContextException;
+import com.artillexstudios.axapi.reflection.ClassUtils;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.functions.ThrowingFunction;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
+import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
@@ -72,6 +75,19 @@ public class PlaceholderHandler {
         return parse(line, new PlaceholderParameters()
                 .withParameters(objects)
         );
+    }
+
+    public static String parseWithPlaceholderAPI(String line, PlaceholderParameters parameters) {
+        String newLine = parse(line, parameters);
+        if (ClassUtils.INSTANCE.classExists("me.clip.placeholderapi.PlaceholderAPI")) {
+            try {
+                newLine = PlaceholderAPI.setPlaceholders(parameters.resolve(Player.class), newLine);
+            } catch (PlaceholderParameterNotInContextException exception) {
+                return newLine;
+            }
+        }
+
+        return newLine;
     }
 
     public static String parse(String line, PlaceholderParameters parameters) {
