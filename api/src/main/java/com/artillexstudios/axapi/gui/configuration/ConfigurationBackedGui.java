@@ -5,12 +5,15 @@ import com.artillexstudios.axapi.gui.configuration.actions.Action;
 import com.artillexstudios.axapi.gui.configuration.actions.Actions;
 import com.artillexstudios.axapi.gui.inventory.Gui;
 import com.artillexstudios.axapi.gui.inventory.GuiBuilder;
+import com.artillexstudios.axapi.gui.inventory.GuiItem;
 import com.artillexstudios.axapi.gui.inventory.GuiKeys;
 import com.artillexstudios.axapi.gui.inventory.builder.PaginatedGuiBuilder;
 import com.artillexstudios.axapi.gui.inventory.implementation.PaginatedGui;
 import com.artillexstudios.axapi.gui.inventory.provider.GuiItemProvider;
+import com.artillexstudios.axapi.gui.inventory.provider.implementation.CachingGuiItemProvider;
 import com.artillexstudios.axapi.placeholders.PlaceholderHandler;
 import com.artillexstudios.axapi.placeholders.PlaceholderParameters;
+import com.artillexstudios.axapi.utils.ItemBuilder;
 import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -89,7 +92,7 @@ public class ConfigurationBackedGui<T extends Gui> {
         paginatedGuiBuilder.withProvider(clazz, provider);
     }
 
-    private void setItemProviders(T gui) {
+    private void setItems(T gui) {
         // TODO: handle cached items
         List<Map<String, Object>> items = (List<Map<String, Object>>) this.configuration.getList("items");
         if (items == null) {
@@ -107,8 +110,14 @@ public class ConfigurationBackedGui<T extends Gui> {
 
             IntList slots = this.slots(slotConfig);
             List<Action<?>> actions = Actions.INSTANCE.parseAll((List<String>) item.get("actions"));
+            // TODO: Check if has placeholders, maybe add time based caching provider
+            GuiItemProvider provider = new CachingGuiItemProvider(new GuiItem(ctx -> new ItemBuilder((Map<Object, Object>) (Object) item).wrapped(), (context, event) -> {
+                for (Action<?> action : actions) {
+                    action.run((Player) event.getWhoClicked(), context);
+                }
+            }));
             slots.intIterator().forEachRemaining(integer -> {
-                // TODO: set slot
+                gui.setItem(integer, provider);
             });
         }
     }
@@ -154,7 +163,7 @@ public class ConfigurationBackedGui<T extends Gui> {
             }
         }
 
-        this.setItemProviders(gui);
+        this.setItems(gui);
         return gui;
     }
 }

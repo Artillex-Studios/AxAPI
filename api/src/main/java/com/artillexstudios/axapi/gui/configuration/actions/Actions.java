@@ -1,5 +1,7 @@
 package com.artillexstudios.axapi.gui.configuration.actions;
 
+import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -19,9 +21,18 @@ public enum Actions {
     }
 
     public List<Action<?>> parseAll(List<String> lines) {
+        if (lines == null || lines.isEmpty()) {
+            return List.of();
+        }
+
         List<Action<?>> actions = new ArrayList<>(lines.size());
         for (String line : lines) {
-            actions.add(this.parse(line));
+            Action<?> parse = this.parse(line);
+            if (parse == null) {
+                continue;
+            }
+
+            actions.add(parse);
         }
 
         return actions;
@@ -35,10 +46,15 @@ public enum Actions {
         String id = StringUtils.substringBetween(line, "[", "]").toLowerCase(Locale.ENGLISH);
         Function<String, Action<?>> provider = this.registered.get(id);
         if (provider == null) {
+            LogUtils.info("No actionprovider found with id {}!", id);
             return null;
         }
 
         String arguments = line.substring(id.length()).stripLeading();
+        if (FeatureFlags.DEBUG.get()) {
+            LogUtils.debug("Creating action with id {} with arguments: {}", id, arguments);
+        }
+
         return provider.apply(arguments);
     }
 }
