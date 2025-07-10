@@ -27,13 +27,14 @@ import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public final class EntityTracker {
     private static final boolean folia = PaperUtils.isFolia();
     private final ConcurrentHashMap<Integer, TrackedEntity> entityMap = new ConcurrentHashMap<>();
+    private final ConcurrentLinkedQueue<TrackedEntity> trackingQueue = new ConcurrentLinkedQueue<>();
     private final FieldAccessor accessor = FieldAccessor.builder()
             .withField("tracker")
             .withClass("com.artillexstudios.axapi.nms.%s.entity.PacketEntity".formatted(Version.getServerVersion().nmsVersion()))
@@ -124,6 +125,11 @@ public final class EntityTracker {
     }
 
     public void process() {
+        if (!this.trackingQueue.isEmpty()) {
+            LogUtils.warn("The tracker queue has not been drained yet! This means that tracking took longer than a tick! Increase the entity tracker thread count!");
+            return;
+        }
+
         // We can safely keep a cache of players in the worlds, as we can spare tracking a new player a tick later
         // This also reduces the strain on the GC as less objects are wasted (ServerPlayerWrapper)
         // We are only ever reading from this map, so thread safety doesn't matter
@@ -133,15 +139,11 @@ public final class EntityTracker {
             tracking.put(world, TrackedEntity.getPlayersInWorld(world));
         }
 
-        AtomicInteger integer = new AtomicInteger();
-        TrackedEntity[] array = this.entityMap.values().toArray(new TrackedEntity[0]);
-        int length = array.length;
+        this.trackingQueue.addAll(this.entityMap.values());
         for (int i = 0; i < FeatureFlags.PACKET_ENTITY_TRACKER_THREADS.get(); i++) {
             this.service.execute(() -> {
-                int l = length;
-                int index;
-                while ((index = integer.getAndIncrement()) < l) {
-                    TrackedEntity tracked = array[index];
+                TrackedEntity tracked;
+                while ((tracked = this.trackingQueue.poll()) != null) {
                     tracked.preTick();
                     if (tracked.world == null) {
                         LogUtils.warn("Failed to track entity with id {} due to it being in a null world! Removing the entity!", tracked.entity.id());
