@@ -15,13 +15,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.function.Function;
 
 public enum Actions {
     INSTANCE;
 
 
-    private final Map<String, Function<String, Action<?>>> registered;
+    private final Map<String, ActionProvider<?>> registered;
 
     {
         this.registered = new HashMap<>();
@@ -34,7 +33,7 @@ public enum Actions {
     }
 
 
-    public void register(String id, Function<String, Action<?>> action) {
+    public void register(String id, ActionProvider<?> action) {
         this.registered.put(id.toLowerCase(Locale.ENGLISH), action);
     }
 
@@ -62,19 +61,19 @@ public enum Actions {
         }
 
         String id = StringUtils.substringBetween(line, "[", "]").toLowerCase(Locale.ENGLISH);
-        Function<String, Action<?>> provider = this.registered.get(id);
+        ActionProvider<?> provider = this.registered.get(id);
         if (provider == null) {
             LogUtils.info("No actionprovider found with id {}!", id);
             return null;
         }
 
-        String arguments = line.substring(id.length()).strip();
+        String arguments = line.substring(id.length() + 2).strip();
         if (FeatureFlags.DEBUG.get()) {
             LogUtils.debug("Creating action with id: {} with arguments: {}", id, arguments);
         }
 
         try {
-            return provider.apply(arguments);
+            return provider.provide(arguments);
         } catch (IllegalArgumentException exception) {
             LogUtils.error("Failed to construct action with id: {} and arguments: {}!", id, arguments);
             return null;
