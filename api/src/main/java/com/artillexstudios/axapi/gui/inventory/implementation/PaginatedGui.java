@@ -154,6 +154,10 @@ public class PaginatedGui extends Gui {
         return this.page > 0;
     }
 
+    public boolean hasPage(int page) {
+        return page < this.maxPages() && page > 0;
+    }
+
     @Override
     public Int2ObjectArrayMap<GuiItemProvider> providers() {
         if (this.pageSize == 0 && !this.otherProviders.isEmpty()) {

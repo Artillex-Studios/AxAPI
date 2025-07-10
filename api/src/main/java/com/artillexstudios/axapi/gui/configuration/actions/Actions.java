@@ -1,5 +1,11 @@
 package com.artillexstudios.axapi.gui.configuration.actions;
 
+import com.artillexstudios.axapi.gui.configuration.actions.implementation.CloseAction;
+import com.artillexstudios.axapi.gui.configuration.actions.implementation.ConsoleCommandAction;
+import com.artillexstudios.axapi.gui.configuration.actions.implementation.MessageAction;
+import com.artillexstudios.axapi.gui.configuration.actions.implementation.PageChangeAction;
+import com.artillexstudios.axapi.gui.configuration.actions.implementation.PlayerCommandAction;
+import com.artillexstudios.axapi.gui.configuration.actions.implementation.RefreshAction;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -13,6 +19,15 @@ import java.util.function.Function;
 
 public enum Actions {
     INSTANCE;
+
+    {
+        register("close", CloseAction::new);
+        register("console", ConsoleCommandAction::new);
+        register("message", MessageAction::new);
+        register("page", PageChangeAction::new);
+        register("player", PlayerCommandAction::new);
+        register("refresh", RefreshAction::new);
+    }
 
     private final Map<String, Function<String, Action<?>>> registered = new HashMap<>();
 
@@ -50,11 +65,16 @@ public enum Actions {
             return null;
         }
 
-        String arguments = line.substring(id.length()).stripLeading();
+        String arguments = line.substring(id.length()).strip();
         if (FeatureFlags.DEBUG.get()) {
-            LogUtils.debug("Creating action with id {} with arguments: {}", id, arguments);
+            LogUtils.debug("Creating action with id: {} with arguments: {}", id, arguments);
         }
 
-        return provider.apply(arguments);
+        try {
+            return provider.apply(arguments);
+        } catch (IllegalArgumentException exception) {
+            LogUtils.error("Failed to construct action with id: {} and arguments: {}!", id, arguments);
+            return null;
+        }
     }
 }

@@ -8,6 +8,9 @@ public abstract class Action<T> {
 
     public Action(String data) {
         this.value = this.transform(data);
+        if (this.value == null) {
+            throw new IllegalArgumentException();
+        }
     }
 
     public abstract T transform(String data);
