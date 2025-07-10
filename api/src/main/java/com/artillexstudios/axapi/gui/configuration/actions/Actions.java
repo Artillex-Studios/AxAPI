@@ -20,16 +20,19 @@ import java.util.function.Function;
 public enum Actions {
     INSTANCE;
 
+
+    private final Map<String, Function<String, Action<?>>> registered;
+
     {
-        register("close", CloseAction::new);
-        register("console", ConsoleCommandAction::new);
-        register("message", MessageAction::new);
-        register("page", PageChangeAction::new);
-        register("player", PlayerCommandAction::new);
-        register("refresh", RefreshAction::new);
+        this.registered = new HashMap<>();
+        this.register("close", CloseAction::new);
+        this.register("console", ConsoleCommandAction::new);
+        this.register("message", MessageAction::new);
+        this.register("page", PageChangeAction::new);
+        this.register("player", PlayerCommandAction::new);
+        this.register("refresh", RefreshAction::new);
     }
 
-    private final Map<String, Function<String, Action<?>>> registered = new HashMap<>();
 
     public void register(String id, Function<String, Action<?>> action) {
         this.registered.put(id.toLowerCase(Locale.ENGLISH), action);
