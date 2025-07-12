@@ -155,7 +155,7 @@ public class PaginatedGui extends Gui {
     }
 
     public boolean hasPage(int page) {
-        return page < this.maxPages() && page > 0;
+        return page < this.maxPages() && page >= 0;
     }
 
     @Override
