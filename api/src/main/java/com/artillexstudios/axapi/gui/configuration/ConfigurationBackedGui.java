@@ -163,6 +163,7 @@ public class ConfigurationBackedGui<T extends Gui> {
             }
         }
 
+        gui.disableAllInteractions();
         this.setItems(gui);
         return gui;
     }
