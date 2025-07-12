@@ -67,8 +67,8 @@ public final class PageChangeAction extends Action<PageChangeAction.Direction> {
 
     public record Direction(int page, String... aliases) {
         private static final List<Direction> directions = new ArrayList<>();
-        public static final Direction BACKWARDS = new Direction(-1, "back", "backwards", "prev", "previous");
-        public static final Direction FORWARDS = new Direction(-2, "forwards", "forward", "next");
+        public static final Direction BACKWARDS = register(new Direction(-1, "back", "backwards", "prev", "previous"));
+        public static final Direction FORWARDS = register(new Direction(-2, "forwards", "forward", "next"));
 
         public static Direction register(Direction direction) {
             directions.add(direction);
