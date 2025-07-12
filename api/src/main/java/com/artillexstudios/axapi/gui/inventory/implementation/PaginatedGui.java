@@ -126,6 +126,10 @@ public class PaginatedGui extends Gui {
             this.setItems(objects, true);
         }
 
+        if (this.page >= this.maxPages()) {
+            this.page = this.maxPages() - 1;
+        }
+
         super.open();
     }
 
@@ -143,7 +147,12 @@ public class PaginatedGui extends Gui {
     }
 
     public int maxPages() {
-        return Math.ceilDiv(this.otherProviders.size(), this.pageSize);
+        int size = this.otherProviders.size();
+        if (size == 0) {
+            return 1;
+        }
+
+        return Math.ceilDiv(size, this.pageSize);
     }
 
     public boolean hasNextPage() {

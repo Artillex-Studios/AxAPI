@@ -45,11 +45,6 @@ public final class PageChangeAction extends Action<PageChangeAction.Direction> {
 
             paginatedGui.page(paginatedGui.page() - 1);
         } else if (this.value().page == -2) {
-            LogUtils.debug("Current page: {}", paginatedGui.page());
-            LogUtils.debug("Max pages: {}", paginatedGui.maxPages());
-            LogUtils.debug("Has next: {}", paginatedGui.hasNextPage());
-            LogUtils.debug("Has previous: {}", paginatedGui.hasPreviousPage());
-            LogUtils.debug("Has page + 1: {}", paginatedGui.hasPage(paginatedGui.page() + 1));
             if (!paginatedGui.hasNextPage()) {
                 if (FeatureFlags.DEBUG.get()) {
                     LogUtils.debug("Gui has no next page!");
@@ -57,11 +52,6 @@ public final class PageChangeAction extends Action<PageChangeAction.Direction> {
                 return;
             }
 
-            LogUtils.debug("Current page: {}", paginatedGui.page());
-            LogUtils.debug("Max pages: {}", paginatedGui.maxPages());
-            LogUtils.debug("Has next: {}", paginatedGui.hasNextPage());
-            LogUtils.debug("Has previous: {}", paginatedGui.hasPreviousPage());
-            LogUtils.debug("Has page + 1: {}", paginatedGui.hasPage(paginatedGui.page() + 1));
             paginatedGui.page(paginatedGui.page() + 1);
         } else {
             if (!paginatedGui.hasPage(this.value().page)) {
@@ -73,6 +63,7 @@ public final class PageChangeAction extends Action<PageChangeAction.Direction> {
 
             paginatedGui.page(this.value().page);
         }
+        paginatedGui.open();
     }
 
     public record Direction(int page, String... aliases) {
