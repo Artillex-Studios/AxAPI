@@ -47,7 +47,7 @@ public final class PageChangeAction extends Action<PageChangeAction.Direction> {
         } else if (this.value().page == -2) {
             if (!paginatedGui.hasNextPage()) {
                 if (FeatureFlags.DEBUG.get()) {
-                    LogUtils.debug("Gui has no previous page!");
+                    LogUtils.debug("Gui has no next page!");
                 }
                 return;
             }
@@ -56,7 +56,7 @@ public final class PageChangeAction extends Action<PageChangeAction.Direction> {
         } else {
             if (!paginatedGui.hasPage(this.value().page)) {
                 if (FeatureFlags.DEBUG.get()) {
-                    LogUtils.debug("Gui has no previous page!");
+                    LogUtils.debug("Gui has no page with index {}!", this.value().page);
                 }
                 return;
             }
