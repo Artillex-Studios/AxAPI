@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.collections;
 
+import com.artillexstudios.axapi.utils.UncheckedUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.AbstractCollection;
@@ -58,14 +59,14 @@ public class IdentityArrayMap<K, V> implements Map<K, V> {
     @Override
     public V get(Object key) {
         int index = this.findKey(key);
-        return index == -1 ? null : (V) this.values[index];
+        return index == -1 ? null : UncheckedUtils.unsafeCast(this.values[index]);
     }
 
     @Override
     public V put(K key, V value) {
         int previousPos = this.findKey(key);
         if (previousPos != -1) {
-            V previous = (V) this.values[previousPos];
+            V previous = UncheckedUtils.unsafeCast(this.values[previousPos]);
             this.values[previousPos] = value;
             return previous;
         } else {
@@ -94,7 +95,7 @@ public class IdentityArrayMap<K, V> implements Map<K, V> {
             return null;
         }
 
-        V oldValue = (V) this.values[previousPos];
+        V oldValue = UncheckedUtils.unsafeCast(this.values[previousPos]);
         int tail = this.size - previousPos - 1;
         System.arraycopy(this.keys, previousPos + 1, this.keys, previousPos, tail);
         System.arraycopy(this.values, previousPos + 1, this.values, previousPos, tail);
@@ -142,7 +143,7 @@ public class IdentityArrayMap<K, V> implements Map<K, V> {
 
                         int previousIndex = this.index;
                         this.index++;
-                        return (K) IdentityArrayMap.this.keys[previousIndex];
+                        return UncheckedUtils.unsafeCast(IdentityArrayMap.this.keys[previousIndex]);
                     }
                 };
             }
@@ -177,7 +178,7 @@ public class IdentityArrayMap<K, V> implements Map<K, V> {
 
                         int previousIndex = this.index;
                         this.index++;
-                        return (V) IdentityArrayMap.this.values[previousIndex];
+                        return UncheckedUtils.unsafeCast(IdentityArrayMap.this.values[previousIndex]);
                     }
                 };
             }
@@ -216,17 +217,17 @@ public class IdentityArrayMap<K, V> implements Map<K, V> {
 
                             @Override
                             public K getKey() {
-                                return (K) IdentityArrayMap.this.keys[currentIndex];
+                                return UncheckedUtils.unsafeCast(IdentityArrayMap.this.keys[currentIndex]);
                             }
 
                             @Override
                             public V getValue() {
-                                return (V) IdentityArrayMap.this.values[currentIndex];
+                                return UncheckedUtils.unsafeCast(IdentityArrayMap.this.values[currentIndex]);
                             }
 
                             @Override
                             public V setValue(V value) {
-                                V old = (V) IdentityArrayMap.this.values[currentIndex];
+                                V old = UncheckedUtils.unsafeCast(IdentityArrayMap.this.values[currentIndex]);
                                 IdentityArrayMap.this.values[currentIndex] = value;
                                 return old;
                             }

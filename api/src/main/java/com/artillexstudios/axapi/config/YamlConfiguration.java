@@ -18,6 +18,7 @@ import com.artillexstudios.axapi.config.service.implementation.FileCreator;
 import com.artillexstudios.axapi.config.service.implementation.FileWriter;
 import com.artillexstudios.axapi.config.service.implementation.YamlFormatter;
 import com.artillexstudios.axapi.reflection.ClassUtils;
+import com.artillexstudios.axapi.utils.UncheckedUtils;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import it.unimi.dsi.fastutil.Pair;
 import it.unimi.dsi.fastutil.ints.IntIntPair;
@@ -133,6 +134,10 @@ public final class YamlConfiguration<T extends ConfigurationPart> implements Con
         this.set0(this.contents, path, value);
     }
 
+    public Path path() {
+        return this.builder.path;
+    }
+
     private void set0(Map<String, Object> map, String path, Object value) {
         String[] route = path.split("\\.");
         if (route.length == 1) {
@@ -154,7 +159,7 @@ public final class YamlConfiguration<T extends ConfigurationPart> implements Con
                     LogUtils.warn("Expected map class, but in reality it was: {}. Value: {}. Route: {} Full path: {}", found.getClass(), found, route[i], path);
                     return;
                 }
-                node = (Map<String, Object>) found;
+                node = UncheckedUtils.unsafeCast(found);
 
                 parent = node;
                 i++;
@@ -219,7 +224,7 @@ public final class YamlConfiguration<T extends ConfigurationPart> implements Con
                 return null;
             }
 
-            parent = (Map<String, Object>) mapNode;
+            parent = UncheckedUtils.unsafeCast(mapNode);
             i++;
             if (i == route.length - 1) {
                 return parent.get(route[i]);
@@ -239,7 +244,7 @@ public final class YamlConfiguration<T extends ConfigurationPart> implements Con
         int i = 0;
         Map<String, Object> parent = this.contents;
         while (i < route.length) {
-            Map<String, Object> node = (Map<String, Object>) parent.get(route[i]);
+            Map<String, Object> node = UncheckedUtils.unsafeCast(parent.get(route[i]));
             if (node == null) {
                 node = new LinkedHashMap<>();
                 parent.put(route[i], node);

@@ -8,6 +8,7 @@ import com.artillexstudios.axapi.config.annotation.Hidden;
 import com.artillexstudios.axapi.config.annotation.Ignored;
 import com.artillexstudios.axapi.config.annotation.PostProcess;
 import com.artillexstudios.axapi.config.annotation.Serializable;
+import com.artillexstudios.axapi.utils.UncheckedUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -31,7 +32,7 @@ public final class ObjectAdapter<T extends ConfigurationPart> implements TypeAda
         }
 
         if (input instanceof Map<?, ?> map) {
-            Map<String, Object> castMap = (Map<String, Object>) map;
+            Map<String, Object> castMap = UncheckedUtils.unsafeCast(map);
             try {
                 Object instance = ((Class<?>) type).getDeclaredConstructor().newInstance();
                 for (Field field : instance.getClass().getFields()) {

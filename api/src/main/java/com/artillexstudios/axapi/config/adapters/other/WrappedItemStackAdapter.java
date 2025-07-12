@@ -4,6 +4,7 @@ import com.artillexstudios.axapi.config.adapters.TypeAdapter;
 import com.artillexstudios.axapi.config.adapters.TypeAdapterHolder;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.utils.ItemBuilder;
+import com.artillexstudios.axapi.utils.UncheckedUtils;
 
 import java.lang.reflect.Type;
 import java.util.Map;
@@ -13,7 +14,8 @@ public final class WrappedItemStackAdapter implements TypeAdapter<WrappedItemSta
     @Override
     public WrappedItemStack deserialize(TypeAdapterHolder holder, Object input, Type type) {
         if (input instanceof Map<?, ?> map) {
-            return new ItemBuilder((Map<Object, Object>) map).wrapped();
+            Map<Object, Object> castedMap = UncheckedUtils.unsafeCast(map);
+            return new ItemBuilder(castedMap).wrapped();
         }
 
         throw new IllegalArgumentException();
@@ -21,6 +23,6 @@ public final class WrappedItemStackAdapter implements TypeAdapter<WrappedItemSta
 
     @Override
     public Map<String, Object> serialize(TypeAdapterHolder holder, WrappedItemStack value, Type type) {
-        return (Map<String, Object>) (Object) new ItemBuilder(value.toBukkit()).serialize(true);
+        return UncheckedUtils.unsafeCast(new ItemBuilder(value.toBukkit()).serialize(true));
     }
 }

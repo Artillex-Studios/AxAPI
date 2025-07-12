@@ -11,6 +11,7 @@ import com.artillexstudios.axapi.config.annotation.Named;
 import com.artillexstudios.axapi.config.annotation.PostProcess;
 import com.artillexstudios.axapi.config.annotation.Serializable;
 import com.artillexstudios.axapi.config.renamer.KeyRenamer;
+import com.artillexstudios.axapi.utils.UncheckedUtils;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import it.unimi.dsi.fastutil.Pair;
@@ -94,7 +95,7 @@ public final class ClassConfigurationReader implements Handler {
             }
             key = this.yaml.represent(entry.getKey());
             if (entry.getValue() instanceof Map<?, ?> m) {
-                value = this.map((Map<String, Object>) m);
+                value = this.map(UncheckedUtils.unsafeCast(m));
             } else {
                 value = this.yaml.represent(this.holder.serialize(entry.getValue(), entry.getValue().getClass()));
             }
@@ -234,7 +235,7 @@ public final class ClassConfigurationReader implements Handler {
 
             Named named = subClass.getAnnotation(Named.class);
             String name = named == null ? this.renamer.rename(subClass.getSimpleName()) : named.value();
-            Map<String, Object> newContents = (Map<String, Object>) from.getOrDefault(name, new LinkedHashMap<>());
+            Map<String, Object> newContents = UncheckedUtils.unsafeCast(from.getOrDefault(name, new LinkedHashMap<>()));
             to.put(name, newContents);
             this.readClass(newContents, to, subClass, instance);
         }

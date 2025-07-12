@@ -3,6 +3,7 @@ package com.artillexstudios.axapi.config.adapters;
 import com.artillexstudios.axapi.config.adapters.collections.LinkedHashMapAdapter;
 import com.artillexstudios.axapi.config.adapters.collections.ListAdapter;
 import com.artillexstudios.axapi.config.adapters.collections.MapAdapter;
+import com.artillexstudios.axapi.config.adapters.collections.MapConfigurationGetterAdapter;
 import com.artillexstudios.axapi.config.adapters.other.BigDecimalAdapter;
 import com.artillexstudios.axapi.config.adapters.other.BigIntegerAdapter;
 import com.artillexstudios.axapi.config.adapters.other.DatabaseTypeAdapter;
@@ -69,6 +70,7 @@ public final class TypeAdapterHolder {
         this.adapters.put(Map.class, new MapAdapter());
         this.adapters.put(LinkedHashMap.class, new LinkedHashMapAdapter());
         this.adapters.put(DatabaseType.class, new DatabaseTypeAdapter());
+        this.adapters.put(MapConfigurationGetter.class, new MapConfigurationGetterAdapter());
     }
 
     public void registerAdapter(Class<?> clazz, TypeAdapter<?, ?> adapter) {

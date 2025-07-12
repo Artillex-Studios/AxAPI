@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.gui.configuration;
 
 import com.artillexstudios.axapi.config.YamlConfiguration;
+import com.artillexstudios.axapi.config.adapters.MapConfigurationGetter;
 import com.artillexstudios.axapi.gui.configuration.actions.Action;
 import com.artillexstudios.axapi.gui.configuration.actions.Actions;
 import com.artillexstudios.axapi.gui.inventory.Gui;
@@ -15,16 +16,21 @@ import com.artillexstudios.axapi.placeholders.PlaceholderHandler;
 import com.artillexstudios.axapi.placeholders.PlaceholderParameters;
 import com.artillexstudios.axapi.utils.ItemBuilder;
 import com.artillexstudios.axapi.utils.StringUtils;
+import com.artillexstudios.axapi.utils.UncheckedUtils;
+import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
@@ -33,6 +39,7 @@ public class ConfigurationBackedGui<T extends Gui> {
     private static final Pattern SPLIT_PATTERN = Pattern.compile("-");
     // TODO: Cache providers without any placeholders
     private final List<GuiItemProvider> cachingProviders = new ArrayList<>();
+    private final Map<String, Consumer<InventoryClickEvent>> overrideItems = new HashMap<>();
     private final GuiBuilder<?, ?> builder;
     private final YamlConfiguration<?> configuration;
     private final boolean paginated;
@@ -94,14 +101,14 @@ public class ConfigurationBackedGui<T extends Gui> {
 
     private void setItems(T gui) {
         // TODO: handle cached items
-        List<Map<String, Object>> items = (List<Map<String, Object>>) this.configuration.getList("items");
+        List<MapConfigurationGetter> items = this.configuration.getList("items", MapConfigurationGetter::new);
         if (items == null) {
             return;
         }
 
-        for (Map<String, Object> item : items) {
+        for (MapConfigurationGetter item : items) {
             // TODO: create an itembuilder that supports PAPI placeholder parsing
-            Object slotConfig = item.get("slots");
+            Object slotConfig = item.getObject("slots");
             if (slotConfig == null) {
                 LogUtils.warn("Failed to add item: {} to the gui, because it didn't have any slots set up!", item);
                 continue;
@@ -109,9 +116,9 @@ public class ConfigurationBackedGui<T extends Gui> {
 
 
             IntList slots = this.slots(slotConfig);
-            List<Action<?>> actions = Actions.INSTANCE.parseAll((List<String>) item.get("actions"));
+            List<Action<?>> actions = Actions.INSTANCE.parseAll(item.getList("actions"));
             // TODO: Check if has placeholders, maybe add time based caching provider
-            GuiItemProvider provider = new CachingGuiItemProvider(new GuiItem(ctx -> new ItemBuilder((Map<Object, Object>) (Object) item).wrapped(), (context, event) -> {
+            GuiItemProvider provider = new CachingGuiItemProvider(new GuiItem(ctx -> new ItemBuilder(item.wrapped()).wrapped(), (context, event) -> {
                 for (Action<?> action : actions) {
                     action.run((Player) event.getWhoClicked(), context);
                 }
@@ -120,6 +127,40 @@ public class ConfigurationBackedGui<T extends Gui> {
                 gui.setItem(integer, provider);
             });
         }
+        // Create override items, which are added via code
+        for (Map.Entry<String, Consumer<InventoryClickEvent>> entry : this.overrideItems.entrySet()) {
+            MapConfigurationGetter item = this.configuration.getConfiguration(entry.getKey());
+            if (item == null) {
+                if (FeatureFlags.STRICT_ITEM_OVERRIDE_HANDLING.get()) {
+                    LogUtils.error("Could not find item within section {} in {} file! Did you remove it? This is not allowed! Please regenerate the file!", entry.getKey(), this.configuration.path());
+                    throw new IllegalStateException();
+                }
+                return;
+            }
+
+            Object slotConfig = item.getObject("slots");
+            if (slotConfig == null) {
+                LogUtils.warn("Failed to add item: {} to the gui, because it didn't have any slots set up!", item);
+                continue;
+            }
+
+            IntList slots = this.slots(slotConfig);
+            List<Action<?>> actions = Actions.INSTANCE.parseAll(item.getList("actions"));
+            GuiItemProvider provider = new CachingGuiItemProvider(new GuiItem(ctx -> new ItemBuilder(item.wrapped()).wrapped(), (context, event) -> {
+                for (Action<?> action : actions) {
+                    action.run((Player) event.getWhoClicked(), context);
+                }
+
+                entry.getValue().accept(event);
+            }));
+            slots.intIterator().forEachRemaining(integer -> {
+                gui.setItem(integer, provider);
+            });
+        }
+    }
+
+    public void addItemOverride(String section, Consumer<InventoryClickEvent> event) {
+        this.overrideItems.put(section, event);
     }
 
     public IntList slots(Object slots) {
@@ -155,8 +196,15 @@ public class ConfigurationBackedGui<T extends Gui> {
         return IntList.of(Integer.parseInt(str));
     }
 
-    public T create(Player player) {
-        T gui = (T) this.builder.build(player);
+    /**
+     * Creates an instance of this gui configuration for the player.
+     * @param player The player to create the inventory for.
+     * @return A gui instance.
+     * @throws IllegalStateException If the construction of the gui failed due to a misconfiguration, and
+     * {@link FeatureFlags#STRICT_ITEM_OVERRIDE_HANDLING} is set to true.
+     */
+    public T create(Player player) throws IllegalStateException {
+        T gui = UncheckedUtils.unsafeCast(this.builder.build(player));
         if (gui instanceof PaginatedGui paginatedGui) {
             if (this.objectProvider != null) {
                 paginatedGui.setItemsProvider(this.objectProvider.apply(player));
@@ -164,7 +212,12 @@ public class ConfigurationBackedGui<T extends Gui> {
         }
 
         gui.disableAllInteractions();
-        this.setItems(gui);
+        try {
+            this.setItems(gui);
+        } catch (IllegalStateException exception) {
+            return null;
+        }
+
         return gui;
     }
 }

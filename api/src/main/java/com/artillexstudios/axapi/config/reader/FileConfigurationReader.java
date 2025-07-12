@@ -3,6 +3,7 @@ package com.artillexstudios.axapi.config.reader;
 import com.artillexstudios.axapi.config.YamlConstructor;
 import com.artillexstudios.axapi.config.adapters.TypeAdapterHolder;
 import com.artillexstudios.axapi.config.annotation.Comment;
+import com.artillexstudios.axapi.utils.UncheckedUtils;
 import it.unimi.dsi.fastutil.Pair;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -59,7 +60,7 @@ public final class FileConfigurationReader implements Handler {
             Map.Entry<String, Object> entry = iterator.next();
             key = this.yaml.represent(entry.getKey());
             if (entry.getValue() instanceof Map<?, ?> m) {
-                value = this.map((Map<String, Object>) m, comments, path.isEmpty() ? entry.getKey() : path + "." + entry.getKey());
+                value = this.map(UncheckedUtils.unsafeCast(m), comments, path.isEmpty() ? entry.getKey() : path + "." + entry.getKey());
             } else {
                 value = this.yaml.represent(entry.getValue());
             }

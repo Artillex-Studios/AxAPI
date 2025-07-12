@@ -29,6 +29,7 @@ public class InventoryRenderer implements InventoryHolder {
     private final Semaphore renderLock = new Semaphore(1, true);
     private final Int2ObjectMap<BakedGuiItem> items = Int2ObjectMaps.synchronize(new Int2ObjectArrayMap<>());
     private final Player player;
+    private long lastClick;
     private boolean closed = true;
     private Inventory inventory;
     private Gui currentGui;
@@ -211,7 +212,14 @@ public class InventoryRenderer implements InventoryHolder {
             event.setCancelled(true);
         }
 
-        this.items.get(event.getRawSlot()).eventConsumer().accept(event);
+        long now = System.currentTimeMillis();
+        if (now - this.lastClick > FeatureFlags.INVENTORY_CLICK_COOLDOWN.get()) {
+            this.lastClick = now;
+            return;
+        }
+
+        this.items.get(event.getRawSlot()).eventConsumer()
+                .accept(event);
     }
 
     public void handleDrag(InventoryDragEvent event) {
