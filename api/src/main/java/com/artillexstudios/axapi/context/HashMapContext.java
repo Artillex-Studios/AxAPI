@@ -1,5 +1,7 @@
 package com.artillexstudios.axapi.context;
 
+import com.artillexstudios.axapi.utils.UncheckedUtils;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,7 +38,7 @@ public class HashMapContext {
     public <T> T getByName(String name) {
         for (Map.Entry<ContextKey<?>, Object> entry : this.values.entrySet()) {
             if (entry.getKey().name().equals(name)) {
-                return (T) entry.getValue();
+                return UncheckedUtils.unsafeCast(entry.getValue());
             }
         }
 
@@ -48,6 +50,21 @@ public class HashMapContext {
     }
 
     public HashMapContext copy() {
-        return new HashMapContext((HashMap<ContextKey<?>, Object>) this.values.clone());
+        return new HashMapContext(UncheckedUtils.unsafeCast(this.values.clone()));
+    }
+
+    /**
+     * Merges the values of the other context into the values of this.
+     * This won't replace anything from this context.
+     * @param other The other context.
+     */
+    public void merge(HashMapContext other) {
+        for (Map.Entry<ContextKey<?>, Object> entry : other.values.entrySet()) {
+            if (this.values.containsKey(entry.getKey())) {
+                continue;
+            }
+
+            this.values.put(entry.getKey(), entry.getValue());
+        }
     }
 }

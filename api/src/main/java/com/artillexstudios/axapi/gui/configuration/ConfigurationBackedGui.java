@@ -2,6 +2,7 @@ package com.artillexstudios.axapi.gui.configuration;
 
 import com.artillexstudios.axapi.config.YamlConfiguration;
 import com.artillexstudios.axapi.config.adapters.MapConfigurationGetter;
+import com.artillexstudios.axapi.context.HashMapContext;
 import com.artillexstudios.axapi.gui.configuration.actions.Action;
 import com.artillexstudios.axapi.gui.configuration.actions.Actions;
 import com.artillexstudios.axapi.gui.inventory.Gui;
@@ -43,7 +44,7 @@ public class ConfigurationBackedGui<T extends Gui> {
     private final GuiBuilder<?, ?> builder;
     private final YamlConfiguration<?> configuration;
     private final boolean paginated;
-    private Function<Player, Supplier<List<?>>> objectProvider;
+    private Function<HashMapContext, Supplier<List<?>>> objectProvider;
     private String title;
     private Integer rows;
     private InventoryType type;
@@ -83,7 +84,7 @@ public class ConfigurationBackedGui<T extends Gui> {
         }
     }
 
-    public void withValues(Function<Player, Supplier<List<?>>> supplier) {
+    public void withValues(Function<HashMapContext, Supplier<List<?>>> supplier) {
         if (!(this.builder instanceof PaginatedGuiBuilder)) {
             return;
         }
@@ -99,7 +100,7 @@ public class ConfigurationBackedGui<T extends Gui> {
         paginatedGuiBuilder.withProvider(clazz, provider);
     }
 
-    private void setItems(T gui) {
+    private void setItems(T gui, HashMapContext globalContext) {
         // TODO: handle cached items
         List<MapConfigurationGetter> items = this.configuration.getList("items", MapConfigurationGetter::new);
         if (items == null) {
@@ -119,6 +120,7 @@ public class ConfigurationBackedGui<T extends Gui> {
             List<Action<?>> actions = Actions.INSTANCE.parseAll(item.getList("actions"));
             // TODO: Check if has placeholders, maybe add time based caching provider
             GuiItemProvider provider = new CachingGuiItemProvider(new GuiItem(ctx -> new ItemBuilder(item.wrapped()).wrapped(), (context, event) -> {
+                context.merge(globalContext);
                 for (Action<?> action : actions) {
                     action.run((Player) event.getWhoClicked(), context);
                 }
@@ -147,6 +149,7 @@ public class ConfigurationBackedGui<T extends Gui> {
             IntList slots = this.slots(slotConfig);
             List<Action<?>> actions = Actions.INSTANCE.parseAll(item.getList("actions"));
             GuiItemProvider provider = new CachingGuiItemProvider(new GuiItem(ctx -> new ItemBuilder(item.wrapped()).wrapped(), (context, event) -> {
+                context.merge(globalContext);
                 for (Action<?> action : actions) {
                     action.run((Player) event.getWhoClicked(), context);
                 }
@@ -199,25 +202,40 @@ public class ConfigurationBackedGui<T extends Gui> {
     /**
      * Creates an instance of this gui configuration for the player.
      * @param player The player to create the inventory for.
+     * @param globalContext The data from this context is available in click events, this allows for having extra state which is provided when
+     * creating the gui.
      * @return A gui instance.
      * @throws IllegalStateException If the construction of the gui failed due to a misconfiguration, and
      * {@link FeatureFlags#STRICT_ITEM_OVERRIDE_HANDLING} is set to true.
      */
-    public T create(Player player) throws IllegalStateException {
+    public T create(Player player, HashMapContext globalContext) throws IllegalStateException {
         T gui = UncheckedUtils.unsafeCast(this.builder.build(player));
         if (gui instanceof PaginatedGui paginatedGui) {
             if (this.objectProvider != null) {
-                paginatedGui.setItemsProvider(this.objectProvider.apply(player));
+                paginatedGui.setItemsProvider(this.objectProvider.apply(globalContext));
             }
         }
 
         gui.disableAllInteractions();
         try {
-            this.setItems(gui);
+            this.setItems(gui, globalContext);
         } catch (IllegalStateException exception) {
             return null;
         }
 
         return gui;
+    }
+
+    /**
+     * Creates an instance of this gui configuration for the player.
+     * @param player The player to create the inventory for.
+     * @return A gui instance.
+     * @throws IllegalStateException If the construction of the gui failed due to a misconfiguration, and
+     * {@link FeatureFlags#STRICT_ITEM_OVERRIDE_HANDLING} is set to true.
+     */
+    public T create(Player player) throws IllegalStateException {
+        return this.create(player, HashMapContext.create()
+                .with(GuiKeys.PLAYER, player)
+        );
     }
 }
