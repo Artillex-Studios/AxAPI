@@ -19,17 +19,19 @@ public abstract class Gui {
     protected final InventoryRenderer renderer;
     protected final Int2ObjectArrayMap<GuiItemProvider> providers = new Int2ObjectArrayMap<>();
     protected final InventoryType type;
+    protected final HashMapContext context;
     protected boolean disableAllInteractions;
     protected Function<HashMapContext, Component> titleProvider;
     protected int rows;
     protected int size;
 
-    public Gui(Player player, Function<HashMapContext, Component> titleProvider, InventoryType type, int rows) {
+    public Gui(Player player, Function<HashMapContext, Component> titleProvider, InventoryType type, int rows, HashMapContext context) {
         this.player = player;
         this.renderer = InventoryRenderers.getRenderer(this.player);
         this.titleProvider = titleProvider;
         this.type = type;
         this.rows = rows;
+        this.context = context;
 
         this.size = rows * 9;
         if (this.type != InventoryType.CHEST) {
@@ -66,7 +68,7 @@ public abstract class Gui {
     }
 
     public Component provideTitle(HashMapContext context) {
-        return this.titleProvider.apply(context);
+        return this.titleProvider.apply(context.merge(this.context));
     }
 
     public InventoryType type() {
@@ -78,7 +80,7 @@ public abstract class Gui {
     }
 
     public void updateTitle() {
-        this.renderer.onTitleUpdate(new HashMapContext().with(ContextKey.of("player", Player.class), this.player));
+        this.renderer.onTitleUpdate(new HashMapContext().with(ContextKey.of("player", Player.class), this.player).merge(this.context));
     }
 
     public void open() {

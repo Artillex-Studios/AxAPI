@@ -58,7 +58,7 @@ public class HashMapContext {
      * This won't replace anything from this context.
      * @param other The other context.
      */
-    public void merge(HashMapContext other) {
+    public HashMapContext merge(HashMapContext other) {
         for (Map.Entry<ContextKey<?>, Object> entry : other.values.entrySet()) {
             if (this.values.containsKey(entry.getKey())) {
                 continue;
@@ -66,5 +66,7 @@ public class HashMapContext {
 
             this.values.put(entry.getKey(), entry.getValue());
         }
+
+        return this;
     }
 }

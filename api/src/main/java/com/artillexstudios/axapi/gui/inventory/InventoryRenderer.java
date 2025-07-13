@@ -80,7 +80,8 @@ public class InventoryRenderer implements InventoryHolder {
 
         HashMapContext context = new HashMapContext()
                 .with(GuiKeys.PLAYER, this.player)
-                .with(GuiKeys.GUI, gui);
+                .with(GuiKeys.GUI, gui)
+                .merge(gui.context);
         if (debug) {
             LogUtils.debug("Setting current gui");
         }
