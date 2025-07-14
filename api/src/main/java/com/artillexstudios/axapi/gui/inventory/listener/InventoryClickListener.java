@@ -7,6 +7,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 
 public final class InventoryClickListener implements Listener {
 
@@ -35,5 +36,14 @@ public final class InventoryClickListener implements Listener {
         }
 
         renderer.handleClose(event);
+    }
+
+    @EventHandler
+    public void onInventoryOpenEvent(InventoryOpenEvent event) {
+        if (!(PaperUtils.getHolder(event.getInventory(), false) instanceof InventoryRenderer renderer)) {
+            return;
+        }
+
+        renderer.handleOpen(event);
     }
 }

@@ -10,8 +10,11 @@ import com.artillexstudios.axapi.utils.PaperUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public abstract class Gui {
@@ -22,6 +25,8 @@ public abstract class Gui {
     protected final HashMapContext context;
     protected boolean disableAllInteractions;
     protected Function<HashMapContext, Component> titleProvider;
+    protected Consumer<InventoryOpenEvent> inventoryOpenListener = event -> {};
+    protected Consumer<InventoryCloseEvent> inventoryCloseListener = event -> {};
     protected int rows;
     protected int size;
 
@@ -49,6 +54,16 @@ public abstract class Gui {
 
     public boolean isDisableAllInteractions() {
         return this.disableAllInteractions;
+    }
+
+    public Gui onClose(Consumer<InventoryCloseEvent> consumer) {
+        this.inventoryCloseListener = consumer;
+        return this;
+    }
+
+    public Gui onOpen(Consumer<InventoryOpenEvent> consumer) {
+        this.inventoryOpenListener = consumer;
+        return this;
     }
 
     public void setItem(int slot, GuiItem item) {

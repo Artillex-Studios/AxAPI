@@ -10,7 +10,7 @@ import java.util.function.Function;
 
 public class DynamicGui extends Gui {
 
-    public DynamicGui(Player player, Function<HashMapContext, Component> titleProvider, InventoryType type, int rows) {
-        super(player, titleProvider, type, rows);
+    public DynamicGui(Player player, Function<HashMapContext, Component> titleProvider, InventoryType type, int rows, HashMapContext context) {
+        super(player, titleProvider, type, rows, context);
     }
 }

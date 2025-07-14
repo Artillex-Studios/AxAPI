@@ -13,6 +13,7 @@ import java.util.function.Function;
 
 public abstract class GuiBuilder<T extends Gui, Z extends GuiBuilder<T, Z>> {
     protected InventoryType type = InventoryType.CHEST;
+    protected HashMapContext context = new HashMapContext();
     protected Function<HashMapContext, Component> titleProvider = ctx -> Component.empty();
     protected int rows;
 
@@ -26,6 +27,10 @@ public abstract class GuiBuilder<T extends Gui, Z extends GuiBuilder<T, Z>> {
 
     public static PaginatedGuiBuilder createPaginated() {
         return new PaginatedGuiBuilder();
+    }
+
+    public void context(HashMapContext context) {
+        this.context = context;
     }
 
     public Z title(Function<HashMapContext, Component> titleProvider) {

@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -233,6 +234,11 @@ public class InventoryRenderer implements InventoryHolder {
     public void handleClose(InventoryCloseEvent event) {
         // TODO: Handle close
         this.closed = true;
+        this.currentGui.inventoryCloseListener.accept(event);
+    }
+
+    public void handleOpen(InventoryOpenEvent event) {
+        this.currentGui.inventoryOpenListener.accept(event);
     }
 
     @NotNull

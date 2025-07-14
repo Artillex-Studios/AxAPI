@@ -13,8 +13,8 @@ import java.util.function.Function;
 
 public class StaticGui extends Gui {
 
-    public StaticGui(Player player, Function<HashMapContext, Component> titleProvider, InventoryType type, int rows, Int2ObjectArrayMap<GuiItemProvider> providers) {
-        super(player, titleProvider, type, rows);
+    public StaticGui(Player player, Function<HashMapContext, Component> titleProvider, InventoryType type, int rows, Int2ObjectArrayMap<GuiItemProvider> providers, HashMapContext context) {
+        super(player, titleProvider, type, rows, context);
         this.providers.clear();
         this.providers.putAll(providers);
     }

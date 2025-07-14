@@ -27,8 +27,8 @@ public class PaginatedGui extends Gui {
     private int pageSize = this.size;
     private Supplier<List<?>> itemsProvider;
 
-    public PaginatedGui(Player player, Function<HashMapContext, Component> titleProvider, InventoryType type, int rows, HashMap<Class<?>, Function<?, GuiItemProvider>> providers) {
-        super(player, titleProvider, type, rows);
+    public PaginatedGui(Player player, Function<HashMapContext, Component> titleProvider, InventoryType type, int rows, HashMap<Class<?>, Function<?, GuiItemProvider>> providers, HashMapContext context) {
+        super(player, titleProvider, type, rows, context);
         this.customProviders = providers;
     }
 

@@ -24,6 +24,8 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 
 import java.util.ArrayList;
@@ -41,6 +43,8 @@ public class ConfigurationBackedGui<T extends Gui> {
     // TODO: Cache providers without any placeholders
     private final List<GuiItemProvider> cachingProviders = new ArrayList<>();
     private final Map<String, Consumer<InventoryClickEvent>> overrideItems = new HashMap<>();
+    private Consumer<InventoryCloseEvent> inventoryCloseListener;
+    private Consumer<InventoryOpenEvent> inventoryOpenListener;
     private final GuiBuilder<?, ?> builder;
     private final YamlConfiguration<?> configuration;
     private final boolean paginated;
@@ -84,20 +88,32 @@ public class ConfigurationBackedGui<T extends Gui> {
         }
     }
 
-    public void withValues(Function<HashMapContext, Supplier<List<?>>> supplier) {
+    public ConfigurationBackedGui<T> withValues(Function<HashMapContext, Supplier<List<?>>> supplier) {
         if (!(this.builder instanceof PaginatedGuiBuilder)) {
-            return;
+            return this;
         }
 
         this.objectProvider = supplier;
+        return this;
     }
 
-    public <Z> void withProvider(Class<Z> clazz, Function<Z, GuiItemProvider> provider) {
+    public ConfigurationBackedGui<T> onClose(Consumer<InventoryCloseEvent> consumer) {
+        this.inventoryCloseListener = consumer;
+        return this;
+    }
+
+    public ConfigurationBackedGui<T> onOpen(Consumer<InventoryOpenEvent> consumer) {
+        this.inventoryOpenListener = consumer;
+        return this;
+    }
+
+    public <Z> ConfigurationBackedGui<T> withProvider(Class<Z> clazz, Function<Z, GuiItemProvider> provider) {
         if (!(this.builder instanceof PaginatedGuiBuilder paginatedGuiBuilder)) {
-            return;
+            return this;
         }
 
         paginatedGuiBuilder.withProvider(clazz, provider);
+        return this;
     }
 
     private void setItems(T gui, HashMapContext globalContext) {
@@ -162,8 +178,9 @@ public class ConfigurationBackedGui<T extends Gui> {
         }
     }
 
-    public void addItemOverride(String section, Consumer<InventoryClickEvent> event) {
+    public ConfigurationBackedGui<T> addItemOverride(String section, Consumer<InventoryClickEvent> event) {
         this.overrideItems.put(section, event);
+        return this;
     }
 
     public IntList slots(Object slots) {
@@ -208,7 +225,8 @@ public class ConfigurationBackedGui<T extends Gui> {
      * @throws IllegalStateException If the construction of the gui failed due to a misconfiguration, and
      * {@link FeatureFlags#STRICT_ITEM_OVERRIDE_HANDLING} is set to true.
      */
-    public T create(Player player, HashMapContext globalContext) throws IllegalStateException {
+    public synchronized T create(Player player, HashMapContext globalContext) throws IllegalStateException {
+        this.builder.context(globalContext);
         T gui = UncheckedUtils.unsafeCast(this.builder.build(player));
         if (gui instanceof PaginatedGui paginatedGui) {
             if (this.objectProvider != null) {
@@ -221,6 +239,14 @@ public class ConfigurationBackedGui<T extends Gui> {
             this.setItems(gui, globalContext);
         } catch (IllegalStateException exception) {
             return null;
+        }
+
+        if (this.inventoryCloseListener != null) {
+            gui.onClose(this.inventoryCloseListener);
+        }
+
+        if (this.inventoryOpenListener != null) {
+            gui.onOpen(this.inventoryOpenListener);
         }
 
         return gui;

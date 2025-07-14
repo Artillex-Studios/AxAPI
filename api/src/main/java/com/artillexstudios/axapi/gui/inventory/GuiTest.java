@@ -1,7 +1,6 @@
 package com.artillexstudios.axapi.gui.inventory;
 
 import com.artillexstudios.axapi.gui.configuration.ConfigurationBackedGui;
-import com.artillexstudios.axapi.gui.inventory.builder.PaginatedGuiBuilder;
 import com.artillexstudios.axapi.gui.inventory.implementation.DynamicGui;
 import com.artillexstudios.axapi.gui.inventory.provider.implementation.AsyncGuiItemProvider;
 import com.artillexstudios.axapi.items.WrappedItemStack;
@@ -21,6 +20,6 @@ public class GuiTest {
 
         })));
 
-        new ConfigurationBackedGui<>(null, PaginatedGuiBuilder.createPaginated()).create(gui.player);
+        new ConfigurationBackedGui<>(null, true).create(gui.player);
     }
 }
