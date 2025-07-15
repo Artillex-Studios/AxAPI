@@ -215,11 +215,11 @@ public class InventoryRenderer implements InventoryHolder {
         }
 
         long now = System.currentTimeMillis();
-        if (now - this.lastClick > FeatureFlags.INVENTORY_CLICK_COOLDOWN.get()) {
-            this.lastClick = now;
+        if (now - this.lastClick < FeatureFlags.INVENTORY_CLICK_COOLDOWN.get()) {
             return;
         }
 
+        this.lastClick = now;
         this.items.get(event.getRawSlot()).eventConsumer()
                 .accept(event);
     }
