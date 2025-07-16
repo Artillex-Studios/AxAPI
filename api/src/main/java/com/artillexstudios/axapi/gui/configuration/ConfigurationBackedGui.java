@@ -29,6 +29,7 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -41,12 +42,14 @@ import java.util.regex.Pattern;
 public class ConfigurationBackedGui<T extends Gui> {
     private static final Pattern SPLIT_PATTERN = Pattern.compile("-");
     // TODO: Cache providers without any placeholders
+    private final List<String> ignoredKeys = new ArrayList<>(List.of("title", "rows", "type"));
     private final List<GuiItemProvider> cachingProviders = new ArrayList<>();
     private final Map<String, Consumer<InventoryClickEvent>> overrideItems = new HashMap<>();
     private Consumer<InventoryCloseEvent> inventoryCloseListener;
     private Consumer<InventoryOpenEvent> inventoryOpenListener;
     private final GuiBuilder<?, ?> builder;
     private final YamlConfiguration<?> configuration;
+    private boolean legacySupport = false;
     private final boolean paginated;
     private Function<HashMapContext, Supplier<List<?>>> objectProvider;
     private String title;
@@ -61,10 +64,9 @@ public class ConfigurationBackedGui<T extends Gui> {
         this.configuration = configuration;
         this.paginated = paginated;
         this.builder = paginated ? GuiBuilder.createPaginated() : GuiBuilder.createDynamic();
-        this.refresh();
     }
 
-    public void refresh() {
+    public ConfigurationBackedGui<T> refresh() {
         this.configuration.load();
         this.title = this.configuration.getString("title");
         this.rows = this.configuration.getInteger("rows");
@@ -86,6 +88,7 @@ public class ConfigurationBackedGui<T extends Gui> {
         if (this.rows != null) {
             this.builder.rows(this.rows);
         }
+        return this;
     }
 
     public ConfigurationBackedGui<T> withValues(Function<HashMapContext, Supplier<List<?>>> supplier) {
@@ -107,6 +110,16 @@ public class ConfigurationBackedGui<T extends Gui> {
         return this;
     }
 
+    public ConfigurationBackedGui<T> legacySupport() {
+        this.legacySupport = true;
+        return this;
+    }
+
+    public ConfigurationBackedGui<T> ignoredKeys(String... keys) {
+        this.ignoredKeys.addAll(Arrays.asList(keys));
+        return this;
+    }
+
     public <Z> ConfigurationBackedGui<T> withProvider(Class<Z> clazz, Function<Z, GuiItemProvider> provider) {
         if (!(this.builder instanceof PaginatedGuiBuilder paginatedGuiBuilder)) {
             return this;
@@ -120,7 +133,16 @@ public class ConfigurationBackedGui<T extends Gui> {
         // TODO: handle cached items
         List<MapConfigurationGetter> items = this.configuration.getList("items", MapConfigurationGetter::new);
         if (items == null) {
-            return;
+            items = new ArrayList<>();
+            if (this.legacySupport) {
+                for (String key : this.configuration.keys()) {
+                    if (this.overrideItems.containsKey(key)) {
+                        continue;
+                    }
+
+                    items.add(this.configuration.getConfiguration(key));
+                }
+            }
         }
 
         for (MapConfigurationGetter item : items) {
