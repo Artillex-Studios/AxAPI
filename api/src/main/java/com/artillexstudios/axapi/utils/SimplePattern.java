@@ -5,6 +5,10 @@ public class SimplePattern {
     private final boolean beginMatch;
     private final boolean endMatch;
 
+    public static SimplePattern of(String expression) {
+        return new SimplePattern(expression);
+    }
+
     public SimplePattern(String expression) {
         String modifiableExpression = expression;
         if (expression.charAt(0) == '%') {

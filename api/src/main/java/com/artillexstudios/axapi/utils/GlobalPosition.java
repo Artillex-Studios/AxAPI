@@ -2,7 +2,7 @@ package com.artillexstudios.axapi.utils;
 
 import net.kyori.adventure.key.Key;
 
-public class GlobalPosition {
+public final class GlobalPosition {
     private Key key;
     private BlockPosition position;
 

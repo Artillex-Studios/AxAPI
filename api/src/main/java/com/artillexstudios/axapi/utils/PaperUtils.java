@@ -14,7 +14,7 @@ import org.bukkit.inventory.InventoryHolder;
 
 import java.util.concurrent.CompletableFuture;
 
-public class PaperUtils {
+public final class PaperUtils {
     private static final ServerImplementation IMPLEMENTATION;
     private static final boolean FOLIA;
 
