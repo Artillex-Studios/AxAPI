@@ -4,6 +4,7 @@ import com.artillexstudios.axapi.utils.UncheckedUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class HashMapContext {
     private final HashMap<ContextKey<?>, Object> values;
@@ -68,5 +69,19 @@ public class HashMapContext {
         }
 
         return this;
+    }
+
+    @Override
+    public final boolean equals(Object object) {
+        if (!(object instanceof HashMapContext context)) {
+            return false;
+        }
+
+        return Objects.equals(this.values, context.values);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.values);
     }
 }

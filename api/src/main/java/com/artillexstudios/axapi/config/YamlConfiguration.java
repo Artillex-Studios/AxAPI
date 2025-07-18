@@ -1,6 +1,6 @@
 package com.artillexstudios.axapi.config;
 
-import com.artillexstudios.axapi.config.adapters.ConfigurationGetter;
+import com.artillexstudios.axapi.config.adapters.MapConfigurationGetter;
 import com.artillexstudios.axapi.config.adapters.TypeAdapter;
 import com.artillexstudios.axapi.config.adapters.TypeAdapterHolder;
 import com.artillexstudios.axapi.config.adapters.other.ObjectAdapter;
@@ -33,14 +33,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Consumer;
 
-public final class YamlConfiguration<T extends ConfigurationPart> implements ConfigurationGetter {
-    private final LinkedHashMap<String, Object> contents = new LinkedHashMap<>();
+public final class YamlConfiguration<T extends ConfigurationPart> extends MapConfigurationGetter {
+    private final LinkedHashMap<String, Object> contents;
     private final Map<String, Comment> comments = new HashMap<>();
     private final TypeAdapterHolder holder = new TypeAdapterHolder();
     private final YamlConfiguration.Builder<T> builder;
@@ -50,6 +48,8 @@ public final class YamlConfiguration<T extends ConfigurationPart> implements Con
     private final Yaml yaml;
 
     YamlConfiguration(YamlConfiguration.Builder<T> builder) {
+        super(new LinkedHashMap<>());
+        this.contents = UncheckedUtils.unsafeCast(this.wrapped());
         this.builder = builder;
         this.creator = new FileCreator(this.builder.writer);
         this.constructor = new YamlConstructor(builder.loaderOptions);
@@ -178,10 +178,6 @@ public final class YamlConfiguration<T extends ConfigurationPart> implements Con
         }
 
         return clazz.cast(this.get(path));
-    }
-
-    public Set<String> keys() {
-        return new HashSet<>(this.contents.keySet());
     }
 
     public Object get(String path) {

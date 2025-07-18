@@ -1,6 +1,8 @@
 package com.artillexstudios.axapi.config.adapters;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A wrapper class to transform from classes.
@@ -29,6 +31,10 @@ public class MapConfigurationGetter implements ConfigurationGetter {
 
     public void registerAdapters(Map<Class<?>, TypeAdapter<?, ?>> adapters) {
         this.holder.registerAdapters(adapters);
+    }
+
+    public Set<Object> keys() {
+        return new HashSet<>(this.wrapped.keySet());
     }
 
     public Map<Object, Object> wrapped() {

@@ -1,22 +1,16 @@
 package com.artillexstudios.axapi.gui.configuration;
 
-import com.artillexstudios.axapi.config.YamlConfiguration;
 import com.artillexstudios.axapi.config.adapters.MapConfigurationGetter;
 import com.artillexstudios.axapi.context.HashMapContext;
 import com.artillexstudios.axapi.gui.configuration.actions.Action;
 import com.artillexstudios.axapi.gui.configuration.actions.Actions;
 import com.artillexstudios.axapi.gui.inventory.Gui;
-import com.artillexstudios.axapi.gui.inventory.GuiBuilder;
 import com.artillexstudios.axapi.gui.inventory.GuiItem;
 import com.artillexstudios.axapi.gui.inventory.GuiKeys;
-import com.artillexstudios.axapi.gui.inventory.builder.PaginatedGuiBuilder;
 import com.artillexstudios.axapi.gui.inventory.implementation.PaginatedGui;
 import com.artillexstudios.axapi.gui.inventory.provider.GuiItemProvider;
 import com.artillexstudios.axapi.gui.inventory.provider.implementation.CachingGuiItemProvider;
-import com.artillexstudios.axapi.placeholders.PlaceholderHandler;
-import com.artillexstudios.axapi.placeholders.PlaceholderParameters;
 import com.artillexstudios.axapi.utils.ItemBuilder;
-import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axapi.utils.UncheckedUtils;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
@@ -24,123 +18,36 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.inventory.InventoryType;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 public class ConfigurationBackedGui<T extends Gui> {
     private static final Pattern SPLIT_PATTERN = Pattern.compile("-");
     // TODO: Cache providers without any placeholders
-    private final List<String> ignoredKeys = new ArrayList<>(List.of("title", "rows", "type"));
     private final List<GuiItemProvider> cachingProviders = new ArrayList<>();
-    private final Map<String, Consumer<InventoryClickEvent>> overrideItems = new HashMap<>();
-    private Consumer<InventoryCloseEvent> inventoryCloseListener;
-    private Consumer<InventoryOpenEvent> inventoryOpenListener;
-    private final GuiBuilder<?, ?> builder;
-    private final YamlConfiguration<?> configuration;
-    private boolean legacySupport = false;
-    private final boolean paginated;
-    private Function<HashMapContext, Supplier<List<?>>> objectProvider;
-    private String title;
-    private Integer rows;
-    private InventoryType type;
+    private final ConfigurationBackedGuiBuilder builder;
 
-    public ConfigurationBackedGui(YamlConfiguration<?> configuration) {
-        this(configuration, false);
-    }
-
-    public ConfigurationBackedGui(YamlConfiguration<?> configuration, boolean paginated) {
-        this.configuration = configuration;
-        this.paginated = paginated;
-        this.builder = paginated ? GuiBuilder.createPaginated() : GuiBuilder.createDynamic();
-    }
-
-    public ConfigurationBackedGui<T> refresh() {
-        this.configuration.load();
-        this.title = this.configuration.getString("title");
-        this.rows = this.configuration.getInteger("rows");
-        String type = this.configuration.getString("type");
-        this.type = type == null ? InventoryType.CHEST : InventoryType.valueOf(type.toUpperCase(Locale.ENGLISH));
-
-        if (this.title != null) {
-            this.builder.title(ctx -> {
-                Player player = ctx.get(GuiKeys.PLAYER);
-                Gui gui = ctx.get(GuiKeys.GUI);
-                return StringUtils.format(PlaceholderHandler.parseWithPlaceholderAPI(this.title, new PlaceholderParameters()
-                        .withParameters(Player.class, player)
-                        .withParameters(Gui.class, gui)
-                ));
-            });
-        }
-
-        this.builder.inventoryType(this.type);
-        if (this.rows != null) {
-            this.builder.rows(this.rows);
-        }
-        return this;
-    }
-
-    public ConfigurationBackedGui<T> withValues(Function<HashMapContext, Supplier<List<?>>> supplier) {
-        if (!(this.builder instanceof PaginatedGuiBuilder)) {
-            return this;
-        }
-
-        this.objectProvider = supplier;
-        return this;
-    }
-
-    public ConfigurationBackedGui<T> onClose(Consumer<InventoryCloseEvent> consumer) {
-        this.inventoryCloseListener = consumer;
-        return this;
-    }
-
-    public ConfigurationBackedGui<T> onOpen(Consumer<InventoryOpenEvent> consumer) {
-        this.inventoryOpenListener = consumer;
-        return this;
-    }
-
-    public ConfigurationBackedGui<T> legacySupport() {
-        this.legacySupport = true;
-        return this;
-    }
-
-    public ConfigurationBackedGui<T> ignoredKeys(String... keys) {
-        this.ignoredKeys.addAll(Arrays.asList(keys));
-        return this;
-    }
-
-    public <Z> ConfigurationBackedGui<T> withProvider(Class<Z> clazz, Function<Z, GuiItemProvider> provider) {
-        if (!(this.builder instanceof PaginatedGuiBuilder paginatedGuiBuilder)) {
-            return this;
-        }
-
-        paginatedGuiBuilder.withProvider(clazz, provider);
-        return this;
+    public ConfigurationBackedGui(ConfigurationBackedGuiBuilder builder) {
+        this.builder = builder;
     }
 
     private void setItems(T gui, HashMapContext globalContext) {
         // TODO: handle cached items
-        List<MapConfigurationGetter> items = this.configuration.getList("items", MapConfigurationGetter::new);
+        List<MapConfigurationGetter> items = this.builder.configuration().getList("items", MapConfigurationGetter::new);
         if (items == null) {
             items = new ArrayList<>();
-            if (this.legacySupport) {
-                for (String key : this.configuration.keys()) {
-                    if (this.overrideItems.containsKey(key)) {
+            if (this.builder.supportsLegacy()) {
+                for (Object key : this.builder.configuration().keys()) {
+                    String keyString = key.toString();
+                    if (this.builder.overrideItems().containsKey(keyString) || this.builder.ignoredKeys().contains(keyString)) {
                         continue;
                     }
 
-                    items.add(this.configuration.getConfiguration(key));
+                    items.add(this.builder.configuration().getConfiguration(keyString));
                 }
             }
         }
@@ -168,11 +75,11 @@ public class ConfigurationBackedGui<T extends Gui> {
             });
         }
         // Create override items, which are added via code
-        for (Map.Entry<String, Consumer<InventoryClickEvent>> entry : this.overrideItems.entrySet()) {
-            MapConfigurationGetter item = this.configuration.getConfiguration(entry.getKey());
+        for (Map.Entry<String, Consumer<InventoryClickEvent>> entry : this.builder.overrideItems().entrySet()) {
+            MapConfigurationGetter item = this.builder.configuration().getConfiguration(entry.getKey());
             if (item == null) {
                 if (FeatureFlags.STRICT_ITEM_OVERRIDE_HANDLING.get()) {
-                    LogUtils.error("Could not find item within section {} in {} file! Did you remove it? This is not allowed! Please regenerate the file!", entry.getKey(), this.configuration.path());
+                    LogUtils.error("Could not find item within section {} in file! Did you remove it? This is not allowed! Please regenerate the file!", entry.getKey());
                     throw new IllegalStateException();
                 }
                 return;
@@ -198,11 +105,6 @@ public class ConfigurationBackedGui<T extends Gui> {
                 gui.setItem(integer, provider);
             });
         }
-    }
-
-    public ConfigurationBackedGui<T> addItemOverride(String section, Consumer<InventoryClickEvent> event) {
-        this.overrideItems.put(section, event);
-        return this;
     }
 
     public IntList slots(Object slots) {
@@ -248,11 +150,11 @@ public class ConfigurationBackedGui<T extends Gui> {
      * {@link FeatureFlags#STRICT_ITEM_OVERRIDE_HANDLING} is set to true.
      */
     public synchronized T create(Player player, HashMapContext globalContext) throws IllegalStateException {
-        this.builder.context(globalContext);
-        T gui = UncheckedUtils.unsafeCast(this.builder.build(player));
+        this.builder.guiBuilder().context(globalContext);
+        T gui = UncheckedUtils.unsafeCast(this.builder.guiBuilder().build(player));
         if (gui instanceof PaginatedGui paginatedGui) {
-            if (this.objectProvider != null) {
-                paginatedGui.setItemsProvider(this.objectProvider.apply(globalContext));
+            if (this.builder.objectProvider() != null) {
+                paginatedGui.setItemsProvider(this.builder.objectProvider().apply(globalContext));
             }
         }
 
@@ -263,12 +165,12 @@ public class ConfigurationBackedGui<T extends Gui> {
             return null;
         }
 
-        if (this.inventoryCloseListener != null) {
-            gui.onClose(this.inventoryCloseListener);
+        if (this.builder.inventoryCloseListener() != null) {
+            gui.onClose(this.builder.inventoryCloseListener());
         }
 
-        if (this.inventoryOpenListener != null) {
-            gui.onOpen(this.inventoryOpenListener);
+        if (this.builder.inventoryOpenListener() != null) {
+            gui.onOpen(this.builder.inventoryOpenListener());
         }
 
         return gui;
