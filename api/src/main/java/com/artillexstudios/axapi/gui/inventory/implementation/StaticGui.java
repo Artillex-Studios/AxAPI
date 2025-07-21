@@ -3,18 +3,20 @@ package com.artillexstudios.axapi.gui.inventory.implementation;
 import com.artillexstudios.axapi.context.HashMapContext;
 import com.artillexstudios.axapi.gui.inventory.Gui;
 import com.artillexstudios.axapi.gui.inventory.GuiItem;
+import com.artillexstudios.axapi.gui.inventory.modifier.WrappedItemStackModifier;
 import com.artillexstudios.axapi.gui.inventory.provider.GuiItemProvider;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 
+import java.util.List;
 import java.util.function.Function;
 
 public class StaticGui extends Gui {
 
-    public StaticGui(Player player, Function<HashMapContext, Component> titleProvider, InventoryType type, int rows, Int2ObjectArrayMap<GuiItemProvider> providers, HashMapContext context) {
-        super(player, titleProvider, type, rows, context);
+    public StaticGui(Player player, Function<HashMapContext, Component> titleProvider, InventoryType type, int rows, Int2ObjectArrayMap<GuiItemProvider> providers, HashMapContext context, List<WrappedItemStackModifier> modifiers) {
+        super(player, titleProvider, type, rows, context, modifiers);
         this.providers.clear();
         this.providers.putAll(providers);
     }

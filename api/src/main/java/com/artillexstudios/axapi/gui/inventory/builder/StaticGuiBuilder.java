@@ -28,6 +28,6 @@ public class StaticGuiBuilder extends GuiBuilder<StaticGui, StaticGuiBuilder> {
 
     @Override
     public StaticGui build(Player player) {
-        return new StaticGui(player, this.titleProvider, this.type, this.rows, this.providers, this.context);
+        return new StaticGui(player, this.titleProvider, this.type, this.rows, this.providers, this.context, this.modifiers);
     }
 }

@@ -26,7 +26,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Semaphore;
 
 public class InventoryRenderer implements InventoryHolder {
-    // TODO: Limit interactions based on time
     private final Semaphore renderLock = new Semaphore(1, true);
     private final Int2ObjectMap<BakedGuiItem> items = Int2ObjectMaps.synchronize(new Int2ObjectArrayMap<>());
     private final Player player;
@@ -99,7 +98,7 @@ public class InventoryRenderer implements InventoryHolder {
                 LogUtils.debug("Waiting for all");
             }
             gui.providers().forEach((slot, provider) -> {
-                futures[slot] = provider.provide(context);
+                futures[slot] = provider.provide(context, gui.modifiers());
             });
 
             CompletableFuture.allOf(futures).whenComplete((v, throwable) -> {
@@ -141,7 +140,7 @@ public class InventoryRenderer implements InventoryHolder {
             }
 
             gui.providers().forEach((slot, provider) -> {
-                CompletableFuture<BakedGuiItem> provide = provider.provide(context);
+                CompletableFuture<BakedGuiItem> provide = provider.provide(context, gui.modifiers());
                 if (debug) {
                     LogUtils.debug("provide! slot: {}, provider: {}", slot, provider);
                 }
@@ -232,7 +231,6 @@ public class InventoryRenderer implements InventoryHolder {
     }
 
     public void handleClose(InventoryCloseEvent event) {
-        // TODO: Handle close
         this.closed = true;
         this.currentGui.inventoryCloseListener.accept(event);
     }

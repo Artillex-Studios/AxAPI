@@ -3,6 +3,7 @@ package com.artillexstudios.axapi.gui.inventory.implementation;
 import com.artillexstudios.axapi.context.HashMapContext;
 import com.artillexstudios.axapi.gui.inventory.Gui;
 import com.artillexstudios.axapi.gui.inventory.GuiItem;
+import com.artillexstudios.axapi.gui.inventory.modifier.WrappedItemStackModifier;
 import com.artillexstudios.axapi.gui.inventory.provider.GuiItemProvider;
 import com.artillexstudios.axapi.gui.inventory.provider.implementation.EmptyGuiItemProvider;
 import com.artillexstudios.axapi.reflection.ClassUtils;
@@ -27,8 +28,8 @@ public class PaginatedGui extends Gui {
     private int pageSize = this.size;
     private Supplier<List<?>> itemsProvider;
 
-    public PaginatedGui(Player player, Function<HashMapContext, Component> titleProvider, InventoryType type, int rows, HashMap<Class<?>, Function<?, GuiItemProvider>> providers, HashMapContext context) {
-        super(player, titleProvider, type, rows, context);
+    public PaginatedGui(Player player, Function<HashMapContext, Component> titleProvider, InventoryType type, int rows, HashMap<Class<?>, Function<?, GuiItemProvider>> providers, HashMapContext context, List<WrappedItemStackModifier> modifiers) {
+        super(player, titleProvider, type, rows, context, modifiers);
         this.customProviders = providers;
     }
 

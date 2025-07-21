@@ -3,9 +3,11 @@ package com.artillexstudios.axapi.gui.inventory.provider.implementation;
 import com.artillexstudios.axapi.context.HashMapContext;
 import com.artillexstudios.axapi.gui.inventory.BakedGuiItem;
 import com.artillexstudios.axapi.gui.inventory.GuiItem;
+import com.artillexstudios.axapi.gui.inventory.modifier.WrappedItemStackModifier;
 import com.artillexstudios.axapi.gui.inventory.provider.GuiItemProvider;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class ExpiringCachingGuiItemProvider implements GuiItemProvider {
@@ -21,7 +23,7 @@ public class ExpiringCachingGuiItemProvider implements GuiItemProvider {
     }
 
     @Override
-    public CompletableFuture<BakedGuiItem> provide(HashMapContext context) {
+    public CompletableFuture<BakedGuiItem> provide(HashMapContext context, List<WrappedItemStackModifier> modifiers) {
         long now = System.currentTimeMillis();
         if (this.provided != null && this.lastContext.equals(context) && now - this.lastCheck < this.durationMillis) {
             return this.provided;
@@ -29,7 +31,7 @@ public class ExpiringCachingGuiItemProvider implements GuiItemProvider {
 
         this.lastCheck = now;
         this.lastContext = context;
-        this.provided = this.simpleProvider.provide(context);
+        this.provided = this.simpleProvider.provide(context, modifiers);
         return this.provided;
     }
 }
