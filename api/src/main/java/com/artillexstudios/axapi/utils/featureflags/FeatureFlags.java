@@ -95,6 +95,12 @@ public final class FeatureFlags {
      * Can be controlled with the system property: %pluginName%strictInventoryOverrideHandling
      */
     public static final BooleanFlag STRICT_ITEM_OVERRIDE_HANDLING = new BooleanFlag(false);
+    /**
+     * Whether to create a scheduled task for updating inventories from InventoryRenderer.
+     * <p>
+     * Can be controlled with the system property: %pluginName%strictInventoryOverrideHandling
+     */
+    public static final BooleanFlag USE_INVENTORY_UPDATER = new BooleanFlag(false);
 
     public static void refresh(AxPlugin plugin) {
         PACKET_ENTITY_TRACKER_ENABLED.refresh(plugin.getName() + "enableEntityTracker");

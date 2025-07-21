@@ -11,6 +11,7 @@ import com.artillexstudios.axapi.gui.inventory.provider.GuiItemProvider;
 import com.artillexstudios.axapi.placeholders.PlaceholderHandler;
 import com.artillexstudios.axapi.placeholders.PlaceholderParameters;
 import com.artillexstudios.axapi.utils.StringUtils;
+import com.artillexstudios.axapi.utils.YamlUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -33,6 +34,7 @@ public final class ConfigurationBackedGuiBuilder {
     private Function<HashMapContext, Supplier<List<?>>> objectProvider;
     private Consumer<InventoryCloseEvent> inventoryCloseListener;
     private Consumer<InventoryOpenEvent> inventoryOpenListener;
+    private Integer refreshInterval;
     private final MapConfigurationGetter configuration;
     private final GuiBuilder<?, ?> builder;
     private boolean legacySupport = false;
@@ -125,13 +127,22 @@ public final class ConfigurationBackedGuiBuilder {
         return this.overrideItems;
     }
 
+    public Integer refreshInterval() {
+        return this.refreshInterval;
+    }
+
     public void refresh() {
         if (this.configuration instanceof YamlConfiguration<?> yamlConfiguration) {
+            if (!YamlUtils.suggest(yamlConfiguration.path().toFile())) {
+                return;
+            }
+
             yamlConfiguration.load();
         }
 
         String title = this.configuration.getString("title");
         Integer rows = this.configuration.getInteger("rows");
+        this.refreshInterval = this.configuration.getInteger("update-interval");
         String type = this.configuration.getString("type");
         InventoryType inventoryType = type == null ? InventoryType.CHEST : InventoryType.valueOf(type.toUpperCase(Locale.ENGLISH));
 

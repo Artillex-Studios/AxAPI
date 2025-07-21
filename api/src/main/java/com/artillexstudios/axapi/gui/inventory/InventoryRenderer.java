@@ -223,6 +223,14 @@ public class InventoryRenderer implements InventoryHolder {
                 .accept(event);
     }
 
+    public Gui currentGui() {
+        return this.currentGui;
+    }
+
+    public boolean closed() {
+        return this.closed;
+    }
+
     public void handleDrag(InventoryDragEvent event) {
         // TODO: Handle drag
         if (this.currentGui.isDisableAllInteractions()) {

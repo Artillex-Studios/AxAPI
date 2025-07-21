@@ -33,6 +33,8 @@ public abstract class Gui {
     protected Consumer<InventoryOpenEvent> inventoryOpenListener = event -> {};
     protected Consumer<InventoryCloseEvent> inventoryCloseListener = event -> {};
     protected int rows;
+    protected int refreshInterval;
+    protected int currentTick;
     protected int size;
 
     public Gui(Player player, Function<HashMapContext, Component> titleProvider, InventoryType type, int rows, HashMapContext context, List<WrappedItemStackModifier> modifiers) {
@@ -87,6 +89,26 @@ public abstract class Gui {
 
     public int rows() {
         return this.rows;
+    }
+
+    public int refreshInterval() {
+        return this.refreshInterval;
+    }
+
+    public void refreshInterval(int refreshInterval) {
+        this.refreshInterval = refreshInterval;
+    }
+
+    public void tick() {
+        if (this.refreshInterval == 0) {
+            return;
+        }
+
+        this.currentTick++;
+        if (this.currentTick == this.refreshInterval) {
+            this.open();
+            this.currentTick = 0;
+        }
     }
 
     public Component provideTitle(HashMapContext context) {

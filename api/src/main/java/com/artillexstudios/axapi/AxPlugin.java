@@ -5,6 +5,7 @@ import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.gui.AnvilListener;
 import com.artillexstudios.axapi.gui.SignInput;
 import com.artillexstudios.axapi.gui.inventory.InventoryRenderers;
+import com.artillexstudios.axapi.gui.inventory.InventoryUpdater;
 import com.artillexstudios.axapi.gui.inventory.listener.InventoryClickListener;
 import com.artillexstudios.axapi.hologram.Holograms;
 import com.artillexstudios.axapi.items.component.DataComponents;
@@ -175,6 +176,10 @@ public abstract class AxPlugin extends JavaPlugin {
             Holograms.startTicking();
         }
 
+        if (FeatureFlags.USE_INVENTORY_UPDATER.get()) {
+            InventoryUpdater.INSTANCE.start(this);
+        }
+
         ParticleTypes.init();
         ClientboundPacketTypes.init();
         ServerboundPacketTypes.init();
@@ -221,6 +226,7 @@ public abstract class AxPlugin extends JavaPlugin {
             this.tracker.shutdown();
         }
         Holograms.shutdown();
+        InventoryUpdater.INSTANCE.shutdown();
     }
 
     public void disable() {

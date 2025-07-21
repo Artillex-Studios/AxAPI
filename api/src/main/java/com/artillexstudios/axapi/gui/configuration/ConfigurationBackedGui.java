@@ -123,6 +123,10 @@ public class ConfigurationBackedGui<T extends Gui> {
         };
     }
 
+    public ConfigurationBackedGuiBuilder builder() {
+        return this.builder;
+    }
+
     private IntList parseSlot(String str) {
         if (str.contains("-")) {
             IntList list = new IntArrayList();
@@ -171,6 +175,10 @@ public class ConfigurationBackedGui<T extends Gui> {
 
         if (this.builder.inventoryOpenListener() != null) {
             gui.onOpen(this.builder.inventoryOpenListener());
+        }
+
+        if (this.builder.refreshInterval() != null) {
+            gui.refreshInterval(this.builder.refreshInterval());
         }
 
         return gui;
