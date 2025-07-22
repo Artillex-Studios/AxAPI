@@ -1,5 +1,7 @@
 package com.artillexstudios.axapi.utils;
 
+import com.artillexstudios.axapi.config.adapters.ConfigurationGetter;
+import com.artillexstudios.axapi.config.adapters.MapConfigurationGetter;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.component.DataComponents;
 import com.artillexstudios.axapi.items.component.type.CustomModelData;
@@ -9,6 +11,7 @@ import com.artillexstudios.axapi.items.component.type.ItemLore;
 import com.artillexstudios.axapi.items.component.type.ProfileProperties;
 import com.artillexstudios.axapi.items.component.type.Unbreakable;
 import com.artillexstudios.axapi.items.component.type.Unit;
+import com.artillexstudios.axapi.placeholders.PlaceholderParameters;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import com.artillexstudios.axapi.utils.mutable.MutableObject;
 import com.google.common.collect.Lists;
@@ -32,142 +35,202 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 public class ItemBuilder {
     private static final UUID NIL_UUID = new UUID(0, 0);
     private final List<ItemFlag> flags = new ArrayList<>(4);
     private final WrappedItemStack stack;
     private final TagResolver[] resolvers;
+    private final PlaceholderParameters parameters;
 
-    public ItemBuilder(Map<Object, Object> map, TagResolver... resolvers) {
+    public ItemBuilder(ConfigurationGetter getter, PlaceholderParameters params, TagResolver[] resolvers) {
         this.resolvers = resolvers;
+        this.parameters = params;
 
-        String type = (String) map.get("type");
-        if (type == null) {
-            type = (String) map.getOrDefault("material", "stone");
-        }
-
-        String snbt;
-        if ((snbt = (String) map.get("snbt")) != null) {
+        String snbt = getter.getString("snbt");
+        if (snbt != null) {
             this.stack = WrappedItemStack.wrap(snbt);
         } else {
-            this.stack = WrappedItemStack.wrap(new ItemStack(getMaterial(type)));
+            String type = getter.anyOf(getter::getString, "material", "type");
+            // TODO: Maybe default item
+            this.stack = WrappedItemStack.wrap(new ItemStack(this.getMaterial(type)));
         }
 
-        safeMap(map, "item-flags", List.class, flags -> {
-            this.flags.addAll(getItemFlags((List<String>) flags));
-        });
-        safeMap(map, "name", String.class, this::setName);
-        safeMap(map, "color", String.class, this::setColor);
-        safeMap(map, "texture", String.class, this::setTextureValue);
-        safeMap(map, "custom-model-data", Map.of(Integer.class, value -> this.legacyModelData((Integer) value),
-                Map.class, value -> this.customModelData((Map<Object, Object>) value))
-        );
-        safeMap(map, "amount", Integer.class, this.stack::setAmount);
-        safeMap(map, "glow", Boolean.class, this::glow);
-        safeMap(map, "lore", List.class, this::setLore);
-        safeMap(map, "enchants", List.class, enchants -> {
-            this.addEnchants(createEnchantmentsMap((List<String>) enchants));
-        });
-        safeMap(map, "potion", String.class, this::setPotion);
-        safeMap(map, "unbreakable", Object.class, unbreakable -> {
-            this.stack.set(DataComponents.unbreakable(), new Unbreakable(!this.flags.contains(ItemFlag.HIDE_UNBREAKABLE)));
-        });
-        safeMap(map, "item-model", String.class, model -> {
-            this.stack.set(DataComponents.itemModel(), Key.key(model));
-        });
+        Optionals.ifPresent(getter.getStringList("item-flags"), list -> this.flags.addAll(this.getItemFlags(list)));
+        Optionals.ifPresent(getter.getStringList("enchants"), enchants -> this.addEnchants(this.createEnchantmentsMap(enchants)));
+        Optionals.ifPresent(getter.getString("name"), this::setName);
+        Optionals.ifPresent(getter.getString("color"), this::setColor);
+        Optionals.ifPresent(getter.getString("texture"), this::setTextureValue);
+        Optionals.ifPresent(getter.getInteger("amount"), this::amount);
+        Optionals.ifPresent(getter.getBoolean("glow"), this::glow);
+        Optionals.ifPresent(getter.getStringList("lore"), this::setLore);
+        Optionals.ifPresent(getter.getString("potion"), this::setPotion);
+        Optionals.ifPresent(getter.getString("item-model"), this::setPotion);
+        Optionals.ifPresent(getter.getBoolean("unbreakable"), this::unbreakable);
+        Optionals.ifPresent(getter.getString("item-model"), this::itemModel);
+        Optionals.ifPresent(ExceptionUtils.catching(() -> getter.getInteger("custom-model-data")), this::legacyModelData);
+        Optionals.ifPresent(ExceptionUtils.catching(() -> getter.getMap("custom-model-data")), this::customModelData);
 
-        try {
+        ExceptionUtils.catching(() -> {
             if (this.flags.contains(ItemFlag.HIDE_POTION_EFFECTS)) {
                 this.stack.set(DataComponents.hideAdditionalTooltip(), Unit.INSTANCE);
             }
-        } catch (Exception ignored) {
-        }
+        });
     }
 
-    private static void safeMap(Map<Object, Object> map, String key, Map<Class, Consumer<Object>> classes) {
-        Object o = map.get(key);
-        if (o == null) {
-            return;
-        }
-
-        for (Map.Entry<Class, Consumer<Object>> entry : classes.entrySet()) {
-            Class<Object> clazz = entry.getKey();
-            Consumer<Object> consumer = entry.getValue();
-            if (!clazz.isInstance(o)) {
-                continue;
-            }
-
-            try {
-                consumer.accept(clazz.cast(o));
-                break;
-            } catch (ClassCastException exception) {
-                LogUtils.warn("Failed to safely map {} from {}, because it isn't a {}, but a {}!", key, map, clazz, o.getClass());
-            }
-        }
-    }
-
-    private static <T> void safeMap(Map<Object, Object> map, String key, Class<T> clazz, Consumer<T> consumer) {
-        Object o = map.get(key);
-        if (o == null) {
-            return;
-        }
-
-        if (!clazz.isInstance(o)) {
-            LogUtils.warn("Failed to safely map {} from {}, because it isn't a {}, but a {}!", key, map, clazz, o.getClass());
-            return;
-        }
-
-        try {
-            consumer.accept(clazz.cast(o));
-        } catch (ClassCastException exception) {
-            LogUtils.warn("Failed to safely map {} from {}, because it isn't a {}, but a {}!", key, map, clazz, o.getClass());
-        }
-    }
-
-    public ItemBuilder(Map<Object, Object> map, Map<String, String> replacements) {
-        this(map, mapResolvers(replacements));
-    }
-
-    public ItemBuilder(Map<Object, Object> map) {
-        this(map, TagResolver.resolver());
-    }
-
-    public ItemBuilder(Section section) {
-        this(mapSection(section), TagResolver.resolver());
-    }
-
-    public ItemBuilder(Section section, TagResolver... resolvers) {
-        this(mapSection(section), resolvers);
-    }
-
-    public ItemBuilder(Section section, Map<String, String> replacements) {
-        this(mapSection(section), mapResolvers(replacements));
-    }
-
-    public ItemBuilder(ItemStack itemStack, TagResolver... resolvers) {
+    public ItemBuilder(WrappedItemStack stack, PlaceholderParameters parameters, TagResolver... resolvers) {
+        this.stack = stack;
+        this.parameters = parameters;
         this.resolvers = resolvers;
-        this.stack = WrappedItemStack.wrap(itemStack);
     }
 
-    public ItemBuilder(ItemStack itemStack) {
-        this.resolvers = new TagResolver[]{TagResolver.resolver()};
-        this.stack = WrappedItemStack.wrap(itemStack);
+    public static ItemBuilder create(WrappedItemStack stack) {
+        return create(stack, (PlaceholderParameters) null);
     }
 
-    public ItemBuilder(Material material, TagResolver... resolvers) {
-        this.resolvers = resolvers;
-        this.stack = WrappedItemStack.wrap(new ItemStack(material));
+    public static ItemBuilder create(WrappedItemStack stack, TagResolver... resolvers) {
+        return create(stack, null, resolvers);
     }
 
-    public ItemBuilder(Material material) {
-        this.resolvers = new TagResolver[]{TagResolver.resolver()};
-        this.stack = WrappedItemStack.wrap(new ItemStack(material));
+    public static ItemBuilder create(WrappedItemStack stack, Map<String, String> replacements) {
+        return create(stack, null, replacements);
     }
 
-    private static Material getMaterial(String name) {
+    public static ItemBuilder create(WrappedItemStack stack, PlaceholderParameters parameters) {
+        return create(stack, parameters, TagResolver.resolver());
+    }
+
+    public static ItemBuilder create(WrappedItemStack stack, PlaceholderParameters parameters, Map<String, String> replacements) {
+        return create(stack, parameters, mapResolvers(replacements));
+    }
+
+    public static ItemBuilder create(WrappedItemStack stack, PlaceholderParameters parameters, TagResolver... resolvers) {
+        return new ItemBuilder(stack, parameters, resolvers);
+    }
+
+    public static ItemBuilder create(ItemStack stack) {
+        return create(stack, (PlaceholderParameters) null);
+    }
+
+    public static ItemBuilder create(ItemStack stack, TagResolver... resolvers) {
+        return create(stack, null, resolvers);
+    }
+
+    public static ItemBuilder create(ItemStack stack, Map<String, String> replacements) {
+        return create(stack, null, replacements);
+    }
+
+    public static ItemBuilder create(ItemStack stack, PlaceholderParameters parameters) {
+        return create(stack, parameters, TagResolver.resolver());
+    }
+
+    public static ItemBuilder create(ItemStack stack, PlaceholderParameters parameters, Map<String, String> replacements) {
+        return create(stack, parameters, mapResolvers(replacements));
+    }
+
+    public static ItemBuilder create(ItemStack stack, PlaceholderParameters parameters, TagResolver... resolvers) {
+        return create(WrappedItemStack.wrap(stack), parameters, resolvers);
+    }
+
+    public static ItemBuilder create(Material material) {
+        return create(material, (PlaceholderParameters) null);
+    }
+
+    public static ItemBuilder create(Material material, TagResolver... resolvers) {
+        return create(material, null, resolvers);
+    }
+
+    public static ItemBuilder create(Material material, Map<String, String> replacements) {
+        return create(material, null, replacements);
+    }
+
+    public static ItemBuilder create(Material material, PlaceholderParameters parameters) {
+        return create(material, parameters, TagResolver.resolver());
+    }
+
+    public static ItemBuilder create(Material material, PlaceholderParameters parameters, Map<String, String> replacements) {
+        return create(material, parameters, mapResolvers(replacements));
+    }
+
+    public static ItemBuilder create(Material stack, PlaceholderParameters parameters, TagResolver... resolvers) {
+        return create(new ItemStack(stack), parameters, resolvers);
+    }
+
+    public static ItemBuilder create(Section section) {
+        return create(section, (PlaceholderParameters) null);
+    }
+
+    public static ItemBuilder create(Section section, TagResolver... resolvers) {
+        return create(section, null, resolvers);
+    }
+
+    public static ItemBuilder create(Section section, Map<String, String> replacements) {
+        return create(section, null, replacements);
+    }
+
+    public static ItemBuilder create(Section section, PlaceholderParameters parameters) {
+        return create(section, parameters, TagResolver.resolver());
+    }
+
+    public static ItemBuilder create(Section section, PlaceholderParameters parameters, Map<String, String> replacements) {
+        return create(section, parameters, mapResolvers(replacements));
+    }
+
+    public static ItemBuilder create(Section section, PlaceholderParameters parameters, TagResolver... resolvers) {
+        return create(mapSection(section), parameters, resolvers);
+    }
+
+    public static <T, Z> ItemBuilder create(Map<T, Z> section) {
+        return create(section, (PlaceholderParameters) null);
+    }
+
+    public static <T, Z> ItemBuilder create(Map<T, Z> section, Map<String, String> replacements) {
+        return create(section, null, replacements);
+    }
+
+    public static <T, Z> ItemBuilder create(Map<T, Z> section, TagResolver... resolvers) {
+        return create(section, null, resolvers);
+    }
+
+    public static <T, Z> ItemBuilder create(Map<T, Z> section, PlaceholderParameters parameters) {
+        return create(section, parameters, TagResolver.resolver());
+    }
+
+    public static <T, Z> ItemBuilder create(Map<T, Z> section, PlaceholderParameters parameters, Map<String, String> replacements) {
+        return create(section, parameters, mapResolvers(replacements));
+    }
+
+    public static <T, Z> ItemBuilder create(Map<T, Z> section, PlaceholderParameters parameters, TagResolver... resolvers) {
+        return create(new MapConfigurationGetter(section), parameters, resolvers);
+    }
+
+    public static ItemBuilder create(ConfigurationGetter getter) {
+        return create(getter, (PlaceholderParameters) null);
+    }
+
+    public static ItemBuilder create(ConfigurationGetter getter, TagResolver... resolvers) {
+        return create(getter, null, resolvers);
+    }
+
+    public static ItemBuilder create(ConfigurationGetter getter, Map<String, String> replacements) {
+        return create(getter, null, replacements);
+    }
+
+    public static ItemBuilder create(ConfigurationGetter getter, PlaceholderParameters parameters) {
+        return create(getter, parameters, TagResolver.resolver());
+    }
+
+    public static ItemBuilder create(ConfigurationGetter getter, PlaceholderParameters parameters, Map<String, String> replacements) {
+        return create(getter, parameters, mapResolvers(replacements));
+    }
+
+    public static ItemBuilder create(ConfigurationGetter getter, PlaceholderParameters parameters, TagResolver... resolvers) {
+        return new ItemBuilder(getter, parameters, resolvers);
+    }
+
+    private Material getMaterial(String name) {
         Material material = Material.matchMaterial(name.toUpperCase(Locale.ENGLISH));
         return material != null ? material : Material.BEDROCK;
     }
@@ -184,9 +247,10 @@ public class ItemBuilder {
         return resolvers;
     }
 
-    public static Map<Object, Object> mapSection(Section section) {
-        Map<Object, Object> map = new HashMap<>();
-        for (Object key : section.getKeys()) {
+    private static Map<Object, Object> mapSection(Section section) {
+        Set<Object> keys = section.getKeys();
+        Map<Object, Object> map = new HashMap<>(keys.size());
+        for (Object key : keys) {
             map.put(key.toString(), section.get(key.toString()));
         }
 
@@ -194,7 +258,7 @@ public class ItemBuilder {
     }
 
     @NotNull
-    private static Map<Enchantment, Integer> createEnchantmentsMap(@NotNull List<String> enchantments) {
+    private Map<Enchantment, Integer> createEnchantmentsMap(@NotNull List<String> enchantments) {
         final Map<Enchantment, Integer> enchantsMap = new HashMap<>(enchantments.size());
 
         for (String enchantment : enchantments) {
@@ -218,7 +282,7 @@ public class ItemBuilder {
     }
 
     @NotNull
-    private static List<ItemFlag> getItemFlags(@NotNull List<String> flags) {
+    private List<ItemFlag> getItemFlags(@NotNull List<String> flags) {
         final List<ItemFlag> flagList = new ArrayList<>(flags.size());
         for (String flag : flags) {
             ItemFlag itemFlag;
@@ -294,7 +358,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setPotion(String potion) {
-        stack.set(DataComponents.potionType(), PotionType.valueOf(potion.toUpperCase(Locale.ENGLISH)));
+        this.stack.set(DataComponents.potionType(), PotionType.valueOf(potion.toUpperCase(Locale.ENGLISH)));
         return this;
     }
 
@@ -304,7 +368,7 @@ public class ItemBuilder {
 //    }
 
     public ItemBuilder setName(String name) {
-        setName(name, resolvers);
+        setName(name, this.resolvers);
         return this;
     }
 
@@ -317,7 +381,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setName(String name, TagResolver... resolvers) {
-        stack.set(DataComponents.customName(), StringUtils.format(toTagResolver(name, resolvers), resolvers));
+        this.stack.set(DataComponents.customName(), StringUtils.format(toTagResolver(name, resolvers), resolvers));
         return this;
     }
 
@@ -325,36 +389,50 @@ public class ItemBuilder {
         String[] rgb = colorString.replace(" ", "").split(",");
         Color color = Color.fromRGB(Integer.parseInt(rgb[0]), Integer.parseInt(rgb[1]), Integer.parseInt(rgb[2]));
 
-        stack.set(DataComponents.dyedColor(), new DyedColor(color, this.flags.contains(ItemFlag.HIDE_DYE)));
+        this.stack.set(DataComponents.dyedColor(), new DyedColor(color, this.flags.contains(ItemFlag.HIDE_DYE)));
 
         return this;
     }
 
     public ItemBuilder glow(boolean glow) {
         if (glow) {
-            stack.set(DataComponents.enchantmentGlintOverride(), true);
+            this.stack.set(DataComponents.enchantmentGlintOverride(), true);
         }
         return this;
     }
 
+    public ItemBuilder unbreakable(boolean unbreakable) {
+        if (unbreakable) {
+            this.stack.set(DataComponents.unbreakable(), new Unbreakable(!this.flags.contains(ItemFlag.HIDE_UNBREAKABLE)));
+        } else {
+            this.stack.set(DataComponents.unbreakable(), null);
+        }
+        return this;
+    }
+
+    public ItemBuilder itemModel(String model) {
+        this.stack.set(DataComponents.itemModel(), model == null ? null : Key.key(model));
+        return this;
+    }
+
     public ItemBuilder addEnchantment(Enchantment enchantment, int level) {
-        ItemEnchantments enchants = stack.get(DataComponents.enchantments());
+        ItemEnchantments enchants = this.stack.get(DataComponents.enchantments());
         enchants = enchants.add(enchantment, level);
         if (this.flags.contains(ItemFlag.HIDE_ENCHANTS)) {
             enchants = enchants.withTooltip(false);
         }
 
-        stack.set(DataComponents.enchantments(), enchants);
+        this.stack.set(DataComponents.enchantments(), enchants);
         return this;
     }
 
     public ItemBuilder legacyModelData(Integer modelData) {
-        stack.set(DataComponents.customModelData(), new CustomModelData(List.of(), List.of(), modelData == null ? List.of() : List.of(modelData.floatValue()), List.of()));
+        this.stack.set(DataComponents.customModelData(), new CustomModelData(List.of(), List.of(), modelData == null ? List.of() : List.of(modelData.floatValue()), List.of()));
         return this;
     }
 
     public ItemBuilder customModelData(Map<Object, Object> modelData) {
-        stack.set(DataComponents.customModelData(), new CustomModelData((List<String>) modelData.getOrDefault("strings", List.of()), (List<Boolean>) modelData.getOrDefault("flags", List.of()), Lists.transform((List<Number>) modelData.getOrDefault("floats", List.of()), num -> num.floatValue()), Lists.transform((List<String>) modelData.getOrDefault("colors", List.of()), a -> {
+        this.stack.set(DataComponents.customModelData(), new CustomModelData((List<String>) modelData.getOrDefault("strings", List.of()), (List<Boolean>) modelData.getOrDefault("flags", List.of()), Lists.transform((List<Number>) modelData.getOrDefault("floats", List.of()), num -> num.floatValue()), Lists.transform((List<String>) modelData.getOrDefault("colors", List.of()), a -> {
             String[] rgb = a.replace(" ", "").split(",");
             Color color = Color.fromRGB(Integer.parseInt(rgb[0]), Integer.parseInt(rgb[1]), Integer.parseInt(rgb[2]));
             return color.asRGB();
@@ -363,7 +441,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setLore(List<String> lore) {
-        setLore(lore, resolvers);
+        setLore(lore, this.resolvers);
         return this;
     }
 
@@ -380,7 +458,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setLore(List<String> lore, TagResolver... resolvers) {
-        stack.set(DataComponents.lore(), new ItemLore(StringUtils.formatList(toTagResolver(lore, resolvers), resolvers)));
+        this.stack.set(DataComponents.lore(), new ItemLore(StringUtils.formatList(toTagResolver(lore, resolvers), resolvers)));
         return this;
     }
 
@@ -388,7 +466,7 @@ public class ItemBuilder {
         ProfileProperties properties = new ProfileProperties(NIL_UUID, "axapi");
         texture = StringUtils.formatToString(toTagResolver(texture), this.resolvers);
         properties.put("textures", new ProfileProperties.Property("textures", texture, null));
-        stack.set(DataComponents.profile(), properties);
+        this.stack.set(DataComponents.profile(), properties);
         return this;
     }
 
@@ -409,22 +487,22 @@ public class ItemBuilder {
     public Map<Object, Object> serialize(boolean snbt) {
         HashMap<Object, Object> map = new HashMap<>();
         if (snbt) {
-            map.put("snbt", stack.toSNBT());
+            map.put("snbt", this.stack.toSNBT());
         } else {
-            map.put("type", stack.get(DataComponents.material()).name());
+            map.put("type", this.stack.get(DataComponents.material()).name());
 
-            Component name = stack.get(DataComponents.customName());
+            Component name = this.stack.get(DataComponents.customName());
             if (name != Component.empty()) {
                 map.put("name", MiniMessage.miniMessage().serialize(name));
             }
 
-            List<Component> lore = stack.get(DataComponents.lore()).lines();
+            List<Component> lore = this.stack.get(DataComponents.lore()).lines();
             if (!lore.isEmpty()) {
                 map.put("lore", Lists.transform(lore, a -> MiniMessage.miniMessage().serialize(a)));
             }
 
-            map.put("amount", stack.getAmount());
-            CustomModelData modelData = stack.get(DataComponents.customModelData());
+            map.put("amount", this.stack.getAmount());
+            CustomModelData modelData = this.stack.get(DataComponents.customModelData());
             if (!modelData.floats().isEmpty() && modelData.colors().isEmpty() && modelData.flags().isEmpty() && modelData.strings().isEmpty()) {
                 int data = modelData.floats().get(0).intValue();
                 if (data != 0) {
@@ -432,7 +510,7 @@ public class ItemBuilder {
                 }
             }
 
-            ProfileProperties profileProperties = stack.get(DataComponents.profile());
+            ProfileProperties profileProperties = this.stack.get(DataComponents.profile());
             if (profileProperties != null) {
                 map.put("texture", profileProperties.properties().get("textures").stream().findFirst().orElse(new ProfileProperties.Property("", "", null)).value());
             }
@@ -442,11 +520,11 @@ public class ItemBuilder {
     }
 
     public ItemStack get() {
-        stack.finishEdit();
-        return stack.toBukkit();
+        this.stack.finishEdit();
+        return this.stack.toBukkit();
     }
 
     public ItemStack clonedGet() {
-        return get().clone();
+        return this.get().clone();
     }
 }

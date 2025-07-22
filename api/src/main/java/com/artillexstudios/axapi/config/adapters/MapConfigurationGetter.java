@@ -1,5 +1,7 @@
 package com.artillexstudios.axapi.config.adapters;
 
+import com.artillexstudios.axapi.utils.UncheckedUtils;
+
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -11,8 +13,8 @@ public class MapConfigurationGetter implements ConfigurationGetter {
     private final TypeAdapterHolder holder = new TypeAdapterHolder();
     private final Map<Object, Object> wrapped;
 
-    public MapConfigurationGetter(Map<Object, Object> wrapped) {
-        this.wrapped = wrapped;
+    public <T, Z> MapConfigurationGetter(Map<T, Z> section) {
+        this.wrapped = UncheckedUtils.unsafeCast(section);
     }
 
     @Override

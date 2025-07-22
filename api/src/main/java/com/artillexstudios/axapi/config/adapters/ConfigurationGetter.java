@@ -16,6 +16,17 @@ public interface ConfigurationGetter {
 
     <T> T get(String path, Class<T> clazz);
 
+    default <T> T anyOf(Function<String, T> function, String... paths) {
+        for (String path : paths) {
+            T value = function.apply(path);
+            if (value != null) {
+                return value;
+            }
+        }
+
+        return null;
+    }
+
     default Object getObject(String path) {
         return this.get(path, Object.class);
     }
@@ -59,6 +70,10 @@ public interface ConfigurationGetter {
             newList.add(converter.apply(object));
         }
         return newList;
+    }
+
+    default List<String> getStringList(String path) {
+        return this.getList(path, Object::toString);
     }
 
     default <T, Z> Map<T, Z> getMap(String path) {
