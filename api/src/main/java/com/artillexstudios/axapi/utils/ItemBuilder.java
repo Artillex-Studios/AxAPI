@@ -11,7 +11,9 @@ import com.artillexstudios.axapi.items.component.type.ItemLore;
 import com.artillexstudios.axapi.items.component.type.ProfileProperties;
 import com.artillexstudios.axapi.items.component.type.Unbreakable;
 import com.artillexstudios.axapi.items.component.type.Unit;
+import com.artillexstudios.axapi.placeholders.PlaceholderHandler;
 import com.artillexstudios.axapi.placeholders.PlaceholderParameters;
+import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import com.artillexstudios.axapi.utils.mutable.MutableObject;
 import com.google.common.collect.Lists;
@@ -37,8 +39,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.BiFunction;
 
 public class ItemBuilder {
+    private static final BiFunction<String, PlaceholderParameters, String> PLACEHOLDER_PARSER = (line, parameters) -> FeatureFlags.PARSE_PLACEHOLDER_API_IN_ITEM_BUILDER.get() ? PlaceholderHandler.parseWithPlaceholderAPI(line, parameters) : PlaceholderHandler.parse(line, parameters);
     private static final UUID NIL_UUID = new UUID(0, 0);
     private final List<ItemFlag> flags = new ArrayList<>(4);
     private final WrappedItemStack stack;
@@ -54,7 +58,6 @@ public class ItemBuilder {
             this.stack = WrappedItemStack.wrap(snbt);
         } else {
             String type = getter.anyOf(getter::getString, "material", "type");
-            // TODO: Maybe default item
             this.stack = WrappedItemStack.wrap(new ItemStack(this.getMaterial(type)));
         }
 
@@ -63,7 +66,11 @@ public class ItemBuilder {
         Optionals.ifPresent(getter.getString("name"), this::setName);
         Optionals.ifPresent(getter.getString("color"), this::setColor);
         Optionals.ifPresent(getter.getString("texture"), this::setTextureValue);
-        Optionals.ifPresent(getter.getInteger("amount"), this::amount);
+        Optionals.ifPresent(ExceptionUtils.catching(() -> getter.getInteger("amount")), this::amount);
+        Optionals.ifPresent(ExceptionUtils.catching(() -> getter.getString("amount")), amount -> {
+            amount = PLACEHOLDER_PARSER.apply(amount, this.parameters);
+            this.amount(Integer.parseInt(amount));
+        });
         Optionals.ifPresent(getter.getBoolean("glow"), this::glow);
         Optionals.ifPresent(getter.getStringList("lore"), this::setLore);
         Optionals.ifPresent(getter.getString("potion"), this::setPotion);
@@ -368,7 +375,7 @@ public class ItemBuilder {
 //    }
 
     public ItemBuilder setName(String name) {
-        setName(name, this.resolvers);
+        this.setName(name, this.resolvers);
         return this;
     }
 
@@ -376,12 +383,13 @@ public class ItemBuilder {
         MutableObject<String> toFormat = new MutableObject<>(name);
         replacements.forEach((pattern, replacement) -> toFormat.set(toFormat.get().replace(pattern, replacement)));
 
-        setName(toFormat.get(), TagResolver.resolver());
+        this.setName(toFormat.get(), TagResolver.resolver());
         return this;
     }
 
     public ItemBuilder setName(String name, TagResolver... resolvers) {
-        this.stack.set(DataComponents.customName(), StringUtils.format(toTagResolver(name, resolvers), resolvers));
+        this.stack.set(DataComponents.customName(), StringUtils.format(
+                toTagResolver(Optionals.applyIfPresent(this.parameters, name, PLACEHOLDER_PARSER), resolvers), resolvers));
         return this;
     }
 
@@ -441,7 +449,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setLore(List<String> lore) {
-        setLore(lore, this.resolvers);
+        this.setLore(lore, this.resolvers);
         return this;
     }
 
@@ -453,12 +461,12 @@ public class ItemBuilder {
             newList.add(toFormat.get());
         }
 
-        setLore(newList, TagResolver.resolver());
+        this.setLore(newList, TagResolver.resolver());
         return this;
     }
 
     public ItemBuilder setLore(List<String> lore, TagResolver... resolvers) {
-        this.stack.set(DataComponents.lore(), new ItemLore(StringUtils.formatList(toTagResolver(lore, resolvers), resolvers)));
+        this.stack.set(DataComponents.lore(), new ItemLore(StringUtils.formatList(toTagResolver(Lists.transform(lore, line -> Optionals.applyIfPresent(this.parameters, line, PLACEHOLDER_PARSER)), resolvers), resolvers)));
         return this;
     }
 

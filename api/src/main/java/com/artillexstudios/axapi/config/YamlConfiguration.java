@@ -2,7 +2,6 @@ package com.artillexstudios.axapi.config;
 
 import com.artillexstudios.axapi.config.adapters.MapConfigurationGetter;
 import com.artillexstudios.axapi.config.adapters.TypeAdapter;
-import com.artillexstudios.axapi.config.adapters.TypeAdapterHolder;
 import com.artillexstudios.axapi.config.adapters.other.ObjectAdapter;
 import com.artillexstudios.axapi.config.annotation.Comment;
 import com.artillexstudios.axapi.config.annotation.ConfigurationPart;
@@ -40,7 +39,6 @@ import java.util.function.Consumer;
 public final class YamlConfiguration<T extends ConfigurationPart> extends MapConfigurationGetter {
     private final LinkedHashMap<String, Object> contents;
     private final Map<String, Comment> comments = new HashMap<>();
-    private final TypeAdapterHolder holder = new TypeAdapterHolder();
     private final YamlConfiguration.Builder<T> builder;
     private final YamlConstructor constructor;
     private final FileCreator creator;

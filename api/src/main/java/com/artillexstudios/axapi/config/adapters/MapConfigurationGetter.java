@@ -10,7 +10,7 @@ import java.util.Set;
  * A wrapper class to transform from classes.
  */
 public class MapConfigurationGetter implements ConfigurationGetter {
-    private final TypeAdapterHolder holder = new TypeAdapterHolder();
+    protected final TypeAdapterHolder holder = new TypeAdapterHolder();
     private final Map<Object, Object> wrapped;
 
     public <T, Z> MapConfigurationGetter(Map<T, Z> section) {

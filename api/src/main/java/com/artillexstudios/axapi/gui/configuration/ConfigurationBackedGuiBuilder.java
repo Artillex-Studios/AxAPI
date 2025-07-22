@@ -34,6 +34,7 @@ public final class ConfigurationBackedGuiBuilder {
     private Function<HashMapContext, Supplier<List<?>>> objectProvider;
     private Consumer<InventoryCloseEvent> inventoryCloseListener;
     private Consumer<InventoryOpenEvent> inventoryOpenListener;
+    private Consumer<InventoryClickEvent> playerInventoryClickListener;
     private Integer refreshInterval;
     private final MapConfigurationGetter configuration;
     private final GuiBuilder<?, ?> builder;
@@ -68,6 +69,11 @@ public final class ConfigurationBackedGuiBuilder {
 
     public ConfigurationBackedGuiBuilder onOpen(Consumer<InventoryOpenEvent> consumer) {
         this.inventoryOpenListener = consumer;
+        return this;
+    }
+
+    public ConfigurationBackedGuiBuilder onPlayerInventoryClick(Consumer<InventoryClickEvent> consumer) {
+        this.playerInventoryClickListener = consumer;
         return this;
     }
 
@@ -109,6 +115,10 @@ public final class ConfigurationBackedGuiBuilder {
 
     public Consumer<InventoryOpenEvent> inventoryOpenListener() {
         return this.inventoryOpenListener;
+    }
+
+    public Consumer<InventoryClickEvent> playerInventoryClickListener() {
+        return this.playerInventoryClickListener;
     }
 
     public MapConfigurationGetter configuration() {

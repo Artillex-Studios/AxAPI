@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.placeholders;
 
+import com.artillexstudios.axapi.context.ContextKey;
 import com.artillexstudios.axapi.placeholders.exception.InvalidPlaceholderArgumentException;
 import com.artillexstudios.axapi.placeholders.exception.PlaceholderException;
 import com.artillexstudios.axapi.placeholders.exception.PlaceholderParameterNotInContextException;
@@ -23,6 +24,14 @@ public class PlaceholderContext {
 
     public <T> T raw(Class<T> clazz) {
         return this.parameters.raw(clazz);
+    }
+
+    public <T> T getByName(String name) {
+        return this.parameters.getByName(name);
+    }
+
+    public <T> T getByKey(ContextKey<T> key) {
+        return this.parameters.get(key);
     }
 
     public <T> boolean contains(Class<T> clazz) {

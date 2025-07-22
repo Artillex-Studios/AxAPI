@@ -219,8 +219,12 @@ public class InventoryRenderer implements InventoryHolder {
         }
 
         this.lastClick = now;
-        this.items.get(event.getRawSlot()).eventConsumer()
-                .accept(event);
+        if (event.getClickedInventory() != null && event.getClickedInventory().getType() != InventoryType.PLAYER) {
+            this.items.get(event.getRawSlot()).eventConsumer()
+                    .accept(event);
+        } else {
+            this.currentGui.playerInventoryClickListener.accept(event);
+        }
     }
 
     public Gui currentGui() {

@@ -12,6 +12,7 @@ import com.artillexstudios.axapi.utils.PaperUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -32,6 +33,7 @@ public abstract class Gui {
     protected Function<HashMapContext, Component> titleProvider;
     protected Consumer<InventoryOpenEvent> inventoryOpenListener = event -> {};
     protected Consumer<InventoryCloseEvent> inventoryCloseListener = event -> {};
+    protected Consumer<InventoryClickEvent> playerInventoryClickListener = event -> {};
     protected int rows;
     protected int refreshInterval;
     protected int currentTick;
@@ -72,6 +74,11 @@ public abstract class Gui {
 
     public Gui onOpen(Consumer<InventoryOpenEvent> consumer) {
         this.inventoryOpenListener = consumer;
+        return this;
+    }
+
+    public Gui onPlayerInventoryClick(Consumer<InventoryClickEvent> consumer) {
+        this.playerInventoryClickListener = consumer;
         return this;
     }
 

@@ -1,24 +1,32 @@
 package com.artillexstudios.axapi.placeholders;
 
+import com.artillexstudios.axapi.context.ContextKey;
+import com.artillexstudios.axapi.context.HashMapContext;
 import com.artillexstudios.axapi.placeholders.exception.PlaceholderParameterNotInContextException;
 import com.artillexstudios.axapi.reflection.ClassUtils;
+import com.artillexstudios.axapi.utils.UncheckedUtils;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 
-import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-public class PlaceholderParameters {
+public class PlaceholderParameters extends HashMapContext {
     private static final PlaceholderParameterNotInContextException EXCEPTION = new PlaceholderParameterNotInContextException();
-    private final Map<Class<?>, Object> values = new IdentityHashMap<>();
+
+    public PlaceholderParameters(HashMapContext context) {
+        super(context);
+    }
+
+    public PlaceholderParameters() {
+        super();
+    }
 
     public <T> PlaceholderParameters withParameter(Class<T> clazz, T value) {
         if (FeatureFlags.DEBUG.get()) {
             LogUtils.debug("Adding parameter class {} with value {}!", clazz, value);
         }
-        this.values.put(clazz, value);
+        this.with(ContextKey.of(clazz.getName(), clazz), value);
         return this;
     }
 
@@ -30,7 +38,7 @@ public class PlaceholderParameters {
                 LogUtils.debug("Adding parameter class {} with value {}!", clazz, value);
             }
 
-            this.values.put(clazz, value);
+            this.with(UncheckedUtils.unsafeCast(ContextKey.of(clazz.getName(), clazz)), value);
         }
         return this;
     }
@@ -43,7 +51,7 @@ public class PlaceholderParameters {
     }
 
     public <T> boolean contains(Class<T> clazz) {
-        return this.values.containsKey(clazz);
+        return this.getByClass(clazz) != null;
     }
 
     public <T> T resolve(Class<T> clazz) throws PlaceholderParameterNotInContextException {
@@ -69,7 +77,7 @@ public class PlaceholderParameters {
 
             try {
                 Object other = this.resolve(transformer.from());
-                return (T) transformer.function().apply(other);
+                return UncheckedUtils.unsafeCast(transformer.function().apply(other));
             } catch (PlaceholderParameterNotInContextException ignored) {
                 if (FeatureFlags.DEBUG.get()) {
                     LogUtils.debug("Failed! transformer from: {}, transformer to: {}, class: {}", transformer.from(), transformer.to(), clazz);
@@ -81,7 +89,24 @@ public class PlaceholderParameters {
         throw EXCEPTION;
     }
 
+    @Override
+    public PlaceholderParameters merge(HashMapContext other) {
+        super.merge(other);
+        return this;
+    }
+
+    @Override
+    public PlaceholderParameters copy() {
+        return new PlaceholderParameters(this);
+    }
+
+    @Override
+    public <T> PlaceholderParameters with(ContextKey<T> key, T value) {
+        super.with(key, value);
+        return this;
+    }
+
     public <T> T raw(Class<T> clazz) {
-        return (T) this.values.get(clazz);
+        return UncheckedUtils.unsafeCast(this.getByClass(clazz));
     }
 }

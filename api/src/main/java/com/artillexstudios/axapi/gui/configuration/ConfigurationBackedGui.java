@@ -10,6 +10,7 @@ import com.artillexstudios.axapi.gui.inventory.GuiKeys;
 import com.artillexstudios.axapi.gui.inventory.implementation.PaginatedGui;
 import com.artillexstudios.axapi.gui.inventory.provider.GuiItemProvider;
 import com.artillexstudios.axapi.gui.inventory.provider.implementation.CachingGuiItemProvider;
+import com.artillexstudios.axapi.placeholders.PlaceholderParameters;
 import com.artillexstudios.axapi.utils.ItemBuilder;
 import com.artillexstudios.axapi.utils.UncheckedUtils;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
@@ -27,8 +28,6 @@ import java.util.regex.Pattern;
 
 public class ConfigurationBackedGui<T extends Gui> {
     private static final Pattern SPLIT_PATTERN = Pattern.compile("-");
-    // TODO: Cache providers without any placeholders
-    private final List<GuiItemProvider> cachingProviders = new ArrayList<>();
     private final ConfigurationBackedGuiBuilder builder;
 
     public ConfigurationBackedGui(ConfigurationBackedGuiBuilder builder) {
@@ -36,8 +35,7 @@ public class ConfigurationBackedGui<T extends Gui> {
     }
 
     private void setItems(T gui, HashMapContext globalContext) {
-        // TODO: handle cached items
-        List<MapConfigurationGetter> items = this.builder.configuration().getList("items", MapConfigurationGetter::new);
+        List<MapConfigurationGetter> items = this.builder.configuration().<MapConfigurationGetter, Map<?, ?>>getList("items", MapConfigurationGetter::new);
         if (items == null) {
             items = new ArrayList<>();
             if (this.builder.supportsLegacy()) {
@@ -53,7 +51,6 @@ public class ConfigurationBackedGui<T extends Gui> {
         }
 
         for (MapConfigurationGetter item : items) {
-            // TODO: create an itembuilder that supports PAPI placeholder parsing
             Object slotConfig = item.getObject("slots");
             if (slotConfig == null) {
                 LogUtils.warn("Failed to add item: {} to the gui, because it didn't have any slots set up!", item);
@@ -63,8 +60,7 @@ public class ConfigurationBackedGui<T extends Gui> {
 
             IntList slots = this.slots(slotConfig);
             List<Action<?>> actions = Actions.INSTANCE.parseAll(item.getList("actions"));
-            // TODO: Check if has placeholders, maybe add time based caching provider
-            GuiItemProvider provider = new CachingGuiItemProvider(new GuiItem(ctx -> new ItemBuilder(item.wrapped()).wrapped(), (context, event) -> {
+            GuiItemProvider provider = new CachingGuiItemProvider(new GuiItem(ctx -> ItemBuilder.create(item, new PlaceholderParameters(ctx)).wrapped(), (context, event) -> {
                 context.merge(globalContext);
                 for (Action<?> action : actions) {
                     action.run((Player) event.getWhoClicked(), context);
@@ -93,7 +89,7 @@ public class ConfigurationBackedGui<T extends Gui> {
 
             IntList slots = this.slots(slotConfig);
             List<Action<?>> actions = Actions.INSTANCE.parseAll(item.getList("actions"));
-            GuiItemProvider provider = new CachingGuiItemProvider(new GuiItem(ctx -> new ItemBuilder(item.wrapped()).wrapped(), (context, event) -> {
+            GuiItemProvider provider = new CachingGuiItemProvider(new GuiItem(ctx -> ItemBuilder.create(item, new PlaceholderParameters(ctx)).wrapped(), (context, event) -> {
                 context.merge(globalContext);
                 for (Action<?> action : actions) {
                     action.run((Player) event.getWhoClicked(), context);
@@ -175,6 +171,10 @@ public class ConfigurationBackedGui<T extends Gui> {
 
         if (this.builder.inventoryOpenListener() != null) {
             gui.onOpen(this.builder.inventoryOpenListener());
+        }
+
+        if (this.builder.playerInventoryClickListener() != null) {
+            gui.onPlayerInventoryClick(this.builder.playerInventoryClickListener());
         }
 
         if (this.builder.refreshInterval() != null) {

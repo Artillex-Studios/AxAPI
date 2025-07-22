@@ -98,15 +98,21 @@ public final class FeatureFlags {
     /**
      * Whether to create a scheduled task for updating inventories from InventoryRenderer.
      * <p>
-     * Can be controlled with the system property: %pluginName%strictInventoryOverrideHandling
+     * Can be controlled with the system property: %pluginName%useInventoryUpdater
      */
     public static final BooleanFlag USE_INVENTORY_UPDATER = new BooleanFlag(false);
     /**
      * Whether exceptions handled with ExceptionUtils should be printed to console.
      * <p>
-     * Can be controlled with the system property: %pluginName%strictInventoryOverrideHandling
+     * Can be controlled with the system property: %pluginName%logExceptionUtilsExceptions
      */
     public static final BooleanFlag LOG_EXCEPTION_UTILS_EXCEPTIONS = new BooleanFlag(false);
+    /**
+     * Whether exceptions handled with ExceptionUtils should be printed to console.
+     * <p>
+     * Can be controlled with the system property: %pluginName%parsePlaceholderAPiInItemBuilder
+     */
+    public static final BooleanFlag PARSE_PLACEHOLDER_API_IN_ITEM_BUILDER = new BooleanFlag(false);
 
     public static void refresh(AxPlugin plugin) {
         PACKET_ENTITY_TRACKER_ENABLED.refresh(plugin.getName() + "enableEntityTracker");
@@ -123,5 +129,8 @@ public final class FeatureFlags {
         GUI_WAIT_FOR_ALL.refresh(plugin.getName() + "guiWaitForAll");
         INVENTORY_CLICK_COOLDOWN.refresh(plugin.getName() + "inventoryClickCooldown");
         STRICT_ITEM_OVERRIDE_HANDLING.refresh(plugin.getName() + "strictInventoryOverrideHandling");
+        USE_INVENTORY_UPDATER.refresh(plugin.getName() + "useInventoryUpdater");
+        LOG_EXCEPTION_UTILS_EXCEPTIONS.refresh(plugin.getName() + "logExceptionUtilsExceptions");
+        PARSE_PLACEHOLDER_API_IN_ITEM_BUILDER.refresh(plugin.getName() + "parsePlaceholderAPiInItemBuilder");
     }
 }

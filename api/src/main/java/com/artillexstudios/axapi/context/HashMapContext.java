@@ -7,10 +7,14 @@ import java.util.Map;
 import java.util.Objects;
 
 public class HashMapContext {
-    private final HashMap<ContextKey<?>, Object> values;
+    protected final HashMap<ContextKey<?>, Object> values;
 
     public HashMapContext() {
         this(new HashMap<>());
+    }
+
+    public HashMapContext(HashMapContext context) {
+        this(new HashMap<>(context.values));
     }
 
     public HashMapContext(HashMap<ContextKey<?>, Object> contents) {
@@ -51,7 +55,7 @@ public class HashMapContext {
     }
 
     public HashMapContext copy() {
-        return new HashMapContext(UncheckedUtils.unsafeCast(this.values.clone()));
+        return new HashMapContext(this);
     }
 
     /**
