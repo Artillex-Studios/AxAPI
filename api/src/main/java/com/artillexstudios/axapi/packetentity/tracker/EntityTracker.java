@@ -37,7 +37,7 @@ public final class EntityTracker {
     private final ConcurrentLinkedQueue<TrackedEntity> trackingQueue = new ConcurrentLinkedQueue<>();
     private final FieldAccessor accessor = FieldAccessor.builder()
             .withField("tracker")
-            .withClass("com.artillexstudios.axapi.nms.%s.entity.PacketEntity".formatted(Version.getServerVersion().nmsVersion()))
+            .withClass("com.artillexstudios.axapi.nms.%s.entity.PacketEntity".formatted(Version.getServerVersion().getNMSVersion()))
             .build();
     private ScheduledExecutorService service;
     private final AxPlugin instance;

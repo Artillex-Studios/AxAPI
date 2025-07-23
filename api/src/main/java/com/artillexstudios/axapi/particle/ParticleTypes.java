@@ -321,7 +321,7 @@ public final class ParticleTypes {
         int id = buf.readVarInt();
         ParticleType<T> type = (ParticleType<T>) registry.get(id);
         if (type == null) {
-            LogUtils.error("Failed to find particle type with id {}! Report this on our issue tracker! Version: {} Particles: {}", id, Version.getServerVersion().nmsVersion(), Maps.orderByValue(particles()));
+            LogUtils.error("Failed to find particle type with id {}! Report this on our issue tracker! Version: {} Particles: {}", id, Version.getServerVersion().getNMSVersion(), Maps.orderByValue(particles()));
             return new ParticleData<>((ParticleType<T>) ParticleTypes.HEART, null);
         }
 

@@ -152,19 +152,19 @@ public final class ClientboundMerchantOffersWrapper extends PacketWrapper {
     }
 
     private void writeOffer(FriendlyByteBuf buf, MerchantOffer offer) {
-        buf.writeItemCost(offer.item1());
-        buf.writeItemStack(offer.output());
+        buf.writeItemCost(offer.getItem1());
+        buf.writeItemStack(offer.getOutput());
         if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_20_4) || Version.v1_20_4.isOlderThan(Version.v1_19)) {
-            buf.writeOptionalItemCost(offer.item2());
+            buf.writeOptionalItemCost(offer.getItem2());
         } else {
-            buf.writeItemStack(offer.item2().orElse(null));
+            buf.writeItemStack(offer.getItem2().orElse(null));
         }
-        buf.writeBoolean(offer.uses() >= offer.maxUses());
-        buf.writeInt(offer.uses());
-        buf.writeInt(offer.maxUses());
-        buf.writeInt(offer.xp());
-        buf.writeInt(offer.price());
-        buf.writeFloat(offer.priceMultiplier());
-        buf.writeInt(offer.demand());
+        buf.writeBoolean(offer.getUses() >= offer.getMaxUses());
+        buf.writeInt(offer.getUses());
+        buf.writeInt(offer.getMaxUses());
+        buf.writeInt(offer.getXp());
+        buf.writeInt(offer.getPrice());
+        buf.writeFloat(offer.getPriceMultiplier());
+        buf.writeInt(offer.getDemand());
     }
 }

@@ -50,12 +50,12 @@ public class PacketItemModifier {
                     } else if (event.type() == ClientboundPacketTypes.MERCHANT_OFFERS) {
                         ClientboundMerchantOffersWrapper wrapper = new ClientboundMerchantOffersWrapper(event);
                         for (MerchantOffer offer : wrapper.merchantOffers()) {
-                            PacketItemModifier.callModify(offer.item1(), event.player(), PacketItemModifier.Context.MERCHANT_OFFER);
-                            offer.item2().ifPresent(cost -> {
+                            PacketItemModifier.callModify(offer.getItem1(), event.player(), PacketItemModifier.Context.MERCHANT_OFFER);
+                            offer.getItem2().ifPresent(cost -> {
                                 PacketItemModifier.callModify(cost, event.player(), PacketItemModifier.Context.MERCHANT_OFFER);
 
                             });
-                            PacketItemModifier.callModify(offer.output(), event.player(), PacketItemModifier.Context.MERCHANT_OFFER);
+                            PacketItemModifier.callModify(offer.getOutput(), event.player(), PacketItemModifier.Context.MERCHANT_OFFER);
                         }
                     } else if (event.type() == ClientboundPacketTypes.SET_ENTITY_DATA) {
                         ClientboundEntityMetadataWrapper wrapper = new ClientboundEntityMetadataWrapper(event);

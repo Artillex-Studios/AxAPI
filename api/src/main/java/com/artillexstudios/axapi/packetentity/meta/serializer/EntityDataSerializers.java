@@ -500,9 +500,9 @@ public final class EntityDataSerializers {
     public static final EntityDataSerializer<VillagerData> VILLAGER_DATA = new EntityDataSerializer<>() {
         @Override
         public void write(FriendlyByteBuf buf, VillagerData value) {
-            buf.writeVarInt(value.type());
-            buf.writeVarInt(value.profession());
-            buf.writeVarInt(value.level());
+            buf.writeVarInt(value.getType());
+            buf.writeVarInt(value.getProfession());
+            buf.writeVarInt(value.getLevel());
         }
 
         @Override

@@ -11,7 +11,7 @@ public class VillagerData {
         this.level = level;
     }
 
-    public int type() {
+    public int getType() {
         return this.type;
     }
 
@@ -19,7 +19,7 @@ public class VillagerData {
         this.type = type;
     }
 
-    public int profession() {
+    public int getProfession() {
         return this.profession;
     }
 
@@ -27,7 +27,7 @@ public class VillagerData {
         this.profession = profession;
     }
 
-    public int level() {
+    public int getLevel() {
         return this.level;
     }
 

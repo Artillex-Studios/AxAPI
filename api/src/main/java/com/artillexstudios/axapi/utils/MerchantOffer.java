@@ -27,7 +27,7 @@ public final class MerchantOffer {
         this.demand = demand;
     }
 
-    public WrappedItemStack item1() {
+    public WrappedItemStack getItem1() {
         return this.item1;
     }
 
@@ -35,7 +35,7 @@ public final class MerchantOffer {
         this.item1 = item1;
     }
 
-    public Optional<WrappedItemStack> item2() {
+    public Optional<WrappedItemStack> getItem2() {
         return this.item2;
     }
 
@@ -43,7 +43,7 @@ public final class MerchantOffer {
         this.item2 = item2;
     }
 
-    public WrappedItemStack output() {
+    public WrappedItemStack getOutput() {
         return this.output;
     }
 
@@ -51,7 +51,7 @@ public final class MerchantOffer {
         this.output = output;
     }
 
-    public int uses() {
+    public int getUses() {
         return this.uses;
     }
 
@@ -59,7 +59,7 @@ public final class MerchantOffer {
         this.uses = uses;
     }
 
-    public int maxUses() {
+    public int getMaxUses() {
         return this.maxUses;
     }
 
@@ -67,7 +67,7 @@ public final class MerchantOffer {
         this.maxUses = maxUses;
     }
 
-    public int xp() {
+    public int getXp() {
         return this.xp;
     }
 
@@ -75,7 +75,7 @@ public final class MerchantOffer {
         this.xp = xp;
     }
 
-    public int price() {
+    public int getPrice() {
         return this.price;
     }
 
@@ -83,7 +83,7 @@ public final class MerchantOffer {
         this.price = price;
     }
 
-    public float priceMultiplier() {
+    public float getPriceMultiplier() {
         return this.priceMultiplier;
     }
 
@@ -91,7 +91,7 @@ public final class MerchantOffer {
         this.priceMultiplier = priceMultiplier;
     }
 
-    public int demand() {
+    public int getDemand() {
         return this.demand;
     }
 

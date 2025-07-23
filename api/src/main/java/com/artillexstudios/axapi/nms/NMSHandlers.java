@@ -11,7 +11,7 @@ public class NMSHandlers {
     private static boolean init(AxPlugin plugin) {
         Version version = Version.getServerVersion();
         if (version == Version.UNKNOWN) {
-            LogUtils.warn("Could not load plugin {} due to version mismatch! Found protocol version {} which is unsupported!", plugin.getName(), Version.protocolVersion());
+            LogUtils.warn("Could not load plugin {} due to version mismatch! Found protocol version {} which is unsupported!", plugin.getName(), Version.getProtocolVersion());
             return false;
         }
 
@@ -21,7 +21,7 @@ public class NMSHandlers {
         }
 
         try {
-            nmsHandler = (NMSHandler) Class.forName("com.artillexstudios.axapi.nms.%s.NMSHandler".formatted(version.nmsVersion())).getConstructor().newInstance();
+            nmsHandler = (NMSHandler) Class.forName("com.artillexstudios.axapi.nms.%s.NMSHandler".formatted(version.getNMSVersion())).getConstructor().newInstance();
         } catch (Exception exception) {
             LogUtils.warn("Could not enable NMSHandler due to an internal exception while loading NMSHandler!", exception);
             return false;

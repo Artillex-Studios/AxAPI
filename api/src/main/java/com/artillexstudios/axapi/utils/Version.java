@@ -75,7 +75,7 @@ public enum Version {
         return serverVersion;
     }
 
-    public static int protocolVersion() {
+    public static int getProtocolVersion() {
         return protocolVersion;
     }
 
@@ -95,15 +95,15 @@ public enum Version {
         return this.protocolId <= version.protocolId;
     }
 
-    public List<String> versions() {
+    public List<String> getVersions() {
         return this.versions;
     }
 
-    public int protocolId() {
+    public int getProtocolId() {
         return this.protocolId;
     }
 
-    public String nmsVersion() {
+    public String getNMSVersion() {
         return this.nmsVersion;
     }
 }
