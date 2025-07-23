@@ -4,7 +4,7 @@ import com.artillexstudios.axapi.dependencies.DependencyManagerWrapper;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.gui.AnvilListener;
 import com.artillexstudios.axapi.gui.SignInput;
-import com.artillexstudios.axapi.gui.inventory.InventoryRenderers;
+import com.artillexstudios.axapi.gui.inventory.renderer.InventoryRenderers;
 import com.artillexstudios.axapi.gui.inventory.InventoryUpdater;
 import com.artillexstudios.axapi.gui.inventory.listener.InventoryClickListener;
 import com.artillexstudios.axapi.hologram.Holograms;

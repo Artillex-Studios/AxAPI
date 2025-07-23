@@ -1,4 +1,4 @@
-package com.artillexstudios.axapi.gui.inventory;
+package com.artillexstudios.axapi.gui.inventory.renderer;
 
 import org.bukkit.entity.Player;
 

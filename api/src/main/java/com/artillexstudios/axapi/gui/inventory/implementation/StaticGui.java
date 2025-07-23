@@ -42,7 +42,7 @@ public class StaticGui extends Gui {
     }
 
     @Override
-    public Int2ObjectArrayMap<GuiItemProvider> providers() {
-        return super.providers();
+    public Int2ObjectArrayMap<GuiItemProvider> getProviders() {
+        return super.getProviders();
     }
 }

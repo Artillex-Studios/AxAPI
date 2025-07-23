@@ -178,7 +178,7 @@ public class ConfigurationBackedGui<T extends Gui> {
         }
 
         if (this.builder.refreshInterval() != null) {
-            gui.refreshInterval(this.builder.refreshInterval());
+            gui.setRefreshInterval(this.builder.refreshInterval());
         }
 
         return gui;

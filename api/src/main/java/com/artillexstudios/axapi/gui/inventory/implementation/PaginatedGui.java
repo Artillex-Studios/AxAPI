@@ -169,15 +169,15 @@ public class PaginatedGui extends Gui {
     }
 
     @Override
-    public Int2ObjectArrayMap<GuiItemProvider> providers() {
+    public Int2ObjectArrayMap<GuiItemProvider> getProviders() {
         if (this.pageSize == 0 && !this.otherProviders.isEmpty()) {
             LogUtils.warn("This paginated gui has no empty slots for the provided items!");
             LogUtils.warn("Please create some empty slots for them!");
-            return super.providers();
+            return super.getProviders();
         }
 
         int index = this.page * this.pageSize;
-        Int2ObjectArrayMap<GuiItemProvider> pageProviders = super.providers().clone();
+        Int2ObjectArrayMap<GuiItemProvider> pageProviders = super.getProviders().clone();
         for (Int2ObjectMap.Entry<GuiItemProvider> entry : pageProviders.int2ObjectEntrySet()) {
             if (!(entry.getValue() instanceof EmptyGuiItemProvider)) {
                 continue;

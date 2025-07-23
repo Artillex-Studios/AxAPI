@@ -7,6 +7,8 @@ import com.artillexstudios.axapi.gui.inventory.modifier.WrappedItemStackModifier
 import com.artillexstudios.axapi.gui.inventory.provider.GuiItemProvider;
 import com.artillexstudios.axapi.gui.inventory.provider.implementation.EmptyGuiItemProvider;
 import com.artillexstudios.axapi.gui.inventory.provider.implementation.SimpleGuiItemProvider;
+import com.artillexstudios.axapi.gui.inventory.renderer.InventoryRenderer;
+import com.artillexstudios.axapi.gui.inventory.renderer.InventoryRenderers;
 import com.artillexstudios.axapi.scheduler.Scheduler;
 import com.artillexstudios.axapi.utils.PaperUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
@@ -94,15 +96,15 @@ public abstract class Gui {
         this.providers.put(slot, provider);
     }
 
-    public int rows() {
+    public int getRows() {
         return this.rows;
     }
 
-    public int refreshInterval() {
+    public int getRefreshInterval() {
         return this.refreshInterval;
     }
 
-    public void refreshInterval(int refreshInterval) {
+    public void setRefreshInterval(int refreshInterval) {
         this.refreshInterval = refreshInterval;
     }
 
@@ -122,20 +124,40 @@ public abstract class Gui {
         return this.titleProvider.apply(context.merge(this.context));
     }
 
-    public InventoryType type() {
+    public InventoryType getType() {
         return this.type;
     }
 
-    public Int2ObjectArrayMap<GuiItemProvider> providers() {
+    public Int2ObjectArrayMap<GuiItemProvider> getProviders() {
         return this.providers;
+    }
+
+    public HashMapContext getContext() {
+        return this.context;
+    }
+
+    public InventoryRenderer getRenderer() {
+        return this.renderer;
     }
 
     public void updateTitle() {
         this.renderer.onTitleUpdate(new HashMapContext().with(ContextKey.of("player", Player.class), this.player).merge(this.context));
     }
 
-    public List<WrappedItemStackModifier> modifiers() {
+    public List<WrappedItemStackModifier> getModifiers() {
         return this.modifiers;
+    }
+
+    public Consumer<InventoryOpenEvent> getInventoryOpenListener() {
+        return this.inventoryOpenListener;
+    }
+
+    public Consumer<InventoryCloseEvent> getInventoryCloseListener() {
+        return this.inventoryCloseListener;
+    }
+
+    public Consumer<InventoryClickEvent> getPlayerInventoryClickListener() {
+        return this.playerInventoryClickListener;
     }
 
     public void open() {

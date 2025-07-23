@@ -1,6 +1,6 @@
 package com.artillexstudios.axapi.gui.inventory.listener;
 
-import com.artillexstudios.axapi.gui.inventory.InventoryRenderer;
+import com.artillexstudios.axapi.gui.inventory.renderer.InventoryRenderer;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.component.DataComponents;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
