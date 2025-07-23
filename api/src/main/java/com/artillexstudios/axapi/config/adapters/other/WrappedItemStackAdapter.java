@@ -15,7 +15,7 @@ public final class WrappedItemStackAdapter implements TypeAdapter<WrappedItemSta
     public WrappedItemStack deserialize(TypeAdapterHolder holder, Object input, Type type) {
         if (input instanceof Map<?, ?> map) {
             Map<Object, Object> castedMap = UncheckedUtils.unsafeCast(map);
-            return new ItemBuilder(castedMap).wrapped();
+            return ItemBuilder.create(castedMap).wrapped();
         }
 
         throw new IllegalArgumentException();
@@ -23,6 +23,6 @@ public final class WrappedItemStackAdapter implements TypeAdapter<WrappedItemSta
 
     @Override
     public Map<String, Object> serialize(TypeAdapterHolder holder, WrappedItemStack value, Type type) {
-        return UncheckedUtils.unsafeCast(new ItemBuilder(value.toBukkit()).serialize(true));
+        return UncheckedUtils.unsafeCast(ItemBuilder.create(value).serialize(true));
     }
 }
