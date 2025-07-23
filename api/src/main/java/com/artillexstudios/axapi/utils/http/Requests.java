@@ -13,16 +13,17 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
+@SuppressWarnings("resource")
 public final class Requests {
     private static final AtomicReference<HttpClient> client = new AtomicReference<>();
     private static final Gson gson = new Gson();
 
-    private static void init() {
-        client.getAndUpdate(prev -> prev == null ? HttpClient.newHttpClient() : prev);
+    private static HttpClient init() {
+        return client.updateAndGet(prev -> prev == null ? HttpClient.newHttpClient() : prev);
     }
 
     public static HttpResponse<String> post(String url, Map<String, String> headers, Supplier<JsonObject> body) {
-        init();
+        HttpClient client = init();
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(body.get())));
@@ -30,14 +31,14 @@ public final class Requests {
         headers.forEach(builder::setHeader);
 
         try {
-            return client.get().send(builder.build(), HttpResponse.BodyHandlers.ofString());
+            return client.send(builder.build(), HttpResponse.BodyHandlers.ofString());
         } catch (IOException | InterruptedException exception) {
             throw new RuntimeException(exception);
         }
     }
 
     public static HttpResponse<String> delete(String url, Map<String, String> headers) {
-        init();
+        HttpClient client = init();
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .DELETE();
@@ -45,14 +46,14 @@ public final class Requests {
         headers.forEach(builder::setHeader);
 
         try {
-            return client.get().send(builder.build(), HttpResponse.BodyHandlers.ofString());
+            return client.send(builder.build(), HttpResponse.BodyHandlers.ofString());
         } catch (IOException | InterruptedException exception) {
             throw new RuntimeException(exception);
         }
     }
 
     public static HttpResponse<String> get(String url, Map<String, String> headers) {
-        init();
+        HttpClient client = init();
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .GET();
@@ -60,42 +61,42 @@ public final class Requests {
         headers.forEach(builder::setHeader);
 
         try {
-            return client.get().send(builder.build(), HttpResponse.BodyHandlers.ofString());
+            return client.send(builder.build(), HttpResponse.BodyHandlers.ofString());
         } catch (IOException | InterruptedException exception) {
             throw new RuntimeException(exception);
         }
     }
 
     public static CompletableFuture<HttpResponse<String>> postAsync(String url, Map<String, String> headers, Supplier<JsonObject> body) {
-        init();
+        HttpClient client = init();
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(body.get())));
 
         headers.forEach(builder::setHeader);
 
-        return client.get().sendAsync(builder.build(), HttpResponse.BodyHandlers.ofString());
+        return client.sendAsync(builder.build(), HttpResponse.BodyHandlers.ofString());
     }
 
     public static CompletableFuture<HttpResponse<String>> deleteAsync(String url, Map<String, String> headers) {
-        init();
+        HttpClient client = init();
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .DELETE();
 
         headers.forEach(builder::setHeader);
 
-        return client.get().sendAsync(builder.build(), HttpResponse.BodyHandlers.ofString());
+        return client.sendAsync(builder.build(), HttpResponse.BodyHandlers.ofString());
     }
 
     public static CompletableFuture<HttpResponse<String>> getAsync(String url, Map<String, String> headers) {
-        init();
+        HttpClient client = init();
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .GET();
 
         headers.forEach(builder::setHeader);
 
-        return client.get().sendAsync(builder.build(), HttpResponse.BodyHandlers.ofString());
+        return client.sendAsync(builder.build(), HttpResponse.BodyHandlers.ofString());
     }
 }
