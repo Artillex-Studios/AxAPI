@@ -48,7 +48,7 @@ public final class StringUtils {
     private static final CharImmutableList COLOR_CHARS = CharImmutableList.of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', '#');
     private static final Cache<String, String> COLOR_CACHE = Caffeine.newBuilder()
             .expireAfterAccess(Duration.ofMinutes(1))
-            .maximumSize(200)
+            .maximumSize(FeatureFlags.COLOR_CACHE_SIZE.get())
             .build();
     public static MiniMessage MINI_MESSAGE = MiniMessage.builder()
             .tags(StandardTags.defaults())

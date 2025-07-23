@@ -75,7 +75,7 @@ public final class FeatureFlags {
      * <p>
      * Can be controlled with the system property: %pluginName%componentCacheSize
      */
-    public static final IntegerFlag COMPONENT_CACHE_SIZE = new IntegerFlag(200);
+    public static final IntegerFlag COMPONENT_CACHE_SIZE = new IntegerFlag(1000);
     /**
      * If the guis should wait for all items to be created before opening the inventory.
      * <p>
@@ -113,6 +113,12 @@ public final class FeatureFlags {
      * Can be controlled with the system property: %pluginName%parsePlaceholderAPiInItemBuilder
      */
     public static final BooleanFlag PARSE_PLACEHOLDER_API_IN_ITEM_BUILDER = new BooleanFlag(false);
+    /**
+     * The size of the color cache.
+     * <p>
+     * Can be controlled with the system property: %pluginName%colorCacheSize
+     */
+    public static final IntegerFlag COLOR_CACHE_SIZE = new IntegerFlag(1000);
 
     public static void refresh(AxPlugin plugin) {
         PACKET_ENTITY_TRACKER_ENABLED.refresh(plugin.getName() + "enableEntityTracker");
@@ -132,5 +138,6 @@ public final class FeatureFlags {
         USE_INVENTORY_UPDATER.refresh(plugin.getName() + "useInventoryUpdater");
         LOG_EXCEPTION_UTILS_EXCEPTIONS.refresh(plugin.getName() + "logExceptionUtilsExceptions");
         PARSE_PLACEHOLDER_API_IN_ITEM_BUILDER.refresh(plugin.getName() + "parsePlaceholderAPiInItemBuilder");
+        COLOR_CACHE_SIZE.refresh(plugin.getName() + "colorCacheSize");
     }
 }
