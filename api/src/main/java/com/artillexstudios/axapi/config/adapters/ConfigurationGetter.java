@@ -65,6 +65,10 @@ public interface ConfigurationGetter {
 
     default <T, Z> List<T> getList(String path, Function<Z, T> converter) {
         List<Z> list = UncheckedUtils.unsafeCast(this.get(path, List.class));
+        if (list == null) {
+            return null;
+        }
+
         List<T> newList = new ArrayList<>(list.size());
         for (Z object : list) {
             newList.add(converter.apply(object));
