@@ -53,7 +53,7 @@ public final class AxMetrics {
             return;
         }
 
-        this.executorService = new ExceptionReportingScheduledThreadPool(1,
+        this.executorService = new ExceptionReportingScheduledThreadPool(0,
                 Thread.ofVirtual()
                         .name(this.pluginName + "-AxMetrics-executor")
                         .factory()
