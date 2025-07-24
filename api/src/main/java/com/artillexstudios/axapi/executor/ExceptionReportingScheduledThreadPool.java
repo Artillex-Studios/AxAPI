@@ -2,6 +2,7 @@ package com.artillexstudios.axapi.executor;
 
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -28,6 +29,8 @@ public class ExceptionReportingScheduledThreadPool extends ScheduledThreadPoolEx
                     throw new RuntimeException(exception);
                 } catch (ExecutionException exception) {
                     LogUtils.error("An uncaught exception occurred on thread {}!", Thread.currentThread().getName(), exception.getCause());
+                } catch (CancellationException ignored) {
+                    // Ignore CancellationException
                 }
             }
         }
