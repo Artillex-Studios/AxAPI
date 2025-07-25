@@ -2,6 +2,7 @@ package com.artillexstudios.axapi.utils;
 
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 public final class Optionals {
@@ -28,5 +29,39 @@ public final class Optionals {
         }
 
         return object;
+    }
+
+    @SafeVarargs
+    public static <T> T orElse(Supplier<T> one, Supplier<T>... others) {
+        T value = one.get();
+        if (value != null) {
+            return value;
+        }
+
+        for (Supplier<T> other : others) {
+            value = other.get();
+            if (value != null) {
+                return value;
+            }
+        }
+
+        return null;
+    }
+
+    @SafeVarargs
+    public static <T> T orElse(T one, T... others) {
+        T value = one;
+        if (value != null) {
+            return value;
+        }
+
+        for (T other : others) {
+            value = other;
+            if (value != null) {
+                return value;
+            }
+        }
+
+        return null;
     }
 }

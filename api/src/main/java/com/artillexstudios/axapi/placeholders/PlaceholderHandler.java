@@ -3,6 +3,7 @@ package com.artillexstudios.axapi.placeholders;
 import com.artillexstudios.axapi.placeholders.exception.PlaceholderException;
 import com.artillexstudios.axapi.placeholders.exception.PlaceholderParameterNotInContextException;
 import com.artillexstudios.axapi.reflection.ClassUtils;
+import com.artillexstudios.axapi.utils.Optionals;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.functions.ThrowingFunction;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
@@ -81,7 +82,7 @@ public class PlaceholderHandler {
         String newLine = parse(line, parameters);
         if (ClassUtils.INSTANCE.classExists("me.clip.placeholderapi.PlaceholderAPI")) {
             try {
-                newLine = PlaceholderAPI.setPlaceholders(parameters.resolve(Player.class), newLine);
+                newLine = PlaceholderAPI.setPlaceholders(Optionals.orElse(parameters.getByName("player"), parameters.resolve(Player.class)), newLine);
             } catch (PlaceholderParameterNotInContextException exception) {
                 return newLine;
             }
