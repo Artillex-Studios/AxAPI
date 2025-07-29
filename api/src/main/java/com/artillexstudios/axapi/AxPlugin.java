@@ -47,15 +47,18 @@ public abstract class AxPlugin extends JavaPlugin {
     public EntityTracker tracker;
 
     public AxPlugin() {
+        DependencyManager localManager = new DependencyManager(this.getDescription(), this.getDataFolder().toPath().resolve("../AxAPI/libs").toFile(), URLClassLoaderWrapper.wrap((URLClassLoader) this.getClassLoader()));
+        DependencyManagerWrapper localDependencyWrapper = new DependencyManagerWrapper(localManager);
+        localDependencyWrapper.dependency("org{}apache{}commons:commons-math3:3.6.1");
+        localDependencyWrapper.dependency("com{}github{}ben-manes{}caffeine:caffeine:3.1.8");
+
+        localDependencyWrapper.relocate("org{}apache{}commons{}math3", "com.artillexstudios.axapi.libs.math3");
+        localDependencyWrapper.relocate("com{}github{}benmanes", "com.artillexstudios.axapi.libs.caffeine");
+
         DependencyManager manager = new DependencyManager(this.getDescription(), new File(this.getDataFolder(), "libs"), URLClassLoaderWrapper.wrap((URLClassLoader) this.getClassLoader()));
         DependencyManagerWrapper wrapper = new DependencyManagerWrapper(manager);
-        wrapper.dependency("org{}apache{}commons:commons-math3:3.6.1");
-        wrapper.dependency("com{}github{}ben-manes{}caffeine:caffeine:3.1.8");
-
-        wrapper.relocate("org{}apache{}commons{}math3", "com.artillexstudios.axapi.libs.math3");
-        wrapper.relocate("com{}github{}benmanes", "com.artillexstudios.axapi.libs.caffeine");
-
         this.dependencies(wrapper);
+        localManager.load();
         manager.load();
 
         FeatureFlags.refresh(this);
