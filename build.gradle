@@ -76,11 +76,11 @@ allprojects {
         afterEvaluate {
             repositories {
                 maven {
-                    name = "ArtillexStudios"
+                    name = "Artillex-Studios"
                     url = "https://repo.artillex-studios.com/releases"
                     credentials {
-                        username = "${maven_username}"
-                        password = "${maven_password}"
+                        it.username = "${maven_username}"
+                        it.password = "${maven_password}"
                     }
                 }
             }
