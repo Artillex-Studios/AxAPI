@@ -76,7 +76,7 @@ allprojects {
         afterEvaluate {
             repositories {
                 maven {
-                    name = "Artillex-Studios"
+                    name = "ArtillexStudios"
                     url = "https://repo.artillex-studios.com/releases"
                     credentials {
                         username = "${maven_username}"
