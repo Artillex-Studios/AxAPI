@@ -13,11 +13,14 @@ import com.artillexstudios.axapi.packetentity.meta.EntityMeta;
 import com.artillexstudios.axapi.packetentity.meta.EntityMetaFactory;
 import com.artillexstudios.axapi.packetentity.meta.Metadata;
 import com.artillexstudios.axapi.packetentity.tracker.EntityTracker;
+import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
+import com.artillexstudios.axapi.utils.RandomStringGenerator;
 import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axapi.utils.placeholder.Placeholder;
 import com.artillexstudios.axapi.utils.placeholder.StaticPlaceholder;
 import com.google.common.collect.Lists;
+import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.util.Pair;
 import io.netty.buffer.Unpooled;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
@@ -29,6 +32,8 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
@@ -41,6 +46,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
@@ -49,6 +55,7 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Optional;
@@ -77,6 +84,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     private boolean hasInvertedVisibility = false;
     private float yHeadRot = 0;
     private int viewDistanceSquared = 32 * 32;
+    private UUID uuid = UUID.randomUUID();
 
     public PacketEntity(EntityType entityType, Location location) {
         this.id = ServerWrapper.INSTANCE.nextEntityId();
@@ -104,7 +112,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     }
 
     private static ClientboundAddEntityPacket getAddEntityPacket(PacketEntity entity) {
-        return new ClientboundAddEntityPacket(entity.id(), UUID.randomUUID(), entity.location().getX(), entity.location().getY(), entity.location().getZ(), entity.location().getPitch(), entity.location().getYaw(), entity.type, 1, Vec3.ZERO, 0);
+        return new ClientboundAddEntityPacket(entity.id(), entity.uuid, entity.location().getX(), entity.location().getY(), entity.location().getZ(), entity.location().getPitch(), entity.location().getYaw(), entity.type, 1, Vec3.ZERO, 0);
     }
 
     @Override
@@ -270,6 +278,10 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     @Override
     public void removePairing(Player player) {
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
+        if (this.type == net.minecraft.world.entity.EntityType.PLAYER) {
+            serverPlayer.connection.send(new ClientboundPlayerInfoRemovePacket(List.of(this.uuid)));
+        }
+
         serverPlayer.connection.send(new ClientboundRemoveEntitiesPacket(this.id));
     }
 
@@ -277,6 +289,11 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     public void addPairing(Player player) {
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
         ArrayList<Packet<ClientGamePacketListener>> list = new ArrayList<>();
+
+        if (this.type == net.minecraft.world.entity.EntityType.PLAYER) {
+            String name = RandomStringGenerator.lowercase().generate(15);
+            list.add(new ClientboundPlayerInfoUpdatePacket(EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME, ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LISTED), new ClientboundPlayerInfoUpdatePacket.Entry(this.uuid, new GameProfile(this.uuid, name), true, 0, GameType.SURVIVAL, ComponentSerializer.INSTANCE.toVanilla(net.kyori.adventure.text.Component.text(RandomStringGenerator.lowercase().generate(15))), null)));
+        }
 
         list.add(getAddEntityPacket(this));
 
