@@ -42,10 +42,9 @@ public final class WorldWrapper implements com.artillexstudios.axapi.nms.wrapper
         this.update();
 
         List<ServerPlayer> players = this.level.players();
-        int size = players.size();
-        List<com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper> playerList = new ObjectArrayList<>(size);
+        List<com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper> playerList = new ObjectArrayList<>(players.size());
         if (players instanceof ArrayList<ServerPlayer> arrayList) {
-            for (int i = 0; i < size; i++) {
+            for (int i = 0; i < players.size(); i++) {
                 ServerPlayer serverPlayer = arrayList.get(i);
                 if (serverPlayer == null) {
                     continue;

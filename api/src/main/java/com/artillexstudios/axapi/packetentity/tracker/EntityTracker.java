@@ -126,7 +126,9 @@ public final class EntityTracker {
 
     public void process() {
         if (!this.trackingQueue.isEmpty()) {
-            LogUtils.warn("The tracker queue has not been drained yet! This means that tracking took longer than a tick! Increase the entity tracker thread count!");
+            if (FeatureFlags.DEBUG.get()) {
+                LogUtils.warn("The tracker queue has not been drained yet! This means that tracking took longer than a tick! Increase the entity tracker thread count! Tracker size: {}", this.trackingQueue.size());
+            }
             return;
         }
 
