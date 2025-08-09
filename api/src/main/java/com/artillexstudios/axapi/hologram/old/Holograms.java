@@ -1,4 +1,4 @@
-package com.artillexstudios.axapi.hologram;
+package com.artillexstudios.axapi.hologram.old;
 
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.executor.ExceptionReportingScheduledThreadPool;

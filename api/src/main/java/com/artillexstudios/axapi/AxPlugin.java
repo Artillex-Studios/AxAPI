@@ -7,7 +7,7 @@ import com.artillexstudios.axapi.gui.SignInput;
 import com.artillexstudios.axapi.gui.inventory.renderer.InventoryRenderers;
 import com.artillexstudios.axapi.gui.inventory.InventoryUpdater;
 import com.artillexstudios.axapi.gui.inventory.listener.InventoryClickListener;
-import com.artillexstudios.axapi.hologram.Holograms;
+import com.artillexstudios.axapi.hologram.old.Holograms;
 import com.artillexstudios.axapi.items.component.DataComponents;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
