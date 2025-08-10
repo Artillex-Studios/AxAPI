@@ -33,5 +33,5 @@ public interface HologramContent<T, Z extends HologramContentType<T>> {
      * @param other The HologramContent to check data equality with.
      * @return A boolean, describing if the two contents contain the same data.
      */
-    boolean dataEquals(HologramContent other);
+    boolean dataEquals(HologramContent<?, ?> other);
 }
