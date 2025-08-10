@@ -2,10 +2,10 @@ package com.artillexstudios.axapi.nms.v1_21_R5.entity;
 
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.collections.RawReferenceOpenHashSet;
-import com.artillexstudios.axapi.collections.ThreadSafeList;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
-import com.artillexstudios.axapi.hologram.old.HologramLine;
-import com.artillexstudios.axapi.hologram.old.Holograms;
+import com.artillexstudios.axapi.hologram.HologramTypes;
+import com.artillexstudios.axapi.hologram.Holograms;
+import com.artillexstudios.axapi.hologram.page.HologramPage;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.nms.v1_21_R5.packet.ClientboundSetPassengersWrapper;
 import com.artillexstudios.axapi.nms.v1_21_R5.packet.ClientboundTeleportEntityWrapper;
@@ -15,11 +15,11 @@ import com.artillexstudios.axapi.packetentity.meta.EntityMeta;
 import com.artillexstudios.axapi.packetentity.meta.EntityMetaFactory;
 import com.artillexstudios.axapi.packetentity.meta.Metadata;
 import com.artillexstudios.axapi.packetentity.tracker.EntityTracker;
+import com.artillexstudios.axapi.placeholders.PlaceholderHandler;
+import com.artillexstudios.axapi.placeholders.PlaceholderParameters;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
 import com.artillexstudios.axapi.utils.StringUtils;
-import com.artillexstudios.axapi.utils.placeholder.Placeholder;
-import com.artillexstudios.axapi.utils.placeholder.StaticPlaceholder;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
@@ -207,17 +207,20 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
             List<SynchedEntityData.DataValue<?>> dirty = transform(items);
             this.trackedValues = transform(this.meta.metadata().getNonDefaultValues());
 
-            HologramLine line = Holograms.byId(this.id);
-            if (line == null || !line.hasPlaceholders()) {
+            HologramPage<?, ?> page = Holograms.byId(this.id);
+            if (page == null || !page.containsPlaceholders()) {
                 this.tracker.broadcast(new ClientboundSetEntityDataPacket(this.id, dirty));
             } else {
+                PlaceholderParameters parameters = new PlaceholderParameters();
+                parameters.merge(page.getParameters());
                 for (Object player : RawReferenceOpenHashSet.rawSet(this.tracker.seenBy)) {
                     if (player == null) {
                         continue;
                     }
 
                     ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(player);
-                    wrapper.sendPacket(new ClientboundSetEntityDataPacket(this.id, this.translate(wrapper.wrapped(), line, dirty)));
+                    parameters.withParameter(Player.class, wrapper.wrapped());
+                    wrapper.sendPacket(new ClientboundSetEntityDataPacket(this.id, this.translate(parameters, page, dirty)));
                 }
             }
         }
@@ -273,11 +276,12 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
         list.add(getAddEntityPacket(this));
 
         if (this.trackedValues != null) {
-            HologramLine line = Holograms.byId(this.id);
-            if (line == null || (line.type() != HologramLine.Type.TEXT || !line.hasPlaceholders())) {
+            HologramPage<?, ?> page = Holograms.byId(this.id);
+            if (page == null || !page.containsPlaceholders()) {
                 list.add(new ClientboundSetEntityDataPacket(this.id, this.trackedValues));
             } else {
-                list.add(new ClientboundSetEntityDataPacket(this.id, this.translate(player, line, this.trackedValues)));
+                list.add(new ClientboundSetEntityDataPacket(this.id, this.translate(new PlaceholderParameters().merge(page.getParameters())
+                        .withParameter(Player.class, player), page, this.trackedValues)));
             }
         }
 
@@ -380,35 +384,34 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     public void update() {
         List<SynchedEntityData.DataValue<?>> transformed = transform(this.meta.metadata().packForNameUpdate());
 
-        HologramLine line = Holograms.byId(this.id);
-        if (line == null) {
+        HologramPage<?, ?> page = Holograms.byId(this.id);
+        if (page == null) {
             return;
         }
 
+        PlaceholderParameters parameters = new PlaceholderParameters();
+        parameters.merge(page.getParameters());
         for (Object player : RawReferenceOpenHashSet.rawSet(this.tracker.seenBy)) {
             if (player == null) {
                 continue;
             }
 
             ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(player);
-            wrapper.sendPacket(new ClientboundSetEntityDataPacket(this.id, this.translate(wrapper.wrapped(), line, transformed)));
+            parameters.withParameter(Player.class, wrapper.wrapped());
+            wrapper.sendPacket(new ClientboundSetEntityDataPacket(this.id, this.translate(parameters, page, transformed)));
         }
     }
 
-    private List<SynchedEntityData.DataValue<?>> translate(Player player, HologramLine line, List<SynchedEntityData.DataValue<?>> values) {
+    private List<SynchedEntityData.DataValue<?>> translate(PlaceholderParameters parameters, HologramPage<?, ?> page, List<SynchedEntityData.DataValue<?>> values) {
         List<SynchedEntityData.DataValue<?>> dataValues = new ArrayList<>(values);
         ListIterator<SynchedEntityData.DataValue<?>> iterator = dataValues.listIterator();
         while (iterator.hasNext()) {
             SynchedEntityData.DataValue<?> value = iterator.next();
 
-            if (value.id() == 2 && line.type() == HologramLine.Type.TEXT) {
-                Optional<Component> content = (Optional<Component>) value.value();
-                if (content.isEmpty()) {
-                    return values;
-                }
+            if (value.id() == 23 && page.getType() == HologramTypes.TEXT) {
+                Component content = (Component) value.value();
 
-
-                String legacy = legacyCache.get(content.get(), (minecraftComponent) -> {
+                String legacy = legacyCache.get(content, (minecraftComponent) -> {
                     net.kyori.adventure.text.Component component = ComponentSerializer.INSTANCE.fromVanilla(minecraftComponent);
                     return LEGACY_COMPONENT_SERIALIZER.serialize(component);
                 });
@@ -417,13 +420,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
                     return values;
                 }
 
-                ThreadSafeList<Placeholder> placeholders = line.placeholders();
-                for (int i = 0; i < placeholders.size(); i++) {
-                    Placeholder placeholder = placeholders.get(i);
-                    if (placeholder instanceof StaticPlaceholder) continue;
-                    legacy = placeholder.parse(player, legacy);
-                }
-
+                legacy = PlaceholderHandler.parseWithPlaceholderAPI(legacy, parameters);
                 Component component = (Component) componentCache.get(legacy, (legacyText) -> {
                     net.kyori.adventure.text.Component formatted = StringUtils.format(legacyText);
                     return ComponentSerializer.INSTANCE.toVanilla(formatted);
@@ -442,7 +439,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
         return switch (slot.getType()) {
             case HUMANOID_ARMOR -> this.armorSlots.get(slot.getIndex());
             case HAND -> this.handSlots.get(slot.getIndex());
-            case ANIMAL_ARMOR, SADDLE -> null;
+            default -> null;
         };
     }
 }
