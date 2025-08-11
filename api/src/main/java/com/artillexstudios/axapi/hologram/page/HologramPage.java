@@ -75,6 +75,8 @@ public abstract class HologramPage<T, Z extends HologramType<T>> {
 
     public abstract void update();
 
+    public abstract EntityMeta getEntityMeta();
+
     public void setClickHandler(Consumer<PacketEntityInteractEvent> clickHandler) {
         this.clickHandler = clickHandler;
     }

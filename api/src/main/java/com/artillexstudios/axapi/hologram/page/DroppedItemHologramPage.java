@@ -7,18 +7,20 @@ import com.artillexstudios.axapi.hologram.Holograms;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
+import com.artillexstudios.axapi.packetentity.meta.EntityMeta;
 import com.artillexstudios.axapi.packetentity.meta.entity.ItemEntityMeta;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
 public class DroppedItemHologramPage extends HologramPage<WrappedItemStack, HologramType<WrappedItemStack>> {
-    private PacketEntity droppedItem;
+    private final PacketEntity droppedItem;
     private WrappedItemStack content;
     private boolean spawned = false;
 
     public DroppedItemHologramPage(Hologram hologram, boolean firstPage, Location location) {
         super(hologram, firstPage, location);
+        this.droppedItem = NMSHandlers.getNmsHandler().createEntity(EntityType.ITEM_DISPLAY, this.getLocation());
     }
 
     @Override
@@ -29,12 +31,9 @@ public class DroppedItemHologramPage extends HologramPage<WrappedItemStack, Holo
     }
 
     private void create() {
-        if (this.droppedItem == null) {
-            this.droppedItem = NMSHandlers.getNmsHandler().createEntity(EntityType.ITEM_DISPLAY, this.getLocation());
-        }
-
         ItemEntityMeta meta = (ItemEntityMeta) this.droppedItem.meta();
         meta.itemStack(this.content);
+        meta.hasNoGravity(true);
         if (this.getEntityMetaHandler() != null) {
             this.getEntityMetaHandler().accept(meta);
         }
@@ -114,6 +113,11 @@ public class DroppedItemHologramPage extends HologramPage<WrappedItemStack, Holo
         }
 
         this.droppedItem.update();
+    }
+
+    @Override
+    public EntityMeta getEntityMeta() {
+        return this.droppedItem.meta();
     }
 
     @Override

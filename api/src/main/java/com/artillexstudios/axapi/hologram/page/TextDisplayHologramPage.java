@@ -6,6 +6,7 @@ import com.artillexstudios.axapi.hologram.HologramTypes;
 import com.artillexstudios.axapi.hologram.Holograms;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
+import com.artillexstudios.axapi.packetentity.meta.EntityMeta;
 import com.artillexstudios.axapi.packetentity.meta.entity.TextDisplayMeta;
 import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
@@ -17,13 +18,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TextDisplayHologramPage extends HologramPage<String, HologramType<String>> {
+    private final PacketEntity textDisplay;
     private boolean containsPlaceholders;
-    private PacketEntity textDisplay;
     private String content;
     private boolean spawned = false;
 
     public TextDisplayHologramPage(Hologram hologram, boolean firstPage, Location location) {
         super(hologram, firstPage, location);
+        this.textDisplay = NMSHandlers.getNmsHandler().createEntity(EntityType.TEXT_DISPLAY, this.getLocation());
     }
 
     @Override
@@ -42,10 +44,6 @@ public class TextDisplayHologramPage extends HologramPage<String, HologramType<S
     }
 
     private void create() {
-        if (this.textDisplay == null) {
-            this.textDisplay = NMSHandlers.getNmsHandler().createEntity(EntityType.TEXT_DISPLAY, this.getLocation());
-        }
-
         TextDisplayMeta meta = (TextDisplayMeta) this.textDisplay.meta();
         meta.component(StringUtils.format(this.content));
         if (this.getEntityMetaHandler() != null) {
@@ -129,6 +127,11 @@ public class TextDisplayHologramPage extends HologramPage<String, HologramType<S
         }
 
         this.textDisplay.update();
+    }
+
+    @Override
+    public EntityMeta getEntityMeta() {
+        return this.textDisplay.meta();
     }
 
     @Override
