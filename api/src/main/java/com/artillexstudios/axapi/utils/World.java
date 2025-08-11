@@ -15,6 +15,10 @@ public class World {
         this.name = world.getName();
     }
 
+    public String getName() {
+        return this.name;
+    }
+
     public org.bukkit.World toBukkit() {
         return Bukkit.getWorld(this.name);
     }
