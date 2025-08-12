@@ -101,11 +101,11 @@ public class TextDisplayHologramPage extends HologramPage<String, HologramType<S
 
     @Override
     public void teleport(Location location) {
+        this.setLocation(location);
         if (this.textDisplay == null) {
             return;
         }
 
-        this.setLocation(location);
         this.textDisplay.teleport(location);
     }
 

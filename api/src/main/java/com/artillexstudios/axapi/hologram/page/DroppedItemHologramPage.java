@@ -87,11 +87,11 @@ public class DroppedItemHologramPage extends HologramPage<WrappedItemStack, Holo
 
     @Override
     public void teleport(Location location) {
+        this.setLocation(location);
         if (this.droppedItem == null) {
             return;
         }
 
-        this.setLocation(location);
         this.droppedItem.teleport(location);
     }
 
