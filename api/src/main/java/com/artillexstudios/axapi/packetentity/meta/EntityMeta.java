@@ -16,6 +16,14 @@ public class EntityMeta {
         this.defineDefaults0();
     }
 
+    public void reset() {
+        this.metadata.reset();
+    }
+
+    public void resetSilently() {
+        this.metadata.resetSilently();
+    }
+
     public void silent(boolean silent) {
         this.metadata.set(Accessors.SILENT, silent);
     }

@@ -3,6 +3,7 @@ package com.artillexstudios.axapi.packetentity.meta;
 import com.artillexstudios.axapi.packetentity.meta.serializer.Accessors;
 import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataAccessor;
 import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataSerializer;
+import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataSerializers;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.apache.commons.lang3.ObjectUtils;
@@ -21,18 +22,18 @@ public final class Metadata {
     public <T> void createDataItem(EntityDataAccessor<T> accessor, T value) {
         DataItem<T> dataItem = new DataItem<>(accessor.id(), accessor.serializers(), value);
 
-        items.put(accessor.id(), dataItem);
+        this.items.put(accessor.id(), dataItem);
     }
 
     public void markNotDirty() {
         this.dirty = false;
-        items.forEach((k, v) -> {
+        this.items.forEach((k, v) -> {
             v.dirty = false;
         });
     }
 
     private <T> DataItem<T> getItem(EntityDataAccessor<T> key) {
-        return (DataItem) this.items.get(key.id());
+        return (DataItem<T>) this.items.get(key.id());
     }
 
     public <T> T get(EntityDataAccessor<T> data) {
@@ -41,6 +42,10 @@ public final class Metadata {
 
     public <T> void set(EntityDataAccessor<T> key, T value) {
         this.set(key, value, false);
+    }
+
+    public <T> void setToDefault(EntityDataAccessor<T> key) {
+        this.getItem(key).setToDefault();
     }
 
     public <T> void set(EntityDataAccessor<T> key, T value, boolean force) {
@@ -73,7 +78,7 @@ public final class Metadata {
         List<DataItem<?>> list = null;
 
         for (DataItem<?> next : this.items.values()) {
-            if (next.id() == Accessors.CUSTOM_NAME.id()) {
+            if (next.serializer() == EntityDataSerializers.COMPONENT && next.id() == Accessors.TEXT_COMPONENT.id()) {
                 list = new ArrayList<>(1);
                 list.add(next.copy());
                 break;
@@ -127,6 +132,19 @@ public final class Metadata {
         return list;
     }
 
+    public void reset() {
+        this.items.forEach((key, item) -> {
+            item.setToDefault();
+            item.setDirty(true);
+        });
+    }
+
+    public void resetSilently() {
+        this.items.forEach((key, item) -> {
+            item.setToDefault();
+        });
+    }
+
     public static class DataItem<T> {
         final int id;
         final EntityDataSerializer<T> serializer;
@@ -168,6 +186,10 @@ public final class Metadata {
 
         public boolean isSetToDefault() {
             return this.original.equals(this.value);
+        }
+
+        public void setToDefault() {
+            this.setValue(this.original);
         }
 
         public DataItem<T> copy() {
