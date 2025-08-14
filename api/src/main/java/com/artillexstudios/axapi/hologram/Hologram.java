@@ -16,6 +16,10 @@ public class Hologram {
     private Consumer<PacketEntityInteractEvent> clickHandler;
     private Location location;
 
+    public Hologram(Location location) {
+        this.location = location;
+    }
+
     public void hide(Player player) {
         for (int i = 0; i < this.pages.size(); i++) {
             HologramPage<?, ?> page = this.pages.get(i);

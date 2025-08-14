@@ -20,9 +20,9 @@ import java.util.function.Consumer;
  * @param <Z> The HologramPage for the datatype.
  */
 public abstract class HologramPage<T, Z extends HologramType<T>> {
+    private final PlaceholderParameters parameters = new PlaceholderParameters();
     private Consumer<PacketEntityInteractEvent> clickHandler;
     private Consumer<EntityMeta> metaHandler;
-    private PlaceholderParameters parameters;
     private final Hologram hologram;
     private final boolean firstPage;
     private Location location;

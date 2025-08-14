@@ -10,7 +10,7 @@ public class HashMapContext {
     protected final HashMap<ContextKey<?>, Object> values;
 
     public HashMapContext() {
-        this(new HashMap<>());
+        this(new HashMap<>(1));
     }
 
     public HashMapContext(HashMapContext context) {
