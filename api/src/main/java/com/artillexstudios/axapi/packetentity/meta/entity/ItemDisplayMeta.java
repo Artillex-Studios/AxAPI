@@ -30,6 +30,7 @@ public class ItemDisplayMeta extends DisplayMeta {
 
     @Override
     protected void defineDefaults() {
+        super.defineDefaults();
         this.metadata.define(Accessors.DISPLAYED_ITEM, WrappedItemStack.wrap(new ItemStack(Material.AIR)));
         this.metadata.define(Accessors.DISPLAY_TYPE, (byte) 0);
     }

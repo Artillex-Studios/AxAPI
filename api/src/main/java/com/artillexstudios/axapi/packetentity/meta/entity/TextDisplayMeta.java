@@ -109,6 +109,7 @@ public class TextDisplayMeta extends DisplayMeta {
 
     @Override
     protected void defineDefaults() {
+        super.defineDefaults();
         this.metadata.define(Accessors.TEXT_COMPONENT, Component.empty());
         this.metadata.define(Accessors.LINE_WIDTH, 200);
         this.metadata.define(Accessors.BACKGROUND_COLOR, 0x40000000);

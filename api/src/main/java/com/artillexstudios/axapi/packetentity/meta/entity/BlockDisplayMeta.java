@@ -21,6 +21,7 @@ public class BlockDisplayMeta extends DisplayMeta {
 
     @Override
     protected void defineDefaults() {
+        super.defineDefaults();
         this.metadata.define(Accessors.BLOCK_DATA, Material.AIR.createBlockData());
     }
 }
