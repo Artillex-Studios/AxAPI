@@ -8,8 +8,11 @@ import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
 import com.artillexstudios.axapi.packetentity.meta.EntityMeta;
 import com.artillexstudios.axapi.packetentity.meta.entity.TextDisplayMeta;
+import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -18,10 +21,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TextDisplayHologramPage extends HologramPage<String, HologramType<String>> {
+    private static final Pattern NEW_LINE = Pattern.compile("\n");
     private final PacketEntity textDisplay;
     private boolean containsPlaceholders;
     private String content;
     private boolean spawned = false;
+    private LineData[] data;
 
     public TextDisplayHologramPage(Hologram hologram, boolean firstPage, Location location) {
         super(hologram, firstPage, location);
@@ -31,13 +36,28 @@ public class TextDisplayHologramPage extends HologramPage<String, HologramType<S
     @Override
     public void setContent(String content) {
         this.content = content;
+        this.containsPlaceholders = false;
 
-        for (Pattern pattern : FeatureFlags.PLACEHOLDER_PATTERNS.get()) {
-            Matcher matcher = pattern.matcher(content);
-            if (matcher.find()) {
-                this.containsPlaceholders = true;
-                break;
+        String[] split = NEW_LINE.split(content);
+        this.data = new LineData[split.length];
+        int i = 0;
+        for (String line : split) {
+            boolean containsPlaceholders = false;
+            Component formatted = StringUtils.format(line);
+            // Remove all MiniMessage tags from the component so they don't interfere with the placeholder checking
+            String legacy = PlainTextComponentSerializer.plainText().serialize(formatted);
+            for (Pattern pattern : FeatureFlags.PLACEHOLDER_PATTERNS.get()) {
+                Matcher matcher = pattern.matcher(legacy);
+                if (matcher.find()) {
+                    containsPlaceholders = true;
+                    this.containsPlaceholders = true;
+                    break;
+                }
             }
+
+            // Cache the formatted component so we can just slap it on
+            this.data[i] = new LineData(line, ComponentSerializer.INSTANCE.toVanilla(containsPlaceholders ? Component.empty() : formatted), containsPlaceholders);
+            i++;
         }
 
         this.create();
@@ -127,6 +147,10 @@ public class TextDisplayHologramPage extends HologramPage<String, HologramType<S
         }
 
         this.textDisplay.update();
+    }
+
+    public LineData[] getData() {
+        return this.data;
     }
 
     @Override
