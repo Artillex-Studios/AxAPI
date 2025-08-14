@@ -51,7 +51,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.WeakHashMap;
@@ -426,7 +425,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
                 });
 
                 iterator.remove();
-                iterator.add(new SynchedEntityData.DataValue<>(value.id(), (EntityDataSerializer<Object>) value.serializer(), Optional.ofNullable(component)));
+                iterator.add(new SynchedEntityData.DataValue<>(value.id(), (EntityDataSerializer<Object>) value.serializer(), component));
                 break;
             }
         }
