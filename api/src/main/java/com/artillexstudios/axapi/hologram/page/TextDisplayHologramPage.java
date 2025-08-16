@@ -40,10 +40,11 @@ public class TextDisplayHologramPage extends HologramPage<String, HologramType<S
 
         String[] split = NEW_LINE.split(content);
         this.data = new LineData[split.length];
-        int i = 0;
-        for (String line : split) {
+        for (int i = 0; i < split.length; i++) {
+            String line = split[i];
             boolean containsPlaceholders = false;
-            Component formatted = StringUtils.format(line);
+            // Add a newline that we removed
+            Component formatted = StringUtils.format(line + (i == split.length - 1 ? "" : "\n"));
             // Remove all MiniMessage tags from the component so they don't interfere with the placeholder checking
             String legacy = PlainTextComponentSerializer.plainText().serialize(formatted);
             for (Pattern pattern : FeatureFlags.PLACEHOLDER_PATTERNS.get()) {
@@ -55,9 +56,14 @@ public class TextDisplayHologramPage extends HologramPage<String, HologramType<S
                 }
             }
 
+            // Serialize the format, so we don't need to deserialize MiniMessage
+            // in the translation phase.
+            if (containsPlaceholders) {
+                line = StringUtils.formatToString(line);
+            }
+
             // Cache the formatted component so we can just slap it on
             this.data[i] = new LineData(line, ComponentSerializer.INSTANCE.toVanilla(containsPlaceholders ? Component.empty() : formatted), containsPlaceholders);
-            i++;
         }
 
         this.create();
