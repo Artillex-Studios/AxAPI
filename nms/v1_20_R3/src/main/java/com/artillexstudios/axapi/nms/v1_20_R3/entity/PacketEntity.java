@@ -3,9 +3,10 @@ package com.artillexstudios.axapi.nms.v1_20_R3.entity;
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.collections.RawReferenceOpenHashSet;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
-import com.artillexstudios.axapi.hologram.HologramTypes;
 import com.artillexstudios.axapi.hologram.Holograms;
 import com.artillexstudios.axapi.hologram.page.HologramPage;
+import com.artillexstudios.axapi.hologram.page.LineData;
+import com.artillexstudios.axapi.hologram.page.TextDisplayHologramPage;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.nms.v1_20_R3.wrapper.ServerWrapper;
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
@@ -18,7 +19,6 @@ import com.artillexstudios.axapi.placeholders.PlaceholderParameters;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
 import com.artillexstudios.axapi.utils.RandomStringGenerator;
-import com.artillexstudios.axapi.utils.StringUtils;
 import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.util.Pair;
@@ -26,6 +26,8 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.contents.PlainTextContents;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
@@ -57,7 +59,6 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.WeakHashMap;
@@ -440,31 +441,28 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     }
 
     private List<SynchedEntityData.DataValue<?>> translate(PlaceholderParameters parameters, HologramPage<?, ?> page, List<SynchedEntityData.DataValue<?>> values) {
+        if (!page.containsPlaceholders()) {
+            return values;
+        }
+
         List<SynchedEntityData.DataValue<?>> dataValues = new ArrayList<>(values);
         ListIterator<SynchedEntityData.DataValue<?>> iterator = dataValues.listIterator();
         while (iterator.hasNext()) {
             SynchedEntityData.DataValue<?> value = iterator.next();
 
-            if (value.id() == 23 && page.getType() == HologramTypes.TEXT) {
-                Component content = (Component) value.value();
-
-                String legacy = legacyCache.get(content, (minecraftComponent) -> {
-                    net.kyori.adventure.text.Component component = ComponentSerializer.INSTANCE.fromVanilla(minecraftComponent);
-                    return LEGACY_COMPONENT_SERIALIZER.serialize(component);
-                });
-
-                if (legacy == null) {
-                    return values;
+            if (value.id() == 23 && page instanceof TextDisplayHologramPage textPage) {
+                MutableComponent components = MutableComponent.create(PlainTextContents.EMPTY);
+                for (LineData lineData : textPage.getData()) {
+                    if (!lineData.containsPlaceholders()) {
+                        components.append((Component) lineData.component());
+                    } else {
+                        String parsed = PlaceholderHandler.parseWithPlaceholderAPI(lineData.content(), parameters);
+                        components.append((Component) placeholderFormatCache.get(parsed));
+                    }
                 }
 
-                legacy = PlaceholderHandler.parseWithPlaceholderAPI(legacy, parameters);
-                Component component = (Component) componentCache.get(legacy, (legacyText) -> {
-                    net.kyori.adventure.text.Component formatted = StringUtils.format(legacyText);
-                    return ComponentSerializer.INSTANCE.toVanilla(formatted);
-                });
-
                 iterator.remove();
-                iterator.add(new SynchedEntityData.DataValue<>(value.id(), (EntityDataSerializer<Object>) value.serializer(), component));
+                iterator.add(new SynchedEntityData.DataValue<>(value.id(), (EntityDataSerializer<Object>) value.serializer(), components));
                 break;
             }
         }

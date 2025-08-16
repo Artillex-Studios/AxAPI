@@ -23,6 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class StringUtils {
+    private static final TagResolver EMPTY_RESOLVER = TagResolver.empty();
     private static final Pattern HEX_PATTERN = Pattern.compile("&#([0-9a-fA-F]{6})");
     private static final Pattern UNUSUAL_LEGACY_HEX_PATTERN = Pattern.compile("&x&([a-fA-F0-9])&([a-fA-F0-9])&([a-fA-F0-9])&([a-fA-F0-9])&([a-fA-F0-9])&([a-fA-F0-9])");
     private static final ObjectImmutableList<Pair<String, String>> COLOR_FORMATS = ObjectImmutableList.of(
@@ -97,7 +98,7 @@ public final class StringUtils {
             return Component.empty();
         }
 
-        return MINI_MESSAGE.deserialize(formatted, resolvers).applyFallbackStyle(TextDecoration.ITALIC.withState(false));
+        return MINI_MESSAGE.deserialize(formatted, resolvers.length == 0 ? EMPTY_RESOLVER : TagResolver.resolver(resolvers)).applyFallbackStyle(TextDecoration.ITALIC.withState(false));
     }
 
     public static String formatToString(@NotNull String string, @NotNull TagResolver... resolvers) {

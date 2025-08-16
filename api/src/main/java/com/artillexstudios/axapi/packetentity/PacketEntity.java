@@ -3,11 +3,12 @@ package com.artillexstudios.axapi.packetentity;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.packetentity.meta.EntityMeta;
+import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
-import com.github.benmanes.caffeine.cache.Cache;
+import com.artillexstudios.axapi.utils.StringUtils;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.github.benmanes.caffeine.cache.Scheduler;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -15,21 +16,11 @@ import java.time.Duration;
 import java.util.function.Consumer;
 
 public interface PacketEntity {
-    Cache<Object, String> legacyCache = Caffeine.newBuilder()
+    LoadingCache<String, Object> placeholderFormatCache = Caffeine.newBuilder()
             .maximumSize(200)
             .expireAfterAccess(Duration.ofSeconds(20))
             .scheduler(Scheduler.systemScheduler())
-            .build();
-    Cache<String, Object> componentCache = Caffeine.newBuilder()
-            .maximumSize(200)
-            .expireAfterAccess(Duration.ofSeconds(20))
-            .scheduler(Scheduler.systemScheduler())
-            .build();
-    LegacyComponentSerializer LEGACY_COMPONENT_SERIALIZER = LegacyComponentSerializer.builder()
-            .character('&')
-            .hexColors()
-            .useUnusualXRepeatedCharacterHexFormat()
-            .build();
+            .build(parsed -> ComponentSerializer.INSTANCE.toVanilla(StringUtils.format(parsed)));
 
     void teleport(Location location);
 

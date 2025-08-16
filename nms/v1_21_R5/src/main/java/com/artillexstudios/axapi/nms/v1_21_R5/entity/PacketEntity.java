@@ -18,9 +18,7 @@ import com.artillexstudios.axapi.packetentity.meta.Metadata;
 import com.artillexstudios.axapi.packetentity.tracker.EntityTracker;
 import com.artillexstudios.axapi.placeholders.PlaceholderHandler;
 import com.artillexstudios.axapi.placeholders.PlaceholderParameters;
-import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
-import com.artillexstudios.axapi.utils.StringUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
@@ -421,7 +419,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
                         components.append((Component) lineData.component());
                     } else {
                         String parsed = PlaceholderHandler.parseWithPlaceholderAPI(lineData.content(), parameters);
-                        components.append((Component) ComponentSerializer.INSTANCE.toVanilla(StringUtils.LEGACY_COMPONENT_SERIALIZER.deserialize(parsed)));
+                        components.append((Component) placeholderFormatCache.get(parsed));
                     }
                 }
 
