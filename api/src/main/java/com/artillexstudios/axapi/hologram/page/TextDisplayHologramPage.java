@@ -56,6 +56,10 @@ public class TextDisplayHologramPage extends HologramPage<String, HologramType<S
                 }
             }
 
+            if (legacy.isBlank()) {
+                formatted = Component.newline();
+            }
+
             // Serialize the format, so we don't need to deserialize MiniMessage
             // in the translation phase.
             if (containsPlaceholders) {
