@@ -60,12 +60,6 @@ public class TextDisplayHologramPage extends HologramPage<String, HologramType<S
                 formatted = Component.newline();
             }
 
-            // Serialize the format, so we don't need to deserialize MiniMessage
-            // in the translation phase.
-            if (containsPlaceholders) {
-                line = StringUtils.formatToString(line);
-            }
-
             // Cache the formatted component so we can just slap it on
             this.data[i] = new LineData(line, ComponentSerializer.INSTANCE.toVanilla(containsPlaceholders ? Component.empty() : formatted), containsPlaceholders);
         }
