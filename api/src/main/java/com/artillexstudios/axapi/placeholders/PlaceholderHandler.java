@@ -43,22 +43,34 @@ public class PlaceholderHandler {
     }
 
     public static void register(String placeholder, ThrowingFunction<PlaceholderContext, String, PlaceholderException> handler) {
-        register(placeholder, new PlaceholderArguments(), handler);
+        register(placeholder, new PlaceholderArguments(), handler, false);
+    }
+
+    public static void register(String placeholder, ThrowingFunction<PlaceholderContext, String, PlaceholderException> handler, boolean placeholderAPI) {
+        register(placeholder, new PlaceholderArguments(), handler, placeholderAPI);
     }
 
     public static void register(String placeholder, ThrowingFunction<PlaceholderContext, String, PlaceholderException> handler, PlaceholderFormatter formatter) {
-        register(placeholder, new PlaceholderArguments(), handler, formatter);
+        register(placeholder, new PlaceholderArguments(), handler, formatter, false);
+    }
+
+    public static void register(String placeholder, ThrowingFunction<PlaceholderContext, String, PlaceholderException> handler, PlaceholderFormatter formatter, boolean placeholderAPI) {
+        register(placeholder, new PlaceholderArguments(), handler, formatter, placeholderAPI);
     }
 
     public static void register(String placeholder, PlaceholderArguments arguments, ThrowingFunction<PlaceholderContext, String, PlaceholderException> handler) {
-        register(placeholder, arguments, handler, DefaultPlaceholderFormatter.INSTANCE);
+        register(placeholder, arguments, handler, DefaultPlaceholderFormatter.INSTANCE, false);
     }
 
-    public static void register(String placeholder, PlaceholderArguments arguments, ThrowingFunction<PlaceholderContext, String, PlaceholderException> handler, PlaceholderFormatter formatter) {
+    public static void register(String placeholder, PlaceholderArguments arguments, ThrowingFunction<PlaceholderContext, String, PlaceholderException> handler, boolean placeholderAPI) {
+        register(placeholder, arguments, handler, DefaultPlaceholderFormatter.INSTANCE, placeholderAPI);
+    }
+
+    public static void register(String placeholder, PlaceholderArguments arguments, ThrowingFunction<PlaceholderContext, String, PlaceholderException> handler, PlaceholderFormatter formatter, boolean placeholderAPI) {
         List<String> formatted = formatter.format(placeholder);
         synchronized (placeholders) {
             for (String string : formatted) {
-                placeholders.add(new Placeholder(string, arguments, handler));
+                placeholders.add(new Placeholder(string, arguments, placeholderAPI, handler));
             }
             placeholders.sort(Comparator.comparing(Placeholder::placeholder).reversed());
             baked = placeholders.toArray(new Placeholder[0]);
@@ -142,11 +154,16 @@ public class PlaceholderHandler {
     }
 
     public static List<String> placeholders() {
-        return placeholders(null);
+        return placeholders(null, false);
     }
 
     public static List<String> placeholders(String prefix) {
+        return placeholders(prefix, true);
+    }
+
+    public static List<String> placeholders(String prefix, boolean placeholderAPI) {
         return Arrays.stream(baked)
+                .filter(placeholder -> placeholder.placeholderAPI() == placeholderAPI)
                 .map(placeholder -> {
                     if (prefix == null) {
                         return placeholder.placeholder();

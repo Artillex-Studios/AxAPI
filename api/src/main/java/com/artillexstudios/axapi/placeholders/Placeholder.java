@@ -6,12 +6,12 @@ import com.artillexstudios.axapi.utils.functions.ThrowingFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public record Placeholder(String placeholder, PlaceholderArguments arguments, Pattern pattern,
+public record Placeholder(String placeholder, PlaceholderArguments arguments, Pattern pattern, boolean placeholderAPI,
                           ThrowingFunction<PlaceholderContext, String, PlaceholderException> handler) {
     private static final Pattern placeholderRegex = Pattern.compile("<([a-zA-Z0-9]+)>");
 
-    public Placeholder(String placeholder, PlaceholderArguments arguments, ThrowingFunction<PlaceholderContext, String, PlaceholderException> handler) {
-        this(placeholder, arguments, pattern(placeholder), handler);
+    public Placeholder(String placeholder, PlaceholderArguments arguments, boolean placeholderAPI, ThrowingFunction<PlaceholderContext, String, PlaceholderException> handler) {
+        this(placeholder, arguments, pattern(placeholder), placeholderAPI, handler);
     }
 
     public PlaceholderContext newContext(PlaceholderParameters parameters, Matcher matcher) {
