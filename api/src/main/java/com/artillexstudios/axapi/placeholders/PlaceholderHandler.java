@@ -24,7 +24,7 @@ import java.util.regex.Matcher;
 public class PlaceholderHandler {
     private static final List<Placeholder> placeholders = new ArrayList<>();
     private static final ConcurrentLinkedQueue<PlaceholderTransformer<Object, Object>> transformers = new ConcurrentLinkedQueue<>();
-    private static Placeholder[] baked = null;
+    private static Placeholder[] baked = new Placeholder[0];
 
     static {
         registerTransformer(Player.class, OfflinePlayer.class, player -> player);
