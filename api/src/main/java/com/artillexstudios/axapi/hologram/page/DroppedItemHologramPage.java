@@ -126,8 +126,8 @@ public class DroppedItemHologramPage extends HologramPage<WrappedItemStack, Holo
             return false;
         }
 
-        this.droppedItem.spawn();
         Holograms.put(this.droppedItem.id(), this);
+        this.droppedItem.spawn();
         this.spawned = true;
         return true;
     }

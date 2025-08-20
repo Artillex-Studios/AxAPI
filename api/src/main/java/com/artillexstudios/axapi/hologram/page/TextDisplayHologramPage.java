@@ -168,8 +168,8 @@ public class TextDisplayHologramPage extends HologramPage<String, HologramType<S
             return false;
         }
 
-        this.textDisplay.spawn();
         Holograms.put(this.textDisplay.id(), this);
+        this.textDisplay.spawn();
         this.spawned = true;
         return true;
     }
