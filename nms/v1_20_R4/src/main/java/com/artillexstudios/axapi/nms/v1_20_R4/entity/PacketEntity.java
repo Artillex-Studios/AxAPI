@@ -384,7 +384,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
         List<SynchedEntityData.DataValue<?>> transformed = transform(this.meta.metadata().packForNameUpdate());
 
         HologramPage<?, ?> page = Holograms.byId(this.id);
-        if (page == null || this.tracker == null) {
+        if (page == null || this.tracker == null || !page.containsPlaceholders()) {
             return;
         }
 
