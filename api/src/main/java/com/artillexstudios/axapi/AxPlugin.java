@@ -86,7 +86,7 @@ public abstract class AxPlugin extends JavaPlugin {
 
             @Override
             public void onPacketSending(PacketEvent event) {
-                if (event.type() == ClientboundPacketTypes.ADD_ENTITY) {
+                if (event.type() == ClientboundPacketTypes.ADD_ENTITY && FeatureFlags.LISTEN_TO_RIDE_PACKET.get()) {
                     if (AxPlugin.this.tracker == null) {
                         return;
                     }

@@ -119,6 +119,12 @@ public final class FeatureFlags {
      * Can be controlled with the system property: %pluginName%colorCacheSize
      */
     public static final IntegerFlag COLOR_CACHE_SIZE = new IntegerFlag(1000);
+    /**
+     * If AxAPI should listen to ride packets to add riders for packet entities.
+     * <p>
+     * Can be controlled with the system property: %pluginName%listenToRidePacket
+     */
+    public static final BooleanFlag LISTEN_TO_RIDE_PACKET = new BooleanFlag(false);
 
     public static void refresh(AxPlugin plugin) {
         PACKET_ENTITY_TRACKER_ENABLED.refresh(plugin.getName() + "enableEntityTracker");
@@ -139,5 +145,6 @@ public final class FeatureFlags {
         LOG_EXCEPTION_UTILS_EXCEPTIONS.refresh(plugin.getName() + "logExceptionUtilsExceptions");
         PARSE_PLACEHOLDER_API_IN_ITEM_BUILDER.refresh(plugin.getName() + "parsePlaceholderAPiInItemBuilder");
         COLOR_CACHE_SIZE.refresh(plugin.getName() + "colorCacheSize");
+        LISTEN_TO_RIDE_PACKET.refresh(plugin.getName() + "listenToRidePacket");
     }
 }
