@@ -108,25 +108,44 @@ public class PlaceholderHandler {
 
     public static String parse(String line, PlaceholderParameters parameters) {
         for (Placeholder placeholder : baked) {
-            Matcher match = placeholder.match(line);
-            if (!match.find()) {
-                if (FeatureFlags.DEBUG.get()) {
-                    LogUtils.warn("Matcher no find! Line: {}, placeholder: {}, regex: {}", line, placeholder.placeholder(), placeholder.pattern());
+            if (placeholder.arguments().arguments().length == 0) {
+                if (line.contains(placeholder.placeholder())) {
+                    try {
+                        line = line.replace(placeholder.placeholder(), placeholder.handler().apply(placeholder.newContext(parameters, null)));
+                    } catch (PlaceholderException exception) {
+                        if (FeatureFlags.DEBUG.get()) {
+                            LogUtils.warn("Placeholder parse! Line: {}", line, exception);
+                        }
+                    }
                 }
-                continue;
+            } else {
+                line = parseInternal(placeholder, line, parameters);
             }
+        }
 
+        return line;
+    }
+
+    private static String parseInternal(Placeholder placeholder, String line, PlaceholderParameters parameters) {
+        StringBuilder builder = new StringBuilder(line.length());
+        Matcher match = placeholder.match(line);
+        String apply;
+
+        while (match.find()) {
             try {
-                line = match.replaceAll(placeholder.handler().apply(placeholder.newContext(parameters, match)));
+                apply = placeholder.handler().apply(placeholder.newContext(parameters, match));
             } catch (PlaceholderException exception) {
                 if (FeatureFlags.DEBUG.get()) {
                     LogUtils.warn("Placeholder parse! Line: {}", line, exception);
                 }
                 continue;
             }
+
+            match.appendReplacement(builder, apply);
         }
 
-        return line;
+        match.appendTail(builder);
+        return builder.toString();
     }
 
     public static Map<String, String> mapped(Object... objects) {

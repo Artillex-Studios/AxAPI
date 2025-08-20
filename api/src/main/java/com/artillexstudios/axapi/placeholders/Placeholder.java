@@ -7,11 +7,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public record Placeholder(String placeholder, PlaceholderArguments arguments, Pattern pattern, boolean placeholderAPI,
-                          ThrowingFunction<PlaceholderContext, String, PlaceholderException> handler) {
+                          ThrowingFunction<PlaceholderContext, String, PlaceholderException> handler,
+                          ThreadLocal<Matcher> matchers) {
     private static final Pattern placeholderRegex = Pattern.compile("<([a-zA-Z0-9]+)>");
 
     public Placeholder(String placeholder, PlaceholderArguments arguments, boolean placeholderAPI, ThrowingFunction<PlaceholderContext, String, PlaceholderException> handler) {
-        this(placeholder, arguments, pattern(placeholder), placeholderAPI, handler);
+        this(placeholder, arguments, pattern(placeholder), placeholderAPI, handler, ThreadLocal.withInitial(() -> pattern(placeholder).matcher("")));
     }
 
     public PlaceholderContext newContext(PlaceholderParameters parameters, Matcher matcher) {
@@ -19,7 +20,7 @@ public record Placeholder(String placeholder, PlaceholderArguments arguments, Pa
     }
 
     public Matcher match(String line) {
-        return this.pattern.matcher(line);
+        return this.matchers.get().reset(line);
     }
 
     private static Pattern pattern(String placeholder) {
@@ -28,7 +29,7 @@ public record Placeholder(String placeholder, PlaceholderArguments arguments, Pa
         int begin = 0;
 
         while (matcher.find()) {
-            builder.append(Pattern.quote(placeholder.substring(begin, matcher.start())));
+            builder.append(Pattern.quote(placeholder.substring(begin, matcher.start()))).append("++");
             builder.append("(?").append(matcher.group()).append(".+?)");
             begin = matcher.end();
         }
