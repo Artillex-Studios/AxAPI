@@ -74,7 +74,6 @@ public class ItemBuilder {
         Optionals.ifPresent(getter.getBoolean("glow"), this::glow);
         Optionals.ifPresent(getter.getStringList("lore"), this::setLore);
         Optionals.ifPresent(getter.getString("potion"), this::setPotion);
-        Optionals.ifPresent(getter.getString("item-model"), this::setPotion);
         Optionals.ifPresent(getter.getBoolean("unbreakable"), this::unbreakable);
         Optionals.ifPresent(getter.getString("item-model"), this::itemModel);
         Optionals.ifPresent(ExceptionUtils.catching(() -> getter.getInteger("custom-model-data")), this::legacyModelData);
