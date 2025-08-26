@@ -32,14 +32,21 @@ public final class LinkedHashMapAdapter implements TypeAdapter<LinkedHashMap<Str
 
     @Override
     public LinkedHashMap<String, Object> serialize(TypeAdapterHolder holder, LinkedHashMap<String, Object> value, Type type) {
-        if (!(type instanceof ParameterizedType parameterizedType)) {
-            throw new RuntimeException();
-        }
-
-        Type t = parameterizedType.getActualTypeArguments()[1];
         LinkedHashMap<String, Object> returning = new LinkedHashMap<>();
 
+        Type t = null;
+        boolean hasParameterizedType = false;
+        if (type instanceof ParameterizedType parameterizedType) {
+            t = parameterizedType.getActualTypeArguments()[1];
+            hasParameterizedType = true;
+        }
+
+
         for (Map.Entry<?, ?> entry : value.entrySet()) {
+            if (!hasParameterizedType) {
+                t = entry.getValue().getClass();
+            }
+
             returning.put((String) entry.getKey(), holder.serialize(entry.getValue(), t));
         }
 

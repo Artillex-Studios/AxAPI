@@ -32,14 +32,20 @@ public final class MapAdapter implements TypeAdapter<Map<String, Object>, Map<St
 
     @Override
     public Map<String, Object> serialize(TypeAdapterHolder holder, Map<String, Object> value, Type type) {
-        if (!(type instanceof ParameterizedType parameterizedType)) {
-            throw new RuntimeException();
-        }
-
-        Type t = parameterizedType.getActualTypeArguments()[1];
         HashMap<String, Object> returning = new HashMap<>();
 
+        Type t = null;
+        boolean hasParameterizedType = false;
+        if (type instanceof ParameterizedType parameterizedType) {
+            t = parameterizedType.getActualTypeArguments()[1];
+            hasParameterizedType = true;
+        }
+
         for (Map.Entry<?, ?> entry : value.entrySet()) {
+            if (!hasParameterizedType) {
+                t = entry.getValue().getClass();
+            }
+
             returning.put((String) entry.getKey(), holder.serialize(entry.getValue(), t));
         }
 
