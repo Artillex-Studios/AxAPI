@@ -131,6 +131,22 @@ public final class TypeAdapterHolder {
             }
         }
 
+        Class<?> adapterClass = null;
+        if (adapter == null && type instanceof Class<?> cls) {
+            for (Class<?> clazz : this.adapters.keySet()) {
+                if (!clazz.isAssignableFrom(cls)) {
+                    continue;
+                }
+
+                adapterClass = clazz;
+                break;
+            }
+        }
+
+        if (adapterClass != null) {
+            adapter = (TypeAdapter<Object, Object>) this.adapters.get(adapterClass);
+        }
+
         if (adapter == null) {
             throw new IllegalArgumentException("Failed to get adapter for object %s with type: %s".formatted(object, type));
         }
