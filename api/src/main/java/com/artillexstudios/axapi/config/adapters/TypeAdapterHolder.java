@@ -145,6 +145,7 @@ public final class TypeAdapterHolder {
 
         if (adapterClass != null) {
             adapter = (TypeAdapter<Object, Object>) this.adapters.get(adapterClass);
+            this.adapters.put(adapterClass, adapter);
         }
 
         if (adapter == null) {
