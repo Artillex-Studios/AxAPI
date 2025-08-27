@@ -132,7 +132,7 @@ public final class TypeAdapterHolder {
         }
 
         if (adapter == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Failed to get adapter for object %s with type: %s".formatted(object, type));
         }
 
         return adapter;
