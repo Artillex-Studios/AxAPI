@@ -20,7 +20,7 @@ public class DroppedItemHologramPage extends HologramPage<WrappedItemStack, Holo
 
     public DroppedItemHologramPage(Hologram hologram, boolean firstPage, Location location) {
         super(hologram, firstPage, location);
-        this.droppedItem = NMSHandlers.getNmsHandler().createEntity(EntityType.ITEM_DISPLAY, this.getLocation());
+        this.droppedItem = NMSHandlers.getNmsHandler().createEntity(EntityType.DROPPED_ITEM, this.getLocation());
     }
 
     @Override
