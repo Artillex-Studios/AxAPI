@@ -54,8 +54,8 @@ public abstract class AxPlugin extends JavaPlugin {
         sharedDependencyWrapper.dependency("org{}apache{}commons:commons-math3:3.6.1");
         sharedDependencyWrapper.dependency("com{}github{}ben-manes{}caffeine:caffeine:3.1.8");
 
-        sharedDependencyWrapper.relocate("org{}apache{}commons{}math3", "com.artillexstudios.axapilibs.math3");
-        sharedDependencyWrapper.relocate("com{}github{}benmanes", "com.artillexstudios.axapilibs.caffeine");
+        sharedDependencyWrapper.relocate("org{}apache{}commons{}math3", "com.artillexstudios.axapi.libs.math3");
+        sharedDependencyWrapper.relocate("com{}github{}benmanes", "com.artillexstudios.axapi.libs.caffeine");
 
         DependencyManager manager = new DependencyManager(this.getDescription(), new File(this.getDataFolder(), "libs"), classLoaderWrapper);
         DependencyManagerWrapper wrapper = new DependencyManagerWrapper(manager);

@@ -117,8 +117,8 @@ tasks.build.dependsOn(shadowJar)
 shadowJar {
     relocate('dev.dejvokep.boostedyaml', 'com.artillexstudios.axapi.libs.boostedyaml')
     relocate('me.neznamy.yamlassist', 'com.artillexstudios.axapi.libs.yamlassist')
-    relocate('org.apache.commons.math3', 'com.artillexstudios.axapilibs.math3')
-    relocate('com.github.benmanes', 'com.artillexstudios.axapilibs.caffeine')
+    relocate('org.apache.commons.math3', 'com.artillexstudios.axapi.libs.math3')
+    relocate('com.github.benmanes', 'com.artillexstudios.axapi.libs.caffeine')
     relocate('org.yaml.snakeyaml', 'com.artillexstudios.axapi.libs.snakeyaml')
     relocate('com.zaxxer.hikari', 'com.artillexstudios.axapi.libs.hikari')
 }
