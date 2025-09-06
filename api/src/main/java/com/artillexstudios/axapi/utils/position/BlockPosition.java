@@ -1,4 +1,4 @@
-package com.artillexstudios.axapi.utils;
+package com.artillexstudios.axapi.utils.position;
 
 public class BlockPosition {
     protected int x;

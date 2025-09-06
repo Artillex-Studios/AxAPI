@@ -3,7 +3,7 @@ package com.artillexstudios.axapi.packet;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.nms.NMSHandlers;
-import com.artillexstudios.axapi.utils.BlockPosition;
+import com.artillexstudios.axapi.utils.position.BlockPosition;
 import com.artillexstudios.axapi.utils.Vector3f;
 import com.artillexstudios.axapi.utils.Version;
 import net.kyori.adventure.key.Key;

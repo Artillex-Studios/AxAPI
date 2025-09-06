@@ -5,7 +5,7 @@ import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketType;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
-import com.artillexstudios.axapi.utils.BlockPosition;
+import com.artillexstudios.axapi.utils.position.BlockPosition;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;

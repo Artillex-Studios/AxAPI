@@ -1,4 +1,4 @@
-package com.artillexstudios.axapi.utils;
+package com.artillexstudios.axapi.utils.position;
 
 import com.google.common.base.Preconditions;
 

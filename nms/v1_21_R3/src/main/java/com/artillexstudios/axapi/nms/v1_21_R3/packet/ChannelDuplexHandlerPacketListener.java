@@ -127,7 +127,6 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
             try {
                 FriendlyByteBuf buf = PacketTransformer.transformClientbound(ctx, msg, FriendlyByteBuf::readVarInt);
                 if (buf == null) {
-                    ;
                     super.write(ctx, msg, promise);
                     return null;
                 }

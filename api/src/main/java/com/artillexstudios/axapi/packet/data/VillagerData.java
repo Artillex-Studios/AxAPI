@@ -1,4 +1,4 @@
-package com.artillexstudios.axapi.utils;
+package com.artillexstudios.axapi.packet.data;
 
 public class VillagerData {
     private int type;

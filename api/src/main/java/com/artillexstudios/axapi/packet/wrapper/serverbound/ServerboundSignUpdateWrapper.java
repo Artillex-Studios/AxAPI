@@ -5,7 +5,7 @@ import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketType;
 import com.artillexstudios.axapi.packet.ServerboundPacketTypes;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
-import com.artillexstudios.axapi.utils.BlockPosition;
+import com.artillexstudios.axapi.utils.position.BlockPosition;
 import com.artillexstudios.axapi.utils.Version;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.logging.LogUtils;

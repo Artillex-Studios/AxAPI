@@ -13,7 +13,7 @@ import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundSetEquipm
 import com.artillexstudios.axapi.packet.wrapper.serverbound.ServerboundSetCreativeModeSlotWrapper;
 import com.artillexstudios.axapi.packetentity.meta.Metadata;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
-import com.artillexstudios.axapi.utils.MerchantOffer;
+import com.artillexstudios.axapi.packet.data.MerchantOffer;
 import com.artillexstudios.axapi.utils.Pair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.bukkit.entity.Player;

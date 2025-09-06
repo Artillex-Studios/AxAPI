@@ -21,7 +21,7 @@ public enum ComponentSerializer {
     private Cache<String, Component> gsonCache;
 
     public void refresh() {
-        serializer = NMSHandlers.getNmsHandler().componentSerializer();
+        this.serializer = NMSHandlers.getNmsHandler().componentSerializer();
         this.componentCache = Caffeine.newBuilder()
                 .maximumSize(FeatureFlags.COMPONENT_CACHE_SIZE.get())
                 .expireAfterAccess(Duration.ofMinutes(5))
