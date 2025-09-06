@@ -30,7 +30,7 @@ public record Placeholder(String placeholder, PlaceholderArguments arguments, Pa
 
         while (matcher.find()) {
             builder.append(Pattern.quote(placeholder.substring(begin, matcher.start()))).append("++");
-            builder.append("(?").append(matcher.group()).append("[^%]+?)");
+            builder.append("(?").append(matcher.group()).append("[^%]*?)");
             begin = matcher.end();
         }
 
