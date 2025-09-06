@@ -39,9 +39,9 @@ public final class Location {
 
     public Location(World world, BlockPosition position, float yaw, float pitch) {
         this.world = Preconditions.checkNotNull(world, "Can't create a location with an empty world! Use BlockPosition for that!");
-        this.x = position.x;
-        this.y = position.y;
-        this.z = position.z;
+        this.x = position.x();
+        this.y = position.y();
+        this.z = position.z();
         this.yaw = yaw;
         this.pitch = pitch;
     }
@@ -134,8 +134,8 @@ public final class Location {
         return new Location(this.world, ((int) Math.floor(this.x)) + 0.5, (int) Math.floor(this.y), ((int) Math.floor(this.z)) + 0.5, this.yaw, this.pitch);
     }
 
-    public BlockPosition toBlockPos() {
-        return new BlockPosition((int) Math.floor(this.x), (int) Math.floor(this.y), (int) Math.floor(this.z));
+    public ImmutableBlockPosition toBlockPos() {
+        return new ImmutableBlockPosition((int) Math.floor(this.x), (int) Math.floor(this.y), (int) Math.floor(this.z));
     }
 
     public org.bukkit.Location toBukkit() {

@@ -5,10 +5,10 @@ import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketType;
 import com.artillexstudios.axapi.packet.ServerboundPacketTypes;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
-import com.artillexstudios.axapi.utils.position.BlockPosition;
 import com.artillexstudios.axapi.utils.Version;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
+import com.artillexstudios.axapi.utils.position.BlockPosition;
 
 import java.util.Arrays;
 
@@ -22,11 +22,11 @@ public final class ServerboundSignUpdateWrapper extends PacketWrapper {
     }
 
     public BlockPosition position() {
-        return position;
+        return this.position;
     }
 
     public void position(BlockPosition position) {
-        this.position = position;
+        this.position = position.immutable();
     }
 
     public boolean frontText() {

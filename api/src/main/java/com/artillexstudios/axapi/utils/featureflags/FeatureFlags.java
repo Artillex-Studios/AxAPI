@@ -125,6 +125,12 @@ public final class FeatureFlags {
      * Can be controlled with the system property: %pluginName%listenToRidePacket
      */
     public static final BooleanFlag LISTEN_TO_RIDE_PACKET = new BooleanFlag(false);
+    /**
+     * The size of the AsyncUtils shared thread-pool.
+     * <p>
+     * Can be controlled with the system property: %pluginName%listenToRidePacket
+     */
+    public static final IntegerFlag ASYNC_UTILS_POOL_SIZE = new IntegerFlag(1);
 
     public static void refresh(AxPlugin plugin) {
         PACKET_ENTITY_TRACKER_ENABLED.refresh(plugin.getName() + "enableEntityTracker");

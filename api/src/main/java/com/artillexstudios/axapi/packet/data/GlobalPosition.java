@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.packet.data;
 
 import com.artillexstudios.axapi.utils.position.BlockPosition;
+import com.artillexstudios.axapi.utils.position.ImmutableBlockPosition;
 import net.kyori.adventure.key.Key;
 
 public final class GlobalPosition {
@@ -9,12 +10,12 @@ public final class GlobalPosition {
 
     public GlobalPosition(Key key, BlockPosition position) {
         this.key = key;
-        this.position = position;
+        this.position = position.immutable();
     }
 
     public GlobalPosition(Key key, int x, int y, int z) {
         this.key = key;
-        this.position = new BlockPosition(x, y, z);
+        this.position = new ImmutableBlockPosition(x, y, z);
     }
 
     public Key key() {
@@ -30,6 +31,6 @@ public final class GlobalPosition {
     }
 
     public void position(BlockPosition position) {
-        this.position = position;
+        this.position = position.immutable();
     }
 }

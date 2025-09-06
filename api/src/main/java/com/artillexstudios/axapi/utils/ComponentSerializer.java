@@ -37,7 +37,7 @@ public enum ComponentSerializer {
     }
 
     public <T> T toVanilla(Component component) {
-        return (T) this.componentCache.get(component, this.serializer::deserialize);
+        return UncheckedUtils.unsafeCast(this.componentCache.get(component, this.serializer::deserialize));
     }
 
     public Component fromVanilla(Object object) {

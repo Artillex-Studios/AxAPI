@@ -10,93 +10,78 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-@SuppressWarnings("resource")
 public final class Requests {
-    private static final AtomicReference<HttpClient> client = new AtomicReference<>();
-    private static final Gson gson = new Gson();
+    private static final class Holder {
+        private static final HttpClient CLIENT = HttpClient.newHttpClient();
+        private static final Gson GSON = new Gson();
+    }
 
-    private static HttpClient init() {
-        return client.updateAndGet(prev -> prev == null ? HttpClient.newHttpClient() : prev);
+    private static HttpRequest createRequest(RequestType type, String url, Map<String, String> headers, Supplier<JsonObject> bodySupplier) {
+        HttpRequest.Builder builder = HttpRequest.newBuilder()
+                .uri(URI.create(url));
+
+        builder = switch (type) {
+            case GET -> builder.GET();
+            case POST -> {
+                if (bodySupplier == null) {
+                    throw new IllegalArgumentException("The body supplier of a POST request can't be null!");
+                }
+
+                JsonObject body = bodySupplier.get();
+                if (body == null) {
+                    throw new IllegalArgumentException("The body of a POST request can't be null!");
+                }
+
+                yield builder.POST(HttpRequest.BodyPublishers.ofString(Holder.GSON.toJson(body)));
+            }
+            case DELETE -> builder.DELETE();
+        };
+
+        if (headers != null) {
+            headers.forEach(builder::setHeader);
+        }
+
+        return builder.build();
+    }
+
+    public static HttpResponse<String> sendTyped(RequestType type, String url, Map<String, String> headers, Supplier<JsonObject> body) {
+        HttpRequest request = createRequest(type, url, headers, body);
+
+        try {
+            return Holder.CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static CompletableFuture<HttpResponse<String>> sendTypedAsync(RequestType type, String url, Map<String, String> headers, Supplier<JsonObject> body) {
+        HttpRequest request = createRequest(type, url, headers, body);
+        return Holder.CLIENT.sendAsync(request, HttpResponse.BodyHandlers.ofString());
     }
 
     public static HttpResponse<String> post(String url, Map<String, String> headers, Supplier<JsonObject> body) {
-        HttpClient client = init();
-        HttpRequest.Builder builder = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(body.get())));
-
-        headers.forEach(builder::setHeader);
-
-        try {
-            return client.send(builder.build(), HttpResponse.BodyHandlers.ofString());
-        } catch (IOException | InterruptedException exception) {
-            throw new RuntimeException(exception);
-        }
+        return sendTyped(RequestType.POST, url, headers, body);
     }
 
     public static HttpResponse<String> delete(String url, Map<String, String> headers) {
-        HttpClient client = init();
-        HttpRequest.Builder builder = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .DELETE();
-
-        headers.forEach(builder::setHeader);
-
-        try {
-            return client.send(builder.build(), HttpResponse.BodyHandlers.ofString());
-        } catch (IOException | InterruptedException exception) {
-            throw new RuntimeException(exception);
-        }
+        return sendTyped(RequestType.DELETE, url, headers, null);
     }
 
     public static HttpResponse<String> get(String url, Map<String, String> headers) {
-        HttpClient client = init();
-        HttpRequest.Builder builder = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .GET();
-
-        headers.forEach(builder::setHeader);
-
-        try {
-            return client.send(builder.build(), HttpResponse.BodyHandlers.ofString());
-        } catch (IOException | InterruptedException exception) {
-            throw new RuntimeException(exception);
-        }
+        return sendTyped(RequestType.GET, url, headers, null);
     }
 
     public static CompletableFuture<HttpResponse<String>> postAsync(String url, Map<String, String> headers, Supplier<JsonObject> body) {
-        HttpClient client = init();
-        HttpRequest.Builder builder = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(body.get())));
-
-        headers.forEach(builder::setHeader);
-
-        return client.sendAsync(builder.build(), HttpResponse.BodyHandlers.ofString());
+        return sendTypedAsync(RequestType.POST, url, headers, body);
     }
 
     public static CompletableFuture<HttpResponse<String>> deleteAsync(String url, Map<String, String> headers) {
-        HttpClient client = init();
-        HttpRequest.Builder builder = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .DELETE();
-
-        headers.forEach(builder::setHeader);
-
-        return client.sendAsync(builder.build(), HttpResponse.BodyHandlers.ofString());
+        return sendTypedAsync(RequestType.DELETE, url, headers, null);
     }
 
     public static CompletableFuture<HttpResponse<String>> getAsync(String url, Map<String, String> headers) {
-        HttpClient client = init();
-        HttpRequest.Builder builder = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .GET();
-
-        headers.forEach(builder::setHeader);
-
-        return client.sendAsync(builder.build(), HttpResponse.BodyHandlers.ofString());
+        return sendTypedAsync(RequestType.GET, url, headers, null);
     }
 }

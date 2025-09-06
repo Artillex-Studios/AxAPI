@@ -51,10 +51,10 @@ public final class StringUtils {
             .expireAfterAccess(Duration.ofMinutes(1))
             .maximumSize(FeatureFlags.COLOR_CACHE_SIZE.get())
             .build();
-    public static MiniMessage MINI_MESSAGE = MiniMessage.builder()
+    public static final MiniMessage MINI_MESSAGE = MiniMessage.builder()
             .tags(StandardTags.defaults())
             .build();
-    public static LegacyComponentSerializer LEGACY_COMPONENT_SERIALIZER = LegacyComponentSerializer.builder()
+    public static final LegacyComponentSerializer LEGACY_COMPONENT_SERIALIZER = LegacyComponentSerializer.builder()
             .useUnusualXRepeatedCharacterHexFormat()
             .character('\u00a7')
             .hexColors()

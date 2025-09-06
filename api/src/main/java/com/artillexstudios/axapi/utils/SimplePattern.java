@@ -1,42 +1,45 @@
 package com.artillexstudios.axapi.utils;
 
+import org.jspecify.annotations.NullMarked;
+
+@NullMarked
 public class SimplePattern {
     private final String expression;
-    private final boolean beginMatch;
-    private final boolean endMatch;
+    private final boolean endsWith;
+    private final boolean startsWith;
 
     public static SimplePattern of(String expression) {
-        return new SimplePattern(expression);
+        return new SimplePattern(expression.isBlank() ? "%%" : expression);
     }
 
-    public SimplePattern(String expression) {
+    private SimplePattern(String expression) {
         String modifiableExpression = expression;
         if (expression.charAt(0) == '%') {
-            this.beginMatch = true;
+            this.endsWith = true;
             modifiableExpression = modifiableExpression.substring(1);
         } else {
-            this.beginMatch = false;
+            this.endsWith = false;
         }
 
         if (expression.charAt(expression.length() - 1) == '%') {
-            this.endMatch = true;
+            this.startsWith = true;
             modifiableExpression = modifiableExpression.substring(0, modifiableExpression.length() - 1);
         } else {
-            this.endMatch = false;
+            this.startsWith = false;
         }
         this.expression = modifiableExpression;
     }
 
     public boolean matches(String other) {
-        if (this.beginMatch && this.endMatch) {
+        if (this.endsWith && this.startsWith) {
             return other.contains(this.expression);
         }
 
-        if (this.beginMatch) {
+        if (this.endsWith) {
             return other.endsWith(this.expression);
         }
 
-        if (this.endMatch) {
+        if (this.startsWith) {
             return other.startsWith(this.expression);
         }
 

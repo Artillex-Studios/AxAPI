@@ -3,7 +3,7 @@ package com.artillexstudios.axapi.utils;
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundCustomPayloadWrapper;
-import com.artillexstudios.axapi.utils.position.BlockPosition;
+import com.artillexstudios.axapi.utils.position.ImmutableBlockPosition;
 import net.kyori.adventure.key.Key;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -88,7 +88,7 @@ public final class DebugMarker {
         }
 
         FriendlyByteBuf buf = FriendlyByteBuf.alloc();
-        buf.writeBlockPos(new BlockPosition(this.location.getBlockX(), this.location.getBlockY(), this.location.getBlockZ()));
+        buf.writeBlockPos(new ImmutableBlockPosition(this.location.getBlockX(), this.location.getBlockY(), this.location.getBlockZ()));
         buf.writeInt(this.transparency << 24 | this.color.asRGB());
         buf.writeUTF(this.message);
         buf.writeInt(this.duration);
