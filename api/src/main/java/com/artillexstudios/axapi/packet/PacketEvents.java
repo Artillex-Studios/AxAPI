@@ -24,35 +24,25 @@ public enum PacketEvents {
 
         PacketListener[] baked = this.baked;
         for (PacketListener listener : baked) {
-            if (event.side() == PacketSide.CLIENT_BOUND) {
-                try {
+            try {
+                if (event.side() == PacketSide.CLIENT_BOUND) {
                     listener.onPacketSending(event);
-                } catch (Throwable throwable) {
-                    LogUtils.error("Failed to read clientbound packet!", throwable);
-                    continue;
-                }
-
-                PacketWrapper wrapper = event.wrapper();
-                if (wrapper != null) {
-                    FriendlyByteBuf out = event.out();
-                    wrapper.write(out);
-                }
-            } else {
-                try {
+                } else {
                     listener.onPacketReceive(event);
-                } catch (Throwable throwable) {
-                    LogUtils.error("Failed to read serverbound packet!", throwable);
-                    continue;
                 }
+            } catch (Throwable throwable) {
+                LogUtils.error("Failed to read {} packet!", event.side(), throwable);
+                continue;
+            }
 
-                PacketWrapper wrapper = event.wrapper();
-                if (wrapper != null) {
-                    FriendlyByteBuf out = event.out();
-                    wrapper.write(out);
-                }
+            PacketWrapper wrapper = event.wrapper();
+            if (wrapper != null) {
+                FriendlyByteBuf out = event.out();
+                wrapper.write(out);
             }
         }
     }
+
 
     public boolean listening() {
         return this.listening;
