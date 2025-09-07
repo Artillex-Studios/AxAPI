@@ -104,7 +104,7 @@ public enum ClassUtils {
             builder.append("\t".repeat(indent + 1)).append("Generic type: ").append(method.getGenericReturnType()).append(System.lineSeparator());
             builder.append("\t".repeat(indent + 1)).append("Annotated type: ").append(method.getAnnotatedReturnType()).append(System.lineSeparator());
             builder.append("\t".repeat(indent + 1)).append("Parameter count: ").append(method.getParameterCount()).append(System.lineSeparator());
-            builder.append("\t".repeat(indent + 1)).append("Parameters: ").append(Arrays.stream(method.getParameterTypes()).map(Class::getName)).append(System.lineSeparator());
+            builder.append("\t".repeat(indent + 1)).append("Parameters: ").append(String.join(", ", Arrays.stream(method.getParameterTypes()).map(Class::getName).toList())).append(System.lineSeparator());
         }
 
         Set<Class<?>> superClasses = this.superClasses(clazz);

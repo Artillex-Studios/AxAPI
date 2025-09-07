@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.reflection;
 
 import com.artillexstudios.axapi.reflection.accessor.AccessorType;
+import com.artillexstudios.axapi.utils.UncheckedUtils;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 
 import java.lang.reflect.Field;
@@ -28,7 +29,7 @@ public interface FieldAccessor {
     }
 
     default <T> T getUnchecked(Object instance) {
-        return (T) this.get(instance);
+        return UncheckedUtils.unsafeCast(this.get(instance));
     }
 
     Object getVolatile(Object instance);
@@ -38,7 +39,7 @@ public interface FieldAccessor {
     }
 
     default <T> T getVolatileUnchecked(Object instance) {
-        return (T) this.getVolatile(instance);
+        return UncheckedUtils.unsafeCast(this.getVolatile(instance));
     }
 
     class Builder {
@@ -93,7 +94,7 @@ public interface FieldAccessor {
             return this;
         }
 
-        public Builder withType(Class<?> type, int index) {
+        public Builder withFieldType(Class<?> type, int index) {
             this.fieldType = type;
             this.fieldIndex = index;
             this.tryFetchField();
@@ -106,23 +107,12 @@ public interface FieldAccessor {
             }
 
             if (this.fieldName != null) {
-                try {
-                    this.field = this.clazz.getDeclaredField(this.fieldName);
-                } catch (NoSuchFieldException exception) {
-                    if (this.silent) {
-                        return;
-                    }
-
-                    LogUtils.error("Failed to find field {} of class {}! Fields of class: {}", this.fieldName, this.clazz.getName(), String.join(", ", Arrays.stream(this.clazz.getDeclaredFields()).map(Field::getName).toList()), exception);
-                    return;
-                }
+                this.fetchByName();
             } else if (this.fieldType != null) {
-                Field[] fields = (Field[]) Arrays.stream(this.clazz.getDeclaredFields())
-                        .filter(field -> field.getType().equals(this.field.getType()))
-                        .toArray();
+                this.fetchByType();
+            }
 
-                this.field = fields[this.fieldIndex];
-            } else {
+            if (this.field == null) {
                 return;
             }
 
@@ -130,6 +120,32 @@ public interface FieldAccessor {
             this.fieldType = null;
             this.fieldName = null;
             this.fieldIndex = null;
+        }
+
+        private void fetchByName() {
+            try {
+                this.field = this.clazz.getDeclaredField(this.fieldName);
+            } catch (NoSuchFieldException exception) {
+                if (this.silent) {
+                    return;
+                }
+
+                LogUtils.error("Failed to find field {} of class {}! Fields of class: {}", this.fieldName, this.clazz.getName(), String.join(", ", Arrays.stream(this.clazz.getDeclaredFields()).map(Field::getName).toList()), exception);
+                throw new RuntimeException(exception);
+            }
+        }
+
+        private void fetchByType() {
+            Field[] fields = Arrays.stream(this.clazz.getDeclaredFields())
+                    .filter(field -> field.getType().equals(this.fieldType))
+                    .toArray(Field[]::new);
+
+            if (this.fieldIndex >= fields.length) {
+                LogUtils.error("Failed to find field with type {} and index {} of class {}! Fields of class: {}", this.fieldType, this.fieldIndex, this.clazz.getName(), String.join(", ", Arrays.stream(this.clazz.getDeclaredFields()).map(Field::getName).toList()));
+                return;
+            }
+
+            this.field = fields[this.fieldIndex];
         }
 
         public FieldAccessor build() {
