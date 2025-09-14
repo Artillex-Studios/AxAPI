@@ -28,7 +28,6 @@ import com.artillexstudios.axapi.placeholders.PlaceholderAPIHook;
 import com.artillexstudios.axapi.scheduler.Scheduler;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
-import com.artillexstudios.axapi.utils.logging.LogUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -42,36 +41,21 @@ import revxrsal.zapper.DependencyManager;
 import revxrsal.zapper.classloader.URLClassLoaderWrapper;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URLClassLoader;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 public abstract class AxPlugin extends JavaPlugin {
     public EntityTracker tracker;
 
     public AxPlugin() {
-        URLClassLoaderWrapper classLoaderWrapper = URLClassLoaderWrapper.wrap((URLClassLoader) this.getClassLoader());
-        Path sharedFolderPath = this.getDataFolder().toPath().resolve("../AxAPI/libs");
-        try {
-            Files.createDirectories(sharedFolderPath);
-        } catch (IOException exception) {
-            LogUtils.error("Failed to create libraries directory!", exception);
-            throw new RuntimeException(exception);
-        }
-
-        DependencyManager sharedManager = new DependencyManager(this.getDescription(), sharedFolderPath.toFile(), classLoaderWrapper);
-        DependencyManagerWrapper sharedDependencyWrapper = new DependencyManagerWrapper(sharedManager);
-        sharedDependencyWrapper.dependency("org{}apache{}commons:commons-math3:3.6.1");
-        sharedDependencyWrapper.dependency("com{}github{}ben-manes{}caffeine:caffeine:3.1.8");
-
-        sharedDependencyWrapper.relocate("org{}apache{}commons{}math3", "com.artillexstudios.axapi.libs.math3");
-        sharedDependencyWrapper.relocate("com{}github{}benmanes", "com.artillexstudios.axapi.libs.caffeine");
-
-        DependencyManager manager = new DependencyManager(this.getDescription(), new File(this.getDataFolder(), "libs"), classLoaderWrapper);
+        DependencyManager manager = new DependencyManager(this.getDescription(), new File(this.getDataFolder(), "libs"), URLClassLoaderWrapper.wrap((URLClassLoader) this.getClassLoader()));
         DependencyManagerWrapper wrapper = new DependencyManagerWrapper(manager);
+        wrapper.dependency("org{}apache{}commons:commons-math3:3.6.1");
+        wrapper.dependency("com{}github{}ben-manes{}caffeine:caffeine:3.1.8");
+
+        wrapper.relocate("org{}apache{}commons{}math3", "com.artillexstudios.axapi.libs.math3");
+        wrapper.relocate("com{}github{}benmanes", "com.artillexstudios.axapi.libs.caffeine");
+
         this.dependencies(wrapper);
-        sharedManager.load();
         manager.load();
 
         FeatureFlags.refresh(this);
