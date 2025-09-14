@@ -4,9 +4,9 @@ import com.artillexstudios.axapi.dependencies.DependencyManagerWrapper;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.gui.AnvilListener;
 import com.artillexstudios.axapi.gui.SignInput;
-import com.artillexstudios.axapi.gui.inventory.renderer.InventoryRenderers;
 import com.artillexstudios.axapi.gui.inventory.InventoryUpdater;
 import com.artillexstudios.axapi.gui.inventory.listener.InventoryClickListener;
+import com.artillexstudios.axapi.gui.inventory.renderer.InventoryRenderers;
 import com.artillexstudios.axapi.hologram.Holograms;
 import com.artillexstudios.axapi.items.component.DataComponents;
 import com.artillexstudios.axapi.nms.NMSHandlers;
@@ -28,6 +28,7 @@ import com.artillexstudios.axapi.placeholders.PlaceholderAPIHook;
 import com.artillexstudios.axapi.scheduler.Scheduler;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -41,15 +42,25 @@ import revxrsal.zapper.DependencyManager;
 import revxrsal.zapper.classloader.URLClassLoaderWrapper;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public abstract class AxPlugin extends JavaPlugin {
     public EntityTracker tracker;
 
     public AxPlugin() {
         URLClassLoaderWrapper classLoaderWrapper = URLClassLoaderWrapper.wrap((URLClassLoader) this.getClassLoader());
-        File sharedFolder = this.getDataFolder().toPath().resolve("../AxAPI/libs").toFile();
-        DependencyManager sharedManager = new DependencyManager(this.getDescription(), sharedFolder, classLoaderWrapper);
+        Path sharedFolderPath = this.getDataFolder().toPath().resolve("../AxAPI/libs");
+        try {
+            Files.createDirectories(sharedFolderPath);
+        } catch (IOException exception) {
+            LogUtils.error("Failed to create libraries directory!", exception);
+            throw new RuntimeException(exception);
+        }
+
+        DependencyManager sharedManager = new DependencyManager(this.getDescription(), sharedFolderPath.toFile(), classLoaderWrapper);
         DependencyManagerWrapper sharedDependencyWrapper = new DependencyManagerWrapper(sharedManager);
         sharedDependencyWrapper.dependency("org{}apache{}commons:commons-math3:3.6.1");
         sharedDependencyWrapper.dependency("com{}github{}ben-manes{}caffeine:caffeine:3.1.8");
