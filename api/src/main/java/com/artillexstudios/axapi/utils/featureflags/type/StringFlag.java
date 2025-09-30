@@ -1,4 +1,6 @@
-package com.artillexstudios.axapi.utils.featureflags;
+package com.artillexstudios.axapi.utils.featureflags.type;
+
+import com.artillexstudios.axapi.utils.featureflags.FeatureFlag;
 
 public final class StringFlag extends FeatureFlag<String> {
     public static final StringFlag TRANSFORMER = new StringFlag("");

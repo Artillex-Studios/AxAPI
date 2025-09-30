@@ -1,4 +1,6 @@
-package com.artillexstudios.axapi.utils.featureflags;
+package com.artillexstudios.axapi.utils.featureflags.type;
+
+import com.artillexstudios.axapi.utils.featureflags.FeatureFlag;
 
 public final class IntegerFlag extends FeatureFlag<Integer> {
     public static final IntegerFlag TRANSFORMER = new IntegerFlag(0);

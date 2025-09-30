@@ -1,6 +1,12 @@
 package com.artillexstudios.axapi.utils.featureflags;
 
 import com.artillexstudios.axapi.AxPlugin;
+import com.artillexstudios.axapi.utils.featureflags.type.BooleanFlag;
+import com.artillexstudios.axapi.utils.featureflags.type.IntegerFlag;
+import com.artillexstudios.axapi.utils.featureflags.type.ListFlag;
+import com.artillexstudios.axapi.utils.featureflags.type.LongFlag;
+import com.artillexstudios.axapi.utils.featureflags.type.PatternFlag;
+import com.artillexstudios.axapi.utils.featureflags.type.StringFlag;
 
 import java.util.Arrays;
 import java.util.regex.Pattern;
@@ -128,9 +134,15 @@ public final class FeatureFlags {
     /**
      * The size of the AsyncUtils shared thread-pool.
      * <p>
-     * Can be controlled with the system property: %pluginName%listenToRidePacket
+     * Can be controlled with the system property: %pluginName%asyncUtilsPoolSize
      */
     public static final IntegerFlag ASYNC_UTILS_POOL_SIZE = new IntegerFlag(1);
+    /**
+     * If AxAPI should be able to listen to packets.
+     * <p>
+     * Can be controlled with the system property: %pluginName%enablePacketListeners
+     */
+    public static final BooleanFlag ENABLE_PACKET_LISTENERS = new BooleanFlag(false);
 
     public static void refresh(AxPlugin plugin) {
         PACKET_ENTITY_TRACKER_ENABLED.refresh(plugin.getName() + "enableEntityTracker");
@@ -152,5 +164,7 @@ public final class FeatureFlags {
         PARSE_PLACEHOLDER_API_IN_ITEM_BUILDER.refresh(plugin.getName() + "parsePlaceholderAPiInItemBuilder");
         COLOR_CACHE_SIZE.refresh(plugin.getName() + "colorCacheSize");
         LISTEN_TO_RIDE_PACKET.refresh(plugin.getName() + "listenToRidePacket");
+        ASYNC_UTILS_POOL_SIZE.refresh(plugin.getName() + "asyncUtilsPoolSize");
+        ENABLE_PACKET_LISTENERS.refresh(plugin.getName() + "enablePacketListeners");
     }
 }

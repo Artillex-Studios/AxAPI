@@ -1,6 +1,8 @@
 package com.artillexstudios.axapi.packet;
 
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
+import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
+import com.artillexstudios.axapi.utils.featureflags.exception.IllegalFeatureFlagStateException;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
@@ -12,6 +14,10 @@ public enum PacketEvents {
     private boolean listening = false;
 
     public void addListener(PacketListener listener) {
+        if (!FeatureFlags.ENABLE_PACKET_LISTENERS.get()) {
+            throw new IllegalFeatureFlagStateException("Packet listeners!");
+        }
+
         this.listeners.add(listener);
         this.listening = true;
         this.baked = this.listeners.toArray(new PacketListener[0]);

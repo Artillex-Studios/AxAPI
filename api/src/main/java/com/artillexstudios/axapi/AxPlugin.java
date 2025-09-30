@@ -3,7 +3,6 @@ package com.artillexstudios.axapi;
 import com.artillexstudios.axapi.dependencies.DependencyManagerWrapper;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.gui.AnvilListener;
-import com.artillexstudios.axapi.gui.SignInput;
 import com.artillexstudios.axapi.gui.inventory.InventoryUpdater;
 import com.artillexstudios.axapi.gui.inventory.listener.InventoryClickListener;
 import com.artillexstudios.axapi.gui.inventory.renderer.InventoryRenderers;
@@ -12,16 +11,9 @@ import com.artillexstudios.axapi.items.component.DataComponents;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
 import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
-import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketEvents;
-import com.artillexstudios.axapi.packet.PacketListener;
 import com.artillexstudios.axapi.packet.ServerboundPacketTypes;
-import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundAddEntityWrapper;
-import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundBlockUpdateWrapper;
-import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundSetPassengersWrapper;
-import com.artillexstudios.axapi.packet.wrapper.serverbound.ServerboundInteractWrapper;
-import com.artillexstudios.axapi.packet.wrapper.serverbound.ServerboundSignUpdateWrapper;
-import com.artillexstudios.axapi.packetentity.PacketEntity;
+import com.artillexstudios.axapi.packet.listeners.BuiltinPacketListener;
 import com.artillexstudios.axapi.packetentity.tracker.EntityTracker;
 import com.artillexstudios.axapi.particle.ParticleTypes;
 import com.artillexstudios.axapi.placeholders.PlaceholderAPIHook;
@@ -82,65 +74,18 @@ public abstract class AxPlugin extends JavaPlugin {
             this.tracker.startTicking();
         }
 
-        PacketEvents.INSTANCE.addListener(new PacketListener() {
-
-            @Override
-            public void onPacketSending(PacketEvent event) {
-                if (event.type() == ClientboundPacketTypes.ADD_ENTITY && FeatureFlags.LISTEN_TO_RIDE_PACKET.get()) {
-                    if (AxPlugin.this.tracker == null) {
-                        return;
-                    }
-
-                    ClientboundAddEntityWrapper wrapper = new ClientboundAddEntityWrapper(event);
-                    int entityId = wrapper.entityId();
-                    PacketEntity rider = AxPlugin.this.tracker.findRider(entityId);
-
-                    if (rider == null) {
-                        return;
-                    }
-
-                    ClientboundSetPassengersWrapper passengersWrapper = new ClientboundSetPassengersWrapper(entityId, new int[]{rider.id()});
-                    ServerPlayerWrapper serverPlayerWrapper = ServerPlayerWrapper.wrap(event.player());
-                    serverPlayerWrapper.sendPacket(passengersWrapper);
-                }
-            }
-
-            @Override
-            public void onPacketReceive(PacketEvent event) {
-                if (event.type() == ServerboundPacketTypes.INTERACT) {
-                    if (AxPlugin.this.tracker == null) {
-                        return;
-                    }
-
-                    ServerboundInteractWrapper wrapper = new ServerboundInteractWrapper(event);
-                    PacketEntity entity = tracker.getById(wrapper.entityId());
-                    if (entity != null) {
-                        PacketEntityInteractEvent interactEvent = new PacketEntityInteractEvent(event.player(), entity, wrapper.type() == ServerboundInteractWrapper.ActionType.ATTACK, wrapper.action() instanceof ServerboundInteractWrapper.InteractionAtLocationAction action ? action.location() : null, wrapper.action() instanceof ServerboundInteractWrapper.InteractionAction action ? action.hand() : wrapper.action() instanceof ServerboundInteractWrapper.InteractionAtLocationAction interaction ? interaction.hand() : null);
-                        Bukkit.getPluginManager().callEvent(interactEvent);
-                    }
-                } else if (event.type() == ServerboundPacketTypes.SIGN_UPDATE) {
-                    ServerboundSignUpdateWrapper wrapper = new ServerboundSignUpdateWrapper(event);
-                    SignInput signInput = SignInput.remove(event.player());
-
-                    if (signInput == null) {
-                        return;
-                    }
-
-                    signInput.getListener().accept(event.player(), wrapper.lines());
-                    com.artillexstudios.axapi.scheduler.Scheduler.get().runAt(signInput.getLocation(), task -> {
-                        ServerPlayerWrapper playerWrapper = ServerPlayerWrapper.wrap(event.player());
-                        playerWrapper.sendPacket(new ClientboundBlockUpdateWrapper(signInput.getLocation(), signInput.getLocation().getBlock().getType()));
-                    });
-                }
-            }
-        });
+        if (FeatureFlags.ENABLE_PACKET_LISTENERS.get()) {
+            PacketEvents.INSTANCE.addListener(new BuiltinPacketListener(this.tracker));
+        }
 
         Bukkit.getPluginManager().registerEvents(new Listener() {
             @EventHandler
             public void onPlayerQuitEvent(@NotNull final PlayerQuitEvent event) {
                 InventoryRenderers.disconnect(event.getPlayer().getUniqueId());
                 ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(event.getPlayer());
-                wrapper.uninject();
+                if (FeatureFlags.ENABLE_PACKET_LISTENERS.get()) {
+                    wrapper.uninject();
+                }
 
                 if (AxPlugin.this.tracker == null) {
                     return;
@@ -152,6 +97,10 @@ public abstract class AxPlugin extends JavaPlugin {
             @EventHandler
             public void onPlayerJoinEvent(@NotNull final PlayerJoinEvent event) {
                 ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(event.getPlayer());
+                if (!FeatureFlags.ENABLE_PACKET_LISTENERS.get()) {
+                    return;
+                }
+
                 wrapper.inject();
             }
 
