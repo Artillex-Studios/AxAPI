@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id 'maven-publish'
-    id 'com.gradleup.shadow' version '9.0.0-beta10'
+    id 'com.gradleup.shadow' version '9.2.2'
 }
 
 group = 'com.artillexstudios.axapi'
@@ -16,6 +16,7 @@ java {
 dependencies {
     implementation project(path: ":api")
     implementation project(path: ":folia")
+    implementation project(path: ":nms:v1_21_R6"/*, configuration: "reobf"*/)
     implementation project(path: ":nms:v1_21_R5", configuration: "reobf")
     implementation project(path: ":nms:v1_21_R4", configuration: "reobf")
     implementation project(path: ":nms:v1_21_R3", configuration: "reobf")
@@ -86,9 +87,9 @@ allprojects {
             }
 
             publications {
-                shadow(MavenPublication) { publication ->
-                    project.shadow.component(publication)
+                shadow(MavenPublication) { ->
                     artifactId = "axapi"
+                    from components.shadow
 
                     println("Project: ${project.name}")
                     if (project.name == "api") {

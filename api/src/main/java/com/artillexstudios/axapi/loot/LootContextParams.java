@@ -16,6 +16,8 @@ public final class LootContextParams {
     public static final LootContextParam<Location> ORIGIN = create("origin");
     public static final LootContextParam<BlockData> BLOCK_STATE = create("block_state");
     public static final LootContextParam<ItemStack> TOOL = create("tool");
+    public static final LootContextParam<Entity> INTERACTING_ENTITY = create("interacting_entity");
+    public static final LootContextParam<Entity> TARGET_ENTITY = create("target_entity");
 
     private static <T> LootContextParam<T> create(String key) {
         return new LootContextParam<>(Key.key(Key.MINECRAFT_NAMESPACE, key));

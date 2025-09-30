@@ -32,7 +32,7 @@ public final class BuiltinPacketListener extends PacketListener {
             }
 
             ClientboundAddEntityWrapper wrapper = new ClientboundAddEntityWrapper(event);
-            int entityId = wrapper.entityId();
+            int entityId = wrapper.getEntityId();
 
             PacketEntity rider = this.tracker.findRider(entityId);
             if (rider == null) {
