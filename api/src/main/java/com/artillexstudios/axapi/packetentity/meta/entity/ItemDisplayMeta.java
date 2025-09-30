@@ -44,6 +44,7 @@ public class ItemDisplayMeta extends DisplayMeta {
         HEAD,
         GUI,
         GROUND,
-        FIXED;
+        FIXED,
+        ON_SHELF; // 1.21.9
     }
 }
