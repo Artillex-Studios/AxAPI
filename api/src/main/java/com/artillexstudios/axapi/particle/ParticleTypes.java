@@ -16,6 +16,7 @@ import com.artillexstudios.axapi.particle.type.FloatParticleType;
 import com.artillexstudios.axapi.particle.type.IntegerParticleType;
 import com.artillexstudios.axapi.particle.type.ItemStackParticleType;
 import com.artillexstudios.axapi.particle.type.SimpleParticleType;
+import com.artillexstudios.axapi.particle.type.SpellParticleType;
 import com.artillexstudios.axapi.particle.type.TrailParticleType;
 import com.artillexstudios.axapi.particle.type.VarIntParticleType;
 import com.artillexstudios.axapi.particle.type.VibrationParticleType;
@@ -46,9 +47,10 @@ public final class ParticleTypes {
     public static final ParticleType<IntegerParticleOption> BLOCK_MARKER = new VarIntParticleType();
     public static final ParticleType<?> BUBBLE = new SimpleParticleType();
     public static final ParticleType<?> CLOUD = new SimpleParticleType();
+    public static final ParticleType<?> COPPER_FIRE_FLAME = new SimpleParticleType(); // 1.21.9
     public static final ParticleType<?> CRIT = new SimpleParticleType();
     public static final ParticleType<?> DAMAGE_INDICATOR = new SimpleParticleType();
-    public static final ParticleType<?> DRAGON_BREATH = new SimpleParticleType();
+    public static final ParticleType<?> DRAGON_BREATH = Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_7) ? new FloatParticleType() : new SimpleParticleType(); // 1.21.9 simple -> power (float in our case)
     public static final ParticleType<?> DRIPPING_LAVA = new SimpleParticleType();
     public static final ParticleType<?> FALLING_LAVA = new SimpleParticleType();
     public static final ParticleType<?> LANDING_LAVA = new SimpleParticleType();
@@ -56,7 +58,7 @@ public final class ParticleTypes {
     public static final ParticleType<?> FALLING_WATER = new SimpleParticleType();
     public static final ParticleType<DustParticleOption> DUST = new DustParticleType();
     public static final ParticleType<DustColorTransitionParticleOption> DUST_COLOR_TRANSITION = new DustColorTransitionParticleType();
-    public static final ParticleType<?> EFFECT = new SimpleParticleType();
+    public static final ParticleType<?> EFFECT = Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_7) ? new SpellParticleType() : new SimpleParticleType(); // 1.21.9 simple -> spell
     public static final ParticleType<?> ELDER_GUARDIAN = new SimpleParticleType();
     public static final ParticleType<?> ENCHANTED_HIT = new SimpleParticleType();
     public static final ParticleType<?> ENCHANT = new SimpleParticleType();
@@ -80,11 +82,11 @@ public final class ParticleTypes {
     public static final ParticleType<?> SCULK_CHARGE_POP = new SimpleParticleType();
     public static final ParticleType<?> SOUL_FIRE_FLAME = new SimpleParticleType();
     public static final ParticleType<?> SOUL = new SimpleParticleType();
-    public static final ParticleType<?> FLASH = new SimpleParticleType();
+    public static final ParticleType<ColorParticleOption> FLASH = new ColorParticleType();
     public static final ParticleType<?> HAPPY_VILLAGER = new SimpleParticleType();
     public static final ParticleType<?> COMPOSTER = new SimpleParticleType();
     public static final ParticleType<?> HEART = new SimpleParticleType();
-    public static final ParticleType<?> INSTANT_EFFECT = new SimpleParticleType();
+    public static final ParticleType<?> INSTANT_EFFECT = Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_7) ? new SpellParticleType() : new SimpleParticleType(); // 1.21.9 simple -> spell
     public static final ParticleType<ItemStackParticleOption> ITEM = new ItemStackParticleType();
     public static final ParticleType<VibrationParticleOption> VIBRATION = new VibrationParticleType();
     public static final ParticleType<TrailParticleOption> TRAIL = new TrailParticleType();
@@ -163,6 +165,9 @@ public final class ParticleTypes {
         register(ParticleTypes.BLOCK_MARKER);
         register(ParticleTypes.BUBBLE);
         register(ParticleTypes.CLOUD);
+        if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_7)) {
+            register(COPPER_FIRE_FLAME);
+        }
         register(ParticleTypes.CRIT);
         register(ParticleTypes.DAMAGE_INDICATOR);
         register(ParticleTypes.DRAGON_BREATH);
