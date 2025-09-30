@@ -13,7 +13,6 @@ import com.artillexstudios.axapi.nms.wrapper.WrapperMapper;
 import com.artillexstudios.axapi.nms.wrapper.WrapperRegistry;
 import com.artillexstudios.axapi.serializers.Serializer;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
-import com.artillexstudios.axapi.utils.logging.LogUtils;
 import com.mojang.authlib.GameProfile;
 import io.netty.buffer.Unpooled;
 import net.kyori.adventure.key.Key;
@@ -62,7 +61,6 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
                     throw new IllegalArgumentException("Can only serialize component!");
                 }
 
-                LogUtils.debug("Component serialize: {}", object);
                 String gsonText = net.minecraft.network.chat.Component.Serializer.toJson(component);
                 return GsonComponentSerializer.gson().deserialize(gsonText);
             }
