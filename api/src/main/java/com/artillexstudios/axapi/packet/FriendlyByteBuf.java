@@ -3,6 +3,7 @@ package com.artillexstudios.axapi.packet;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.nms.NMSHandlers;
+import com.artillexstudios.axapi.utils.Vector3d;
 import com.artillexstudios.axapi.utils.Vector3f;
 import com.artillexstudios.axapi.utils.Version;
 import com.artillexstudios.axapi.utils.position.BlockPosition;
@@ -115,6 +116,10 @@ public interface FriendlyByteBuf {
 
     BlockData readBlockData();
 
+    Vector3d readLpVec3();
+
+    void writeLpVec3(Vector3d vector);
+
     void writeBytes(FriendlyByteBuf buf);
 
     FriendlyByteBuf readBytes(int length);
@@ -126,6 +131,7 @@ public interface FriendlyByteBuf {
     int readableBytes();
 
     void release();
+
 
     default <T extends Enum<T>> T readEnum(Class<T> clazz) {
         return clazz.getEnumConstants()[this.readVarInt()];
@@ -204,6 +210,24 @@ public interface FriendlyByteBuf {
         }
 
         return array;
+    }
+
+    default void versionedWriteLpVec3(Vector3d vector) {
+        if (Version.getServerVersion().isOlderThanOrEqualTo(Version.v1_21_6)) {
+            this.writeShort((int) (Math.clamp(vector.x(), -3.9, 3.9) * 8000.0));
+            this.writeShort((int) (Math.clamp(vector.y(), -3.9, 3.9) * 8000.0));
+            this.writeShort((int) (Math.clamp(vector.z(), -3.9, 3.9) * 8000.0));
+        } else {
+            this.writeLpVec3(vector);
+        }
+    }
+
+    default Vector3d versionedReadLpVec3() {
+        if (Version.getServerVersion().isOlderThanOrEqualTo(Version.v1_21_6)) {
+            return new Vector3d(this.readShort(), this.readShort(), this.readShort());
+        } else {
+            return this.readLpVec3();
+        }
     }
 
     default void writeVarIntArray(int[] array) {

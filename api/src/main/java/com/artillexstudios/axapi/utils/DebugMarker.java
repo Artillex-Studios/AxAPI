@@ -9,6 +9,7 @@ import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+// TODO: Figure out what we should do with this with 1.21.9
 public final class DebugMarker {
     private static final Key DEBUG_GAME_TEST_ADD_MARKER = Key.key("debug/game_test_add_marker");
     private Color color;

@@ -385,6 +385,55 @@ public final class EntityDataSerializers {
             return Type.QUATERNION;
         }
     };
+    public static final EntityDataSerializer<Integer> COPPER_GOLEM_STATE = new EntityDataSerializer<>() {
+        @Override
+        public void write(FriendlyByteBuf buf, Integer value) {
+            buf.writeVarInt(value);
+        }
+
+        @Override
+        public Integer read(FriendlyByteBuf buf) {
+            return buf.readVarInt();
+        }
+
+        @Override
+        public Type type() {
+            return Type.COPPER_GOLEM_STATE;
+        }
+    };
+    public static final EntityDataSerializer<Integer> WEATHERING_COPPER_STATE = new EntityDataSerializer<>() {
+        @Override
+        public void write(FriendlyByteBuf buf, Integer value) {
+            buf.writeVarInt(value);
+        }
+
+        @Override
+        public Integer read(FriendlyByteBuf buf) {
+            return buf.readVarInt();
+        }
+
+        @Override
+        public Type type() {
+            return Type.WEATHERING_COPPER_STATE;
+        }
+    };
+    public static final EntityDataSerializer<Integer> RESOLVABLE_PROFILE = new EntityDataSerializer<>() {
+        // TODO: Implement
+        @Override
+        public void write(FriendlyByteBuf buf, Integer value) {
+
+        }
+
+        @Override
+        public Integer read(FriendlyByteBuf buf) {
+            return 0;
+        }
+
+        @Override
+        public Type type() {
+            return Type.RESOLVABLE_PROFILE;
+        }
+    };
     public static final EntityDataSerializer<Optional<UUID>> OPTIONAL_UUID = new EntityDataSerializer<>() {
         @Override
         public void write(FriendlyByteBuf buf, Optional<UUID> value) {
@@ -684,7 +733,9 @@ public final class EntityDataSerializers {
         if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_19_3)) {
             register(OPTIONAL_BLOCK_DATA);
         }
-        register(COMPOUND_TAG);
+        if (Version.getServerVersion().isOlderThanOrEqualTo(Version.v1_21_6)) {
+            register(COMPOUND_TAG);
+        }
         register(PARTICLE);
         if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_20_4)) {
             register(PARTICLES);
@@ -713,9 +764,16 @@ public final class EntityDataSerializers {
             register(SNIFFER_STATE);
             if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_20_4)) {
                 register(ARMADILLO_STATE);
+                if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_7)) {
+                    register(COPPER_GOLEM_STATE);
+                    register(WEATHERING_COPPER_STATE);
+                }
             }
             register(VECTOR3);
             register(QUATERNION);
+            if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_7)) {
+                register(RESOLVABLE_PROFILE);
+            }
         }
     }
 
@@ -740,6 +798,8 @@ public final class EntityDataSerializers {
         PARTICLES,
         ARMADILLO_STATE,
         SNIFFER_STATE,
+        COPPER_GOLEM_STATE,
+        WEATHERING_COPPER_STATE,
         COMPOUND_TAG,
         OPTIONAL_UUID,
         WOLF_VARIANT,
@@ -752,6 +812,7 @@ public final class EntityDataSerializers {
         COW_VARIANT,
         WOLF_SOUND_VARIANT,
         PIG_VARIANT,
-        CHICKEN_VARIANT;
+        CHICKEN_VARIANT,
+        RESOLVABLE_PROFILE;
     }
 }

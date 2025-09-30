@@ -44,6 +44,10 @@ public final class ClientboundPacketTypes {
     public static final PacketType CHAT_COMPLETIONS = new PacketType("CHAT_COMPLETIONS", Version.v1_19_1, Version.FUTURE_RELEASE);
     public static final PacketType CUSTOM_PAYLOAD = new PacketType("CUSTOM_PAYLOAD", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType DAMAGE_EVENT = new PacketType("DAMAGE_EVENT", Version.v1_19_3, Version.FUTURE_RELEASE);
+    public static final PacketType DEBUG_BLOCK_VALUE = new PacketType("DEBUG_BLOCK_VALUE", Version.v1_21_7, Version.FUTURE_RELEASE); // 1.21.9
+    public static final PacketType DEBUG_CHUNK_VALUE = new PacketType("DEBUG_CHUNK_VALUE", Version.v1_21_7, Version.FUTURE_RELEASE); // 1.21.9
+    public static final PacketType DEBUG_ENTITY_VALUE = new PacketType("DEBUG_ENTITY_VALUE", Version.v1_21_7, Version.FUTURE_RELEASE); // 1.21.9
+    public static final PacketType DEBUG_EVENT = new PacketType("DEBUG_EVENT", Version.v1_21_7, Version.FUTURE_RELEASE); // 1.21.9
     public static final PacketType DEBUG_SAMPLE = new PacketType("DEBUG_SAMPLE", Version.v1_20_4, Version.FUTURE_RELEASE);
     public static final PacketType CUSTOM_SOUND = new PacketType("CUSTOM_SOUND", Version.v1_18, Version.v1_19_1);
     public static final PacketType DELETE_CHAT = new PacketType("DELETE_CHAT", Version.v1_19_1, Version.FUTURE_RELEASE);
@@ -54,6 +58,7 @@ public final class ClientboundPacketTypes {
     public static final PacketType EXPLODE = new PacketType("EXPLODE", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType FORGET_LEVEL_CHUNK = new PacketType("FORGET_LEVEL_CHUNK", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType GAME_EVENT = new PacketType("GAME_EVENT", Version.v1_18, Version.FUTURE_RELEASE);
+    private static final PacketType GAME_TEST_HIGHLIGHT_POS = new PacketType("GAME_TEST_HIGHLIGHT_POS", Version.v1_21_7, Version.FUTURE_RELEASE); // 1.21.9
     public static final PacketType HORSE_SCREEN = new PacketType("HORSE_SCREEN", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType HURT_ANIMATION = new PacketType("HURT_ANIMATION", Version.v1_19_3, Version.FUTURE_RELEASE);
     public static final PacketType INIT_WORLD_BORDER = new PacketType("INIT_WORLD_BORDER", Version.v1_18, Version.FUTURE_RELEASE);
@@ -196,6 +201,10 @@ public final class ClientboundPacketTypes {
         register(CHAT_COMPLETIONS); // 1.19
         register(CUSTOM_PAYLOAD);
         register(DAMAGE_EVENT); // 1.19.4
+        register(DEBUG_BLOCK_VALUE); // 1.21.9
+        register(DEBUG_CHUNK_VALUE); // 1.21.9
+        register(DEBUG_ENTITY_VALUE); // 1.21.9
+        register(DEBUG_EVENT); // 1.21.9
         register(DEBUG_SAMPLE); // 1.20.4
         register(CUSTOM_SOUND);
         register(DELETE_CHAT); // 1.19
@@ -206,6 +215,7 @@ public final class ClientboundPacketTypes {
         register(EXPLODE);
         register(FORGET_LEVEL_CHUNK);
         register(GAME_EVENT);
+        register(GAME_TEST_HIGHLIGHT_POS); // 1.21.9
         register(HORSE_SCREEN);
         register(HURT_ANIMATION); // 1.19.4
         register(INIT_WORLD_BORDER);

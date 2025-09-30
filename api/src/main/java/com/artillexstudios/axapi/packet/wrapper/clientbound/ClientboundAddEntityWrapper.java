@@ -5,6 +5,7 @@ import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketType;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
+import com.artillexstudios.axapi.utils.Vector3d;
 
 import java.util.UUID;
 
@@ -19,15 +20,17 @@ public final class ClientboundAddEntityWrapper extends PacketWrapper {
     private byte yaw;
     private byte headYaw;
     private int data;
-    private short velocityX;
-    private short velocityY;
-    private short velocityZ;
+    private Vector3d movement;
 
     public ClientboundAddEntityWrapper(PacketEvent event) {
         super(event);
     }
 
-    public ClientboundAddEntityWrapper(int entityId, UUID uuid, int entityType, double x, double y, double z, byte pitch, byte yaw, byte headYaw, int data, short velocityX, short velocityY, short velocityZ) {
+    public ClientboundAddEntityWrapper(int entityId, UUID uuid, int entityType, double x, double y, double z, byte pitch, byte yaw, byte headYaw, int data, short xo, short yo, short zo) {
+        this(entityId, uuid, entityType, x, y, z, pitch, yaw, headYaw, data, new Vector3d(xo, yo, zo));
+    }
+
+    public ClientboundAddEntityWrapper(int entityId, UUID uuid, int entityType, double x, double y, double z, byte pitch, byte yaw, byte headYaw, int data, Vector3d movement) {
         this.entityId = entityId;
         this.uuid = uuid;
         this.entityType = entityType;
@@ -38,112 +41,94 @@ public final class ClientboundAddEntityWrapper extends PacketWrapper {
         this.yaw = yaw;
         this.headYaw = headYaw;
         this.data = data;
-        this.velocityX = velocityX;
-        this.velocityY = velocityY;
-        this.velocityZ = velocityZ;
+        this.movement = movement;
     }
 
-    public int entityId() {
+    public int getEntityId() {
         return this.entityId;
     }
 
-    public void entityId(int entityId) {
+    public void setEntityId(int entityId) {
         this.entityId = entityId;
     }
 
-    public UUID uuid() {
+    public UUID getUuid() {
         return this.uuid;
     }
 
-    public void uuid(UUID uuid) {
+    public void setEntityId(UUID uuid) {
         this.uuid = uuid;
     }
 
-    public double x() {
+    public double getX() {
         return this.x;
     }
 
-    public void x(double x) {
+    public void setX(double x) {
         this.x = x;
     }
 
-    public double y() {
+    public double getY() {
         return this.y;
     }
 
-    public void y(double y) {
+    public void setY(double y) {
         this.y = y;
     }
 
-    public double z() {
+    public double getz() {
         return this.z;
     }
 
-    public void z(double z) {
+    public void setZ(double z) {
         this.z = z;
     }
 
-    public byte pitch() {
+    public byte getPitch() {
         return this.pitch;
     }
 
-    public void pitch(byte pitch) {
+    public void setPitch(byte pitch) {
         this.pitch = pitch;
     }
 
-    public byte yaw() {
+    public byte getYaw() {
         return this.yaw;
     }
 
-    public void yaw(byte yaw) {
+    public void setYaw(byte yaw) {
         this.yaw = yaw;
     }
 
-    public byte headYaw() {
+    public byte getHeadYaw() {
         return this.headYaw;
     }
 
-    public void headYaw(byte headYaw) {
+    public void setHeadYaw(byte headYaw) {
         this.headYaw = headYaw;
     }
 
-    public int data() {
+    public int getData() {
         return this.data;
     }
 
-    public void data(int data) {
+    public void setData(int data) {
         this.data = data;
     }
 
-    public short velocityX() {
-        return this.velocityX;
+    public void setMovement(Vector3d movement) {
+        this.movement = movement;
     }
 
-    public void velocityX(short velocityX) {
-        this.velocityX = velocityX;
+    public Vector3d getMovement() {
+        return this.movement;
     }
 
-    public short velocityY() {
-        return this.velocityY;
-    }
-
-    public void velocityY(short velocityY) {
-        this.velocityY = velocityY;
-    }
-
-    public short velocityZ() {
-        return this.velocityZ;
-    }
-
-    public void velocityZ(short velocityZ) {
-        this.velocityZ = velocityZ;
-    }
-
-    public int entityType() {
+    public int getEntityType() {
         return this.entityType;
     }
 
-    public void entityType(int entityType) {
+    public void setEntityType(int entityType) {
         this.entityType = entityType;
     }
 
@@ -159,9 +144,7 @@ public final class ClientboundAddEntityWrapper extends PacketWrapper {
         out.writeByte(this.yaw);
         out.writeByte(this.headYaw);
         out.writeVarInt(this.data);
-        out.writeShort(this.velocityX);
-        out.writeShort(this.velocityY);
-        out.writeShort(this.velocityZ);
+        out.versionedWriteLpVec3(this.movement);
     }
 
     @Override
@@ -176,9 +159,7 @@ public final class ClientboundAddEntityWrapper extends PacketWrapper {
         this.yaw = buf.readByte();
         this.headYaw = buf.readByte();
         this.data = buf.readVarInt();
-        this.velocityX = buf.readShort();
-        this.velocityY = buf.readShort();
-        this.velocityZ = buf.readShort();
+        this.movement = buf.versionedReadLpVec3();
     }
 
     @Override

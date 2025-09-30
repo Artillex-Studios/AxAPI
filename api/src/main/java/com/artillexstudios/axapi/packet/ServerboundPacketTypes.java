@@ -33,7 +33,8 @@ public final class ServerboundPacketTypes {
     public static final PacketType CONTAINER_SLOT_STATE_CHANGED = new PacketType("CONTAINER_SLOT_STATE_CHANGED", Version.v1_20_3, Version.FUTURE_RELEASE);
     public static final PacketType COOKIE_RESPONSE = new PacketType("COOKIE_RESPONSE", Version.v1_20_4, Version.FUTURE_RELEASE);
     public static final PacketType CUSTOM_PAYLOAD = new PacketType("CUSTOM_PAYLOAD", Version.v1_18, Version.FUTURE_RELEASE);
-    public static final PacketType DEBUG_SAMPLE_SUBSCRIPTION = new PacketType("DEBUG_SAMPLE_SUBSCRIPTION", Version.v1_20_4, Version.FUTURE_RELEASE);
+    public static final PacketType DEBUG_SAMPLE_SUBSCRIPTION = new PacketType("DEBUG_SAMPLE_SUBSCRIPTION", Version.v1_20_4, Version.v1_21_6); // Changed the name in 1.21.9 to DEBUG_SUBSCRIPTION_REQUEST
+    public static final PacketType DEBUG_SUBSCRIPTION_REQUEST = new PacketType("DEBUG_SUBSCRIPTION_REQUEST", Version.v1_21_7, Version.FUTURE_RELEASE);
     public static final PacketType EDIT_BOOK = new PacketType("EDIT_BOOK", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType ENTITY_TAG_QUERY = new PacketType("ENTITY_TAG_QUERY", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType INTERACT = new PacketType("INTERACT", Version.v1_18, Version.FUTURE_RELEASE);
@@ -108,6 +109,7 @@ public final class ServerboundPacketTypes {
         register(COOKIE_RESPONSE);
         register(CUSTOM_PAYLOAD);
         register(DEBUG_SAMPLE_SUBSCRIPTION);
+        register(DEBUG_SUBSCRIPTION_REQUEST);
         register(EDIT_BOOK);
         register(ENTITY_TAG_QUERY);
         register(INTERACT);
@@ -157,6 +159,11 @@ public final class ServerboundPacketTypes {
         register(CUSTOM_CLICK_ACTION);
     }
 
+    /**
+     * Register a PacketType into the packet id system. Both first and last versions are inclusive!
+     * For example, if the server is on 1.18.2, and the packet is from 1.18 to 1.18.2 then this will be registered on 1.18.2
+     * @param packetType The PacketType to register
+     */
     public static void register(PacketType packetType) {
         if (Version.getServerVersion().isNewerThanOrEqualTo(packetType.from()) && Version.getServerVersion().isOlderThanOrEqualTo(packetType.to())) {
             if (FeatureFlags.DEBUG.get()) {
