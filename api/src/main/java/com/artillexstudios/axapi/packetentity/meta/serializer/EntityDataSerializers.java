@@ -10,6 +10,7 @@ import com.artillexstudios.axapi.particle.ParticleOption;
 import com.artillexstudios.axapi.particle.ParticleTypes;
 import com.artillexstudios.axapi.utils.Direction;
 import com.artillexstudios.axapi.utils.Quaternion;
+import com.artillexstudios.axapi.utils.ResolvableProfile;
 import com.artillexstudios.axapi.utils.Vector3f;
 import com.artillexstudios.axapi.utils.Version;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
@@ -417,16 +418,16 @@ public final class EntityDataSerializers {
             return Type.WEATHERING_COPPER_STATE;
         }
     };
-    public static final EntityDataSerializer<Integer> RESOLVABLE_PROFILE = new EntityDataSerializer<>() {
+    public static final EntityDataSerializer<ResolvableProfile> RESOLVABLE_PROFILE = new EntityDataSerializer<>() {
         // TODO: Implement
         @Override
-        public void write(FriendlyByteBuf buf, Integer value) {
+        public void write(FriendlyByteBuf buf, ResolvableProfile value) {
 
         }
 
         @Override
-        public Integer read(FriendlyByteBuf buf) {
-            return 0;
+        public ResolvableProfile read(FriendlyByteBuf buf) {
+            return null;
         }
 
         @Override
