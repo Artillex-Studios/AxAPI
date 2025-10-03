@@ -4,6 +4,7 @@ import com.artillexstudios.axapi.nms.v1_21_R3.items.WrappedItemStack;
 import com.artillexstudios.axapi.nms.v1_21_R3.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
+import com.artillexstudios.axapi.utils.Vector3d;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.minecraft.core.component.DataComponentMap;
@@ -256,6 +257,15 @@ public record FriendlyByteBufWrapper(RegistryFriendlyByteBuf buf) implements Fri
         return CraftBlockData.fromData(Block.BLOCK_STATE_REGISTRY.byId(this.readVarInt()));
     }
 
+    @Override
+    public Vector3d readLpVec3() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void writeLpVec3(Vector3d vector) {
+        throw new UnsupportedOperationException();
+    }
 
     @Override
     public void writeBytes(FriendlyByteBuf buf) {
