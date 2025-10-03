@@ -122,7 +122,7 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
     public PlayerTextures textures() {
         this.update();
         GameProfile profile = this.serverPlayer.getGameProfile();
-        Optional<Property> property = profile.getProperties()
+        Optional<Property> property = profile.properties()
                 .get("textures")
                 .stream()
                 .findFirst();
