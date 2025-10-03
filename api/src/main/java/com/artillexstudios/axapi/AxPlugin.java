@@ -19,7 +19,6 @@ import com.artillexstudios.axapi.particle.ParticleTypes;
 import com.artillexstudios.axapi.placeholders.PlaceholderAPIHook;
 import com.artillexstudios.axapi.scheduler.Scheduler;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
-import com.artillexstudios.axapi.utils.PaperUtils;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -47,7 +46,9 @@ public abstract class AxPlugin extends JavaPlugin {
 
         wrapper.relocate("org{}apache{}commons{}math3", "com.artillexstudios.axapi.libs.math3");
         wrapper.relocate("com{}github{}benmanes", "com.artillexstudios.axapi.libs.caffeine");
-        if (!PaperUtils.isPaper()) {
+        try {
+            Class.forName("net.kyori.adventure.Adventure", false, this.getClass().getClassLoader());
+        } catch (ClassNotFoundException exception) {
             wrapper.dependency("net{}kyori:adventure-api:4.24.0");
         }
 
