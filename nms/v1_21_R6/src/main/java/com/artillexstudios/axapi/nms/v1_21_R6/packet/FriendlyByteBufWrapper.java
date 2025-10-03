@@ -4,6 +4,7 @@ import com.artillexstudios.axapi.nms.v1_21_R6.items.WrappedItemStack;
 import com.artillexstudios.axapi.nms.v1_21_R6.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
+import com.artillexstudios.axapi.utils.Vector3d;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.minecraft.core.component.DataComponentExactPredicate;
@@ -15,6 +16,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.phys.Vec3;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
@@ -257,6 +259,17 @@ public record FriendlyByteBufWrapper(RegistryFriendlyByteBuf buf) implements Fri
     @Override
     public BlockData readBlockData() {
         return CraftBlockData.fromData(Block.BLOCK_STATE_REGISTRY.byId(this.readVarInt()));
+    }
+
+    @Override
+    public Vector3d readLpVec3() {
+        Vec3 vec3 = this.buf.readLpVec3();
+        return new Vector3d(vec3.x, vec3.y, vec3.z);
+    }
+
+    @Override
+    public void writeLpVec3(Vector3d vector) {
+        this.buf.writeLpVec3(new Vec3(vector.x(), vector.y(), vector.z()));
     }
 
     @Override
