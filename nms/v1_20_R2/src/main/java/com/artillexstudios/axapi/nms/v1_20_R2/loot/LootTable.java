@@ -51,7 +51,7 @@ public class LootTable implements com.artillexstudios.axapi.loot.LootTable {
         this.put(LootContextParamSets.ADVANCEMENT_REWARD, net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ADVANCEMENT_REWARD);
         this.put(LootContextParamSets.ADVANCEMENT_ENTITY, net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ADVANCEMENT_ENTITY);
         this.put(LootContextParamSets.ADVANCEMENT_LOCATION, net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ADVANCEMENT_LOCATION);
-        this.put(LootContextParamSets.GENERIC, net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ALL_PARAMS);
+        this.put(LootContextParamSets.ALL_PARAMS, net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ALL_PARAMS);
         this.put(LootContextParamSets.BLOCK, net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.BLOCK);
     }};
     private final net.minecraft.world.level.storage.loot.LootTable lootTable;
