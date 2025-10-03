@@ -1,8 +1,8 @@
 package com.artillexstudios.axapi.nms.v1_21_R6.entity;
 
-import com.artillexstudios.axapi.nms.v1_21_R5.items.WrappedItemStack;
-import com.artillexstudios.axapi.nms.v1_21_R5.packet.FriendlyByteBufWrapper;
-import com.artillexstudios.axapi.nms.v1_21_R5.packet.PacketTransformer;
+import com.artillexstudios.axapi.nms.v1_21_R6.items.WrappedItemStack;
+import com.artillexstudios.axapi.nms.v1_21_R6.packet.FriendlyByteBufWrapper;
+import com.artillexstudios.axapi.nms.v1_21_R6.packet.PacketTransformer;
 import com.artillexstudios.axapi.packetentity.meta.serializer.EntityDataSerializers;
 import com.artillexstudios.axapi.particle.ParticleData;
 import com.artillexstudios.axapi.particle.ParticleOption;
