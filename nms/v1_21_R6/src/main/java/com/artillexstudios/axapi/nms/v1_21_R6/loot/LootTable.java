@@ -97,7 +97,7 @@ public class LootTable implements com.artillexstudios.axapi.loot.LootTable {
                 }
                 case BlockData blockData -> ((CraftBlockData) blockData).getState();
                 case ItemStack itemStack -> CraftItemStack.asNMSCopy(itemStack);
-                case Location location -> new Vec3(location.x(), location.y(), location.z());
+                case Location location -> new Vec3(location.getX(), location.getY(), location.getZ());
                 case null, default -> null;
             };
 
