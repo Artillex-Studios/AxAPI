@@ -563,6 +563,7 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
                 PropertyMap propertyMap = new PropertyMap(HashMultimap.create());
                 for (Map.Entry<String, ProfileProperties.Property> entry : profileProperties.properties().entries()) {
                     var property = entry.getValue();
+                    System.out.println("Propertymap put");
                     propertyMap.put(entry.getKey(), new Property(property.name(), property.value(), property.signature()));
                 }
 
