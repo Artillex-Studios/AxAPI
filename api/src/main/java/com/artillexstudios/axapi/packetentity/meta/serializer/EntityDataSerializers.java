@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.packetentity.meta.serializer;
 
 import com.artillexstudios.axapi.items.WrappedItemStack;
+import com.artillexstudios.axapi.items.component.type.ProfileProperties;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.data.GlobalPosition;
@@ -8,7 +9,11 @@ import com.artillexstudios.axapi.packet.data.VillagerData;
 import com.artillexstudios.axapi.particle.ParticleData;
 import com.artillexstudios.axapi.particle.ParticleOption;
 import com.artillexstudios.axapi.particle.ParticleTypes;
+import com.artillexstudios.axapi.utils.ClientAsset;
 import com.artillexstudios.axapi.utils.Direction;
+import com.artillexstudios.axapi.utils.GameProfile;
+import com.artillexstudios.axapi.utils.PlayerModelType;
+import com.artillexstudios.axapi.utils.PlayerSkin;
 import com.artillexstudios.axapi.utils.Quaternion;
 import com.artillexstudios.axapi.utils.ResolvableProfile;
 import com.artillexstudios.axapi.utils.Vector3f;
@@ -25,6 +30,7 @@ import org.bukkit.util.EulerAngle;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.UUID;
@@ -419,15 +425,101 @@ public final class EntityDataSerializers {
         }
     };
     public static final EntityDataSerializer<ResolvableProfile> RESOLVABLE_PROFILE = new EntityDataSerializer<>() {
-        // TODO: Implement
+
         @Override
         public void write(FriendlyByteBuf buf, ResolvableProfile value) {
+            boolean partial = value.getPartialProfile().name() == null || value.getPartialProfile().uuid() == null;
+            buf.writeBoolean(!partial);
+            if (!partial) {
+                buf.writeUUID(value.getPartialProfile().uuid());
+                buf.writeUTF(value.getPartialProfile().name());
+            } else {
+                buf.writeBoolean(value.getPartialProfile().name() != null);
+                if (value.getPartialProfile().name() != null) {
+                    buf.writeUTF(value.getPartialProfile().name());
+                }
+                buf.writeBoolean(value.getPartialProfile().uuid() != null);
+                if (value.getPartialProfile().uuid() != null) {
+                    buf.writeUUID(value.getPartialProfile().uuid());
+                }
+            }
 
+            buf.writeVarInt(value.getPartialProfile().properties().properties().size());
+            for (Map.Entry<String, ProfileProperties.Property> entry : value.getPartialProfile().properties().properties().entries()) {
+                buf.writeUTF(entry.getKey());
+                buf.writeUTF(entry.getValue().value());
+                buf.writeUTF(entry.getValue().signature());
+            }
+
+            value.getPatch().body().ifPresentOrElse(texture -> {
+                buf.writeBoolean(true);
+                buf.writeResourceLocation(texture.id());
+            }, () -> {
+                buf.writeBoolean(false);
+            });
+
+            value.getPatch().cape().ifPresentOrElse(texture -> {
+                buf.writeBoolean(true);
+                buf.writeResourceLocation(texture.id());
+            }, () -> {
+                buf.writeBoolean(false);
+            });
+
+            value.getPatch().elytra().ifPresentOrElse(texture -> {
+                buf.writeBoolean(true);
+                buf.writeResourceLocation(texture.id());
+            }, () -> {
+                buf.writeBoolean(false);
+            });
+
+            value.getPatch().model().ifPresentOrElse(texture -> {
+                buf.writeBoolean(true);
+                buf.writeEnum(texture);
+            }, () -> {
+                buf.writeBoolean(false);
+            });
         }
 
         @Override
         public ResolvableProfile read(FriendlyByteBuf buf) {
-            return null;
+            UUID uuid;
+            String name;
+            boolean gameProfile = buf.readBoolean();
+            if (gameProfile) {
+                uuid = buf.readUUID();
+                name = buf.readUTF(16);
+            } else {
+                boolean namePresent = buf.readBoolean();
+                name = namePresent ? buf.readUTF(16) : null;
+                boolean uuidPresent = buf.readBoolean();
+                uuid = uuidPresent ? buf.readUUID() : null;
+            }
+
+            ProfileProperties properties = new ProfileProperties(uuid, name);
+            int count = buf.readVarInt();
+            if (count > 16) {
+                throw new RuntimeException("Reading illegal profile!");
+            }
+
+            for (int i = 0; i < count; i++) {
+                String propertyName = buf.readUTF(64);
+                String propertyValue = buf.readUTF(32767);
+                String propertySignature = buf.readBoolean() ? buf.readUTF(1024) : null;
+                properties.put(propertyName, new ProfileProperties.Property(propertyName, propertyValue, propertySignature));
+            }
+
+            boolean bodyPresent = buf.readBoolean();
+            Optional<ClientAsset.ResourceTexture> body = bodyPresent ? Optional.of(new ClientAsset.ResourceTexture(buf.readResourceLocation())) : Optional.empty();
+            boolean capePresent = buf.readBoolean();
+            Optional<ClientAsset.ResourceTexture> cape = capePresent ? Optional.of(new ClientAsset.ResourceTexture(buf.readResourceLocation())) : Optional.empty();
+            boolean elytraPresent = buf.readBoolean();
+            Optional<ClientAsset.ResourceTexture> elytra = elytraPresent ? Optional.of(new ClientAsset.ResourceTexture(buf.readResourceLocation())) : Optional.empty();
+            boolean modelTypePresent = buf.readBoolean();
+            Optional<PlayerModelType> modelType = modelTypePresent ? Optional.of(buf.readEnum(PlayerModelType.class)) : Optional.empty();
+
+            PlayerSkin.Patch patch = new PlayerSkin.Patch(body, cape, elytra, modelType);
+            GameProfile builtProfile = new GameProfile(name, uuid, properties);
+            return new ResolvableProfile(builtProfile, patch);
         }
 
         @Override

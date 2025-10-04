@@ -8,4 +8,12 @@ public class ResolvableProfile {
         this.partialProfile = partialProfile;
         this.patch = patch;
     }
+
+    public GameProfile getPartialProfile() {
+        return this.partialProfile;
+    }
+
+    public PlayerSkin.Patch getPatch() {
+        return this.patch;
+    }
 }
