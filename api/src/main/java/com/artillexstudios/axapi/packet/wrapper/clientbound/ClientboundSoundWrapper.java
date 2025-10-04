@@ -101,6 +101,7 @@ public final class ClientboundSoundWrapper extends PacketWrapper {
     @Override
     public void write(FriendlyByteBuf out) {
         out.writeResourceLocation(this.soundEvent.getResourceLocation());
+        out.writeBoolean(this.soundEvent.isUseNewSystem());
         if (this.soundEvent.isUseNewSystem()) {
             out.writeFloat(this.soundEvent.getRange());
         }
