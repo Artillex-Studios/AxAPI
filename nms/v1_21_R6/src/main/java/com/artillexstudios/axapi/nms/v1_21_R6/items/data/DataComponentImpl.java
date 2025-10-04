@@ -11,8 +11,10 @@ import com.artillexstudios.axapi.items.component.type.Unbreakable;
 import com.artillexstudios.axapi.items.component.type.Unit;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
+import com.google.common.collect.HashMultimap;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import com.mojang.authlib.properties.PropertyMap;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.minecraft.core.component.DataComponentPatch;
@@ -558,13 +560,13 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
                     return;
                 }
 
-                GameProfile gameProfile = new GameProfile(profileProperties.uuid(), profileProperties.name());
-
+                PropertyMap propertyMap = new PropertyMap(HashMultimap.create());
                 for (Map.Entry<String, ProfileProperties.Property> entry : profileProperties.properties().entries()) {
                     var property = entry.getValue();
-                    gameProfile.properties().put(entry.getKey(), new Property(property.name(), property.value(), property.signature()));
+                    propertyMap.put(entry.getKey(), new Property(property.name(), property.value(), property.signature()));
                 }
 
+                GameProfile gameProfile = new GameProfile(profileProperties.uuid(), profileProperties.name(), propertyMap);
                 itemStack.set(DataComponents.PROFILE, ResolvableProfile.createResolved(gameProfile));
             }
 
