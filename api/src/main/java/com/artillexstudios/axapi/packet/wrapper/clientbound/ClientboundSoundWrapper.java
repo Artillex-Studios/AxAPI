@@ -105,11 +105,9 @@ public final class ClientboundSoundWrapper extends PacketWrapper {
             out.writeVarInt(0);
         }
         out.writeResourceLocation(this.soundEvent.getResourceLocation());
-        if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_20_4)) {
-            out.writeBoolean(this.soundEvent.isUseNewSystem());
-            if (this.soundEvent.isUseNewSystem()) {
-                out.writeFloat(this.soundEvent.getRange());
-            }
+        out.writeBoolean(this.soundEvent.isUseNewSystem());
+        if (this.soundEvent.isUseNewSystem()) {
+            out.writeFloat(this.soundEvent.getRange());
         }
         out.writeEnum(this.source);
         out.writeInt(this.x);
@@ -126,10 +124,8 @@ public final class ClientboundSoundWrapper extends PacketWrapper {
             buf.readVarInt();
         }
         Key key = buf.readResourceLocation();
-        if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_20_4)) {
-            boolean newSystem = buf.readBoolean();
-            this.soundEvent = newSystem ? SoundEvent.createFixedRange(key, buf.readFloat()) : SoundEvent.createVariableRange(key);
-        }
+        boolean newSystem = buf.readBoolean();
+        this.soundEvent = newSystem ? SoundEvent.createFixedRange(key, buf.readFloat()) : SoundEvent.createVariableRange(key);
         this.source = buf.readEnum(SoundSource.class);
         this.x = buf.readInt();
         this.y = buf.readInt();
