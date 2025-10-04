@@ -12,6 +12,7 @@ import com.artillexstudios.axapi.items.component.type.Unit;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
@@ -560,14 +561,13 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
                     return;
                 }
 
-                PropertyMap propertyMap = new PropertyMap(HashMultimap.create());
+                Multimap<String, Property> propertyMap = HashMultimap.create();
                 for (Map.Entry<String, ProfileProperties.Property> entry : profileProperties.properties().entries()) {
                     var property = entry.getValue();
-                    System.out.println("Propertymap put");
                     propertyMap.put(entry.getKey(), new Property(property.name(), property.value(), property.signature()));
                 }
 
-                GameProfile gameProfile = new GameProfile(profileProperties.uuid(), profileProperties.name(), propertyMap);
+                GameProfile gameProfile = new GameProfile(profileProperties.uuid(), profileProperties.name(), new PropertyMap(propertyMap));
                 itemStack.set(DataComponents.PROFILE, ResolvableProfile.createResolved(gameProfile));
             }
 
