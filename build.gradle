@@ -16,7 +16,7 @@ java {
 dependencies {
     implementation project(path: ":api")
     implementation project(path: ":folia")
-    implementation project(path: ":nms:v1_21_R6"/*, configuration: "reobf"*/)
+    implementation project(path: ":nms:v1_21_R6", configuration: "reobf")
     implementation project(path: ":nms:v1_21_R5", configuration: "reobf")
     implementation project(path: ":nms:v1_21_R4", configuration: "reobf")
     implementation project(path: ":nms:v1_21_R3", configuration: "reobf")
@@ -45,23 +45,23 @@ allprojects {
         mavenCentral()
 
         maven {
-            name = 'PaperMC'
-            url = 'https://repo.papermc.io/repository/maven-public/'
-        }
-
-        maven {
-            name = 'JitPack'
-            url = 'https://jitpack.io/'
-        }
-
-        maven {
             name = 'Artillex-Studios'
             url = 'https://repo.artillex-studios.com/releases/'
         }
 
         maven {
+            name = 'PaperMC'
+            url = 'https://repo.papermc.io/repository/maven-public/'
+        }
+
+        maven {
             name = 'PlaceholderAPI'
             url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/'
+        }
+
+        maven {
+            name = 'JitPack'
+            url = 'https://jitpack.io/'
         }
     }
 

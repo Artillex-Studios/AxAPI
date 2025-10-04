@@ -2,13 +2,13 @@ group = 'com.artillexstudios.axapi.api'
 version = rootProject.version
 
 dependencies {
-    implementation("io.github.revxrsal:lamp.common:4.0.0-rc.19") {
+    implementation("io.github.revxrsal:lamp.common:4.0.0-rc.20") {
         exclude group: 'net.kyori', module: 'adventure'
     }
-    implementation("io.github.revxrsal:lamp.bukkit:4.0.0-rc.19") {
+    implementation("io.github.revxrsal:lamp.bukkit:4.0.0-rc.20") {
         exclude group: 'net.kyori', module: 'adventure'
     }
-    implementation("io.github.revxrsal:lamp.brigadier:4.0.0-rc.19") {
+    implementation("io.github.revxrsal:lamp.brigadier:4.0.0-rc.20") {
         exclude group: 'net.kyori', module: 'adventure'
     }
 
