@@ -5,6 +5,7 @@ import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketType;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
+import com.artillexstudios.axapi.utils.Version;
 import com.artillexstudios.axapi.utils.sound.SoundEvent;
 import com.artillexstudios.axapi.utils.sound.SoundSource;
 import net.kyori.adventure.key.Key;
@@ -101,9 +102,13 @@ public final class ClientboundSoundWrapper extends PacketWrapper {
     @Override
     public void write(FriendlyByteBuf out) {
         out.writeResourceLocation(this.soundEvent.getResourceLocation());
-        out.writeBoolean(this.soundEvent.isUseNewSystem());
-        if (this.soundEvent.isUseNewSystem()) {
-            out.writeFloat(this.soundEvent.getRange());
+        if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_20_4)) {
+            out.writeBoolean(this.soundEvent.isUseNewSystem());
+            if (this.soundEvent.isUseNewSystem()) {
+                out.writeFloat(this.soundEvent.getRange());
+            }
+        } else {
+            out.writeVarInt(0);
         }
         out.writeEnum(this.source);
         out.writeInt(this.x);
@@ -117,8 +122,12 @@ public final class ClientboundSoundWrapper extends PacketWrapper {
     @Override
     public void read(FriendlyByteBuf buf) {
         Key key = buf.readResourceLocation();
-        boolean newSystem = buf.readBoolean();
-        this.soundEvent = newSystem ? SoundEvent.createFixedRange(key, buf.readFloat()) : SoundEvent.createVariableRange(key);
+        if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_20_4)) {
+            boolean newSystem = buf.readBoolean();
+            this.soundEvent = newSystem ? SoundEvent.createFixedRange(key, buf.readFloat()) : SoundEvent.createVariableRange(key);
+        } else {
+            buf.readVarInt();
+        }
         this.source = buf.readEnum(SoundSource.class);
         this.x = buf.readInt();
         this.y = buf.readInt();
