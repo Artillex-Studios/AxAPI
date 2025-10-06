@@ -2,13 +2,10 @@ group = 'com.artillexstudios.axapi.api'
 version = rootProject.version
 
 dependencies {
-    implementation("io.github.revxrsal:lamp.common:4.0.0-rc.24") {
+    implementation("com.github.Artillex-Studios.Lamp:common:8bbfb2ef1a") {
         exclude group: 'net.kyori', module: 'adventure'
     }
-    implementation("io.github.revxrsal:lamp.bukkit:4.0.0-rc.24") {
-        exclude group: 'net.kyori', module: 'adventure'
-    }
-    implementation("io.github.revxrsal:lamp.brigadier:4.0.0-rc.24") {
+    implementation("com.github.Artillex-Studios.Lamp:bukkit:8bbfb2ef1a") {
         exclude group: 'net.kyori', module: 'adventure'
     }
 
@@ -16,13 +13,13 @@ dependencies {
         exclude group: 'org.yaml', module: 'snakeyaml'
     }
 
-    implementation("net.kyori:adventure-text-serializer-legacy:4.24.0") {
+    implementation("net.kyori:adventure-text-serializer-legacy:4.25.0") {
         exclude group: 'net.kyori', module: 'adventure-api'
     }
-    implementation("net.kyori:adventure-text-serializer-plain:4.24.0") {
+    implementation("net.kyori:adventure-text-serializer-plain:4.25.0") {
         exclude group: 'net.kyori', module: 'adventure-api'
     }
-    implementation("net.kyori:adventure-text-serializer-gson:4.24.0") {
+    implementation("net.kyori:adventure-text-serializer-gson:4.25.0") {
         exclude group: 'com.google.code.gson', module: 'gson'
         exclude group: 'net.kyori', module: 'adventure-api'
     }
@@ -37,7 +34,7 @@ dependencies {
     implementation("org.yaml:snakeyaml:2.2")
 
 
-    compileOnly("net.kyori:adventure-api:4.24.0")
+    compileOnly("net.kyori:adventure-api:4.25.0")
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
 }
 
