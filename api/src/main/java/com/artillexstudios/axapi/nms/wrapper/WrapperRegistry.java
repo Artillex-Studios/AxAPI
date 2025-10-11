@@ -20,6 +20,7 @@ public class WrapperRegistry {
     public static <T extends Wrapper<?>> WrapperMapper<T> cachingMapper(String id, int maximumSize) {
         return new WrapperMapper<>() {
             final Cache<Object, T> mapperCache = Caffeine.newBuilder()
+                    .weakKeys()
                     .maximumSize(maximumSize)
                     .expireAfterAccess(Duration.ofSeconds(30))
                     .build();
