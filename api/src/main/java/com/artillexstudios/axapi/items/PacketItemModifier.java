@@ -54,12 +54,12 @@ public class PacketItemModifier {
                         ServerPlayerWrapper serverPlayer = ServerPlayerWrapper.wrap(event.player());
                         LogUtils.debug("Set cursor item!");
                         if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_4)) {
-                            HashedStack hashedStack = wrapper.getItemStack().toHashedStack(serverPlayer.hashGenerator());
+                            HashedStack hashedStack = wrapper.getItemStack().copy().toHashedStack(serverPlayer.hashGenerator());
                             PacketItemModifier.callModify(wrapper.getItemStack(), event.player(), PacketItemModifier.Context.SET_CURSOR);
-                            HashedStack changedHashed = wrapper.getItemStack().toHashedStack(serverPlayer.hashGenerator());
+                            HashedStack changedHashed = wrapper.getItemStack().copy().toHashedStack(serverPlayer.hashGenerator());
                             if (changedHashed.hashCode() != hashedStack.hashCode()) {
                                 stacks.put(changedHashed.hashCode(), hashedStack);
-                                LogUtils.debug("Changed! Stacks: {}", stacks);
+                                LogUtils.debug("Changed! Stacks: {}, changed: {}, original: {}, changedHash: {}, originalHash: {}", stacks, changedHashed, hashedStack, changedHashed.hashCode(), hashedStack.hashCode());
                             }
                         } else {
                             PacketItemModifier.callModify(wrapper.getItemStack(), event.player(), PacketItemModifier.Context.SET_CURSOR);
@@ -101,6 +101,7 @@ public class PacketItemModifier {
                     } else if (event.type() == ServerboundPacketTypes.CONTAINER_CLICK && Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_4)) {
                         LogUtils.debug("Container click!");
                         ServerboundContainerClickWrapper wrapper = new ServerboundContainerClickWrapper(event);
+                        LogUtils.info("Hashed stack: {}, hashCode: {}", wrapper.getCarriedItem(), wrapper.getCarriedItem().hashCode());
                         HashedStack stack = stacks.remove(wrapper.getCarriedItem().hashCode());
                         if (stack != null) {
                             LogUtils.debug("Stack not null!");
