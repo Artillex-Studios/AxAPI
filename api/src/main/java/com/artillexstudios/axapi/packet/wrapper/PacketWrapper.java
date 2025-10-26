@@ -5,6 +5,7 @@ import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketType;
+import com.artillexstudios.axapi.packet.exception.PacketReadingException;
 
 public abstract class PacketWrapper {
     private Object cachedPacket;
@@ -18,7 +19,7 @@ public abstract class PacketWrapper {
         if (event != null) {
             FriendlyByteBuf buf = event.in();
             if (buf == null) {
-                return;
+                throw PacketReadingException.INSTANCE;
             }
 
             event.setWrapper(this);

@@ -20,6 +20,7 @@ import com.artillexstudios.axapi.utils.EquipmentSlot;
 import com.artillexstudios.axapi.utils.Pair;
 import com.artillexstudios.axapi.utils.ReferenceCountingMap;
 import com.artillexstudios.axapi.utils.Version;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.bukkit.entity.Player;
 
@@ -51,12 +52,14 @@ public class PacketItemModifier {
                     } else if (event.type() == ClientboundPacketTypes.SET_CURSOR_ITEM) {
                         ClientboundSetCursorItemWrapper wrapper = new ClientboundSetCursorItemWrapper(event);
                         ServerPlayerWrapper serverPlayer = ServerPlayerWrapper.wrap(event.player());
+                        LogUtils.debug("Set cursor item!");
                         if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_4)) {
                             HashedStack hashedStack = wrapper.getItemStack().toHashedStack(serverPlayer.hashGenerator());
                             PacketItemModifier.callModify(wrapper.getItemStack(), event.player(), PacketItemModifier.Context.SET_CURSOR);
                             HashedStack changedHashed = wrapper.getItemStack().toHashedStack(serverPlayer.hashGenerator());
                             if (changedHashed.hashCode() != hashedStack.hashCode()) {
                                 stacks.put(changedHashed.hashCode(), hashedStack);
+                                LogUtils.debug("Changed! Stacks: {}", stacks);
                             }
                         } else {
                             PacketItemModifier.callModify(wrapper.getItemStack(), event.player(), PacketItemModifier.Context.SET_CURSOR);
@@ -96,9 +99,11 @@ public class PacketItemModifier {
                         ServerboundSetCreativeModeSlotWrapper wrapper = new ServerboundSetCreativeModeSlotWrapper(event);
                         PacketItemModifier.restore(wrapper.stack());
                     } else if (event.type() == ServerboundPacketTypes.CONTAINER_CLICK && Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_4)) {
+                        LogUtils.debug("Container click!");
                         ServerboundContainerClickWrapper wrapper = new ServerboundContainerClickWrapper(event);
                         HashedStack stack = stacks.remove(wrapper.getCarriedItem().hashCode());
                         if (stack != null) {
+                            LogUtils.debug("Stack not null!");
                             wrapper.setCarriedItem(stack);
                         }
                     }

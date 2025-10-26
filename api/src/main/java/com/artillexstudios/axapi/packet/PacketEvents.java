@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.packet;
 
+import com.artillexstudios.axapi.packet.exception.PacketReadingException;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.featureflags.exception.IllegalFeatureFlagStateException;
@@ -36,6 +37,13 @@ public enum PacketEvents {
                 } else {
                     listener.onPacketReceive(event);
                 }
+            } catch (PacketReadingException exception) {
+                if (FeatureFlags.DEBUG.get()) {
+                    LogUtils.info("An issue occurred while reading packet! Packet side: {}", event.side(), exception);
+                }
+                // The packet couldn't be read for some reason, we can just stop execution here, as no other listener will be able to
+                // read the packet either way.
+                return;
             } catch (Throwable throwable) {
                 LogUtils.error("Failed to read {} packet!", event.side(), throwable);
                 continue;
