@@ -1,12 +1,13 @@
 package com.artillexstudios.axapi.nms.v1_20_R2.items;
 
+import com.artillexstudios.axapi.items.HashGenerator;
+import com.artillexstudios.axapi.items.HashedStack;
 import com.artillexstudios.axapi.items.component.DataComponent;
 import com.artillexstudios.axapi.nms.v1_20_R2.ItemStackSerializer;
 import com.artillexstudios.axapi.reflection.FieldAccessor;
 import net.minecraft.nbt.CompoundTag;
 import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 public class WrappedItemStack implements com.artillexstudios.axapi.items.WrappedItemStack {
     private static final FieldAccessor handleAccessor = FieldAccessor.builder()
@@ -50,6 +51,11 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
     @Override
     public ItemStack toBukkit() {
         return CraftItemStack.asBukkitCopy(this.itemStack);
+    }
+
+    @Override
+    public HashedStack toHashedStack(HashGenerator hashGenerator) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

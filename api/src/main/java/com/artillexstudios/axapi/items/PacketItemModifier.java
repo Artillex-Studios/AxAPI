@@ -1,26 +1,33 @@
 package com.artillexstudios.axapi.items;
 
+import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
 import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
 import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketEvents;
 import com.artillexstudios.axapi.packet.PacketListener;
 import com.artillexstudios.axapi.packet.ServerboundPacketTypes;
+import com.artillexstudios.axapi.packet.data.MerchantOffer;
 import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundContainerSetContentWrapper;
 import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundContainerSetSlotWrapper;
 import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundEntityMetadataWrapper;
 import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundMerchantOffersWrapper;
+import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundSetCursorItemWrapper;
 import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundSetEquipmentWrapper;
+import com.artillexstudios.axapi.packet.wrapper.serverbound.ServerboundContainerClickWrapper;
 import com.artillexstudios.axapi.packet.wrapper.serverbound.ServerboundSetCreativeModeSlotWrapper;
 import com.artillexstudios.axapi.packetentity.meta.Metadata;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
-import com.artillexstudios.axapi.packet.data.MerchantOffer;
 import com.artillexstudios.axapi.utils.Pair;
+import com.artillexstudios.axapi.utils.ReferenceCountingMap;
+import com.artillexstudios.axapi.utils.Version;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.bukkit.entity.Player;
 
 public class PacketItemModifier {
     private static boolean listening = false;
     private static final ObjectArrayList<PacketItemModifierListener> listeners = new ObjectArrayList<>();
+    // If we have two items with the same hash, we can't just remove, as a different item might need the same stack
+    private static final ReferenceCountingMap<Integer, HashedStack> stacks = new ReferenceCountingMap<>();
 
     public static void registerModifierListener(PacketItemModifierListener listener) {
         if (!listening) {
@@ -41,6 +48,21 @@ public class PacketItemModifier {
                         }
 
                         PacketItemModifier.callModify(wrapper.carriedItem(), event.player(), PacketItemModifier.Context.SET_CONTENTS);
+                    } else if (event.type() == ClientboundPacketTypes.SET_CURSOR_ITEM) {
+                        ClientboundSetCursorItemWrapper wrapper = new ClientboundSetCursorItemWrapper(event);
+                        ServerPlayerWrapper serverPlayer = ServerPlayerWrapper.wrap(event.player());
+                        if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_4)) {
+                            HashedStack hashedStack = wrapper.getItemStack().toHashedStack(serverPlayer.hashGenerator());
+                            PacketItemModifier.callModify(wrapper.getItemStack(), event.player(), PacketItemModifier.Context.SET_CURSOR);
+                            HashedStack changedHashed = wrapper.getItemStack().toHashedStack(serverPlayer.hashGenerator());
+                            if (changedHashed.hashCode() != hashedStack.hashCode()) {
+                                stacks.put(changedHashed.hashCode(), hashedStack);
+                            }
+                        } else {
+                            PacketItemModifier.callModify(wrapper.getItemStack(), event.player(), PacketItemModifier.Context.SET_CURSOR);
+                        }
+
+                        wrapper.markDirty();
                     } else if (event.type() == ClientboundPacketTypes.SET_EQUIPMENT) {
                         ClientboundSetEquipmentWrapper wrapper = new ClientboundSetEquipmentWrapper(event);
                         for (Pair<EquipmentSlot, WrappedItemStack> item : wrapper.items()) {
@@ -73,6 +95,12 @@ public class PacketItemModifier {
                     if (event.type() == ServerboundPacketTypes.SET_CREATIVE_MODE_SLOT) {
                         ServerboundSetCreativeModeSlotWrapper wrapper = new ServerboundSetCreativeModeSlotWrapper(event);
                         PacketItemModifier.restore(wrapper.stack());
+                    } else if (event.type() == ServerboundPacketTypes.CONTAINER_CLICK && Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_4)) {
+                        ServerboundContainerClickWrapper wrapper = new ServerboundContainerClickWrapper(event);
+                        HashedStack stack = stacks.remove(wrapper.getCarriedItem().hashCode());
+                        if (stack != null) {
+                            wrapper.setCarriedItem(stack);
+                        }
                     }
                 }
             });
@@ -109,6 +137,7 @@ public class PacketItemModifier {
 
     public enum Context {
         SET_SLOT,
+        SET_CURSOR,
         SET_CONTENTS,
         EQUIPMENT,
         DROPPED_ITEM,

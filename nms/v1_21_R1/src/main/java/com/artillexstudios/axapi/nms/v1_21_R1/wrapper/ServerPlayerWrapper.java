@@ -1,8 +1,7 @@
 package com.artillexstudios.axapi.nms.v1_21_R1.wrapper;
 
-import com.artillexstudios.axapi.AxPlugin;
+import com.artillexstudios.axapi.items.HashGenerator;
 import com.artillexstudios.axapi.nms.v1_21_R1.packet.ChannelDuplexHandlerPacketListener;
-import com.artillexstudios.axapi.nms.v1_21_R1.packet.PacketTransformer;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
 import com.artillexstudios.axapi.reflection.FieldAccessor;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
@@ -143,6 +142,11 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
     public double getZ() {
         this.update();
         return this.serverPlayer.getZ();
+    }
+
+    @Override
+    public HashGenerator hashGenerator() {
+        throw new UnsupportedOperationException();
     }
 
     @Override

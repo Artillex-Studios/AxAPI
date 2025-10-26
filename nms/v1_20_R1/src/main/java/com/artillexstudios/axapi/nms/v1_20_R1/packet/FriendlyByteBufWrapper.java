@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.nms.v1_20_R1.packet;
 
+import com.artillexstudios.axapi.items.HashedStack;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
@@ -252,6 +253,16 @@ public record FriendlyByteBufWrapper(net.minecraft.network.FriendlyByteBuf buf) 
 
     @Override
     public void writeLpVec3(Vector3d vector) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public HashedStack readHashedStack() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void writeHashedStack(HashedStack stack) {
         throw new UnsupportedOperationException();
     }
 

@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.nms.v1_21_R6.wrapper;
 
+import com.artillexstudios.axapi.items.HashGenerator;
 import com.artillexstudios.axapi.nms.v1_21_R6.packet.ChannelDuplexHandlerPacketListener;
 import com.artillexstudios.axapi.nms.v1_21_R6.packet.PacketTransformer;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
@@ -7,6 +8,7 @@ import com.artillexstudios.axapi.reflection.FieldAccessor;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.PlayerTextures;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
+import com.google.common.cache.LoadingCache;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import io.netty.channel.Channel;
@@ -17,6 +19,7 @@ import net.minecraft.network.protocol.game.ClientboundSystemChatPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.inventory.ContainerSynchronizer;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.craftbukkit.attribute.CraftAttribute;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
@@ -38,7 +41,16 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
             .withClass(AttributeMap.class)
             .withField("d")
             .build();
+    private static final FieldAccessor containerSynchronizerAccessor = FieldAccessor.builder()
+            .withClass(ServerPlayer.class)
+            .withField("dD")
+            .build();
+    private static final FieldAccessor cacheAccessor = FieldAccessor.builder()
+            .withClass("net.minecraft.server.level.EntityPlayer$1")
+            .withField("b")
+            .build();
     private final PacketTransformer transformer;
+    private LoadingCache<Object, Integer> cache;
     private Player wrapped;
     private ServerPlayer serverPlayer;
 
@@ -148,6 +160,12 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
     }
 
     @Override
+    public HashGenerator hashGenerator() {
+        this.update();
+        return typed -> this.cache.getUnchecked(typed);
+    }
+
+    @Override
     public Player wrapped() {
         Player wrapped = this.wrapped;
         if (wrapped == null) {
@@ -162,6 +180,8 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
     public void update(boolean force) {
         if (this.serverPlayer == null || force) {
             this.serverPlayer = ((CraftPlayer) this.wrapped).getHandle();
+            ContainerSynchronizer synchronizer = containerSynchronizerAccessor.get(this.serverPlayer, ContainerSynchronizer.class);
+            this.cache = cacheAccessor.getUnchecked(synchronizer);
         }
     }
 

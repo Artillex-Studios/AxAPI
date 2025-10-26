@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.nms.v1_21_R5.packet;
 
+import com.artillexstudios.axapi.items.HashedStack;
 import com.artillexstudios.axapi.nms.v1_21_R5.items.WrappedItemStack;
 import com.artillexstudios.axapi.nms.v1_21_R5.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
@@ -268,6 +269,16 @@ public record FriendlyByteBufWrapper(RegistryFriendlyByteBuf buf) implements Fri
     @Override
     public void writeLpVec3(Vector3d vector) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public HashedStack readHashedStack() {
+        return new com.artillexstudios.axapi.nms.v1_21_R5.items.HashedStack(net.minecraft.network.HashedStack.STREAM_CODEC.decode(this.buf));
+    }
+
+    @Override
+    public void writeHashedStack(HashedStack stack) {
+        net.minecraft.network.HashedStack.STREAM_CODEC.encode(this.buf, ((com.artillexstudios.axapi.nms.v1_21_R5.items.HashedStack) stack).stack());
     }
 
     @Override

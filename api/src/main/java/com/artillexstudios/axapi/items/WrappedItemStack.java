@@ -30,6 +30,8 @@ public interface WrappedItemStack extends Wrapper<ItemStack> {
 
     ItemStack toBukkit();
 
+    HashedStack toHashedStack(HashGenerator generator);
+
     String toSNBT();
 
     byte[] serialize();

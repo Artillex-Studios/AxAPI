@@ -1,5 +1,7 @@
 package com.artillexstudios.axapi.nms.v1_21_R1.items;
 
+import com.artillexstudios.axapi.items.HashGenerator;
+import com.artillexstudios.axapi.items.HashedStack;
 import com.artillexstudios.axapi.items.component.DataComponent;
 import com.artillexstudios.axapi.nms.v1_21_R1.ItemStackSerializer;
 import com.artillexstudios.axapi.reflection.FieldAccessor;
@@ -49,6 +51,11 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
     @Override
     public ItemStack toBukkit() {
         return CraftItemStack.asBukkitCopy(this.itemStack);
+    }
+
+    @Override
+    public HashedStack toHashedStack(HashGenerator hashGenerator) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

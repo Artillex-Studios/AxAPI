@@ -33,6 +33,7 @@ import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -465,7 +466,20 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setLore(List<String> lore, TagResolver... resolvers) {
-        this.stack.set(DataComponents.lore(), new ItemLore(StringUtils.formatList(toTagResolver(Lists.transform(lore, line -> Optionals.applyIfPresent(this.parameters, line, PLACEHOLDER_PARSER)), resolvers), resolvers)));
+        List<String> multiLineLore = new ArrayList<>(lore.size());
+        for (String line : lore) {
+            line = line.replace("<br>", "\n");
+            if (!line.contains("\n")) {
+                multiLineLore.add(line);
+                continue;
+            }
+
+            multiLineLore.addAll(Arrays.asList(line.split("\n")));
+        }
+
+        this.stack.set(DataComponents.lore(), new ItemLore(StringUtils.formatList(
+                toTagResolver(Lists.transform(multiLineLore, line -> Optionals.applyIfPresent(this.parameters, line, PLACEHOLDER_PARSER)), resolvers), resolvers)
+        ));
         return this;
     }
 

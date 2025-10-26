@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.nms.wrapper;
 
 import com.artillexstudios.axapi.AxPlugin;
+import com.artillexstudios.axapi.items.HashGenerator;
 import com.artillexstudios.axapi.utils.PlayerTextures;
 import net.kyori.adventure.text.Component;
 import org.bukkit.attribute.Attribute;
@@ -31,4 +32,6 @@ public interface ServerPlayerWrapper extends Wrapper<Player> {
     double getX();
 
     double getZ();
+
+    HashGenerator hashGenerator();
 }

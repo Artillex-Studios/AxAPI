@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.packet;
 
+import com.artillexstudios.axapi.items.HashedStack;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.nms.NMSHandlers;
@@ -120,6 +121,10 @@ public interface FriendlyByteBuf {
 
     void writeLpVec3(Vector3d vector);
 
+    HashedStack readHashedStack();
+
+    void writeHashedStack(HashedStack stack);
+
     void writeBytes(FriendlyByteBuf buf);
 
     FriendlyByteBuf readBytes(int length);
@@ -131,7 +136,6 @@ public interface FriendlyByteBuf {
     int readableBytes();
 
     void release();
-
 
     default <T extends Enum<T>> T readEnum(Class<T> clazz) {
         return clazz.getEnumConstants()[this.readVarInt()];
