@@ -18,17 +18,23 @@ import com.artillexstudios.axapi.packet.wrapper.serverbound.ServerboundSetCreati
 import com.artillexstudios.axapi.packetentity.meta.Metadata;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
 import com.artillexstudios.axapi.utils.Pair;
-import com.artillexstudios.axapi.utils.ReferenceCountingMap;
 import com.artillexstudios.axapi.utils.Version;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.bukkit.entity.Player;
+
+import java.util.concurrent.TimeUnit;
 
 public class PacketItemModifier {
     private static boolean listening = false;
     private static final ObjectArrayList<PacketItemModifierListener> listeners = new ObjectArrayList<>();
     // If we have two items with the same hash, we can't just remove, as a different item might need the same stack
-    private static final ReferenceCountingMap<Integer, HashedStack> stacks = new ReferenceCountingMap<>();
+    private static final Cache<Integer, HashedStack> stacks = Caffeine.newBuilder()
+            .expireAfterAccess(1, TimeUnit.MINUTES)
+            .maximumSize(1000)
+            .build();
 
     public static void registerModifierListener(PacketItemModifierListener listener) {
         if (!listening) {
@@ -52,13 +58,11 @@ public class PacketItemModifier {
                     } else if (event.type() == ClientboundPacketTypes.SET_CURSOR_ITEM) {
                         ClientboundSetCursorItemWrapper wrapper = new ClientboundSetCursorItemWrapper(event);
                         ServerPlayerWrapper serverPlayer = ServerPlayerWrapper.wrap(event.player());
-                        LogUtils.debug("Set cursor item!");
                         if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_4)) {
                             HashedStack hashedStack = wrapper.getItemStack().copy().toHashedStack(serverPlayer.hashGenerator());
                             PacketItemModifier.callModify(wrapper.getItemStack(), event.player(), PacketItemModifier.Context.SET_CURSOR);
                             HashedStack changedHashed = wrapper.getItemStack().copy().toHashedStack(serverPlayer.hashGenerator());
                             stacks.put(changedHashed.hash(), hashedStack);
-                            LogUtils.debug("Changed! changed: {},\n original: {},\n changedHash: {},\n originalHash: {}", changedHashed, hashedStack, changedHashed.hash(), hashedStack.hash());
                         } else {
                             PacketItemModifier.callModify(wrapper.getItemStack(), event.player(), PacketItemModifier.Context.SET_CURSOR);
                         }
@@ -100,7 +104,7 @@ public class PacketItemModifier {
                         LogUtils.debug("Container click!");
                         ServerboundContainerClickWrapper wrapper = new ServerboundContainerClickWrapper(event);
                         LogUtils.info("Hashed stack: {}, hash: {}", wrapper.getCarriedItem(), wrapper.getCarriedItem().hash());
-                        HashedStack stack = stacks.get(wrapper.getCarriedItem().hash());
+                        HashedStack stack = stacks.getIfPresent(wrapper.getCarriedItem().hash());
                         if (stack != null) {
                             LogUtils.debug("Stack not null!");
                             wrapper.setCarriedItem(stack);

@@ -35,7 +35,7 @@ public record HashedStack(
             Set<Object> ordered2 = components.removedComponents().stream()
                     .sorted(((cmp, other) -> other.toString().compareTo(cmp.toString())))
                     .collect(Collectors.toCollection(LinkedHashSet::new));
-            return Objects.hash(item, count, ordered1, ordered2);
+            return Objects.hash(item, count, components);
         }
 
         return 0;
