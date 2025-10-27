@@ -28,7 +28,7 @@ public class PacketItemModifier {
     private static boolean listening = false;
     private static final ObjectArrayList<PacketItemModifierListener> listeners = new ObjectArrayList<>();
     // If we have two items with the same hash, we can't just remove, as a different item might need the same stack
-    private static final ReferenceCountingMap<HashedStack, HashedStack> stacks = new ReferenceCountingMap<>();
+    private static final ReferenceCountingMap<Integer, HashedStack> stacks = new ReferenceCountingMap<>();
 
     public static void registerModifierListener(PacketItemModifierListener listener) {
         if (!listening) {
@@ -57,8 +57,8 @@ public class PacketItemModifier {
                             HashedStack hashedStack = wrapper.getItemStack().copy().toHashedStack(serverPlayer.hashGenerator());
                             PacketItemModifier.callModify(wrapper.getItemStack(), event.player(), PacketItemModifier.Context.SET_CURSOR);
                             HashedStack changedHashed = wrapper.getItemStack().copy().toHashedStack(serverPlayer.hashGenerator());
-                            stacks.put(changedHashed, hashedStack);
-                            LogUtils.debug("Changed! changed: {},\n original: {},\n changedHash: {},\n originalHash: {}", changedHashed, hashedStack, changedHashed.hashCode(), hashedStack.hashCode());
+                            stacks.put(changedHashed.hash(), hashedStack);
+                            LogUtils.debug("Changed! changed: {},\n original: {},\n changedHash: {},\n originalHash: {}", changedHashed, hashedStack, changedHashed.hash(), hashedStack.hash());
                         } else {
                             PacketItemModifier.callModify(wrapper.getItemStack(), event.player(), PacketItemModifier.Context.SET_CURSOR);
                         }
@@ -99,8 +99,8 @@ public class PacketItemModifier {
                     } else if (event.type() == ServerboundPacketTypes.CONTAINER_CLICK && Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_4)) {
                         LogUtils.debug("Container click!");
                         ServerboundContainerClickWrapper wrapper = new ServerboundContainerClickWrapper(event);
-                        LogUtils.info("Hashed stack: {}, hashCode: {}", wrapper.getCarriedItem(), wrapper.getCarriedItem().hashCode());
-                        HashedStack stack = stacks.remove(wrapper.getCarriedItem());
+                        LogUtils.info("Hashed stack: {}, hash: {}", wrapper.getCarriedItem(), wrapper.getCarriedItem().hash());
+                        HashedStack stack = stacks.remove(wrapper.getCarriedItem().hash());
                         if (stack != null) {
                             LogUtils.debug("Stack not null!");
                             wrapper.setCarriedItem(stack);
