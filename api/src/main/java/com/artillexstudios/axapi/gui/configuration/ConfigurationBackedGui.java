@@ -39,7 +39,7 @@ public class ConfigurationBackedGui<T extends Gui> {
         if (items == null) {
             items = new ArrayList<>();
             if (this.builder.supportsLegacy()) {
-                for (Object key : this.builder.configuration().keys()) {
+                for (Object key : this.builder.configuration().getKeys()) {
                     String keyString = key.toString();
                     if (this.builder.overrideItems().containsKey(keyString) || this.builder.ignoredKeys().contains(keyString)) {
                         continue;

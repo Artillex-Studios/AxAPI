@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -15,6 +16,8 @@ import java.util.regex.Pattern;
 public interface ConfigurationGetter {
 
     <T> T get(String path, Class<T> clazz);
+
+    Set<String> getKeys();
 
     default <T> T anyOf(Function<String, T> function, String... paths) {
         for (String path : paths) {
@@ -82,6 +85,10 @@ public interface ConfigurationGetter {
 
     default <T, Z> Map<T, Z> getMap(String path) {
         return UncheckedUtils.unsafeCast(this.get(path, Map.class));
+    }
+
+    default <T, Z> List<Map<T, Z>> getMapList(String path) {
+        return this.getList(path);
     }
 
     default MapConfigurationGetter getConfiguration(String path) {

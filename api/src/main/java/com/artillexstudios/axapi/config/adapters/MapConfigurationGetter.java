@@ -2,7 +2,7 @@ package com.artillexstudios.axapi.config.adapters;
 
 import com.artillexstudios.axapi.utils.UncheckedUtils;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,10 +11,12 @@ import java.util.Set;
  */
 public class MapConfigurationGetter implements ConfigurationGetter {
     protected final TypeAdapterHolder holder = new TypeAdapterHolder();
-    private final Map<Object, Object> wrapped;
+    private final Map<String, Object> wrapped;
+    private final Set<String> unmodifiableKeys;
 
     public <T, Z> MapConfigurationGetter(Map<T, Z> section) {
         this.wrapped = UncheckedUtils.unsafeCast(section);
+        this.unmodifiableKeys = Collections.unmodifiableSet(this.wrapped.keySet());
     }
 
     @Override
@@ -35,11 +37,12 @@ public class MapConfigurationGetter implements ConfigurationGetter {
         this.holder.registerAdapters(adapters);
     }
 
-    public Set<Object> keys() {
-        return new HashSet<>(this.wrapped.keySet());
+    @Override
+    public Set<String> getKeys() {
+        return this.unmodifiableKeys;
     }
 
-    public Map<Object, Object> wrapped() {
+    public Map<String, Object> wrapped() {
         return this.wrapped;
     }
 }

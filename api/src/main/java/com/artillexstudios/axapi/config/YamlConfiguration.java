@@ -70,8 +70,8 @@ public final class YamlConfiguration<T extends ConfigurationPart> extends MapCon
             return false;
         }
 
-        if (this.builder.configVersionPath != null && this.runUpdaters()) {
-            this.save();
+        if (this.builder.configVersionPath != null) {
+            this.runUpdaters();
         }
 
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(this.builder.path.toFile()))) {
@@ -93,8 +93,8 @@ public final class YamlConfiguration<T extends ConfigurationPart> extends MapCon
             return null;
         }
 
-        if (this.builder.configVersionPath != null && this.runUpdaters()) {
-            this.save();
+        if (this.builder.configVersionPath != null) {
+            this.runUpdaters();
         }
 
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(this.builder.path.toFile()))) {
@@ -254,10 +254,21 @@ public final class YamlConfiguration<T extends ConfigurationPart> extends MapCon
     }
 
     private boolean runUpdaters() {
+        FileConfigurationReader fileConfigurationReader = new FileConfigurationReader(this.yaml, this.constructor, this.holder);
+        try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(this.builder.path.toFile()))) {
+            Pair<Map<String, Object>, Map<String, Comment>> read = fileConfigurationReader.read(bufferedInputStream, null);
+            this.contents.putAll(read.first());
+            this.comments.putAll(read.second());
+        } catch (IOException exception) {
+            return false;
+        }
+
         Integer configVersion = this.getInteger(this.builder.configVersionPath);
         configVersion = configVersion == null ? 1 : configVersion;
         if (configVersion == this.builder.configVersion) {
-            // We don't need to update anything
+            // We don't need to update anything, clean up the loaded data
+            this.contents.clear();
+            this.comments.clear();
             return false;
         }
 
@@ -269,6 +280,9 @@ public final class YamlConfiguration<T extends ConfigurationPart> extends MapCon
             }
         }
 
+        this.builder.writer.write(this.builder.path, this.builder.formatter.format(fileConfigurationReader.write(this.contents, this.comments)));
+        this.contents.clear();
+        this.comments.clear();
         return true;
     }
 
