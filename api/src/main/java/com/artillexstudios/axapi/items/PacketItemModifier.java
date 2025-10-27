@@ -57,10 +57,8 @@ public class PacketItemModifier {
                             HashedStack hashedStack = wrapper.getItemStack().copy().toHashedStack(serverPlayer.hashGenerator());
                             PacketItemModifier.callModify(wrapper.getItemStack(), event.player(), PacketItemModifier.Context.SET_CURSOR);
                             HashedStack changedHashed = wrapper.getItemStack().copy().toHashedStack(serverPlayer.hashGenerator());
-                            if (changedHashed.hashCode() != hashedStack.hashCode()) {
-                                stacks.put(changedHashed.hashCode(), hashedStack);
-                                LogUtils.debug("Changed! Stacks: {}, changed: {}, original: {}, changedHash: {}, originalHash: {}", stacks, changedHashed, hashedStack, changedHashed.hashCode(), hashedStack.hashCode());
-                            }
+                            stacks.put(changedHashed.hashCode(), hashedStack);
+                            LogUtils.debug("Changed! changed: {},\n original: {},\n changedHash: {},\n originalHash: {}", changedHashed, hashedStack, changedHashed.hashCode(), hashedStack.hashCode());
                         } else {
                             PacketItemModifier.callModify(wrapper.getItemStack(), event.player(), PacketItemModifier.Context.SET_CURSOR);
                         }
