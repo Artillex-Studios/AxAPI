@@ -28,7 +28,7 @@ public class PacketItemModifier {
     private static boolean listening = false;
     private static final ObjectArrayList<PacketItemModifierListener> listeners = new ObjectArrayList<>();
     // If we have two items with the same hash, we can't just remove, as a different item might need the same stack
-    private static final ReferenceCountingMap<Integer, HashedStack> stacks = new ReferenceCountingMap<>();
+    private static final ReferenceCountingMap<HashedStack, HashedStack> stacks = new ReferenceCountingMap<>();
 
     public static void registerModifierListener(PacketItemModifierListener listener) {
         if (!listening) {
@@ -57,7 +57,7 @@ public class PacketItemModifier {
                             HashedStack hashedStack = wrapper.getItemStack().copy().toHashedStack(serverPlayer.hashGenerator());
                             PacketItemModifier.callModify(wrapper.getItemStack(), event.player(), PacketItemModifier.Context.SET_CURSOR);
                             HashedStack changedHashed = wrapper.getItemStack().copy().toHashedStack(serverPlayer.hashGenerator());
-                            stacks.put(changedHashed.hashCode(), hashedStack);
+                            stacks.put(changedHashed, hashedStack);
                             LogUtils.debug("Changed! changed: {},\n original: {},\n changedHash: {},\n originalHash: {}", changedHashed, hashedStack, changedHashed.hashCode(), hashedStack.hashCode());
                         } else {
                             PacketItemModifier.callModify(wrapper.getItemStack(), event.player(), PacketItemModifier.Context.SET_CURSOR);
@@ -100,7 +100,7 @@ public class PacketItemModifier {
                         LogUtils.debug("Container click!");
                         ServerboundContainerClickWrapper wrapper = new ServerboundContainerClickWrapper(event);
                         LogUtils.info("Hashed stack: {}, hashCode: {}", wrapper.getCarriedItem(), wrapper.getCarriedItem().hashCode());
-                        HashedStack stack = stacks.remove(wrapper.getCarriedItem().hashCode());
+                        HashedStack stack = stacks.remove(wrapper.getCarriedItem());
                         if (stack != null) {
                             LogUtils.debug("Stack not null!");
                             wrapper.setCarriedItem(stack);
