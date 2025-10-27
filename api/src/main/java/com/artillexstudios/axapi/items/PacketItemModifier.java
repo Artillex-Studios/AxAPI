@@ -100,7 +100,7 @@ public class PacketItemModifier {
                         LogUtils.debug("Container click!");
                         ServerboundContainerClickWrapper wrapper = new ServerboundContainerClickWrapper(event);
                         LogUtils.info("Hashed stack: {}, hash: {}", wrapper.getCarriedItem(), wrapper.getCarriedItem().hash());
-                        HashedStack stack = stacks.remove(wrapper.getCarriedItem().hash());
+                        HashedStack stack = stacks.get(wrapper.getCarriedItem().hash());
                         if (stack != null) {
                             LogUtils.debug("Stack not null!");
                             wrapper.setCarriedItem(stack);
