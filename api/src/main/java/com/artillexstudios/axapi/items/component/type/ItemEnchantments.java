@@ -52,7 +52,7 @@ public final class ItemEnchantments {
         return this.entrySet;
     }
 
-    public int getLevel(Enchantment enchantment) {
+    public Integer getLevel(Enchantment enchantment) {
         return this.enchantments.get(enchantment);
     }
 
