@@ -80,8 +80,8 @@ allprojects {
                     name = "Artillex-Studios"
                     url = "https://repo.artillex-studios.com/releases"
                     credentials {
-                        it.username = "${maven_username}"
-                        it.password = "${maven_password}"
+                        it.username = project.findProperty("maven_username") ?: ""
+                        it.password = project.findProperty("maven_password") ?: ""
                     }
                 }
             }
