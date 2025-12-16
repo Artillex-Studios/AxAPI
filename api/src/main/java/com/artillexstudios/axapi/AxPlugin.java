@@ -41,6 +41,7 @@ public abstract class AxPlugin extends JavaPlugin {
     public AxPlugin() {
         DependencyManager manager = new DependencyManager(this.getDescription(), new File(this.getDataFolder(), "libs"), URLClassLoaderWrapper.wrap((URLClassLoader) this.getClassLoader()));
         DependencyManagerWrapper wrapper = new DependencyManagerWrapper(manager);
+        wrapper.repository("https://repo.artillex-studios.com/releases/");
         wrapper.dependency("org{}apache{}commons:commons-math3:3.6.1");
         wrapper.dependency("com{}github{}ben-manes{}caffeine:caffeine:3.1.8");
 
