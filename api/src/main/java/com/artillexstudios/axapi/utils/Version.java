@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 public enum Version {
+    v1_21_8(774, "v1_21_R7", Collections.singletonList("1.21.11")),
     v1_21_7(773, "v1_21_R6", Arrays.asList("1.21.9", "1.21.10")),
     v1_21_6(772, "v1_21_R5", Arrays.asList("1.21.7", "1.21.8")),
     v1_21_5(771, "v1_21_R5", Collections.singletonList("1.21.6")),

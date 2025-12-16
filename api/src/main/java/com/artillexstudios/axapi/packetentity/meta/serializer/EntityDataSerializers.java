@@ -5,6 +5,7 @@ import com.artillexstudios.axapi.items.component.type.ProfileProperties;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.data.GlobalPosition;
+import com.artillexstudios.axapi.packet.data.HumanoidArm;
 import com.artillexstudios.axapi.packet.data.VillagerData;
 import com.artillexstudios.axapi.particle.ParticleData;
 import com.artillexstudios.axapi.particle.ParticleOption;
@@ -787,6 +788,38 @@ public final class EntityDataSerializers {
             return Type.PIG_VARIANT;
         }
     };
+    public static final EntityDataSerializer<Integer> ZOMBIE_NAUTILUS_VARIANT = new EntityDataSerializer<>() {
+        @Override
+        public void write(FriendlyByteBuf buf, Integer value) {
+            buf.writeVarInt(value);
+        }
+
+        @Override
+        public Integer read(FriendlyByteBuf buf) {
+            return buf.readVarInt();
+        }
+
+        @Override
+        public Type type() {
+            return Type.ZOMBIE_NAUTILUS_VARIANT;
+        }
+    };
+    public static final EntityDataSerializer<HumanoidArm> HUMANOID_ARM = new EntityDataSerializer<>() {
+        @Override
+        public void write(FriendlyByteBuf buf, HumanoidArm value) {
+            buf.writeEnum(value);
+        }
+
+        @Override
+        public HumanoidArm read(FriendlyByteBuf buf) {
+            return buf.readEnum(HumanoidArm.class);
+        }
+
+        @Override
+        public Type type() {
+            return Type.HUMANOID_ARM;
+        }
+    };
 
     public static <T> EntityDataSerializer<T> byId(int id) {
         return (EntityDataSerializer<T>) SERIALIZERS.get(id);
@@ -851,6 +884,9 @@ public final class EntityDataSerializers {
             if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_4)) {
                 register(PIG_VARIANT);
                 register(CHICKEN_VARIANT);
+                if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_8)) {
+                    register(ZOMBIE_NAUTILUS_VARIANT);
+                }
             }
             register(OPTIONAL_GLOBAL_POS);
             register(PAINTING_VARIANT);
@@ -866,6 +902,9 @@ public final class EntityDataSerializers {
             register(QUATERNION);
             if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_7)) {
                 register(RESOLVABLE_PROFILE);
+            }
+            if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_8)) {
+                register(HUMANOID_ARM);
             }
         }
     }
@@ -906,6 +945,8 @@ public final class EntityDataSerializers {
         WOLF_SOUND_VARIANT,
         PIG_VARIANT,
         CHICKEN_VARIANT,
-        RESOLVABLE_PROFILE;
+        RESOLVABLE_PROFILE,
+        HUMANOID_ARM,
+        ZOMBIE_NAUTILUS_VARIANT;
     }
 }
