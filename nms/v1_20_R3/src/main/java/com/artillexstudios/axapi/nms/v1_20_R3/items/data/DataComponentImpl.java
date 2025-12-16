@@ -725,4 +725,9 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
             }
         };
     }
+
+    @Override
+    public DataComponent<Key> tooltipStyle() {
+        throw new UnsupportedOperationException();
+    }
 }

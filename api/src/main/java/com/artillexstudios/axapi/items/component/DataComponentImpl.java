@@ -62,4 +62,6 @@ public interface DataComponentImpl {
     DataComponent<DyedColor> dyedColor();
 
     DataComponent<PotionType> potionType();
+
+    DataComponent<Key> tooltipStyle();
 }

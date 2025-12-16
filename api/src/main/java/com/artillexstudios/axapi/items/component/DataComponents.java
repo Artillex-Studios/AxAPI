@@ -109,6 +109,9 @@ public class DataComponents {
         return dataComponentImpl.potionType();
     }
 
+    public static DataComponent<Key> tooltipStyle() {
+        return dataComponentImpl.tooltipStyle();
+    }
 
     public static void setDataComponentImpl(DataComponentImpl dataComponentImpl) {
         if (DataComponents.dataComponentImpl != null) {

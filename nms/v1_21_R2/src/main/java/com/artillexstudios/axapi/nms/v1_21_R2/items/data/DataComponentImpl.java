@@ -16,6 +16,7 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
@@ -621,6 +622,30 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
                 }
 
                 return CraftPotionType.minecraftHolderToBukkit(pot.potion().get());
+            }
+        };
+    }
+
+    @Override
+    public DataComponent<Key> tooltipStyle() {
+        return new DataComponent<>() {
+
+            @Override
+            public void apply(Object item, Key key) {
+                ItemStack itemStack = (ItemStack) item;
+                if (key == null) {
+                    itemStack.remove(DataComponents.TOOLTIP_STYLE);
+                    return;
+                }
+
+                itemStack.set(DataComponents.TOOLTIP_STYLE, ResourceLocation.fromNamespaceAndPath(key.namespace(), key.value()));
+            }
+
+            @Override
+            public Key get(Object item) {
+                ItemStack itemStack = (ItemStack) item;
+                ResourceLocation resourceLocation = itemStack.get(DataComponents.TOOLTIP_STYLE);
+                return resourceLocation == null ? null : Key.key(resourceLocation.getNamespace(), resourceLocation.getPath());
             }
         };
     }

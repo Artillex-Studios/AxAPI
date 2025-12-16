@@ -77,6 +77,7 @@ public class ItemBuilder {
         Optionals.ifPresent(getter.getString("potion"), this::setPotion);
         Optionals.ifPresent(getter.getBoolean("unbreakable"), this::unbreakable);
         Optionals.ifPresent(getter.getString("item-model"), this::itemModel);
+        Optionals.ifPresent(getter.getString("tooltip-style"), this::tooltipStyle);
         Optionals.ifPresent(ExceptionUtils.catching(() -> getter.getInteger("custom-model-data")), this::legacyModelData);
         Optionals.ifPresent(ExceptionUtils.catching(() -> getter.getMap("custom-model-data")), this::customModelData);
 
@@ -420,6 +421,11 @@ public class ItemBuilder {
 
     public ItemBuilder itemModel(String model) {
         this.stack.set(DataComponents.itemModel(), model == null ? null : Key.key(model));
+        return this;
+    }
+
+    public ItemBuilder tooltipStyle(String model) {
+        this.stack.set(DataComponents.tooltipStyle(), model == null ? null : Key.key(model));
         return this;
     }
 

@@ -633,4 +633,28 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
             }
         };
     }
+
+    @Override
+    public DataComponent<Key> tooltipStyle() {
+        return new DataComponent<>() {
+
+            @Override
+            public void apply(Object item, Key key) {
+                ItemStack itemStack = (ItemStack) item;
+                if (key == null) {
+                    itemStack.remove(DataComponents.TOOLTIP_STYLE);
+                    return;
+                }
+
+                itemStack.set(DataComponents.TOOLTIP_STYLE, ResourceLocation.fromNamespaceAndPath(key.namespace(), key.value()));
+            }
+
+            @Override
+            public Key get(Object item) {
+                ItemStack itemStack = (ItemStack) item;
+                ResourceLocation resourceLocation = itemStack.get(DataComponents.TOOLTIP_STYLE);
+                return resourceLocation == null ? null : Key.key(resourceLocation.getNamespace(), resourceLocation.getPath());
+            }
+        };
+    }
 }

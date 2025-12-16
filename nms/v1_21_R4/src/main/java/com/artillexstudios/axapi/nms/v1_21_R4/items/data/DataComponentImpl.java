@@ -13,7 +13,6 @@ import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.minecraft.core.component.DataComponentPatch;
@@ -37,8 +36,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.SequencedSet;
-import java.util.Set;
 import java.util.UUID;
 
 public class DataComponentImpl implements com.artillexstudios.axapi.items.component.DataComponentImpl {
@@ -669,6 +666,30 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
                 }
 
                 return CraftPotionType.minecraftHolderToBukkit(pot.potion().get());
+            }
+        };
+    }
+
+    @Override
+    public DataComponent<Key> tooltipStyle() {
+        return new DataComponent<>() {
+
+            @Override
+            public void apply(Object item, Key key) {
+                ItemStack itemStack = (ItemStack) item;
+                if (key == null) {
+                    itemStack.remove(DataComponents.TOOLTIP_STYLE);
+                    return;
+                }
+
+                itemStack.set(DataComponents.TOOLTIP_STYLE, ResourceLocation.fromNamespaceAndPath(key.namespace(), key.value()));
+            }
+
+            @Override
+            public Key get(Object item) {
+                ItemStack itemStack = (ItemStack) item;
+                ResourceLocation resourceLocation = itemStack.get(DataComponents.TOOLTIP_STYLE);
+                return resourceLocation == null ? null : Key.key(resourceLocation.getNamespace(), resourceLocation.getPath());
             }
         };
     }
