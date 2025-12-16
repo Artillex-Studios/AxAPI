@@ -2,13 +2,14 @@ package com.artillexstudios.axapi.nms.wrapper;
 
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.nms.NMSHandlers;
+import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
 import java.time.Duration;
 
 public class WrapperRegistry {
-    public static final WrapperMapper<ServerPlayerWrapper> SERVER_PLAYER = cachingMapper("server_player", 100);
+    public static final WrapperMapper<ServerPlayerWrapper> SERVER_PLAYER = cachingMapper("server_player", FeatureFlags.SERVER_PLAYER_CACHE_SIZE.get());
     public static final WrapperMapper<ServerWrapper> SERVER = mapper("server");
     public static final WrapperMapper<WorldWrapper> WORLD = mapper("world");
     public static final WrapperMapper<WrappedItemStack> ITEM_STACK = mapper("item_stack");
