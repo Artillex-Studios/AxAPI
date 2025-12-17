@@ -6,6 +6,7 @@ import com.artillexstudios.axapi.packetentity.meta.EntityMeta;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
 import com.artillexstudios.axapi.utils.StringUtils;
+import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.github.benmanes.caffeine.cache.Scheduler;
@@ -17,7 +18,7 @@ import java.util.function.Consumer;
 
 public interface PacketEntity {
     LoadingCache<String, Object> placeholderFormatCache = Caffeine.newBuilder()
-            .maximumSize(200)
+            .maximumSize(FeatureFlags.HOLOGRAM_PARSED_LINE_CACHE.get())
             .expireAfterAccess(Duration.ofSeconds(20))
             .scheduler(Scheduler.systemScheduler())
             .build(parsed -> ComponentSerializer.INSTANCE.toVanilla(StringUtils.format(parsed)));
