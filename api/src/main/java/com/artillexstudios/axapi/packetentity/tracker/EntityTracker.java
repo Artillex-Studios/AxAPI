@@ -2,6 +2,7 @@ package com.artillexstudios.axapi.packetentity.tracker;
 
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.collections.IdentityArrayMap;
+import com.artillexstudios.axapi.collections.NodeCachingLockingQueue;
 import com.artillexstudios.axapi.collections.RawReferenceOpenHashSet;
 import com.artillexstudios.axapi.executor.ExceptionReportingScheduledThreadPool;
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
@@ -27,14 +28,13 @@ import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public final class EntityTracker {
     private static final boolean folia = PaperUtils.isFolia();
     private final ConcurrentHashMap<Integer, TrackedEntity> entityMap = new ConcurrentHashMap<>();
-    private final ConcurrentLinkedQueue<TrackedEntity> trackingQueue = new ConcurrentLinkedQueue<>();
+    private final NodeCachingLockingQueue<TrackedEntity> trackingQueue = new NodeCachingLockingQueue<>(512);
     private final FieldAccessor accessor = FieldAccessor.builder()
             .withField("tracker")
             .withClass("com.artillexstudios.axapi.nms.%s.entity.PacketEntity".formatted(Version.getServerVersion().getNMSVersion()))
