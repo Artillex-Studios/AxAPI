@@ -40,6 +40,13 @@ public interface WrappedItemStack extends Wrapper<ItemStack> {
 
     WrappedItemStack copy();
 
+    /**
+     * Modifies the wrapped ItemStack instance of this
+     * WrappedItemStack to be the same as the other item's.
+     * @param stack The WrappedItemStack to copy from
+     */
+    void editFrom(WrappedItemStack stack);
+
     enum CodecData {
         OPTIONAL_STREAM_CODEC,
         OPTIONAL_UNTRUSTED_STREAM_CODEC,

@@ -106,6 +106,12 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
     }
 
     @Override
+    public void editFrom(com.artillexstudios.axapi.items.WrappedItemStack stack) {
+        this.itemStack = ((WrappedItemStack) stack).itemStack;
+        this.bukkitStack = ((WrappedItemStack) stack).bukkitStack;
+    }
+
+    @Override
     public void update(boolean force) {
 
     }
