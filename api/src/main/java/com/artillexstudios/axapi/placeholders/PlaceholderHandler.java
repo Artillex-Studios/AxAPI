@@ -111,7 +111,7 @@ public class PlaceholderHandler {
         StringBuilder builder = new StringBuilder(line);
         for (Placeholder placeholder : baked) {
             if (placeholder.arguments().arguments().length == 0) {
-                int index = line.indexOf(placeholder.placeholder());
+                int index = builder.indexOf(placeholder.placeholder());
                 if (index != -1) {
                     try {
                         builder.replace(index, index + placeholder.placeholder().length(), placeholder.handler().apply(placeholder.newContext(parameters, null)));
