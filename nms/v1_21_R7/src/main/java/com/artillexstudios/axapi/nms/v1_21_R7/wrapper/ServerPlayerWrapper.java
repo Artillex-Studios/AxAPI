@@ -35,7 +35,7 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
             .build();
     private static final FieldAccessor channelAccessor = FieldAccessor.builder()
             .withClass("net.minecraft.network.NetworkManager")
-            .withField("n")
+            .withField("k")
             .build();
     private static final FieldAccessor attributeAccessor = FieldAccessor.builder()
             .withClass(AttributeMap.class)
@@ -43,7 +43,7 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
             .build();
     private static final FieldAccessor containerSynchronizerAccessor = FieldAccessor.builder()
             .withClass(ServerPlayer.class)
-            .withField("dD")
+            .withField("dE")
             .build();
     private static final FieldAccessor cacheAccessor = FieldAccessor.builder()
             .withClass("net.minecraft.server.level.EntityPlayer$1")
