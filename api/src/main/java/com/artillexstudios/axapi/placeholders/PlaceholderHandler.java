@@ -4,6 +4,7 @@ import com.artillexstudios.axapi.placeholders.exception.PlaceholderException;
 import com.artillexstudios.axapi.placeholders.exception.PlaceholderParameterNotInContextException;
 import com.artillexstudios.axapi.reflection.ClassUtils;
 import com.artillexstudios.axapi.utils.Optionals;
+import com.artillexstudios.axapi.utils.UncheckedUtils;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.functions.ThrowingFunction;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
@@ -39,7 +40,7 @@ public class PlaceholderHandler {
     }
 
     public static <T, Z> void registerTransformer(Class<T> fromClazz, Class<Z> toClazz, Function<T, Z> transformer) {
-        transformers.add((PlaceholderTransformer<Object, Object>) new PlaceholderTransformer<>(fromClazz, toClazz, transformer));
+        transformers.add(UncheckedUtils.unsafeCast(new PlaceholderTransformer<>(fromClazz, toClazz, transformer)));
     }
 
     public static void register(String placeholder, ThrowingFunction<PlaceholderContext, String, PlaceholderException> handler) {
@@ -107,11 +108,13 @@ public class PlaceholderHandler {
     }
 
     public static String parse(String line, PlaceholderParameters parameters) {
+        StringBuilder builder = new StringBuilder(line);
         for (Placeholder placeholder : baked) {
             if (placeholder.arguments().arguments().length == 0) {
-                if (line.contains(placeholder.placeholder())) {
+                int index = line.indexOf(placeholder.placeholder());
+                if (index != -1) {
                     try {
-                        line = line.replace(placeholder.placeholder(), placeholder.handler().apply(placeholder.newContext(parameters, null)));
+                        builder.replace(index, index + placeholder.placeholder().length(), placeholder.handler().apply(placeholder.newContext(parameters, null)));
                     } catch (PlaceholderException exception) {
                         if (FeatureFlags.DEBUG.get()) {
                             LogUtils.warn("Placeholder parse! Line: {}", line, exception);
@@ -119,14 +122,14 @@ public class PlaceholderHandler {
                     }
                 }
             } else {
-                line = parseInternal(placeholder, line, parameters);
+                builder = parseInternal(placeholder, builder, parameters);
             }
         }
 
-        return line;
+        return builder.toString();
     }
 
-    private static String parseInternal(Placeholder placeholder, String line, PlaceholderParameters parameters) {
+    private static StringBuilder parseInternal(Placeholder placeholder, StringBuilder line, PlaceholderParameters parameters) {
         StringBuilder builder = new StringBuilder(line.length());
         Matcher match = placeholder.match(line);
         String apply;
@@ -145,7 +148,7 @@ public class PlaceholderHandler {
         }
 
         match.appendTail(builder);
-        return builder.toString();
+        return builder;
     }
 
     public static Map<String, String> mapped(Object... objects) {

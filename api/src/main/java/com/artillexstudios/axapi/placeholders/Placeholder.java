@@ -19,7 +19,7 @@ public record Placeholder(String placeholder, PlaceholderArguments arguments, Pa
         return new PlaceholderContext(this, parameters, matcher);
     }
 
-    public Matcher match(String line) {
+    public Matcher match(CharSequence line) {
         return this.matchers.get().reset(line);
     }
 
