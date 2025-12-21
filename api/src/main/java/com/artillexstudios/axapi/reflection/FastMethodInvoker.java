@@ -21,11 +21,15 @@ public abstract class FastMethodInvoker {
 
     public static FastMethodInvoker create(String clazz, String method, Class<?>... parameters) {
         try {
-            return create(Class.forName(clazz).getDeclaredMethod(method, parameters));
+            return createSilently(clazz, method, parameters);
         } catch (Exception exception) {
             log.error("An unexpected error occurred while creating new FastMethodInvoker for class {}, method {}!", clazz, method, exception);
             throw new RuntimeException(exception);
         }
+    }
+
+    public static FastMethodInvoker createSilently(String clazz, String method, Class<?>... parameters) throws Exception {
+        return create(Class.forName(clazz).getDeclaredMethod(method, parameters));
     }
 
     public static FastMethodInvoker create(Method method) {

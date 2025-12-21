@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.utils;
 
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
+import com.artillexstudios.axapi.utils.functions.ThrowingSupplier;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -29,6 +30,19 @@ public final class ExceptionUtils {
             return supplier.get();
         } catch (Exception exception) {
             return function.apply(exception);
+        }
+    }
+
+    @Nullable
+    public static <T> T orElse(ThrowingSupplier<T> supplier, ThrowingSupplier<T> other, Function<Exception, @Nullable T> function) {
+        try {
+            return supplier.get();
+        } catch (Exception exception) {
+            try {
+                return other.get();
+            } catch (Exception otherException) {
+                return function.apply(otherException);
+            }
         }
     }
 

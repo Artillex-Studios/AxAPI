@@ -1,0 +1,10 @@
+plugins {
+    id("io.papermc.paperweight.userdev")
+}
+
+group = 'com.artillexstudios.axapi.nms.v1_21_R7_paper'
+version = rootProject.version
+
+dependencies {
+    paperweight.paperDevBundle("1.21.11-R0.1-SNAPSHOT")
+}

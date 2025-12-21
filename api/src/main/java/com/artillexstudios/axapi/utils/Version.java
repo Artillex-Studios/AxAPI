@@ -2,6 +2,7 @@ package com.artillexstudios.axapi.utils;
 
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.reflection.FastMethodInvoker;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import org.bukkit.entity.Player;
 
@@ -39,7 +40,13 @@ public enum Version {
     private static int protocolVersion;
 
     static {
-        final FastMethodInvoker methodInvoker = FastMethodInvoker.create("net.minecraft.SharedConstants", "c");
+        final FastMethodInvoker methodInvoker = ExceptionUtils.orElse(
+                () -> FastMethodInvoker.createSilently("net.minecraft.SharedConstants", "c"),
+                () -> FastMethodInvoker.createSilently("net.minecraft.SharedConstants", "getProtocolVersion"),
+                exception -> {
+            LogUtils.error("Failed to create FastMethodInvoker to get the version information!");
+            return null;
+        });
         final int protocolVersion = methodInvoker.invoke(null);
 
         for (Version value : values()) {
