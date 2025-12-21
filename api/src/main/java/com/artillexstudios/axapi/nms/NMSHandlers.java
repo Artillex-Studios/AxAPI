@@ -1,7 +1,6 @@
 package com.artillexstudios.axapi.nms;
 
 import com.artillexstudios.axapi.AxPlugin;
-import com.artillexstudios.axapi.utils.PaperUtils;
 import com.artillexstudios.axapi.utils.Version;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 
@@ -22,12 +21,7 @@ public class NMSHandlers {
         }
 
         try {
-            String nmsVersion = version.getNMSVersion();
-            if (version == Version.v1_21_8 && PaperUtils.isPaper()) {
-                nmsVersion += "_paper";
-            }
-
-            nmsHandler = (NMSHandler) Class.forName("com.artillexstudios.axapi.nms.%s.NMSHandler".formatted(nmsVersion)).getConstructor().newInstance();
+            nmsHandler = (NMSHandler) Class.forName("com.artillexstudios.axapi.nms.%s.NMSHandler".formatted(version.getNMSVersion())).getConstructor().newInstance();
         } catch (Exception exception) {
             LogUtils.warn("Could not enable NMSHandler due to an internal exception while loading NMSHandler!", exception);
             return false;
