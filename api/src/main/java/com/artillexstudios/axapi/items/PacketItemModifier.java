@@ -31,7 +31,7 @@ public class PacketItemModifier {
     private static boolean listening = false;
     private static final ObjectArrayList<PacketItemModifierListener> listeners = new ObjectArrayList<>();
     // If we have two items with the same hash, we can't just remove, as a different item might need the same stack
-    private static final Cache<Integer, HashedStack> stacks = Caffeine.newBuilder()
+    private static final Cache<HashedStack, HashedStack> stacks = Caffeine.newBuilder()
             .expireAfterAccess(1, TimeUnit.MINUTES)
             .maximumSize(1000)
             .build();
@@ -66,18 +66,19 @@ public class PacketItemModifier {
 
                     PacketItemModifier.callModify(wrapper.carriedItem(), event.player(), Context.SET_CONTENTS);
                 } else if (event.type() == ClientboundPacketTypes.SET_CURSOR_ITEM) {
-//                    ClientboundSetCursorItemWrapper wrapper = new ClientboundSetCursorItemWrapper(event);
-//                    ServerPlayerWrapper serverPlayer = ServerPlayerWrapper.wrap(event.player());
-//                    if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_4)) {
-//                        HashedStack hashedStack = wrapper.getItemStack().copy().toHashedStack(serverPlayer.hashGenerator());
-//                        PacketItemModifier.callModify(wrapper.getItemStack(), event.player(), Context.SET_CURSOR);
-//                        HashedStack changedHashed = wrapper.getItemStack().copy().toHashedStack(serverPlayer.hashGenerator());
-//                        stacks.put(changedHashed.hash(), hashedStack);
-//                    } else {
-//                        PacketItemModifier.callModify(wrapper.getItemStack(), event.player(), Context.SET_CURSOR);
-//                    }
-//
-//                    wrapper.markDirty();
+                    ClientboundSetCursorItemWrapper wrapper = new ClientboundSetCursorItemWrapper(event);
+                    ServerPlayerWrapper serverPlayer = ServerPlayerWrapper.wrap(event.player());
+                    if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_4)) {
+                        HashedStack hashedStack = wrapper.getItemStack().copy().toHashedStack(serverPlayer.hashGenerator());
+                        PacketItemModifier.callModify(wrapper.getItemStack(), event.player(), Context.SET_CURSOR);
+                        HashedStack changedHashed = wrapper.getItemStack().copy().toHashedStack(serverPlayer.hashGenerator());
+                        LogUtils.debug("Changed hashed: {}, hashed: {}", changedHashed, hashedStack);
+                        stacks.put(changedHashed, hashedStack);
+                    } else {
+                        PacketItemModifier.callModify(wrapper.getItemStack(), event.player(), Context.SET_CURSOR);
+                    }
+
+                    wrapper.markDirty();
                 } else if (event.type() == ClientboundPacketTypes.SET_EQUIPMENT) {
                     ClientboundSetEquipmentWrapper wrapper = new ClientboundSetEquipmentWrapper(event);
                     for (Pair<EquipmentSlot, WrappedItemStack> item : wrapper.items()) {
@@ -113,8 +114,8 @@ public class PacketItemModifier {
                 } else if (event.type() == ServerboundPacketTypes.CONTAINER_CLICK && Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_4)) {
                     LogUtils.debug("Container click!");
                     ServerboundContainerClickWrapper wrapper = new ServerboundContainerClickWrapper(event);
-                    LogUtils.info("Hashed stack: {}, hash: {}", wrapper.getCarriedItem(), wrapper.getCarriedItem().hash());
-                    HashedStack stack = stacks.getIfPresent(wrapper.getCarriedItem().hash());
+                    LogUtils.debug("Hashed stack: {}, hash: {}", wrapper.getCarriedItem());
+                    HashedStack stack = stacks.getIfPresent(wrapper.getCarriedItem());
                     if (stack != null) {
                         LogUtils.debug("Stack not null!");
                         wrapper.setCarriedItem(stack);

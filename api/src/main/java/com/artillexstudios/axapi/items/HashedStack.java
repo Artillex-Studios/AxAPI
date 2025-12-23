@@ -5,6 +5,6 @@ public interface HashedStack {
     boolean matches(WrappedItemStack stack, HashGenerator generator);
 
     default int hash() {
-        return 0;
+        return this.hashCode();
     }
 }
