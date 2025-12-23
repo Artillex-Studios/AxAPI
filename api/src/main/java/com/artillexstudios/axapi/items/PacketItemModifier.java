@@ -38,86 +38,90 @@ public class PacketItemModifier {
 
     public static void registerModifierListener(PacketItemModifierListener listener) {
         if (!listening) {
-            PacketEvents.INSTANCE.addListener(new PacketListener() {
-                @Override
-                public void onPacketSending(PacketEvent event) {
-                    if (!PacketItemModifier.isListening()) {
-                        return;
-                    }
-
-                    if (event.type() == ClientboundPacketTypes.CONTAINER_SET_SLOT) {
-                        ClientboundContainerSetSlotWrapper wrapper = new ClientboundContainerSetSlotWrapper(event);
-                        PacketItemModifier.callModify(wrapper.stack(), event.player(), PacketItemModifier.Context.SET_SLOT);
-                    } else if (event.type() == ClientboundPacketTypes.CONTAINER_CONTENT) {
-                        ClientboundContainerSetContentWrapper wrapper = new ClientboundContainerSetContentWrapper(event);
-                        for (WrappedItemStack item : wrapper.items()) {
-                            PacketItemModifier.callModify(item, event.player(), PacketItemModifier.Context.SET_CONTENTS);
-                        }
-
-                        PacketItemModifier.callModify(wrapper.carriedItem(), event.player(), PacketItemModifier.Context.SET_CONTENTS);
-                    } else if (event.type() == ClientboundPacketTypes.SET_CURSOR_ITEM) {
-                        ClientboundSetCursorItemWrapper wrapper = new ClientboundSetCursorItemWrapper(event);
-                        ServerPlayerWrapper serverPlayer = ServerPlayerWrapper.wrap(event.player());
-                        if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_4)) {
-                            HashedStack hashedStack = wrapper.getItemStack().copy().toHashedStack(serverPlayer.hashGenerator());
-                            PacketItemModifier.callModify(wrapper.getItemStack(), event.player(), PacketItemModifier.Context.SET_CURSOR);
-                            HashedStack changedHashed = wrapper.getItemStack().copy().toHashedStack(serverPlayer.hashGenerator());
-                            stacks.put(changedHashed.hash(), hashedStack);
-                        } else {
-                            PacketItemModifier.callModify(wrapper.getItemStack(), event.player(), PacketItemModifier.Context.SET_CURSOR);
-                        }
-
-                        wrapper.markDirty();
-                    } else if (event.type() == ClientboundPacketTypes.SET_EQUIPMENT) {
-                        ClientboundSetEquipmentWrapper wrapper = new ClientboundSetEquipmentWrapper(event);
-                        for (Pair<EquipmentSlot, WrappedItemStack> item : wrapper.items()) {
-                            PacketItemModifier.callModify(item.second(), event.player(), PacketItemModifier.Context.EQUIPMENT);
-                        }
-                        wrapper.markDirty();
-                    } else if (event.type() == ClientboundPacketTypes.MERCHANT_OFFERS) {
-                        ClientboundMerchantOffersWrapper wrapper = new ClientboundMerchantOffersWrapper(event);
-                        for (MerchantOffer offer : wrapper.merchantOffers()) {
-                            PacketItemModifier.callModify(offer.getItem1(), event.player(), PacketItemModifier.Context.MERCHANT_OFFER);
-                            offer.getItem2().ifPresent(cost -> {
-                                PacketItemModifier.callModify(cost, event.player(), PacketItemModifier.Context.MERCHANT_OFFER);
-
-                            });
-                            PacketItemModifier.callModify(offer.getOutput(), event.player(), PacketItemModifier.Context.MERCHANT_OFFER);
-                        }
-                    } else if (event.type() == ClientboundPacketTypes.SET_ENTITY_DATA) {
-                        ClientboundEntityMetadataWrapper wrapper = new ClientboundEntityMetadataWrapper(event);
-                        for (Metadata.DataItem<?> item : wrapper.items()) {
-                            if (item.getValue() instanceof WrappedItemStack stack) {
-                                PacketItemModifier.callModify(stack, event.player(), PacketItemModifier.Context.DROPPED_ITEM);
-                            }
-                        }
-                        wrapper.markDirty();
-                    }
-                }
-
-                @Override
-                public void onPacketReceive(PacketEvent event) {
-                    if (event.type() == ServerboundPacketTypes.SET_CREATIVE_MODE_SLOT) {
-                        ServerboundSetCreativeModeSlotWrapper wrapper = new ServerboundSetCreativeModeSlotWrapper(event);
-                        PacketItemModifier.restore(wrapper.stack());
-                    } else if (event.type() == ServerboundPacketTypes.CONTAINER_CLICK && Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_4)) {
-                        LogUtils.debug("Container click!");
-                        ServerboundContainerClickWrapper wrapper = new ServerboundContainerClickWrapper(event);
-                        LogUtils.info("Hashed stack: {}, hash: {}", wrapper.getCarriedItem(), wrapper.getCarriedItem().hash());
-                        HashedStack stack = stacks.getIfPresent(wrapper.getCarriedItem().hash());
-                        if (stack != null) {
-                            LogUtils.debug("Stack not null!");
-                            wrapper.setCarriedItem(stack);
-                        }
-                    }
-                }
-            });
+            registerListener();
         }
 
         if (!listeners.contains(listener)) {
             listeners.add(listener);
             listening = true;
         }
+    }
+
+    private static void registerListener() {
+        PacketEvents.INSTANCE.addListener(new PacketListener() {
+            @Override
+            public void onPacketSending(PacketEvent event) {
+                if (!PacketItemModifier.isListening()) {
+                    return;
+                }
+
+                if (event.type() == ClientboundPacketTypes.CONTAINER_SET_SLOT) {
+                    ClientboundContainerSetSlotWrapper wrapper = new ClientboundContainerSetSlotWrapper(event);
+                    PacketItemModifier.callModify(wrapper.stack(), event.player(), Context.SET_SLOT);
+                } else if (event.type() == ClientboundPacketTypes.CONTAINER_CONTENT) {
+                    ClientboundContainerSetContentWrapper wrapper = new ClientboundContainerSetContentWrapper(event);
+                    for (WrappedItemStack item : wrapper.items()) {
+                        PacketItemModifier.callModify(item, event.player(), Context.SET_CONTENTS);
+                    }
+
+                    PacketItemModifier.callModify(wrapper.carriedItem(), event.player(), Context.SET_CONTENTS);
+                } else if (event.type() == ClientboundPacketTypes.SET_CURSOR_ITEM) {
+//                    ClientboundSetCursorItemWrapper wrapper = new ClientboundSetCursorItemWrapper(event);
+//                    ServerPlayerWrapper serverPlayer = ServerPlayerWrapper.wrap(event.player());
+//                    if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_4)) {
+//                        HashedStack hashedStack = wrapper.getItemStack().copy().toHashedStack(serverPlayer.hashGenerator());
+//                        PacketItemModifier.callModify(wrapper.getItemStack(), event.player(), Context.SET_CURSOR);
+//                        HashedStack changedHashed = wrapper.getItemStack().copy().toHashedStack(serverPlayer.hashGenerator());
+//                        stacks.put(changedHashed.hash(), hashedStack);
+//                    } else {
+//                        PacketItemModifier.callModify(wrapper.getItemStack(), event.player(), Context.SET_CURSOR);
+//                    }
+//
+//                    wrapper.markDirty();
+                } else if (event.type() == ClientboundPacketTypes.SET_EQUIPMENT) {
+                    ClientboundSetEquipmentWrapper wrapper = new ClientboundSetEquipmentWrapper(event);
+                    for (Pair<EquipmentSlot, WrappedItemStack> item : wrapper.items()) {
+                        PacketItemModifier.callModify(item.second(), event.player(), Context.EQUIPMENT);
+                    }
+                    wrapper.markDirty();
+                } else if (event.type() == ClientboundPacketTypes.MERCHANT_OFFERS) {
+                    ClientboundMerchantOffersWrapper wrapper = new ClientboundMerchantOffersWrapper(event);
+                    for (MerchantOffer offer : wrapper.merchantOffers()) {
+                        PacketItemModifier.callModify(offer.getItem1(), event.player(), Context.MERCHANT_OFFER);
+                        offer.getItem2().ifPresent(cost -> {
+                            PacketItemModifier.callModify(cost, event.player(), Context.MERCHANT_OFFER);
+
+                        });
+                        PacketItemModifier.callModify(offer.getOutput(), event.player(), Context.MERCHANT_OFFER);
+                    }
+                } else if (event.type() == ClientboundPacketTypes.SET_ENTITY_DATA) {
+                    ClientboundEntityMetadataWrapper wrapper = new ClientboundEntityMetadataWrapper(event);
+                    for (Metadata.DataItem<?> item : wrapper.items()) {
+                        if (item.getValue() instanceof WrappedItemStack stack) {
+                            PacketItemModifier.callModify(stack, event.player(), Context.DROPPED_ITEM);
+                        }
+                    }
+                    wrapper.markDirty();
+                }
+            }
+
+            @Override
+            public void onPacketReceive(PacketEvent event) {
+                if (event.type() == ServerboundPacketTypes.SET_CREATIVE_MODE_SLOT) {
+                    ServerboundSetCreativeModeSlotWrapper wrapper = new ServerboundSetCreativeModeSlotWrapper(event);
+                    PacketItemModifier.restore(wrapper.stack());
+                } else if (event.type() == ServerboundPacketTypes.CONTAINER_CLICK && Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_4)) {
+                    LogUtils.debug("Container click!");
+                    ServerboundContainerClickWrapper wrapper = new ServerboundContainerClickWrapper(event);
+                    LogUtils.info("Hashed stack: {}, hash: {}", wrapper.getCarriedItem(), wrapper.getCarriedItem().hash());
+                    HashedStack stack = stacks.getIfPresent(wrapper.getCarriedItem().hash());
+                    if (stack != null) {
+                        LogUtils.debug("Stack not null!");
+                        wrapper.setCarriedItem(stack);
+                    }
+                }
+            }
+        });
     }
 
     public static void unregister(PacketItemModifierListener listener) {
