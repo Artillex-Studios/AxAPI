@@ -31,7 +31,7 @@ public class PacketItemModifier {
     private static boolean listening = false;
     private static final ObjectArrayList<PacketItemModifierListener> listeners = new ObjectArrayList<>();
     // If we have two items with the same hash, we can't just remove, as a different item might need the same stack
-    private static final Cache<HashedStack, HashedStack> stacks = Caffeine.newBuilder()
+    private static final Cache<Player, HashedStack> stacks = Caffeine.newBuilder()
             .expireAfterAccess(1, TimeUnit.MINUTES)
             .maximumSize(1000)
             .build();
@@ -73,7 +73,7 @@ public class PacketItemModifier {
                         PacketItemModifier.callModify(wrapper.getItemStack(), event.player(), Context.SET_CURSOR);
                         HashedStack changedHashed = wrapper.getItemStack().copy().toHashedStack(serverPlayer.hashGenerator());
                         LogUtils.debug("Changed hashed: {}, hashed: {}", changedHashed, hashedStack);
-                        stacks.put(changedHashed, hashedStack);
+                        stacks.put(event.player(), hashedStack);
                     } else {
                         PacketItemModifier.callModify(wrapper.getItemStack(), event.player(), Context.SET_CURSOR);
                     }
@@ -115,7 +115,7 @@ public class PacketItemModifier {
                     LogUtils.debug("Container click!");
                     ServerboundContainerClickWrapper wrapper = new ServerboundContainerClickWrapper(event);
                     LogUtils.debug("Hashed stack: {}, hash: {}", wrapper.getCarriedItem());
-                    HashedStack stack = stacks.getIfPresent(wrapper.getCarriedItem());
+                    HashedStack stack = stacks.getIfPresent(event.player());
                     if (stack != null) {
                         LogUtils.debug("Stack not null!");
                         wrapper.setCarriedItem(stack);
