@@ -53,6 +53,7 @@ public class PacketItemModifier {
                 if (event.type() == ClientboundPacketTypes.CONTAINER_SET_SLOT) {
                     ClientboundContainerSetSlotWrapper wrapper = new ClientboundContainerSetSlotWrapper(event);
                     PacketItemModifier.callModify(wrapper.stack(), event.player(), Context.SET_SLOT);
+                    wrapper.markDirty();
                 } else if (event.type() == ClientboundPacketTypes.CONTAINER_CONTENT) {
                     ClientboundContainerSetContentWrapper wrapper = new ClientboundContainerSetContentWrapper(event);
                     for (WrappedItemStack item : wrapper.items()) {
@@ -60,6 +61,7 @@ public class PacketItemModifier {
                     }
 
                     PacketItemModifier.callModify(wrapper.carriedItem(), event.player(), Context.SET_CONTENTS);
+                    wrapper.markDirty();
                 } else if (event.type() == ClientboundPacketTypes.SET_CURSOR_ITEM) {
                     ClientboundSetCursorItemWrapper wrapper = new ClientboundSetCursorItemWrapper(event);
                     ServerPlayerWrapper serverPlayer = ServerPlayerWrapper.wrap(event.player());
@@ -91,6 +93,7 @@ public class PacketItemModifier {
                         });
                         PacketItemModifier.callModify(offer.getOutput(), event.player(), Context.MERCHANT_OFFER);
                     }
+                    wrapper.markDirty();
                 } else if (event.type() == ClientboundPacketTypes.SET_ENTITY_DATA) {
                     ClientboundEntityMetadataWrapper wrapper = new ClientboundEntityMetadataWrapper(event);
                     for (Metadata.DataItem<?> item : wrapper.items()) {
@@ -107,11 +110,13 @@ public class PacketItemModifier {
                 if (event.type() == ServerboundPacketTypes.SET_CREATIVE_MODE_SLOT) {
                     ServerboundSetCreativeModeSlotWrapper wrapper = new ServerboundSetCreativeModeSlotWrapper(event);
                     PacketItemModifier.restore(wrapper.stack());
+                    wrapper.markDirty();
                 } else if (event.type() == ServerboundPacketTypes.CONTAINER_CLICK && Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_4)) {
                     ServerboundContainerClickWrapper wrapper = new ServerboundContainerClickWrapper(event);
                     HashedStack stack = stacks.remove(event.player());
                     if (stack != null) {
                         wrapper.setCarriedItem(stack);
+                        wrapper.markDirty();
                     }
                 }
             }
