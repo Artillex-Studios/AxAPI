@@ -19,22 +19,17 @@ import com.artillexstudios.axapi.packetentity.meta.Metadata;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
 import com.artillexstudios.axapi.utils.Pair;
 import com.artillexstudios.axapi.utils.Version;
-import com.artillexstudios.axapi.utils.logging.LogUtils;
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.bukkit.entity.Player;
 
-import java.util.concurrent.TimeUnit;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PacketItemModifier {
     private static boolean listening = false;
     private static final ObjectArrayList<PacketItemModifierListener> listeners = new ObjectArrayList<>();
     // If we have two items with the same hash, we can't just remove, as a different item might need the same stack
-    private static final Cache<Player, HashedStack> stacks = Caffeine.newBuilder()
-            .expireAfterAccess(1, TimeUnit.MINUTES)
-            .maximumSize(1000)
-            .build();
+    private static final Map<Player, HashedStack> stacks = new ConcurrentHashMap<>();
 
     public static void registerModifierListener(PacketItemModifierListener listener) {
         if (!listening) {
@@ -69,11 +64,12 @@ public class PacketItemModifier {
                     ClientboundSetCursorItemWrapper wrapper = new ClientboundSetCursorItemWrapper(event);
                     ServerPlayerWrapper serverPlayer = ServerPlayerWrapper.wrap(event.player());
                     if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_4)) {
-                        HashedStack hashedStack = wrapper.getItemStack().copy().toHashedStack(serverPlayer.hashGenerator());
+                        WrappedItemStack copy = wrapper.getItemStack().copy();
+                        HashedStack hashedStack = copy.toHashedStack(serverPlayer.hashGenerator());
                         PacketItemModifier.callModify(wrapper.getItemStack(), event.player(), Context.SET_CURSOR);
-                        HashedStack changedHashed = wrapper.getItemStack().copy().toHashedStack(serverPlayer.hashGenerator());
-                        LogUtils.debug("Changed hashed: {}, hashed: {}", changedHashed, hashedStack);
-                        stacks.put(event.player(), hashedStack);
+                        if (!copy.equals(wrapper.getItemStack())) {
+                            stacks.put(event.player(), hashedStack);
+                        }
                     } else {
                         PacketItemModifier.callModify(wrapper.getItemStack(), event.player(), Context.SET_CURSOR);
                     }
@@ -112,12 +108,9 @@ public class PacketItemModifier {
                     ServerboundSetCreativeModeSlotWrapper wrapper = new ServerboundSetCreativeModeSlotWrapper(event);
                     PacketItemModifier.restore(wrapper.stack());
                 } else if (event.type() == ServerboundPacketTypes.CONTAINER_CLICK && Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_4)) {
-                    LogUtils.debug("Container click!");
                     ServerboundContainerClickWrapper wrapper = new ServerboundContainerClickWrapper(event);
-                    LogUtils.debug("Hashed stack: {}, hash: {}", wrapper.getCarriedItem());
-                    HashedStack stack = stacks.getIfPresent(event.player());
+                    HashedStack stack = stacks.remove(event.player());
                     if (stack != null) {
-                        LogUtils.debug("Stack not null!");
                         wrapper.setCarriedItem(stack);
                     }
                 }

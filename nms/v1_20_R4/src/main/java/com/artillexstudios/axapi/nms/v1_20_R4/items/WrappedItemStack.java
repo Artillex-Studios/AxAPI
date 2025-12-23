@@ -9,6 +9,8 @@ import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.Objects;
+
 public class WrappedItemStack implements com.artillexstudios.axapi.items.WrappedItemStack {
     private static final FieldAccessor handleAccessor = FieldAccessor.builder()
             .withClass(CraftItemStack.class)
@@ -107,5 +109,21 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
     @Override
     public net.minecraft.world.item.ItemStack asMinecraft() {
         return this.itemStack;
+    }
+
+    @Override
+    public final boolean equals(Object object) {
+        if (!(object instanceof WrappedItemStack that)) {
+            return false;
+        }
+
+        return Objects.equals(this.itemStack, that.itemStack) && Objects.equals(this.bukkitStack, that.bukkitStack);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hashCode(this.itemStack);
+        result = 31 * result + Objects.hashCode(this.bukkitStack);
+        return result;
     }
 }
