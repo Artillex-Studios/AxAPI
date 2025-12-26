@@ -8,6 +8,7 @@ import com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.Cu
 import com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.DataComponentHandler;
 import com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.IdentifierDataComponent;
 import com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.IdentityDataComponent;
+import com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.LoreDataComponent;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
@@ -25,6 +26,7 @@ public final class DataComponentTypes {
         register("item_name", DataComponents.ITEM_NAME, new AdventureComponentDataComponent());
         register("item_model", DataComponents.ITEM_MODEL, new IdentifierDataComponent());
         register("tooltip_style", DataComponents.TOOLTIP_STYLE, new IdentifierDataComponent());
+        register("lore", DataComponents.LORE, new LoreDataComponent());
     }
 
     public static <T extends DataComponent<?>> void register(String id, T mapper) {

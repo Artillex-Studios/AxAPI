@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.items.components;
 
+import com.artillexstudios.axapi.items.components.data.ItemLore;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import net.kyori.adventure.key.Key;
@@ -14,6 +15,7 @@ public final class DataComponents {
     public static final DataComponent<Component> ITEM_NAME = fetch("item_name");
     public static final DataComponent<Key> ITEM_MODEL = fetch("item_model");
     public static final DataComponent<Key> TOOLTIP_STYLE = fetch("tooltip_style");
+    public static final DataComponent<ItemLore> LORE = fetch("lore");
 
     private static <T extends DataComponent<?>> T fetch(String id) {
         return NMSHandlers.getNmsHandler().getDataComponent(id);
