@@ -5,10 +5,17 @@ import com.artillexstudios.axapi.collections.Registry;
 import com.artillexstudios.axapi.items.components.DataComponent;
 import com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.AdventureComponentDataComponent;
 import com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.CustomDataDataComponent;
+import com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.CustomModelDataDataComponent;
 import com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.DataComponentHandler;
+import com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.DyedColorDataComponent;
+import com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.EnchantmentsDataComponent;
 import com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.IdentifierDataComponent;
 import com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.IdentityDataComponent;
 import com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.LoreDataComponent;
+import com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.PotionContentsDataComponent;
+import com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.ProfileDataComponent;
+import com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.RarityDataComponent;
+import com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.UnitDataComponent;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
@@ -26,7 +33,21 @@ public final class DataComponentTypes {
         register("item_name", DataComponents.ITEM_NAME, new AdventureComponentDataComponent());
         register("item_model", DataComponents.ITEM_MODEL, new IdentifierDataComponent());
         register("tooltip_style", DataComponents.TOOLTIP_STYLE, new IdentifierDataComponent());
+        register("repair_cost", DataComponents.REPAIR_COST, new IdentityDataComponent<>());
         register("lore", DataComponents.LORE, new LoreDataComponent());
+        register("rarity", DataComponents.RARITY, new RarityDataComponent());
+        register("enchantments", DataComponents.ENCHANTMENTS, new EnchantmentsDataComponent());
+        register("stored_enchantments", DataComponents.STORED_ENCHANTMENTS, new EnchantmentsDataComponent());
+        register("custom_model_data", DataComponents.CUSTOM_MODEL_DATA, new CustomModelDataDataComponent());
+        register("enchantment_glint_override", DataComponents.ENCHANTMENT_GLINT_OVERRIDE, new IdentityDataComponent<>());
+        register("profile", DataComponents.PROFILE, new ProfileDataComponent());
+        register("material", null); // TODO: implement datacomponent for this
+        register("dyed_color", DataComponents.DYED_COLOR, new DyedColorDataComponent());
+        register("potion_contents", DataComponents.POTION_CONTENTS, new PotionContentsDataComponent());
+        register("unbreakable", DataComponents.UNBREAKABLE, new UnitDataComponent());
+        register("minimum_attack_charge", DataComponents.MINIMUM_ATTACK_CHARGE, new IdentityDataComponent<>()); // FLOAT
+//        register("trim", DataComponents.TRIM, new LoreDataComponent());
+//        register("base_color", DataComponents.BASE_COLOR, new DyedColorDataComponent());
     }
 
     public static <T extends DataComponent<?>> void register(String id, T mapper) {

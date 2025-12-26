@@ -321,7 +321,7 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
                     return new ItemEnchantments(enchants, true);
                 }
 
-                vanilla.entrySet().forEach(e -> enchants.put(CraftEnchantment.minecraftHolderToBukkit(Holder.direct(e.getKey().value())), e.getIntValue()));
+                vanilla.entrySet().forEach(e -> enchants.put(CraftEnchantment.minecraftHolderToBukkit(e.getKey()), e.getIntValue()));
 
                 boolean shows = true;
                 TooltipDisplay display = itemStack.get(DataComponents.TOOLTIP_DISPLAY);
