@@ -2,11 +2,8 @@ package com.artillexstudios.axapi.nms.v1_21_R7;
 
 import com.artillexstudios.axapi.executor.ExceptionReportingScheduledThreadPool;
 import com.artillexstudios.axapi.selection.BlockSetter;
-import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -19,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 public class BlockSetterImpl implements BlockSetter {
@@ -67,6 +63,7 @@ public class BlockSetterImpl implements BlockSetter {
         for (ChunkPos chunk : chunks) {
             LevelChunk levelChunk = level.getChunk(chunk.x, chunk.z);
             levelChunk.markUnsaved();
+
             sendUpdatePacket(levelChunk);
         }
 
@@ -93,17 +90,19 @@ public class BlockSetterImpl implements BlockSetter {
     }
 
     private void sendUpdatePacket(@NotNull LevelChunk chunk) {
-        ChunkHolder playerChunk = level.getChunkSource().chunkMap.getVisibleChunkIfPresent(chunk.getPos().longKey);
-        if (playerChunk == null) return;
-        List<ServerPlayer> playersInRange = playerChunk.playerProvider.getPlayers(playerChunk.getPos(), false);
 
-        executor.execute(() -> {
-            ClientboundLevelChunkWithLightPacket lightPacket = new ClientboundLevelChunkWithLightPacket(chunk, level.getLightEngine(), null, null, false);
-            int size = playersInRange.size();
-            for (int i = 0; i < size; i++) {
-                ServerPlayer player = playersInRange.get(i);
-                player.connection.send(lightPacket);
-            }
-        });
+//        ChunkHolder playerChunk = level.getChunkSource().chunkMap.getVisibleChunkIfPresent(chunk.getPos().longKey);
+//        CraftWorld
+//        if (playerChunk == null) return;
+//        List<ServerPlayer> playersInRange = playerChunk.playerProvider.getPlayers(playerChunk.getPos(), false);
+//
+//        executor.execute(() -> {
+//            ClientboundLevelChunkWithLightPacket lightPacket = new ClientboundLevelChunkWithLightPacket(chunk, level.getLightEngine(), null, null, false);
+//            int size = playersInRange.size();
+//            for (int i = 0; i < size; i++) {
+//                ServerPlayer player = playersInRange.get(i);
+//                player.connection.send(lightPacket);
+//            }
+//        });
     }
 }

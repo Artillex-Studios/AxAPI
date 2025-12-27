@@ -28,7 +28,7 @@ public final class WorldWrapper implements com.artillexstudios.axapi.nms.wrapper
     @Override
     public BlockSetter setter() {
         this.update();
-        return new BlockSetterImpl(this.level);
+        return new BlockSetterImpl(this);
     }
 
     @Override

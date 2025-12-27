@@ -1,12 +1,10 @@
 package com.artillexstudios.axapi.nms.v1_21_R7_paper;
 
 import com.artillexstudios.axapi.executor.ExceptionReportingScheduledThreadPool;
+import com.artillexstudios.axapi.nms.v1_21_R7_paper.wrapper.WorldWrapper;
 import com.artillexstudios.axapi.selection.BlockSetter;
-import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -15,21 +13,21 @@ import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.levelgen.Heightmap;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 public class BlockSetterImpl implements BlockSetter {
     private static final ExecutorService executor = new ExceptionReportingScheduledThreadPool(1);
+    private final WorldWrapper wrapper;
     private final ServerLevel level;
     private final ArrayList<ChunkPos> chunks = new ArrayList<>();
     private LevelChunk chunk = null;
 
-    public BlockSetterImpl(ServerLevel level) {
-        this.level = level;
+    public BlockSetterImpl(WorldWrapper wrapper) {
+        this.wrapper = wrapper;
+        this.level = wrapper.asMinecraft();
     }
 
     @Override
@@ -67,7 +65,8 @@ public class BlockSetterImpl implements BlockSetter {
         for (ChunkPos chunk : chunks) {
             LevelChunk levelChunk = level.getChunk(chunk.x, chunk.z);
             levelChunk.markUnsaved();
-            sendUpdatePacket(levelChunk);
+//            sendUpdatePacket(levelChunk);
+            this.wrapper.wrapped().refreshChunk(chunk.x, chunk.z);
         }
 
         relight();
@@ -92,18 +91,19 @@ public class BlockSetterImpl implements BlockSetter {
         });
     }
 
-    private void sendUpdatePacket(@NotNull LevelChunk chunk) {
-        ChunkHolder playerChunk = level.getChunkSource().chunkMap.getVisibleChunkIfPresent(chunk.getPos().longKey);
-        if (playerChunk == null) return;
-        List<ServerPlayer> playersInRange = playerChunk.playerProvider.getPlayers(playerChunk.getPos(), false);
-
-        executor.execute(() -> {
-            ClientboundLevelChunkWithLightPacket lightPacket = new ClientboundLevelChunkWithLightPacket(chunk, level.getLightEngine(), null, null, false);
-            int size = playersInRange.size();
-            for (int i = 0; i < size; i++) {
-                ServerPlayer player = playersInRange.get(i);
-                player.connection.send(lightPacket);
-            }
-        });
-    }
+//    private void sendUpdatePacket(@NotNull LevelChunk chunk) {
+//        List<ChunkHolder> visibleChunkHolders = PlatformHooks.get().getVisibleChunkHolders(this.level);
+//        ChunkHolder playerChunk = level.getChunkSource().getChunkAtIfCachedImmediately(chunk.getPos().x, chunk.getPos().z);
+//        if (playerChunk == null) return;
+//        List<ServerPlayer> playersInRange = playerChunk.playerProvider.getPlayers(playerChunk.getPos(), false);
+//
+//        executor.execute(() -> {
+//            ClientboundLevelChunkWithLightPacket lightPacket = new ClientboundLevelChunkWithLightPacket(chunk, level.getLightEngine(), null, null, false);
+//            int size = playersInRange.size();
+//            for (int i = 0; i < size; i++) {
+//                ServerPlayer player = playersInRange.get(i);
+//                player.connection.send(lightPacket);
+//            }
+//        });
+//    }
 }
