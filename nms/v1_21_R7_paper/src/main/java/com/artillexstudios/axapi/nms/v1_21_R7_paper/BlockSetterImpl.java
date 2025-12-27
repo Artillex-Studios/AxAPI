@@ -3,6 +3,7 @@ package com.artillexstudios.axapi.nms.v1_21_R7_paper;
 import com.artillexstudios.axapi.executor.ExceptionReportingScheduledThreadPool;
 import com.artillexstudios.axapi.nms.v1_21_R7_paper.wrapper.WorldWrapper;
 import com.artillexstudios.axapi.selection.BlockSetter;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
@@ -63,13 +64,16 @@ public class BlockSetterImpl implements BlockSetter {
     @Override
     public void finalise() {
         for (ChunkPos chunk : chunks) {
+            LogUtils.debug("Finalising chunk at {}, {}", chunk.x, chunk.z);
             LevelChunk levelChunk = level.getChunk(chunk.x, chunk.z);
             levelChunk.markUnsaved();
 //            sendUpdatePacket(levelChunk);
             this.wrapper.wrapped().refreshChunk(chunk.x, chunk.z);
+            LogUtils.debug("Refreshed chunk!");
         }
 
         relight();
+        LogUtils.debug("Did relighting!");
 
         chunks.clear();
     }
