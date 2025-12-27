@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.nms.v1_21_R7;
 
+import com.artillexstudios.axapi.executor.ExceptionReportingScheduledThreadPool;
 import com.artillexstudios.axapi.selection.BlockSetter;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.server.MinecraftServer;
@@ -20,10 +21,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class BlockSetterImpl implements BlockSetter {
-    private static final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+    private static final ExecutorService executor = new ExceptionReportingScheduledThreadPool(1);
     private final ServerLevel level;
     private final ArrayList<ChunkPos> chunks = new ArrayList<>();
     private LevelChunk chunk = null;
