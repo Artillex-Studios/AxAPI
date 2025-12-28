@@ -38,6 +38,7 @@ public class BlockSetterImpl implements BlockSetter {
         LevelChunk levelChunk;
         if (this.chunk != null && chunkX == this.chunk.getPos().x && chunkZ == this.chunk.getPos().z) {
             levelChunk = this.chunk;
+            LogUtils.debug("Reusing chunk!");
         } else {
             this.chunk = levelChunk = level.getChunk(chunkX, chunkZ);
             chunks.add(levelChunk.getPos());
