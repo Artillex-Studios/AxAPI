@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.nms.v1_21_R5;
 
+import com.artillexstudios.axapi.executor.ExceptionReportingScheduledThreadPool;
 import com.artillexstudios.axapi.selection.BlockSetter;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.server.MinecraftServer;
@@ -20,10 +21,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class BlockSetterImpl implements BlockSetter {
-    private static final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+    private static final ExecutorService executor = new ExceptionReportingScheduledThreadPool(1);
     private final ServerLevel level;
     private final ArrayList<ChunkPos> chunks = new ArrayList<>();
     private LevelChunk chunk = null;
@@ -40,8 +40,8 @@ public class BlockSetterImpl implements BlockSetter {
         if (this.chunk != null && chunkX == this.chunk.getPos().x && chunkZ == this.chunk.getPos().z) {
             levelChunk = this.chunk;
         } else {
-            this.chunk = levelChunk = level.getChunk(chunkX, chunkZ);
-            chunks.add(levelChunk.getPos());
+            this.chunk = levelChunk = this.level.getChunk(chunkX, chunkZ);
+            this.chunks.add(levelChunk.getPos());
         }
 
         var state = ((CraftBlockData) data).getState();
@@ -59,20 +59,21 @@ public class BlockSetterImpl implements BlockSetter {
         int l = z & 15;
         section.setBlockState(j, k, l, state, false);
 
-        updateHeightMap(levelChunk, j, y, l, state);
+        this.updateHeightMap(levelChunk, j, y, l, state);
     }
 
     @Override
     public void finalise() {
-        for (ChunkPos chunk : chunks) {
-            LevelChunk levelChunk = level.getChunk(chunk.x, chunk.z);
+        for (ChunkPos chunk : this.chunks) {
+            LevelChunk levelChunk = this.level.getChunk(chunk.x, chunk.z);
             levelChunk.markUnsaved();
-            sendUpdatePacket(levelChunk);
+            this.sendUpdatePacket(levelChunk);
         }
 
-        relight();
+        this.relight();
 
-        chunks.clear();
+        this.chunks.clear();
+        this.chunk = null;
     }
 
     private void updateHeightMap(ChunkAccess chunk, int x, int y, int z, BlockState blockState) {
@@ -83,9 +84,9 @@ public class BlockSetterImpl implements BlockSetter {
     }
 
     private void relight() {
-        var set = new HashSet<>(chunks);
+        var set = new HashSet<>(this.chunks);
         MinecraftServer.getServer().executeBlocking(() -> {
-            var lightEngine = level.chunkSource.getLightEngine();
+            var lightEngine = this.level.chunkSource.getLightEngine();
             lightEngine.starlight$serverRelightChunks(set, c -> {
             }, c -> {
             });
@@ -93,12 +94,12 @@ public class BlockSetterImpl implements BlockSetter {
     }
 
     private void sendUpdatePacket(@NotNull LevelChunk chunk) {
-        ChunkHolder playerChunk = level.getChunkSource().chunkMap.getVisibleChunkIfPresent(chunk.getPos().longKey);
+        ChunkHolder playerChunk = this.level.getChunkSource().chunkMap.getVisibleChunkIfPresent(chunk.getPos().longKey);
         if (playerChunk == null) return;
         List<ServerPlayer> playersInRange = playerChunk.playerProvider.getPlayers(playerChunk.getPos(), false);
 
         executor.execute(() -> {
-            ClientboundLevelChunkWithLightPacket lightPacket = new ClientboundLevelChunkWithLightPacket(chunk, level.getLightEngine(), null, null, false);
+            ClientboundLevelChunkWithLightPacket lightPacket = new ClientboundLevelChunkWithLightPacket(chunk, this.level.getLightEngine(), null, null, false);
             int size = playersInRange.size();
             for (int i = 0; i < size; i++) {
                 ServerPlayer player = playersInRange.get(i);
