@@ -41,6 +41,7 @@ public class BlockSetterImpl implements BlockSetter {
         } else {
             this.chunk = levelChunk = level.getChunk(chunkX, chunkZ);
             chunks.add(levelChunk.getPos());
+            LogUtils.debug("Adding chunk!");
         }
 
         var state = ((CraftBlockData) data).getState();
@@ -59,10 +60,12 @@ public class BlockSetterImpl implements BlockSetter {
         section.setBlockState(j, k, l, state, false);
 
         updateHeightMap(levelChunk, j, y, l, state);
+        LogUtils.debug("Set block!");
     }
 
     @Override
     public void finalise() {
+        LogUtils.debug("Chunks: {}", this.chunks);
         for (ChunkPos chunk : chunks) {
             LogUtils.debug("Finalising chunk at {}, {}", chunk.x, chunk.z);
             LevelChunk levelChunk = level.getChunk(chunk.x, chunk.z);
