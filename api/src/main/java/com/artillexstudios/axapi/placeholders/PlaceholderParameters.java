@@ -8,6 +8,7 @@ import com.artillexstudios.axapi.utils.UncheckedUtils;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -55,6 +56,10 @@ public class PlaceholderParameters extends HashMapContext {
     }
 
     public <T> T resolve(Class<T> clazz) throws PlaceholderParameterNotInContextException {
+        return this.resolve(clazz, new HashSet<>());
+    }
+
+    private <T> T resolve(Class<T> clazz, Set<Class<?>> seen) throws PlaceholderParameterNotInContextException {
         if (FeatureFlags.DEBUG.get()) {
             LogUtils.debug("Resolving class {}! Current values: {}", clazz, this.values);
         }
@@ -65,6 +70,10 @@ public class PlaceholderParameters extends HashMapContext {
                 LogUtils.debug("Found resolved!");
             }
             return resolved;
+        }
+
+        if (!seen.add(clazz)) {
+            return null;
         }
 
         for (PlaceholderTransformer<Object, Object> transformer : PlaceholderHandler.transformers()) {
