@@ -18,7 +18,6 @@ import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
-import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
@@ -321,7 +320,7 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
                     return new ItemEnchantments(enchants, true);
                 }
 
-                vanilla.entrySet().forEach(e -> enchants.put(CraftEnchantment.minecraftHolderToBukkit(Holder.direct(e.getKey().value())), e.getIntValue()));
+                vanilla.entrySet().forEach(e -> enchants.put(CraftEnchantment.minecraftHolderToBukkit(e.getKey()), e.getIntValue()));
 
                 boolean shows = true;
                 TooltipDisplay display = itemStack.get(DataComponents.TOOLTIP_DISPLAY);
@@ -538,7 +537,7 @@ public class DataComponentImpl implements com.artillexstudios.axapi.items.compon
                     return new ItemEnchantments(enchants, true);
                 }
 
-                vanilla.entrySet().forEach(e -> enchants.put(CraftEnchantment.minecraftHolderToBukkit(Holder.direct(e.getKey().value())), e.getIntValue()));
+                vanilla.entrySet().forEach(e -> enchants.put(CraftEnchantment.minecraftHolderToBukkit(e.getKey()), e.getIntValue()));
 
                 boolean shows = true;
                 TooltipDisplay display = itemStack.get(DataComponents.TOOLTIP_DISPLAY);
