@@ -16,7 +16,6 @@ java {
 dependencies {
     implementation project(path: ":api")
     implementation project(path: ":folia")
-    implementation project(path: ":nms:v1_21_R7_paper")
     implementation project(path: ":nms:v1_21_R7", configuration: "reobf")
     implementation project(path: ":nms:v1_21_R6", configuration: "reobf")
     implementation project(path: ":nms:v1_21_R5", configuration: "reobf")
