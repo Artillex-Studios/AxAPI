@@ -108,7 +108,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
                     continue;
                 }
 
-                packets.add(this.transformer.transformClientbound(out.buf()));
+                packets.add(PacketTransformer.transformClientbound(out.buf()));
             }
 
             super.write(ctx, new ClientboundBundlePacket(packets), promise);
@@ -185,7 +185,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
         if (FeatureFlags.DEBUG_OUTGOING_PACKETS.get()) {
             LogUtils.info("Changed!");
         }
-        Packet<? super ClientGamePacketListener> transformed = this.transformer.transformClientbound(out.buf());
+        Packet<? super ClientGamePacketListener> transformed = PacketTransformer.transformClientbound(out.buf());
         if (transformed == null) {
             super.write(ctx, msg, promise);
             return;
