@@ -1,4 +1,4 @@
-package com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl;
+package com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl;
 
 import com.artillexstudios.axapi.items.components.data.ItemEnchantments;
 import it.unimi.dsi.fastutil.objects.Object2IntAVLTreeMap;

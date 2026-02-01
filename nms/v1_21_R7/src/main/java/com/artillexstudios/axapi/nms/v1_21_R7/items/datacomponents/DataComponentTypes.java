@@ -1,21 +1,22 @@
-package com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents;
+package com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents;
 
 import com.artillexstudios.axapi.collections.RegistrationFailedException;
 import com.artillexstudios.axapi.collections.Registry;
 import com.artillexstudios.axapi.items.components.DataComponent;
-import com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.AdventureComponentDataComponent;
-import com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.CustomDataDataComponent;
-import com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.CustomModelDataDataComponent;
-import com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.DataComponentHandler;
-import com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.DyedColorDataComponent;
-import com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.EnchantmentsDataComponent;
-import com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.IdentifierDataComponent;
-import com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.IdentityDataComponent;
-import com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.LoreDataComponent;
-import com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.PotionContentsDataComponent;
-import com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.ProfileDataComponent;
-import com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.RarityDataComponent;
-import com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.UnitDataComponent;
+import com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.AdventureComponentDataComponent;
+import com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.CustomDataDataComponent;
+import com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.CustomModelDataDataComponent;
+import com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.DataComponentHandler;
+import com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.DyedColorDataComponent;
+import com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.EnchantmentsDataComponent;
+import com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.IdentifierDataComponent;
+import com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.IdentityDataComponent;
+import com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.LoreDataComponent;
+import com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.PotionContentsDataComponent;
+import com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.ProfileDataComponent;
+import com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.RarityDataComponent;
+import com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.UnitDataComponent;
+import com.artillexstudios.axapi.utils.UncheckedUtils;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
@@ -59,12 +60,12 @@ public final class DataComponentTypes {
     }
 
     public static <T, Z> void register(String id, DataComponentType<@NotNull Z> type, DataComponentHandler<T, Z> mapper) {
-        register(id, com.artillexstudios.axapi.nms.v1_21_R7_paper.items.datacomponents.impl.DataComponent.create(type, mapper));
+        register(id, com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.DataComponent.create(type, mapper));
     }
 
     public static <T extends DataComponent<?>> T component(String id) {
         try {
-            return (T) components.get(id);
+            return UncheckedUtils.unsafeCast(components.get(id));
         } catch (RegistrationFailedException exception) {
             LogUtils.error("Failed to find component {}! This is an issue with the code, and it should be reported to the developer of the plugin!",
                     id, exception);
