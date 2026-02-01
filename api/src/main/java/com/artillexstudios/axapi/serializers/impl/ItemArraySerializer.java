@@ -10,6 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
 
 public class ItemArraySerializer implements Serializer<ItemStack[], byte[]> {
     private static final ItemStack AIR = new ItemStack(Material.AIR);
@@ -30,7 +31,7 @@ public class ItemArraySerializer implements Serializer<ItemStack[], byte[]> {
                 byte[] serialized = WrappedItemStack.wrap(item).serialize();
                 outputStream.writeShort(serialized.length);
                 outputStream.write(serialized);
-            } catch (IllegalArgumentException exception) {
+            } catch (Exception exception) {
                 LogUtils.error("An unexpected error occurred while serializing itemstack of type {}. Item: {}", item.getType(), item, exception);
                 outputStream.writeShort(0);
             }
@@ -51,7 +52,11 @@ public class ItemArraySerializer implements Serializer<ItemStack[], byte[]> {
                 byte[] read = new byte[size];
                 input.readFully(read);
 
-                items[i] = WrappedItemStack.wrap(read).toBukkit();
+                try {
+                    items[i] = WrappedItemStack.wrap(read).toBukkit();
+                } catch (Exception exception) {
+                    LogUtils.error("An unexpected error occurred while deserializing itemstack! Read bytes: {}", Arrays.toString(read), exception);
+                }
             } else {
                 items[i] = AIR.clone();
             }
