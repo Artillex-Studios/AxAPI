@@ -6,6 +6,7 @@ pluginManagement {
 
 rootProject.name = 'AxAPI'
 include 'api'
+include 'paper'
 include 'folia'
 include 'nms'
 include 'nms:v1_21_R7'
