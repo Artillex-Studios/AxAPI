@@ -6,18 +6,17 @@ import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.Iterator;
-import java.util.concurrent.atomic.AtomicLong;
 
 public final class NonSynchronizedCooldown<T> implements Cooldown<T> {
-    private final AtomicLong closestTime = new AtomicLong(Long.MAX_VALUE);
     private final Object2LongMap<T> cooldowns = new Object2LongLinkedOpenHashMap<>();
+    private long closestTime = Long.MAX_VALUE;
 
     @Override
     public void addCooldown(T key, long time) {
         this.doHouseKeeping();
 
         long newTime = System.currentTimeMillis() + time;
-        this.closestTime.getAndUpdate(a -> Math.min(a, newTime));
+        this.closestTime = Math.min(this.closestTime, newTime);
         this.cooldowns.put(key, newTime);
     }
 
@@ -56,7 +55,7 @@ public final class NonSynchronizedCooldown<T> implements Cooldown<T> {
 
     private boolean doHouseKeeping() {
         long time = System.currentTimeMillis();
-        if (time < this.closestTime.get()) {
+        if (time < this.closestTime) {
             return false;
         }
 
@@ -73,7 +72,7 @@ public final class NonSynchronizedCooldown<T> implements Cooldown<T> {
                 closestTime = value;
             }
         }
-        this.closestTime.set(closestTime);
+        this.closestTime = closestTime;
         return didHouseKeeping;
     }
 }
