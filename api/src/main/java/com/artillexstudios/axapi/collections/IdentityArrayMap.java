@@ -1,7 +1,7 @@
 package com.artillexstudios.axapi.collections;
 
 import com.artillexstudios.axapi.utils.UncheckedUtils;
-import org.jetbrains.annotations.NotNull;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
@@ -120,11 +120,11 @@ public class IdentityArrayMap<K, V> implements Map<K, V> {
         this.size = 0;
     }
 
-    @NotNull
+    @NonNull
     @Override
     public Set<K> keySet() {
         return new AbstractSet<>() {
-            @NotNull
+            @NonNull
             @Override
             public Iterator<K> iterator() {
                 return new Iterator<>() {
@@ -155,11 +155,11 @@ public class IdentityArrayMap<K, V> implements Map<K, V> {
         };
     }
 
-    @NotNull
+    @NonNull
     @Override
     public Collection<V> values() {
         return new AbstractCollection<>() {
-            @NotNull
+            @NonNull
             @Override
             public Iterator<V> iterator() {
                 return new Iterator<>() {
@@ -190,11 +190,11 @@ public class IdentityArrayMap<K, V> implements Map<K, V> {
         };
     }
 
-    @NotNull
+    @NonNull
     @Override
     public Set<Entry<K, V>> entrySet() {
         return new AbstractSet<>() {
-            @NotNull
+            @NonNull
             @Override
             public Iterator<Entry<K, V>>
             iterator() {

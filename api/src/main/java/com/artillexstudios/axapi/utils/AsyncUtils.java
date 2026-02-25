@@ -1,10 +1,9 @@
 package com.artillexstudios.axapi.utils;
 
-import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.executor.ExceptionReportingScheduledThreadPool;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
-import org.jetbrains.annotations.NotNull;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
@@ -21,8 +20,8 @@ public final class AsyncUtils {
             private final AtomicInteger counter = new AtomicInteger(1);
 
             @Override
-            public Thread newThread(@NotNull Runnable runnable) {
-                return new Thread(null, runnable, AxPlugin.getPlugin(AxPlugin.class).getName() + "-Async-Processor-Thread-" + this.counter.getAndIncrement());
+            public Thread newThread(@NonNull Runnable runnable) {
+                return new Thread(null, runnable, Nameable.getInstance().getName() + "-Async-Processor-Thread-" + this.counter.getAndIncrement());
             }
         });
     }

@@ -3,7 +3,7 @@ package com.artillexstudios.axapi.utils;
 import it.unimi.dsi.fastutil.objects.Object2LongLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
-import org.jetbrains.annotations.NotNull;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicLong;
@@ -47,7 +47,7 @@ public final class NonSynchronizedCooldown<T> implements Cooldown<T> {
         this.cooldowns.clear();
     }
 
-    @NotNull
+    @NonNull
     @Override
     public Iterator<T> iterator() {
         this.doHouseKeeping();

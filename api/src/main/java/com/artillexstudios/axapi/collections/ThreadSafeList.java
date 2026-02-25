@@ -1,7 +1,6 @@
 package com.artillexstudios.axapi.collections;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,7 +11,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 
 public class ThreadSafeList<E> extends ArrayList<E> {
-    private static final Logger log = LoggerFactory.getLogger(ThreadSafeList.class);
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     private final ReentrantReadWriteLock.ReadLock read = lock.readLock();
     private final ReentrantReadWriteLock.WriteLock write = lock.writeLock();
@@ -131,7 +129,7 @@ public class ThreadSafeList<E> extends ArrayList<E> {
     @Deprecated
     public ListIterator<E> listIterator() {
         UnsupportedOperationException exception = new UnsupportedOperationException("The iterator should not be used!");
-        log.warn("Unsupported operation! You should not be using any iterator from the ThreadSafeList! Advanced for loops use the iterator!", exception);
+        LogUtils.warn("Unsupported operation! You should not be using any iterator from the ThreadSafeList! Advanced for loops use the iterator!", exception);
         return super.listIterator();
     }
 
@@ -139,7 +137,7 @@ public class ThreadSafeList<E> extends ArrayList<E> {
     @Deprecated
     public ListIterator<E> listIterator(int index) {
         UnsupportedOperationException exception = new UnsupportedOperationException("The iterator should not be used!");
-        log.warn("Unsupported operation! You should not be using any iterator from the ThreadSafeList! Advanced for loops use the iterator!", exception);
+        LogUtils.warn("Unsupported operation! You should not be using any iterator from the ThreadSafeList! Advanced for loops use the iterator!", exception);
         return super.listIterator(index);
     }
 
@@ -147,7 +145,7 @@ public class ThreadSafeList<E> extends ArrayList<E> {
     @Deprecated
     public Iterator<E> iterator() {
         UnsupportedOperationException exception = new UnsupportedOperationException("The iterator should not be used!");
-        log.warn("Unsupported operation! You should not be using any iterator from the ThreadSafeList! Advanced for loops use the iterator!", exception);
+        LogUtils.warn("Unsupported operation! You should not be using any iterator from the ThreadSafeList! Advanced for loops use the iterator!", exception);
         return super.iterator();
     }
 }

@@ -1,8 +1,8 @@
 package com.artillexstudios.axapi.database.impl;
 
-import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.database.DatabaseConfig;
 import com.artillexstudios.axapi.database.DatabaseType;
+import com.artillexstudios.axapi.utils.file.FileUtils;
 import com.zaxxer.hikari.HikariConfig;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public class SQLiteDatabaseType extends DatabaseType {
     public HikariConfig config(DatabaseConfig databaseConfig) {
         HikariConfig config = new HikariConfig();
         config.setDriverClassName(this.relocated + ".JDBC");
-        config.setJdbcUrl(databaseConfig.url == null ? "jdbc:sqlite:" + AxPlugin.getPlugin(AxPlugin.class).getDataFolder() + "/data" : databaseConfig.url);
+        config.setJdbcUrl(databaseConfig.url == null ? "jdbc:sqlite:" + FileUtils.getInstance().getFolder() + "/data" : databaseConfig.url);
         config.setMaximumPoolSize(databaseConfig.pool.maximumPoolSize);
         config.setMinimumIdle(databaseConfig.pool.minimumIdle);
         return config;

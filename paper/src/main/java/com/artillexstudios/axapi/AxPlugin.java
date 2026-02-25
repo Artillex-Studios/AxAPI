@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi;
 
 import com.artillexstudios.axapi.dependencies.DependencyManagerWrapper;
+import com.artillexstudios.axapi.dependency.DependencyContainer;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.gui.AnvilListener;
 import com.artillexstudios.axapi.gui.inventory.InventoryUpdater;
@@ -17,10 +18,16 @@ import com.artillexstudios.axapi.packet.listeners.BuiltinPacketListener;
 import com.artillexstudios.axapi.packetentity.tracker.EntityTracker;
 import com.artillexstudios.axapi.particle.ParticleTypes;
 import com.artillexstudios.axapi.placeholders.PlaceholderAPIHook;
+import com.artillexstudios.axapi.placeholders.PlaceholderHandler;
 import com.artillexstudios.axapi.scheduler.Scheduler;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
+import com.artillexstudios.axapi.utils.Nameable;
+import com.artillexstudios.axapi.utils.PaperNameable;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
+import com.artillexstudios.axapi.utils.file.FileUtils;
+import com.artillexstudios.axapi.utils.file.PaperFileUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -39,6 +46,12 @@ public abstract class AxPlugin extends JavaPlugin {
     public EntityTracker tracker;
 
     public AxPlugin() {
+        DependencyContainer.register(FileUtils.class, new PaperFileUtils(this));
+        DependencyContainer.register(Nameable.class, new PaperNameable(this));
+
+        PlaceholderHandler.registerTransformer(Player.class, OfflinePlayer.class, player -> player);
+        PlaceholderHandler.registerTransformer(OfflinePlayer.class, Player.class, OfflinePlayer::getPlayer);
+
         DependencyManager manager = new DependencyManager(this.getDescription(), new File(this.getDataFolder(), "libs"), URLClassLoaderWrapper.wrap((URLClassLoader) this.getClassLoader()));
         DependencyManagerWrapper wrapper = new DependencyManagerWrapper(manager);
         wrapper.repository("https://repo.artillex-studios.com/releases/");
@@ -56,7 +69,7 @@ public abstract class AxPlugin extends JavaPlugin {
         this.dependencies(wrapper);
         manager.load();
 
-        FeatureFlags.refresh(this);
+        FeatureFlags.refresh();
         this.updateFlags();
     }
 

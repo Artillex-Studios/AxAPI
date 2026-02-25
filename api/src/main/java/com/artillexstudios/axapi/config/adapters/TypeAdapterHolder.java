@@ -8,10 +8,8 @@ import com.artillexstudios.axapi.config.adapters.other.BigDecimalAdapter;
 import com.artillexstudios.axapi.config.adapters.other.BigIntegerAdapter;
 import com.artillexstudios.axapi.config.adapters.other.DatabaseTypeAdapter;
 import com.artillexstudios.axapi.config.adapters.other.EnumAdapter;
-import com.artillexstudios.axapi.config.adapters.other.ItemStackAdapter;
 import com.artillexstudios.axapi.config.adapters.other.PatternAdapter;
 import com.artillexstudios.axapi.config.adapters.other.UUIDAdapter;
-import com.artillexstudios.axapi.config.adapters.other.WrappedItemStackAdapter;
 import com.artillexstudios.axapi.config.adapters.primitive.BooleanAdapter;
 import com.artillexstudios.axapi.config.adapters.primitive.ByteAdapter;
 import com.artillexstudios.axapi.config.adapters.primitive.DoubleAdapter;
@@ -22,8 +20,6 @@ import com.artillexstudios.axapi.config.adapters.primitive.ShortAdapter;
 import com.artillexstudios.axapi.config.adapters.primitive.StringAdapter;
 import com.artillexstudios.axapi.config.annotation.Serializable;
 import com.artillexstudios.axapi.database.DatabaseType;
-import com.artillexstudios.axapi.items.WrappedItemStack;
-import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -62,8 +58,6 @@ public final class TypeAdapterHolder {
         this.adapters.put(BigInteger.class, new BigIntegerAdapter());
         this.adapters.put(BigDecimal.class, new BigDecimalAdapter());
         this.adapters.put(UUID.class, new UUIDAdapter());
-        this.adapters.put(ItemStack.class, new ItemStackAdapter());
-        this.adapters.put(WrappedItemStack.class, new WrappedItemStackAdapter());
 
         this.adapters.put(List.class, new ListAdapter());
         this.adapters.put(ArrayList.class, new ListAdapter());

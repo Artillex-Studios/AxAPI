@@ -1,6 +1,6 @@
 package com.artillexstudios.axapi.utils.featureflags;
 
-import com.artillexstudios.axapi.AxPlugin;
+import com.artillexstudios.axapi.utils.Nameable;
 import com.artillexstudios.axapi.utils.featureflags.type.BooleanFlag;
 import com.artillexstudios.axapi.utils.featureflags.type.IntegerFlag;
 import com.artillexstudios.axapi.utils.featureflags.type.ListFlag;
@@ -156,29 +156,30 @@ public final class FeatureFlags {
      */
     public static final IntegerFlag HOLOGRAM_PARSED_LINE_CACHE = new IntegerFlag(2000);
 
-    public static void refresh(AxPlugin plugin) {
-        PACKET_ENTITY_TRACKER_ENABLED.refresh(plugin.getName() + "enableEntityTracker");
-        DEBUG.refresh(plugin.getName() + "debug");
-        DEBUG_INCOMING_PACKETS.refresh(plugin.getName() + "debugIncomingPackets");
-        DEBUG_OUTGOING_PACKETS.refresh(plugin.getName() + "debugOutgoingPackets");
-        USE_LEGACY_HEX_FORMATTER.refresh(plugin.getName() + "useLegacyHexFormat");
-        PACKET_ENTITY_TRACKER_THREADS.refresh(plugin.getName() + "entityTrackerThreads");
-        HOLOGRAM_UPDATE_TICKS.refresh(plugin.getName() + "hologramUpdateTicks");
-        PLACEHOLDER_PATTERNS.refresh(plugin.getName() + "placeholderPatterns");
-        PLACEHOLDER_API_HOOK.refresh(plugin.getName() + "placeholderApiHook");
-        PLACEHOLDER_API_IDENTIFIER.refresh(plugin.getName() + "placeholderApiIdentifier");
-        COMPONENT_CACHE_SIZE.refresh(plugin.getName() + "componentCacheSize");
-        GUI_WAIT_FOR_ALL.refresh(plugin.getName() + "guiWaitForAll");
-        INVENTORY_CLICK_COOLDOWN.refresh(plugin.getName() + "inventoryClickCooldown");
-        STRICT_ITEM_OVERRIDE_HANDLING.refresh(plugin.getName() + "strictInventoryOverrideHandling");
-        USE_INVENTORY_UPDATER.refresh(plugin.getName() + "useInventoryUpdater");
-        LOG_EXCEPTION_UTILS_EXCEPTIONS.refresh(plugin.getName() + "logExceptionUtilsExceptions");
-        PARSE_PLACEHOLDER_API_IN_ITEM_BUILDER.refresh(plugin.getName() + "parsePlaceholderAPiInItemBuilder");
-        COLOR_CACHE_SIZE.refresh(plugin.getName() + "colorCacheSize");
-        LISTEN_TO_RIDE_PACKET.refresh(plugin.getName() + "listenToRidePacket");
-        ASYNC_UTILS_POOL_SIZE.refresh(plugin.getName() + "asyncUtilsPoolSize");
-        ENABLE_PACKET_LISTENERS.refresh(plugin.getName() + "enablePacketListeners");
-        SERVER_PLAYER_CACHE_SIZE.refresh(plugin.getName() + "serverPlayerCacheSize");
-        HOLOGRAM_PARSED_LINE_CACHE.refresh(plugin.getName() + "hologramParsedLineCache");
+    public static void refresh() {
+        String name = Nameable.getInstance().getName();
+        PACKET_ENTITY_TRACKER_ENABLED.refresh(name + "enableEntityTracker");
+        DEBUG.refresh(name + "debug");
+        DEBUG_INCOMING_PACKETS.refresh(name + "debugIncomingPackets");
+        DEBUG_OUTGOING_PACKETS.refresh(name + "debugOutgoingPackets");
+        USE_LEGACY_HEX_FORMATTER.refresh(name + "useLegacyHexFormat");
+        PACKET_ENTITY_TRACKER_THREADS.refresh(name + "entityTrackerThreads");
+        HOLOGRAM_UPDATE_TICKS.refresh(name + "hologramUpdateTicks");
+        PLACEHOLDER_PATTERNS.refresh(name + "placeholderPatterns");
+        PLACEHOLDER_API_HOOK.refresh(name + "placeholderApiHook");
+        PLACEHOLDER_API_IDENTIFIER.refresh(name + "placeholderApiIdentifier");
+        COMPONENT_CACHE_SIZE.refresh(name + "componentCacheSize");
+        GUI_WAIT_FOR_ALL.refresh(name + "guiWaitForAll");
+        INVENTORY_CLICK_COOLDOWN.refresh(name + "inventoryClickCooldown");
+        STRICT_ITEM_OVERRIDE_HANDLING.refresh(name + "strictInventoryOverrideHandling");
+        USE_INVENTORY_UPDATER.refresh(name + "useInventoryUpdater");
+        LOG_EXCEPTION_UTILS_EXCEPTIONS.refresh(name + "logExceptionUtilsExceptions");
+        PARSE_PLACEHOLDER_API_IN_ITEM_BUILDER.refresh(name + "parsePlaceholderAPiInItemBuilder");
+        COLOR_CACHE_SIZE.refresh(name + "colorCacheSize");
+        LISTEN_TO_RIDE_PACKET.refresh(name + "listenToRidePacket");
+        ASYNC_UTILS_POOL_SIZE.refresh(name + "asyncUtilsPoolSize");
+        ENABLE_PACKET_LISTENERS.refresh(name + "enablePacketListeners");
+        SERVER_PLAYER_CACHE_SIZE.refresh(name + "serverPlayerCacheSize");
+        HOLOGRAM_PARSED_LINE_CACHE.refresh(name + "hologramParsedLineCache");
     }
 }

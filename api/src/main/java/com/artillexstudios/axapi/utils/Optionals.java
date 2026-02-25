@@ -1,17 +1,16 @@
 package com.artillexstudios.axapi.utils;
 
-import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.Nullable;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
-@NullMarked
 public final class Optionals {
 
-    public static <T> void ifPresent(@Nullable T object, Consumer<T> consumer) {
+    public static <T> void ifPresent(@Nullable T object, @NonNull Consumer<T> consumer) {
         if (object == null) {
             return;
         }
@@ -19,7 +18,7 @@ public final class Optionals {
         consumer.accept(object);
     }
 
-    public static <T, Z> T applyIfPresent(@Nullable Z value, @Nullable T object, BiFunction<T, Z, T> function) {
+    public static <T, Z> T applyIfPresent(@Nullable Z value, @Nullable T object, @NonNull BiFunction<T, Z, T> function) {
         if (value == null) {
             return object;
         }
@@ -27,7 +26,7 @@ public final class Optionals {
         return function.apply(object, value);
     }
 
-    public static <T> T applyIf(@Nullable T object, boolean test, UnaryOperator<T> operator) {
+    public static <T> T applyIf(@Nullable T object, boolean test, @NonNull UnaryOperator<T> operator) {
         if (test) {
             return operator.apply(object);
         }
@@ -36,7 +35,7 @@ public final class Optionals {
     }
 
     @SafeVarargs
-    public static <T> T orElse(Supplier<@Nullable T> one, Supplier<@Nullable T>... others) {
+    public static <T> T orElse(@NonNull Supplier<@Nullable T> one, @NonNull Supplier<@Nullable T>... others) {
         T value = one.get();
         if (value != null) {
             return value;

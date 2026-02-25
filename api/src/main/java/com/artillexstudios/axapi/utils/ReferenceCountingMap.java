@@ -2,7 +2,7 @@ package com.artillexstudios.axapi.utils;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import org.jetbrains.annotations.NotNull;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -10,7 +10,7 @@ public final class ReferenceCountingMap<K, V> extends ConcurrentHashMap<K, V> {
     private final Object2IntMap<Object> counter = new Object2IntOpenHashMap<>();
 
     @Override
-    public V put(@NotNull K key, @NotNull V value) {
+    public V put(@NonNull K key, @NonNull V value) {
         synchronized (this.counter) {
             this.counter.compute(key, (k, v) -> v == null ? 1 : v + 1);
         }
@@ -18,7 +18,7 @@ public final class ReferenceCountingMap<K, V> extends ConcurrentHashMap<K, V> {
     }
 
     @Override
-    public V remove(@NotNull Object key) {
+    public V remove(@NonNull Object key) {
         V val;
         synchronized (this.counter) {
             int value = this.counter.getOrDefault(key, -1);

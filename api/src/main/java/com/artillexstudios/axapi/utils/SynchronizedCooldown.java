@@ -1,6 +1,6 @@
 package com.artillexstudios.axapi.utils;
 
-import org.jetbrains.annotations.NotNull;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.Iterator;
 
@@ -42,7 +42,7 @@ public final class SynchronizedCooldown<T> implements Cooldown<T> {
         }
     }
 
-    @NotNull
+    @NonNull
     @Override
     public Iterator<T> iterator() {
         synchronized (this.delegate) {

@@ -1,18 +1,17 @@
 package com.artillexstudios.axapi.utils;
 
-import org.jspecify.annotations.NullMarked;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
-@NullMarked
 public class SimplePattern {
     private final String expression;
     private final boolean endsWith;
     private final boolean startsWith;
 
-    public static SimplePattern of(String expression) {
+    public static SimplePattern of(@NonNull String expression) {
         return new SimplePattern(expression.isBlank() ? "%%" : expression);
     }
 
-    private SimplePattern(String expression) {
+    private SimplePattern(@NonNull String expression) {
         String modifiableExpression = expression;
         if (expression.charAt(0) == '%') {
             this.endsWith = true;
@@ -30,7 +29,7 @@ public class SimplePattern {
         this.expression = modifiableExpression;
     }
 
-    public boolean matches(String other) {
+    public boolean matches(@NonNull String other) {
         if (this.endsWith && this.startsWith) {
             return other.contains(this.expression);
         }

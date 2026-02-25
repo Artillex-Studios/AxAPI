@@ -1,9 +1,8 @@
 package com.artillexstudios.axapi.executor;
 
-import com.google.common.collect.Queues;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 
+import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -13,8 +12,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @param <T> Class, which extends Runnable
  */
 public class ThreadedQueue<T extends Runnable> implements Runnable {
-    private static final Logger log = LoggerFactory.getLogger(ThreadedQueue.class);
-    private final Queue<T> jobs = Queues.newArrayDeque();
+    private final Queue<T> jobs = new ArrayDeque<>();
     private final Thread thread;
     private final ReentrantLock lock = new ReentrantLock();
     private final Condition condition = lock.newCondition();
@@ -56,7 +54,7 @@ public class ThreadedQueue<T extends Runnable> implements Runnable {
                     next.run();
                 }
             } catch (Exception exception) {
-                log.error("An unexpected error occurred while running ThreadedQueue {}!", thread.getName(), exception);
+                LogUtils.error("An unexpected error occurred while running ThreadedQueue {}!", thread.getName(), exception);
             }
         }
     }

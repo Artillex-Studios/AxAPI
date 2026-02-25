@@ -1,8 +1,8 @@
 package com.artillexstudios.axapi.database;
 
-import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.database.handler.SimpleHandler;
 import com.artillexstudios.axapi.database.impl.MySQLDatabaseType;
+import com.artillexstudios.axapi.utils.file.FileUtils;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -19,19 +19,16 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class DatabaseHandler {
-    private final AxPlugin plugin;
     private final DatabaseConfig config;
     private final Supplier<Connection> connectionSupplier;
     private HikariDataSource dataSource;
 
-    public DatabaseHandler(AxPlugin plugin, DatabaseConfig config, Supplier<Connection> connectionSupplier) {
-        this.plugin = plugin;
+    public DatabaseHandler(DatabaseConfig config, Supplier<Connection> connectionSupplier) {
         this.config = config;
         this.connectionSupplier = connectionSupplier;
     }
 
-    public DatabaseHandler(AxPlugin plugin, DatabaseConfig config) {
-        this.plugin = plugin;
+    public DatabaseHandler(DatabaseConfig config) {
         this.config = config;
         this.connectionSupplier = this.createHikariConfig();
     }
@@ -98,12 +95,12 @@ public class DatabaseHandler {
 
     private String fetchQuery0(String name) throws IOException {
         InputStream resource = null;
-        Path path = this.plugin.getDataFolder().toPath().resolve("sql/" + this.config.type.name() + "/" + name + ".sql");
+        Path path = FileUtils.getInstance().getFolder().toPath().resolve("sql/" + this.config.type.name() + "/" + name + ".sql");
         if (Files.exists(path)) {
             resource = Files.newInputStream(path);
         }
 
-        path = this.plugin.getDataFolder().toPath().resolve("sql/base/" + name + ".sql");
+        path = FileUtils.getInstance().getFolder().toPath().resolve("sql/base/" + name + ".sql");
         if (Files.exists(path)) {
             resource = Files.newInputStream(path);
         }

@@ -10,7 +10,6 @@ import com.artillexstudios.axapi.utils.logging.LogUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.VarInt;
 import net.minecraft.network.protocol.Packet;

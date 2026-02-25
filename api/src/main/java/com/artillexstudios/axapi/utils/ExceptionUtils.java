@@ -3,14 +3,12 @@ package com.artillexstudios.axapi.utils;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.functions.ThrowingSupplier;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
-import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.Nullable;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-@NullMarked
 public final class ExceptionUtils {
 
     @Nullable

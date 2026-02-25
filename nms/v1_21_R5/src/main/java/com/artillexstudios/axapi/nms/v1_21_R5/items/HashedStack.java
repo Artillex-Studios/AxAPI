@@ -2,16 +2,8 @@ package com.artillexstudios.axapi.nms.v1_21_R5.items;
 
 import com.artillexstudios.axapi.items.HashGenerator;
 import com.artillexstudios.axapi.items.WrappedItemStack;
-import net.minecraft.core.Holder;
-import net.minecraft.network.HashedPatchMap;
-import net.minecraft.world.item.Item;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public record HashedStack(
         net.minecraft.network.HashedStack stack) implements com.artillexstudios.axapi.items.HashedStack {

@@ -1,9 +1,8 @@
 package com.artillexstudios.axapi.executor;
 
-import com.google.common.collect.Queues;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 
+import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -16,8 +15,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * This class also has a method that returns a future.
  */
 public class ThreadedExecutor implements Runnable, Executor {
-    private static final Logger log = LoggerFactory.getLogger(ThreadedExecutor.class);
-    private final Queue<Runnable> jobs = Queues.newArrayDeque();
+    private final Queue<Runnable> jobs = new ArrayDeque<>();
     private final Thread thread;
     private final ReentrantLock lock = new ReentrantLock();
     private final Condition condition = lock.newCondition();
@@ -76,7 +74,7 @@ public class ThreadedExecutor implements Runnable, Executor {
                     next.run();
                 }
             } catch (Exception exception) {
-                log.error("An unexpected error occurred while running ThreadedExecutor {}!", thread.getName(), exception);
+                LogUtils.error("An unexpected error occurred while running ThreadedExecutor {}!", thread.getName(), exception);
             }
         }
     }

@@ -1,16 +1,10 @@
 package com.artillexstudios.axapi.placeholders;
 
 import com.artillexstudios.axapi.placeholders.exception.PlaceholderException;
-import com.artillexstudios.axapi.placeholders.exception.PlaceholderParameterNotInContextException;
-import com.artillexstudios.axapi.reflection.ClassUtils;
-import com.artillexstudios.axapi.utils.Optionals;
 import com.artillexstudios.axapi.utils.UncheckedUtils;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.functions.ThrowingFunction;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
-import me.clip.placeholderapi.PlaceholderAPI;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,11 +20,6 @@ public class PlaceholderHandler {
     private static final List<Placeholder> placeholders = new ArrayList<>();
     private static final ConcurrentLinkedQueue<PlaceholderTransformer<Object, Object>> transformers = new ConcurrentLinkedQueue<>();
     private static Placeholder[] baked = new Placeholder[0];
-
-    static {
-        registerTransformer(Player.class, OfflinePlayer.class, player -> player);
-        registerTransformer(OfflinePlayer.class, Player.class, OfflinePlayer::getPlayer);
-    }
 
     void test() {
         register("wins_<koth>", new PlaceholderArguments(new PlaceholderArgument<>("koth", null)), ctx -> {
@@ -94,18 +83,19 @@ public class PlaceholderHandler {
         );
     }
 
-    public static String parseWithPlaceholderAPI(String line, PlaceholderParameters parameters) {
-        String newLine = parse(line, parameters);
-        if (ClassUtils.INSTANCE.classExists("me.clip.placeholderapi.PlaceholderAPI")) {
-            try {
-                newLine = PlaceholderAPI.setPlaceholders(Optionals.orElse(parameters.getByName("player"), parameters.resolve(Player.class)), newLine);
-            } catch (PlaceholderParameterNotInContextException exception) {
-                return newLine;
-            }
-        }
-
-        return newLine;
-    }
+    // TODO: What do I do with this
+//    public static String parseWithPlaceholderAPI(String line, PlaceholderParameters parameters) {
+//        String newLine = parse(line, parameters);
+//        if (ClassUtils.INSTANCE.classExists("me.clip.placeholderapi.PlaceholderAPI")) {
+//            try {
+//                newLine = PlaceholderAPI.setPlaceholders(Optionals.orElse(parameters.getByName("player"), parameters.resolve(Player.class)), newLine);
+//            } catch (PlaceholderParameterNotInContextException exception) {
+//                return newLine;
+//            }
+//        }
+//
+//        return newLine;
+//    }
 
     public static String parse(String line, PlaceholderParameters parameters) {
         StringBuilder builder = new StringBuilder(line);

@@ -1,7 +1,5 @@
-package com.artillexstudios.axapi.config.adapters.other;
+package com.artillexstudios.axapi.config.adapters;
 
-import com.artillexstudios.axapi.config.adapters.TypeAdapter;
-import com.artillexstudios.axapi.config.adapters.TypeAdapterHolder;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.utils.ItemBuilder;
 import com.artillexstudios.axapi.utils.UncheckedUtils;

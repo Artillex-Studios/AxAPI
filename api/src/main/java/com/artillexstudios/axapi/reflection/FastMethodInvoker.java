@@ -1,7 +1,6 @@
 package com.artillexstudios.axapi.reflection;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 
 import java.lang.invoke.CallSite;
 import java.lang.invoke.LambdaMetafactory;
@@ -17,13 +16,12 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public abstract class FastMethodInvoker {
-    private static final Logger log = LoggerFactory.getLogger(FastMethodInvoker.class);
 
     public static FastMethodInvoker create(String clazz, String method, Class<?>... parameters) {
         try {
             return createSilently(clazz, method, parameters);
         } catch (Exception exception) {
-            log.error("An unexpected error occurred while creating new FastMethodInvoker for class {}, method {}!", clazz, method, exception);
+            LogUtils.error("An unexpected error occurred while creating new FastMethodInvoker for class {}, method {}!", clazz, method, exception);
             throw new RuntimeException(exception);
         }
     }

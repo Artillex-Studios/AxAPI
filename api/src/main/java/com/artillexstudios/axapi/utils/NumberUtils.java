@@ -1,6 +1,6 @@
 package com.artillexstudios.axapi.utils;
 
-import org.jetbrains.annotations.Nullable;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class NumberUtils {
 
