@@ -1,5 +1,8 @@
 package com.artillexstudios.axapi;
 
+import com.artillexstudios.axapi.config.adapters.ItemStackAdapter;
+import com.artillexstudios.axapi.config.adapters.TypeAdapterHolder;
+import com.artillexstudios.axapi.config.adapters.WrappedItemStackAdapter;
 import com.artillexstudios.axapi.dependencies.DependencyManagerWrapper;
 import com.artillexstudios.axapi.dependency.DependencyContainer;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
@@ -8,6 +11,7 @@ import com.artillexstudios.axapi.gui.inventory.InventoryUpdater;
 import com.artillexstudios.axapi.gui.inventory.listener.InventoryClickListener;
 import com.artillexstudios.axapi.gui.inventory.renderer.InventoryRenderers;
 import com.artillexstudios.axapi.hologram.Holograms;
+import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.component.DataComponents;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
@@ -18,7 +22,7 @@ import com.artillexstudios.axapi.packet.listeners.BuiltinPacketListener;
 import com.artillexstudios.axapi.packetentity.tracker.EntityTracker;
 import com.artillexstudios.axapi.particle.ParticleTypes;
 import com.artillexstudios.axapi.placeholders.PlaceholderAPIHook;
-import com.artillexstudios.axapi.placeholders.PlaceholderHandler;
+import com.artillexstudios.axapi.placeholders.PaperPlaceholderHandler;
 import com.artillexstudios.axapi.scheduler.Scheduler;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.Nameable;
@@ -34,6 +38,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.zapper.DependencyManager;
@@ -49,14 +54,16 @@ public abstract class AxPlugin extends JavaPlugin {
         DependencyContainer.register(FileUtils.class, new PaperFileUtils(this));
         DependencyContainer.register(Nameable.class, new PaperNameable(this));
 
-        PlaceholderHandler.registerTransformer(Player.class, OfflinePlayer.class, player -> player);
-        PlaceholderHandler.registerTransformer(OfflinePlayer.class, Player.class, OfflinePlayer::getPlayer);
+        PaperPlaceholderHandler.registerTransformer(Player.class, OfflinePlayer.class, player -> player);
+        PaperPlaceholderHandler.registerTransformer(OfflinePlayer.class, Player.class, OfflinePlayer::getPlayer);
+        TypeAdapterHolder.registerExtraAdapter(WrappedItemStack.class, new WrappedItemStackAdapter());
+        TypeAdapterHolder.registerExtraAdapter(ItemStack.class, new ItemStackAdapter());
 
         DependencyManager manager = new DependencyManager(this.getDescription(), new File(this.getDataFolder(), "libs"), URLClassLoaderWrapper.wrap((URLClassLoader) this.getClassLoader()));
         DependencyManagerWrapper wrapper = new DependencyManagerWrapper(manager);
         wrapper.repository("https://repo.artillex-studios.com/releases/");
         wrapper.dependency("org{}apache{}commons:commons-math3:3.6.1");
-        wrapper.dependency("com{}github{}ben-manes{}caffeine:caffeine:3.1.8");
+        wrapper.dependency("com{}github{}ben-manes{}caffeine:caffeine:3.2.3");
 
         wrapper.relocate("org{}apache{}commons{}math3", "com.artillexstudios.axapi.libs.math3");
         wrapper.relocate("com{}github{}benmanes", "com.artillexstudios.axapi.libs.caffeine");

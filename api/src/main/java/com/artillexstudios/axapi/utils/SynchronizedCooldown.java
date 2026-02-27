@@ -1,6 +1,6 @@
 package com.artillexstudios.axapi.utils;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Iterator;
 

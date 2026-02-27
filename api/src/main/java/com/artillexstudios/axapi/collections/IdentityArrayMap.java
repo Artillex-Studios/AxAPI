@@ -1,7 +1,7 @@
 package com.artillexstudios.axapi.collections;
 
 import com.artillexstudios.axapi.utils.UncheckedUtils;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.AbstractCollection;
 import java.util.AbstractSet;

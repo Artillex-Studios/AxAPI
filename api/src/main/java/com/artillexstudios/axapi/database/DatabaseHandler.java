@@ -2,6 +2,7 @@ package com.artillexstudios.axapi.database;
 
 import com.artillexstudios.axapi.database.handler.SimpleHandler;
 import com.artillexstudios.axapi.database.impl.MySQLDatabaseType;
+import com.artillexstudios.axapi.utils.Nameable;
 import com.artillexstudios.axapi.utils.file.FileUtils;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import com.zaxxer.hikari.HikariConfig;
@@ -35,7 +36,7 @@ public class DatabaseHandler {
 
     private Supplier<Connection> createHikariConfig() {
         HikariConfig config = this.config.type.config(this.config);
-        config.setPoolName("axapi-" + this.plugin.getName() + "-database-pool");
+        config.setPoolName("axapi-" + Nameable.getInstance().getName() + "-database-pool");
         this.editConfig(config);
         if (this.config.url != null && !(this.config.type instanceof MySQLDatabaseType)) {
             config.addDataSourceProperty("url", this.config.url);
@@ -106,11 +107,11 @@ public class DatabaseHandler {
         }
 
         if (resource == null) {
-            resource = this.plugin.getResource("sql/" + this.config.type.name() + "/" + name + ".sql");
+            resource = this.getClass().getClassLoader().getResourceAsStream("sql/" + this.config.type.name() + "/" + name + ".sql");
         }
 
         if (resource == null) {
-            resource = this.plugin.getResource("sql/base/" + name + ".sql");
+            resource = this.getClass().getClassLoader().getResourceAsStream("sql/base/" + name + ".sql");
         }
 
         if (resource == null) {

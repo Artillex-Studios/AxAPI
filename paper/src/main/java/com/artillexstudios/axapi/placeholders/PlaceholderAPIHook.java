@@ -51,7 +51,7 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
             LogUtils.debug("Requesting placeholders for {} user, with parameters: {}!", player, params);
         }
 
-        return PlaceholderHandler.parse("%" + params + "%", Player.class, player);
+        return PaperPlaceholderHandler.parse("%" + params + "%", Player.class, player);
     }
 
     @Nullable
@@ -61,11 +61,11 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
             LogUtils.debug("Requesting placeholders for {} user, with parameters: {}!", player, params);
         }
 
-        return PlaceholderHandler.parse("%" + params + "%", OfflinePlayer.class, player);
+        return PaperPlaceholderHandler.parse("%" + params + "%", OfflinePlayer.class, player);
     }
 
     @Override
     public @NotNull List<String> getPlaceholders() {
-        return PlaceholderHandler.placeholders(FeatureFlags.PLACEHOLDER_API_IDENTIFIER.get());
+        return PaperPlaceholderHandler.placeholders(FeatureFlags.PLACEHOLDER_API_IDENTIFIER.get());
     }
 }

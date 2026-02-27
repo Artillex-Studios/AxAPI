@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.database.handler;
 
 import com.artillexstudios.axapi.database.ResultHandler;
+import com.artillexstudios.axapi.utils.UncheckedUtils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -33,9 +34,9 @@ public class SimpleHandler<T> implements ResultHandler<T> {
         }
 
         if (this.columnName != null) {
-            return (T) resultSet.getObject(this.columnName);
+            return UncheckedUtils.unsafeCast(resultSet.getObject(this.columnName));
         }
 
-        return (T) resultSet.getObject(this.columnId);
+        return UncheckedUtils.unsafeCast(resultSet.getObject(this.columnId));
     }
 }

@@ -3,7 +3,7 @@ package com.artillexstudios.axapi.utils;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.functions.ThrowingSupplier;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.Consumer;
 import java.util.function.Function;

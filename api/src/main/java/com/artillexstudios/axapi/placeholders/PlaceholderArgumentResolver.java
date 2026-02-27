@@ -1,6 +1,6 @@
 package com.artillexstudios.axapi.placeholders;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 @FunctionalInterface
 public interface PlaceholderArgumentResolver<T> {

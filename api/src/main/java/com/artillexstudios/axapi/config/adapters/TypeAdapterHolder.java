@@ -31,9 +31,16 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 public final class TypeAdapterHolder {
+    private static final ConcurrentHashMap<Class<?>, TypeAdapter<?,?>> extraAdapters = new ConcurrentHashMap<>();
+
+    public static void registerExtraAdapter(Class<?> clazz, TypeAdapter<?, ?> adapter) {
+        extraAdapters.put(clazz, adapter);
+    }
+
     private final Map<Class<?>, TypeAdapter<?, ?>> adapters = new HashMap<>();
 
     public TypeAdapterHolder() {
@@ -65,6 +72,7 @@ public final class TypeAdapterHolder {
         this.adapters.put(LinkedHashMap.class, new LinkedHashMapAdapter());
         this.adapters.put(DatabaseType.class, new DatabaseTypeAdapter());
         this.adapters.put(MapConfigurationGetter.class, new MapConfigurationGetterAdapter());
+        this.adapters.putAll(extraAdapters);
     }
 
     public void registerAdapter(Class<?> clazz, TypeAdapter<?, ?> adapter) {

@@ -8,7 +8,7 @@ import com.artillexstudios.axapi.gui.inventory.GuiBuilder;
 import com.artillexstudios.axapi.gui.inventory.GuiKeys;
 import com.artillexstudios.axapi.gui.inventory.builder.PaginatedGuiBuilder;
 import com.artillexstudios.axapi.gui.inventory.provider.GuiItemProvider;
-import com.artillexstudios.axapi.placeholders.PlaceholderHandler;
+import com.artillexstudios.axapi.placeholders.PaperPlaceholderHandler;
 import com.artillexstudios.axapi.placeholders.PlaceholderParameters;
 import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axapi.utils.YamlUtils;
@@ -160,7 +160,7 @@ public final class ConfigurationBackedGuiBuilder {
             this.builder.title(ctx -> {
                 Player player = ctx.get(GuiKeys.PLAYER);
                 Gui gui = ctx.get(GuiKeys.GUI);
-                return StringUtils.format(PlaceholderHandler.parseWithPlaceholderAPI(title, new PlaceholderParameters()
+                return StringUtils.format(PaperPlaceholderHandler.parseWithPlaceholderAPI(title, new PlaceholderParameters()
                         .withParameters(Player.class, player)
                         .withParameters(Gui.class, gui)
                 ));

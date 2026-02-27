@@ -11,7 +11,7 @@ import com.artillexstudios.axapi.items.component.type.ItemLore;
 import com.artillexstudios.axapi.items.component.type.ProfileProperties;
 import com.artillexstudios.axapi.items.component.type.Unbreakable;
 import com.artillexstudios.axapi.items.component.type.Unit;
-import com.artillexstudios.axapi.placeholders.PlaceholderHandler;
+import com.artillexstudios.axapi.placeholders.PaperPlaceholderHandler;
 import com.artillexstudios.axapi.placeholders.PlaceholderParameters;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
@@ -43,7 +43,7 @@ import java.util.UUID;
 import java.util.function.BiFunction;
 
 public class ItemBuilder {
-    private static final BiFunction<String, PlaceholderParameters, String> PLACEHOLDER_PARSER = (line, parameters) -> FeatureFlags.PARSE_PLACEHOLDER_API_IN_ITEM_BUILDER.get() ? PlaceholderHandler.parseWithPlaceholderAPI(line, parameters) : PlaceholderHandler.parse(line, parameters);
+    private static final BiFunction<String, PlaceholderParameters, String> PLACEHOLDER_PARSER = (line, parameters) -> FeatureFlags.PARSE_PLACEHOLDER_API_IN_ITEM_BUILDER.get() ? PaperPlaceholderHandler.parseWithPlaceholderAPI(line, parameters) : PaperPlaceholderHandler.parse(line, parameters);
     private static final UUID NIL_UUID = new UUID(0, 0);
     private final List<ItemFlag> flags = new ArrayList<>(4);
     private final WrappedItemStack stack;

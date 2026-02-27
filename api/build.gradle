@@ -2,6 +2,12 @@ group = 'com.artillexstudios.axapi.api'
 version = rootProject.version
 
 dependencies {
+    implementation("com.github.ben-manes.caffeine:caffeine:3.2.3")
+    implementation("org.apache.commons:commons-lang3:3.20.0")
+    implementation("it.unimi.dsi:fastutil-core:8.5.12")
+    implementation("com.google.code.gson:gson:2.12.1")
+    implementation("it.unimi.dsi:fastutil:8.5.12")
+    implementation("org.slf4j:slf4j-api:2.0.17")
     implementation("com.zaxxer:HikariCP:6.3.0") {
         exclude group: 'org.slf4j', module: 'slf4j-api'
     }

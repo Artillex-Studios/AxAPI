@@ -2,7 +2,7 @@ package com.artillexstudios.axapi.utils;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.concurrent.ConcurrentHashMap;
 

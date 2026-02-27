@@ -83,20 +83,6 @@ public class PlaceholderHandler {
         );
     }
 
-    // TODO: What do I do with this
-//    public static String parseWithPlaceholderAPI(String line, PlaceholderParameters parameters) {
-//        String newLine = parse(line, parameters);
-//        if (ClassUtils.INSTANCE.classExists("me.clip.placeholderapi.PlaceholderAPI")) {
-//            try {
-//                newLine = PlaceholderAPI.setPlaceholders(Optionals.orElse(parameters.getByName("player"), parameters.resolve(Player.class)), newLine);
-//            } catch (PlaceholderParameterNotInContextException exception) {
-//                return newLine;
-//            }
-//        }
-//
-//        return newLine;
-//    }
-
     public static String parse(String line, PlaceholderParameters parameters) {
         StringBuilder builder = new StringBuilder(line);
         for (Placeholder placeholder : baked) {

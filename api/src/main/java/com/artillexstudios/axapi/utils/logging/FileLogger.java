@@ -1,9 +1,6 @@
 package com.artillexstudios.axapi.utils.logging;
 
-import com.artillexstudios.axapi.AxPlugin;
-import org.bukkit.plugin.Plugin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.artillexstudios.axapi.utils.file.FileUtils;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -15,14 +12,12 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 public final class FileLogger {
-    private static final Plugin INSTANCE = AxPlugin.getPlugin(AxPlugin.class);
-    private static final Logger log = LoggerFactory.getLogger(FileLogger.class);
     private final Path logsPath;
     private final DateTimeFormatter dateFormat;
     private final DateTimeFormatter timeFormat;
 
     public FileLogger(String folder, DateTimeFormatter dateFormat, DateTimeFormatter timeFormat) {
-        this.logsPath = INSTANCE.getDataFolder().toPath().resolve(folder + "/");
+        this.logsPath = FileUtils.getInstance().getFolder().toPath().resolve(folder + "/");
         this.dateFormat = dateFormat;
         this.timeFormat = timeFormat;
     }
@@ -46,7 +41,7 @@ public final class FileLogger {
         try {
             logFile.createNewFile();
         } catch (IOException exception) {
-            FileLogger.log.error("An unexpected error occurred while creating new file!", exception);
+            LogUtils.error("An unexpected error occurred while creating new file!", exception);
         }
 
         String formattedTime = this.timeFormat.format(time);
@@ -54,7 +49,7 @@ public final class FileLogger {
             printWriter.print("[" + formattedTime + "] ");
             printWriter.println(log);
         } catch (IOException exception) {
-            FileLogger.log.error("An unexpected error occurred while writing to log file!", exception);
+            LogUtils.error("An unexpected error occurred while writing to log file!", exception);
         }
     }
 }

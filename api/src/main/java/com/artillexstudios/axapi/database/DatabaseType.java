@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.database;
 
+import com.artillexstudios.axapi.utils.UncheckedUtils;
 import com.zaxxer.hikari.HikariConfig;
 
 import java.util.HashMap;
@@ -19,6 +20,6 @@ public abstract class DatabaseType {
     }
 
     public <T, Z> void registerTransformer(Class<T> clazz, Function<T, List<Z>> from) {
-        this.transformers.put((Class<Object>) clazz, (Function<Object, List<Object>>) (Object) from);
+        this.transformers.put(UncheckedUtils.unsafeCast(clazz), UncheckedUtils.unsafeCast(from));
     }
 }
