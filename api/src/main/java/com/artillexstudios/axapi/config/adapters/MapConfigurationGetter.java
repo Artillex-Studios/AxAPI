@@ -3,6 +3,7 @@ package com.artillexstudios.axapi.config.adapters;
 import com.artillexstudios.axapi.utils.UncheckedUtils;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -15,7 +16,7 @@ public class MapConfigurationGetter implements ConfigurationGetter {
     private final Set<String> unmodifiableKeys;
 
     public <T, Z> MapConfigurationGetter(Map<T, Z> section) {
-        this.wrapped = UncheckedUtils.unsafeCast(section);
+        this.wrapped = section == null ? new HashMap<>() : UncheckedUtils.unsafeCast(section);
         this.unmodifiableKeys = Collections.unmodifiableSet(this.wrapped.keySet());
     }
 

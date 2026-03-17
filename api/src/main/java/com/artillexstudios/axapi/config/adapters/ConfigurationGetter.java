@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 public interface ConfigurationGetter {
@@ -74,9 +75,22 @@ public interface ConfigurationGetter {
 
         List<T> newList = new ArrayList<>(list.size());
         for (Z object : list) {
-            newList.add(converter.apply(object));
+            if (object == null) {
+                continue;
+            }
+            T apply = converter.apply(object);
+            if (apply == null) {
+                continue;
+            }
+
+            newList.add(apply);
         }
         return newList;
+    }
+
+    default <T> T getOrDefault(String path, Function<String, T> function, T def) {
+        T result = function.apply(path);
+        return result == null ? def : result;
     }
 
     default List<String> getStringList(String path) {
@@ -91,8 +105,16 @@ public interface ConfigurationGetter {
         return this.getList(path);
     }
 
+    default List<MapConfigurationGetter> getConfigurationList(String path) {
+        return this.getList(path, object -> new MapConfigurationGetter(UncheckedUtils.unsafeCast(object)));
+    }
+
     default MapConfigurationGetter getConfiguration(String path) {
         return new MapConfigurationGetter(UncheckedUtils.unsafeCast(this.get(path, Map.class)));
+    }
+
+    default boolean contains(String path) {
+        return this.getObject(path) != null;
     }
 
     default MapConfigurationGetter getConfigurationSection(String path) {
