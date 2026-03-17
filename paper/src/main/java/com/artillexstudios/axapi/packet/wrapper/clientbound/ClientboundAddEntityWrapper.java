@@ -6,6 +6,7 @@ import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketType;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
 import com.artillexstudios.axapi.utils.Vector3d;
+import com.artillexstudios.axapi.utils.Version;
 
 import java.util.UUID;
 
@@ -140,11 +141,16 @@ public final class ClientboundAddEntityWrapper extends PacketWrapper {
         out.writeDouble(this.x);
         out.writeDouble(this.y);
         out.writeDouble(this.z);
+        if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_8)) {
+            out.versionedWriteLpVec3(this.movement);
+        }
         out.writeByte(this.pitch);
         out.writeByte(this.yaw);
         out.writeByte(this.headYaw);
         out.writeVarInt(this.data);
-        out.versionedWriteLpVec3(this.movement);
+        if (Version.getServerVersion().isOlderThan(Version.v1_21_8)) {
+            out.versionedWriteLpVec3(this.movement);
+        }
     }
 
     @Override
