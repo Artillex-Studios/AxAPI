@@ -161,11 +161,16 @@ public final class ClientboundAddEntityWrapper extends PacketWrapper {
         this.x = buf.readDouble();
         this.y = buf.readDouble();
         this.z = buf.readDouble();
+        if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_8)) {
+            this.movement = buf.versionedReadLpVec3();
+        }
         this.pitch = buf.readByte();
         this.yaw = buf.readByte();
         this.headYaw = buf.readByte();
         this.data = buf.readVarInt();
-        this.movement = buf.versionedReadLpVec3();
+        if (Version.getServerVersion().isOlderThan(Version.v1_21_8)) {
+            this.movement = buf.versionedReadLpVec3();
+        }
     }
 
     @Override
