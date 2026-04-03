@@ -1,0 +1,14 @@
+plugins {
+    id("io.papermc.paperweight.userdev")
+}
+
+group = 'com.artillexstudios.axapi.nms.v26_1'
+version = rootProject.version
+
+repositories {
+    mavenLocal()
+}
+
+dependencies {
+    paperweight.paperDevBundle("26.1-R0.1-SNAPSHOT")
+}
