@@ -9,7 +9,7 @@ version = property("version")
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
@@ -132,6 +132,6 @@ tasks.withType(com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar).confi
 
 allprojects.forEach {
     it.afterEvaluate {
-        println(it.name + " " + it.group + " " + it.version)
+        println(it.name + " " + it.group + " " + it.version + " " + it.projectDir)
     }
 }
