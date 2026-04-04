@@ -68,6 +68,7 @@ public final class ClientboundPacketTypes {
     public static final PacketType PARTICLES = new PacketType("PARTICLES", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType LIGHT_UPDATE = new PacketType("LIGHT_UPDATE", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType LOGIN = new PacketType("LOGIN", Version.v1_18, Version.FUTURE_RELEASE);
+    public static final PacketType LOW_DISK_SPACE_WARNING = new PacketType("LOW_DISK_SPACE_WARNING", Version.v26_1, Version.FUTURE_RELEASE);
     public static final PacketType MAP_ITEM_DATA = new PacketType("MAP_ITEM_DATA", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType MERCHANT_OFFERS = new PacketType("MERCHANT_OFFERS", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType MOVE_ENTITY_POS = new PacketType("MOVE_ENTITY_POS", Version.v1_18, Version.FUTURE_RELEASE);
@@ -82,6 +83,7 @@ public final class ClientboundPacketTypes {
     public static final PacketType DEBUG_PONG = new PacketType("DEBUG_PONG", Version.v1_20_2, Version.FUTURE_RELEASE);
     public static final PacketType RECIPE = new PacketType("RECIPE", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType ABILITIES = new PacketType("ABILITIES", Version.v1_18, Version.FUTURE_RELEASE);
+    public static final PacketType GAME_RULE_VALUES = new PacketType("GAME_RULE_VALUES", Version.v26_1, Version.FUTURE_RELEASE);
     public static final PacketType CHAT_HEADER = new PacketType("CHAT_HEADER", Version.v1_19_1, Version.v1_19_1);
     public static final PacketType CHAT_MESSAGE = new PacketType("CHAT_MESSAGE", Version.v1_19, Version.FUTURE_RELEASE);
     public static final PacketType COMBAT_END = new PacketType("COMBAT_END", Version.v1_18, Version.FUTURE_RELEASE);
@@ -225,6 +227,7 @@ public final class ClientboundPacketTypes {
         register(PARTICLES);
         register(LIGHT_UPDATE);
         register(LOGIN);
+        register(LOW_DISK_SPACE_WARNING); // 26.1
         register(MAP_ITEM_DATA);
         register(MERCHANT_OFFERS);
         register(MOVE_ENTITY_POS);
@@ -239,6 +242,7 @@ public final class ClientboundPacketTypes {
         register(DEBUG_PONG); // 1.20.2
         register(UNLOCK_RECIPES);
         register(ABILITIES);
+        register(GAME_RULE_VALUES); // 26.1
         register(CHAT_HEADER); // 1.19
         register(CHAT_MESSAGE); // 1.19
         register(COMBAT_END);

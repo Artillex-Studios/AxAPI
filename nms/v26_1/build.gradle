@@ -9,6 +9,17 @@ repositories {
     mavenLocal()
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+reobfJar {
+    enabled = false
+}
+
+
 dependencies {
-    paperweight.paperDevBundle("26.1-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle("26.1.1.build.+")
 }

@@ -2,7 +2,7 @@ package com.artillexstudios.axapi.events;
 
 import com.artillexstudios.axapi.packet.wrapper.serverbound.ServerboundInteractWrapper;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
-import com.artillexstudios.axapi.utils.Vector3f;
+import com.artillexstudios.axapi.utils.Vector3d;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -13,11 +13,11 @@ public class PacketEntityInteractEvent extends Event {
     private static final HandlerList HANDLER_LIST = new HandlerList();
     private final PacketEntity packetEntity;
     private final boolean attack;
-    private final Vector3f position;
+    private final Vector3d position;
     private final ServerboundInteractWrapper.InteractionHand hand;
     private final Player player;
 
-    public PacketEntityInteractEvent(@NotNull Player player, PacketEntity packetEntity, boolean attack, Vector3f position, ServerboundInteractWrapper.InteractionHand hand) {
+    public PacketEntityInteractEvent(@NotNull Player player, PacketEntity packetEntity, boolean attack, Vector3d position, ServerboundInteractWrapper.InteractionHand hand) {
         super(!Bukkit.isPrimaryThread());
         this.player = player;
         this.packetEntity = packetEntity;
@@ -43,7 +43,7 @@ public class PacketEntityInteractEvent extends Event {
         return attack;
     }
 
-    public Vector3f getPosition() {
+    public Vector3d getPosition() {
         return position;
     }
 

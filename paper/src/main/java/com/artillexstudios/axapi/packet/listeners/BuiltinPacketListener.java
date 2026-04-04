@@ -10,6 +10,7 @@ import com.artillexstudios.axapi.packet.ServerboundPacketTypes;
 import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundAddEntityWrapper;
 import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundBlockUpdateWrapper;
 import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundSetPassengersWrapper;
+import com.artillexstudios.axapi.packet.wrapper.serverbound.ServerboundAttackWrapper;
 import com.artillexstudios.axapi.packet.wrapper.serverbound.ServerboundInteractWrapper;
 import com.artillexstudios.axapi.packet.wrapper.serverbound.ServerboundSignUpdateWrapper;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
@@ -56,6 +57,17 @@ public final class BuiltinPacketListener extends PacketListener {
             PacketEntity entity = this.tracker.getById(wrapper.entityId());
             if (entity != null) {
                 PacketEntityInteractEvent interactEvent = new PacketEntityInteractEvent(event.player(), entity, wrapper.type() == ServerboundInteractWrapper.ActionType.ATTACK, wrapper.action() instanceof ServerboundInteractWrapper.InteractionAtLocationAction action ? action.location() : null, wrapper.action() instanceof ServerboundInteractWrapper.InteractionAction action ? action.hand() : wrapper.action() instanceof ServerboundInteractWrapper.InteractionAtLocationAction interaction ? interaction.hand() : null);
+                Bukkit.getPluginManager().callEvent(interactEvent);
+            }
+        } else if (event.type() == ServerboundPacketTypes.ATTACK) {
+            if (this.tracker == null) {
+                return;
+            }
+
+            ServerboundAttackWrapper wrapper = new ServerboundAttackWrapper(event);
+            PacketEntity entity = this.tracker.getById(wrapper.entityId());
+            if (entity != null) {
+                PacketEntityInteractEvent interactEvent = new PacketEntityInteractEvent(event.player(), entity, true, null, ServerboundInteractWrapper.InteractionHand.MAIN_HAND);
                 Bukkit.getPluginManager().callEvent(interactEvent);
             }
         } else if (event.type() == ServerboundPacketTypes.SIGN_UPDATE) {

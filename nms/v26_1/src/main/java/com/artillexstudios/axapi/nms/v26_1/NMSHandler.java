@@ -2,10 +2,8 @@ package com.artillexstudios.axapi.nms.v26_1;
 
 import com.artillexstudios.axapi.gui.AnvilInput;
 import com.artillexstudios.axapi.gui.SignInput;
-import com.artillexstudios.axapi.items.components.DataComponent;
 import com.artillexstudios.axapi.nms.v26_1.entity.PacketEntity;
 import com.artillexstudios.axapi.nms.v26_1.items.data.DataComponentImpl;
-import com.artillexstudios.axapi.nms.v26_1.items.datacomponents.DataComponentTypes;
 import com.artillexstudios.axapi.nms.v26_1.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.nms.v26_1.loot.LootTable;
 import com.artillexstudios.axapi.nms.v26_1.packet.PacketTransformer;
@@ -103,7 +101,7 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     @Override
     public void openSignInput(SignInput signInput) {
         ServerPlayer player = ((CraftPlayer) signInput.getPlayer()).getHandle();
-        BlockPos pos = CraftLocation.toBlockPosition(signInput.getLocation());
+        BlockPos pos = CraftLocation.toBlockPos(signInput.getLocation());
         player.connection.send(new ClientboundBlockUpdatePacket(pos, ((CraftBlockData) Material.OAK_SIGN.createBlockData()).getState()));
 
         net.minecraft.nbt.CompoundTag tag = new net.minecraft.nbt.CompoundTag();
@@ -179,10 +177,5 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     @Override
     public FriendlyByteBuf newBuf() {
         return PacketTransformer.newByteBuf();
-    }
-
-    @Override
-    public <T extends DataComponent<?>> T getDataComponent(String id) {
-        return DataComponentTypes.component(id);
     }
 }

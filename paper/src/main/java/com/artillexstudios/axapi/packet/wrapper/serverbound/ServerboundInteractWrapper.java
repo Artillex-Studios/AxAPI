@@ -5,7 +5,9 @@ import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketType;
 import com.artillexstudios.axapi.packet.ServerboundPacketTypes;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
+import com.artillexstudios.axapi.utils.Vector3d;
 import com.artillexstudios.axapi.utils.Vector3f;
+import com.artillexstudios.axapi.utils.Version;
 
 import java.util.function.Function;
 
@@ -62,8 +64,12 @@ public final class ServerboundInteractWrapper extends PacketWrapper {
     @Override
     public void read(FriendlyByteBuf buf) {
         this.entityId = buf.readVarInt();
-        this.type = buf.readEnum(ActionType.class);
-        this.action = this.type.mapper.apply(buf);
+        if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v26_1)) {
+            this.action = new InteractionAtLocationAction(buf);
+        } else {
+            this.type = buf.readEnum(ActionType.class);
+            this.action = this.type.mapper.apply(buf);
+        }
         this.usingSecondaryAction = buf.readBoolean();
     }
 
@@ -108,25 +114,35 @@ public final class ServerboundInteractWrapper extends PacketWrapper {
 
     public static class InteractionAtLocationAction implements Action {
         private final InteractionHand hand;
-        private final Vector3f location;
+        private final Vector3d location;
 
         public InteractionAtLocationAction(FriendlyByteBuf buf) {
-            this.location = buf.readVector3f();
-            this.hand = buf.readEnum(InteractionHand.class);
+            if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v26_1)) {
+                this.hand = buf.readEnum(InteractionHand.class);
+                this.location = buf.readLpVec3();
+            } else {
+                this.location = new Vector3d(buf.readVector3f());
+                this.hand = buf.readEnum(InteractionHand.class);
+            }
         }
 
         public InteractionHand hand() {
             return this.hand;
         }
 
-        public Vector3f location() {
+        public Vector3d location() {
             return this.location;
         }
 
         @Override
         public void write(FriendlyByteBuf buf) {
-            buf.writeVector3f(this.location);
-            buf.writeEnum(this.hand);
+            if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v26_1)) {
+                buf.writeEnum(this.hand);
+                buf.writeLpVec3(this.location);
+            } else {
+                buf.writeVector3f(new Vector3f(this.location));
+                buf.writeEnum(this.hand);
+            }
         }
     }
 

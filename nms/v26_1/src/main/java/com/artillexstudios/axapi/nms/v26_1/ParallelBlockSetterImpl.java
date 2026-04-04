@@ -202,7 +202,7 @@ public class ParallelBlockSetterImpl implements ParallelBlockSetter {
     }
 
     private void sendUpdatePacket(@NotNull LevelChunk chunk) {
-        ChunkHolder playerChunk = level.getChunkSource().chunkMap.getVisibleChunkIfPresent(chunk.getPos().longKey);
+        ChunkHolder playerChunk = level.getChunkSource().chunkMap.getVisibleChunkIfPresent(chunk.getPos().longKey());
         if (playerChunk == null) return;
         List<ServerPlayer> playersInRange = playerChunk.playerProvider.getPlayers(playerChunk.getPos(), false);
 

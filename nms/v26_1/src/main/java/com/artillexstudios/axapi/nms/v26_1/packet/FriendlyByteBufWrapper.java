@@ -231,7 +231,7 @@ public record FriendlyByteBufWrapper(RegistryFriendlyByteBuf buf) implements Fri
     @Override
     public void writeItemCost(com.artillexstudios.axapi.items.WrappedItemStack itemCost) {
         ItemStack nmsItem = ((WrappedItemStack) itemCost).asMinecraft();
-        ItemCost.STREAM_CODEC.encode(this.buf, new ItemCost(nmsItem.getItemHolder(), nmsItem.getCount(), DataComponentExactPredicate.allOf(PatchedDataComponentMap.fromPatch(DataComponentMap.EMPTY, nmsItem.getComponentsPatch()))));
+        ItemCost.STREAM_CODEC.encode(this.buf, new ItemCost(nmsItem.typeHolder(), nmsItem.getCount(), DataComponentExactPredicate.allOf(PatchedDataComponentMap.fromPatch(DataComponentMap.EMPTY, nmsItem.getComponentsPatch()))));
     }
 
     @Override
@@ -243,7 +243,7 @@ public record FriendlyByteBufWrapper(RegistryFriendlyByteBuf buf) implements Fri
     public void writeOptionalItemCost(Optional<com.artillexstudios.axapi.items.WrappedItemStack> itemCost) {
         ItemCost.OPTIONAL_STREAM_CODEC.encode(this.buf, itemCost.map(stack -> {
             ItemStack nmsItem = ((WrappedItemStack) stack).itemStack;
-            return new ItemCost(nmsItem.getItemHolder(), nmsItem.getCount(), DataComponentExactPredicate.allOf(PatchedDataComponentMap.fromPatch(DataComponentMap.EMPTY, nmsItem.getComponentsPatch())));
+            return new ItemCost(nmsItem.typeHolder(), nmsItem.getCount(), DataComponentExactPredicate.allOf(PatchedDataComponentMap.fromPatch(DataComponentMap.EMPTY, nmsItem.getComponentsPatch())));
         }));
     }
 
@@ -259,18 +259,18 @@ public record FriendlyByteBufWrapper(RegistryFriendlyByteBuf buf) implements Fri
 
     @Override
     public BlockData readBlockData() {
-        return CraftBlockData.fromData(Block.BLOCK_STATE_REGISTRY.byId(this.readVarInt()));
+        return CraftBlockData.createData(Block.BLOCK_STATE_REGISTRY.byId(this.readVarInt()));
     }
 
     @Override
     public Vector3d readLpVec3() {
-        Vec3 vec3 = this.buf.readLpVec3();
+        Vec3 vec3 = Vec3.LP_STREAM_CODEC.decode(this.buf);
         return new Vector3d(vec3.x, vec3.y, vec3.z);
     }
 
     @Override
     public void writeLpVec3(Vector3d vector) {
-        this.buf.writeLpVec3(new Vec3(vector.x(), vector.y(), vector.z()));
+        Vec3.LP_STREAM_CODEC.encode(this.buf, new Vec3(vector.x(), vector.y(), vector.z()));
     }
 
     @Override

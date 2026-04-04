@@ -11,6 +11,7 @@ public final class ServerboundPacketTypes {
     private static final Int2ObjectMap<PacketType> PACKET_TYPES = new Int2ObjectOpenHashMap<>();
     private static final Object2IntArrayMap<PacketType> REVERSE_PACKET_TYPES = new Object2IntArrayMap<>();
     public static final PacketType ACCEPT_TELEPORT = new PacketType("ACCEPT_TELEPORT", Version.v1_18, Version.FUTURE_RELEASE);
+    public static final PacketType ATTACK = new PacketType("ATTACK", Version.v26_1, Version.FUTURE_RELEASE);
     public static final PacketType BLOCK_ENTITY_TAG_QUERY = new PacketType("BLOCK_ENTITY_TAG_QUERY", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType BUNDLE_ITEM_SELECT = new PacketType("BUNDLE_ITEM_SELECT", Version.v1_21_2, Version.FUTURE_RELEASE);
     public static final PacketType CHANGE_DIFFICULTY = new PacketType("CHANGE_DIFFICULTY", Version.v1_18, Version.FUTURE_RELEASE);
@@ -70,10 +71,12 @@ public final class ServerboundPacketTypes {
     public static final PacketType SET_COMMAND_BLOCK = new PacketType("SET_COMMAND_BLOCK", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType SET_COMMAND_MINECART = new PacketType("SET_COMMAND_MINECART", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType SET_CREATIVE_MODE_SLOT = new PacketType("SET_CREATIVE_MODE_SLOT", Version.v1_18, Version.FUTURE_RELEASE);
+    public static final PacketType SET_GAME_RULE = new PacketType("SET_GAME_RULE", Version.v26_1, Version.FUTURE_RELEASE);
     public static final PacketType SET_JIGSAW_BLOCK = new PacketType("SET_JIGSAW_BLOCK", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType SET_STRUCTURE_BLOCK = new PacketType("SET_STRUCTURE_BLOCK", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType SET_TEST_BLOCK = new PacketType("SET_TEST_BLOCK", Version.v1_21_4, Version.FUTURE_RELEASE);
     public static final PacketType SIGN_UPDATE = new PacketType("SIGN_UPDATE", Version.v1_18, Version.FUTURE_RELEASE);
+    public static final PacketType SPECTATE_ENTITY = new PacketType("SPECTATE_ENTITY", Version.v26_1, Version.FUTURE_RELEASE);
     public static final PacketType SWING = new PacketType("SWING", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType TELEPORT_TO_ENTITY = new PacketType("TELEPORT_TO_ENTITY", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType TEST_INSTANCE_BLOCK_ACTION = new PacketType("TEST_INSTANCE_BLOCK_ACTION", Version.v1_21_4, Version.FUTURE_RELEASE);
@@ -84,6 +87,7 @@ public final class ServerboundPacketTypes {
 
     public static void init() {
         register(ACCEPT_TELEPORT);
+        register(ATTACK); // 26.1
         register(BLOCK_ENTITY_TAG_QUERY);
         register(BUNDLE_ITEM_SELECT);
         register(CHANGE_DIFFICULTY);
@@ -147,10 +151,12 @@ public final class ServerboundPacketTypes {
         register(SET_COMMAND_BLOCK);
         register(SET_COMMAND_MINECART);
         register(SET_CREATIVE_MODE_SLOT);
+        register(SET_GAME_RULE); // 26.1
         register(SET_JIGSAW_BLOCK);
         register(SET_STRUCTURE_BLOCK);
         register(SET_TEST_BLOCK);
         register(SIGN_UPDATE);
+        register(SPECTATE_ENTITY); // 26.1
         register(SWING);
         register(TELEPORT_TO_ENTITY);
         register(TEST_INSTANCE_BLOCK_ACTION);

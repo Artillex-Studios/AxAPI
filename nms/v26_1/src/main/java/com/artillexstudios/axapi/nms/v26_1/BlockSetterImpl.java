@@ -37,7 +37,7 @@ public class BlockSetterImpl implements BlockSetter {
         int chunkX = x >> 4;
         int chunkZ = z >> 4;
         LevelChunk levelChunk;
-        if (this.chunk != null && chunkX == this.chunk.getPos().x && chunkZ == this.chunk.getPos().z) {
+        if (this.chunk != null && chunkX == this.chunk.getPos().x() && chunkZ == this.chunk.getPos().z()) {
             levelChunk = this.chunk;
         } else {
             this.chunk = levelChunk = this.level.getChunk(chunkX, chunkZ);
@@ -65,7 +65,7 @@ public class BlockSetterImpl implements BlockSetter {
     @Override
     public void finalise() {
         for (ChunkPos chunk : this.chunks) {
-            LevelChunk levelChunk = this.level.getChunk(chunk.x, chunk.z);
+            LevelChunk levelChunk = this.level.getChunk(chunk.x(), chunk.z());
             levelChunk.markUnsaved();
             this.sendUpdatePacket(levelChunk);
         }
@@ -94,12 +94,12 @@ public class BlockSetterImpl implements BlockSetter {
     }
 
     private void sendUpdatePacket(@NotNull LevelChunk chunk) {
-        ChunkHolder playerChunk = this.level.getChunkSource().chunkMap.getVisibleChunkIfPresent(chunk.getPos().longKey);
+        ChunkHolder playerChunk = this.level.getChunkSource().chunkMap.getVisibleChunkIfPresent(chunk.getPos().longKey());
         if (playerChunk == null) return;
         List<ServerPlayer> playersInRange = playerChunk.playerProvider.getPlayers(playerChunk.getPos(), false);
 
         executor.execute(() -> {
-            ClientboundLevelChunkWithLightPacket lightPacket = new ClientboundLevelChunkWithLightPacket(chunk, this.level.getLightEngine(), null, null, false);
+            ClientboundLevelChunkWithLightPacket lightPacket = new ClientboundLevelChunkWithLightPacket(chunk, this.level.getLightEngine(), null, null);
             int size = playersInRange.size();
             for (int i = 0; i < size; i++) {
                 ServerPlayer player = playersInRange.get(i);

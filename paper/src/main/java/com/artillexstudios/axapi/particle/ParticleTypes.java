@@ -90,6 +90,8 @@ public final class ParticleTypes {
     public static final ParticleType<ItemStackParticleOption> ITEM = new ItemStackParticleType();
     public static final ParticleType<VibrationParticleOption> VIBRATION = new VibrationParticleType();
     public static final ParticleType<TrailParticleOption> TRAIL = new TrailParticleType();
+    public static final ParticleType<?> PAUSE_MOB_GROWTH = new SimpleParticleType(); // 26.1
+    public static final ParticleType<?> RESET_MOB_GROWTH = new SimpleParticleType(); // 26.1
     public static final ParticleType<?> ITEM_SLIME = new SimpleParticleType();
     public static final ParticleType<?> ITEM_COBWEB = new SimpleParticleType();
     public static final ParticleType<?> ITEM_SNOWBALL = new SimpleParticleType();
@@ -235,6 +237,10 @@ public final class ParticleTypes {
         register(ParticleTypes.VIBRATION);
         if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_2)) {
             register(ParticleTypes.TRAIL);
+        }
+        if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v26_1)) {
+            register(PAUSE_MOB_GROWTH);
+            register(RESET_MOB_GROWTH);
         }
         register(ParticleTypes.ITEM_SLIME);
         if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_20_4)) {

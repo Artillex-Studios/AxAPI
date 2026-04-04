@@ -55,22 +55,7 @@ public final class EntityDataSerializers {
             return Type.BYTE;
         }
     };
-    public static final EntityDataSerializer<Integer> INT = new EntityDataSerializer<>() {
-        @Override
-        public void write(FriendlyByteBuf buf, Integer value) {
-            buf.writeVarInt(value);
-        }
-
-        @Override
-        public Integer read(FriendlyByteBuf buf) {
-            return buf.readVarInt();
-        }
-
-        @Override
-        public Type type() {
-            return Type.INT;
-        }
-    };
+    public static final EntityDataSerializer<Integer> INT = new VarIntSerializer(Type.INT);
     public static final EntityDataSerializer<Long> LONG = new EntityDataSerializer<>() {
         @Override
         public void write(FriendlyByteBuf buf, Long value) {
@@ -292,70 +277,10 @@ public final class EntityDataSerializers {
             return Type.POSE;
         }
     };
-    public static final EntityDataSerializer<Integer> CAT_VARIANT = new EntityDataSerializer<>() {
-        @Override
-        public void write(FriendlyByteBuf buf, Integer value) {
-            buf.writeVarInt(value);
-        }
-
-        @Override
-        public Integer read(FriendlyByteBuf buf) {
-            return buf.readVarInt();
-        }
-
-        @Override
-        public Type type() {
-            return Type.CAT_VARIANT;
-        }
-    };
-    public static final EntityDataSerializer<Integer> WOLF_VARIANT = new EntityDataSerializer<>() {
-        @Override
-        public void write(FriendlyByteBuf buf, Integer value) {
-            buf.writeVarInt(value);
-        }
-
-        @Override
-        public Integer read(FriendlyByteBuf buf) {
-            return buf.readVarInt();
-        }
-
-        @Override
-        public Type type() {
-            return Type.WOLF_VARIANT;
-        }
-    };
-    public static final EntityDataSerializer<Integer> FROG_VARIANT = new EntityDataSerializer<>() {
-        @Override
-        public void write(FriendlyByteBuf buf, Integer value) {
-            buf.writeVarInt(value);
-        }
-
-        @Override
-        public Integer read(FriendlyByteBuf buf) {
-            return buf.readVarInt();
-        }
-
-        @Override
-        public Type type() {
-            return Type.INT;
-        }
-    };
-    public static final EntityDataSerializer<Integer> PAINTING_VARIANT = new EntityDataSerializer<>() {
-        @Override
-        public void write(FriendlyByteBuf buf, Integer value) {
-            buf.writeVarInt(value);
-        }
-
-        @Override
-        public Integer read(FriendlyByteBuf buf) {
-            return buf.readVarInt();
-        }
-
-        @Override
-        public Type type() {
-            return Type.INT;
-        }
-    };
+    public static final EntityDataSerializer<Integer> CAT_VARIANT = new VarIntSerializer(Type.INT);
+    public static final EntityDataSerializer<Integer> WOLF_VARIANT = new VarIntSerializer(Type.INT);
+    public static final EntityDataSerializer<Integer> FROG_VARIANT = new VarIntSerializer(Type.INT);
+    public static final EntityDataSerializer<Integer> PAINTING_VARIANT = new VarIntSerializer(Type.INT);
     public static final EntityDataSerializer<Vector3f> VECTOR3 = new EntityDataSerializer<>() {
         @Override
         public void write(FriendlyByteBuf buf, Vector3f value) {
@@ -393,38 +318,8 @@ public final class EntityDataSerializers {
             return Type.QUATERNION;
         }
     };
-    public static final EntityDataSerializer<Integer> COPPER_GOLEM_STATE = new EntityDataSerializer<>() {
-        @Override
-        public void write(FriendlyByteBuf buf, Integer value) {
-            buf.writeVarInt(value);
-        }
-
-        @Override
-        public Integer read(FriendlyByteBuf buf) {
-            return buf.readVarInt();
-        }
-
-        @Override
-        public Type type() {
-            return Type.COPPER_GOLEM_STATE;
-        }
-    };
-    public static final EntityDataSerializer<Integer> WEATHERING_COPPER_STATE = new EntityDataSerializer<>() {
-        @Override
-        public void write(FriendlyByteBuf buf, Integer value) {
-            buf.writeVarInt(value);
-        }
-
-        @Override
-        public Integer read(FriendlyByteBuf buf) {
-            return buf.readVarInt();
-        }
-
-        @Override
-        public Type type() {
-            return Type.WEATHERING_COPPER_STATE;
-        }
-    };
+    public static final EntityDataSerializer<Integer> COPPER_GOLEM_STATE = new VarIntSerializer(Type.COPPER_GOLEM_STATE);
+    public static final EntityDataSerializer<Integer> WEATHERING_COPPER_STATE = new VarIntSerializer(Type.WEATHERING_COPPER_STATE);
     public static final EntityDataSerializer<ResolvableProfile> RESOLVABLE_PROFILE = new EntityDataSerializer<>() {
 
         @Override
@@ -567,38 +462,8 @@ public final class EntityDataSerializers {
             return Type.COMPOUND_TAG;
         }
     };
-    public static final EntityDataSerializer<Integer> SNIFFER_STATE = new EntityDataSerializer<>() {
-        @Override
-        public void write(FriendlyByteBuf buf, Integer value) {
-            buf.writeVarInt(value);
-        }
-
-        @Override
-        public Integer read(FriendlyByteBuf buf) {
-            return buf.readVarInt();
-        }
-
-        @Override
-        public Type type() {
-            return Type.SNIFFER_STATE;
-        }
-    };
-    public static final EntityDataSerializer<Integer> ARMADILLO_STATE = new EntityDataSerializer<>() {
-        @Override
-        public void write(FriendlyByteBuf buf, Integer value) {
-            buf.writeVarInt(value);
-        }
-
-        @Override
-        public Integer read(FriendlyByteBuf buf) {
-            return buf.readVarInt();
-        }
-
-        @Override
-        public Type type() {
-            return Type.ARMADILLO_STATE;
-        }
-    };
+    public static final EntityDataSerializer<Integer> SNIFFER_STATE = new VarIntSerializer(Type.SNIFFER_STATE);
+    public static final EntityDataSerializer<Integer> ARMADILLO_STATE = new VarIntSerializer(Type.ARMADILLO_STATE);
     public static final EntityDataSerializer<List<ParticleData<? extends ParticleOption>>> PARTICLES = new EntityDataSerializer<>() {
         @Override
         public void write(FriendlyByteBuf buf, List<ParticleData<? extends ParticleOption>> value) {
@@ -720,90 +585,15 @@ public final class EntityDataSerializers {
             return Type.OPTIONAL_BLOCK_DATA;
         }
     };
-
-    public static final EntityDataSerializer<Integer> COW_VARIANT = new EntityDataSerializer<>() {
-        @Override
-        public void write(FriendlyByteBuf buf, Integer value) {
-            buf.writeVarInt(value);
-        }
-
-        @Override
-        public Integer read(FriendlyByteBuf buf) {
-            return buf.readVarInt();
-        }
-
-        @Override
-        public Type type() {
-            return Type.COW_VARIANT;
-        }
-    };
-
-    public static final EntityDataSerializer<Integer> CHICKEN_VARIANT = new EntityDataSerializer<>() {
-        @Override
-        public void write(FriendlyByteBuf buf, Integer value) {
-            buf.writeVarInt(value);
-        }
-
-        @Override
-        public Integer read(FriendlyByteBuf buf) {
-            return buf.readVarInt();
-        }
-
-        @Override
-        public Type type() {
-            return Type.CHICKEN_VARIANT;
-        }
-    };
-
-    public static final EntityDataSerializer<Integer> WOLF_SOUND_VARIANT = new EntityDataSerializer<>() {
-        @Override
-        public void write(FriendlyByteBuf buf, Integer value) {
-            buf.writeVarInt(value);
-        }
-
-        @Override
-        public Integer read(FriendlyByteBuf buf) {
-            return buf.readVarInt();
-        }
-
-        @Override
-        public Type type() {
-            return Type.WOLF_SOUND_VARIANT;
-        }
-    };
-
-    public static final EntityDataSerializer<Integer> PIG_VARIANT = new EntityDataSerializer<>() {
-        @Override
-        public void write(FriendlyByteBuf buf, Integer value) {
-            buf.writeVarInt(value);
-        }
-
-        @Override
-        public Integer read(FriendlyByteBuf buf) {
-            return buf.readVarInt();
-        }
-
-        @Override
-        public Type type() {
-            return Type.PIG_VARIANT;
-        }
-    };
-    public static final EntityDataSerializer<Integer> ZOMBIE_NAUTILUS_VARIANT = new EntityDataSerializer<>() {
-        @Override
-        public void write(FriendlyByteBuf buf, Integer value) {
-            buf.writeVarInt(value);
-        }
-
-        @Override
-        public Integer read(FriendlyByteBuf buf) {
-            return buf.readVarInt();
-        }
-
-        @Override
-        public Type type() {
-            return Type.ZOMBIE_NAUTILUS_VARIANT;
-        }
-    };
+    public static final EntityDataSerializer<Integer> COW_VARIANT = new VarIntSerializer(Type.COW_VARIANT);
+    public static final EntityDataSerializer<Integer> CHICKEN_VARIANT = new VarIntSerializer(Type.CHICKEN_VARIANT);
+    public static final EntityDataSerializer<Integer> WOLF_SOUND_VARIANT = new VarIntSerializer(Type.WOLF_SOUND_VARIANT);
+    public static final EntityDataSerializer<Integer> PIG_VARIANT = new VarIntSerializer(Type.PIG_VARIANT);
+    public static final EntityDataSerializer<Integer> ZOMBIE_NAUTILUS_VARIANT = new VarIntSerializer(Type.ZOMBIE_NAUTILUS_VARIANT);
+    public static final EntityDataSerializer<Integer> CAT_SOUND_VARIANT = new VarIntSerializer(Type.CAT_SOUND_VARIANT);
+    public static final EntityDataSerializer<Integer> CHICKEN_SOUND_VARIANT = new VarIntSerializer(Type.CHICKEN_SOUND_VARIANT);
+    public static final EntityDataSerializer<Integer> COW_SOUND_VARIANT = new VarIntSerializer(Type.COW_SOUND_VARIANT);
+    public static final EntityDataSerializer<Integer> PIG_SOUND_VARIANT = new VarIntSerializer(Type.PIG_SOUND_VARIANT);
     public static final EntityDataSerializer<HumanoidArm> HUMANOID_ARM = new EntityDataSerializer<>() {
         @Override
         public void write(FriendlyByteBuf buf, HumanoidArm value) {
@@ -820,6 +610,19 @@ public final class EntityDataSerializers {
             return Type.HUMANOID_ARM;
         }
     };
+
+    public record VarIntSerializer(Type type) implements EntityDataSerializer<Integer> {
+
+        @Override
+        public void write(FriendlyByteBuf buf, Integer value) {
+            buf.writeVarInt(value);
+        }
+
+        @Override
+        public Integer read(FriendlyByteBuf buf) {
+            return buf.readVarInt();
+        }
+    }
 
     public static <T> EntityDataSerializer<T> byId(int id) {
         return (EntityDataSerializer<T>) SERIALIZERS.get(id);
@@ -871,8 +674,14 @@ public final class EntityDataSerializers {
         register(POSE);
         if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_19)) {
             register(CAT_VARIANT);
+            if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v26_1)) {
+                register(CAT_SOUND_VARIANT);
+            }
             if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_4)) {
                 register(COW_VARIANT);
+            }
+            if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v26_1)) {
+                register(COW_SOUND_VARIANT);
             }
             if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_20_4)) {
                 register(WOLF_VARIANT);
@@ -883,7 +692,13 @@ public final class EntityDataSerializers {
             register(FROG_VARIANT);
             if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_4)) {
                 register(PIG_VARIANT);
+                if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v26_1)) {
+                    register(PIG_SOUND_VARIANT);
+                }
                 register(CHICKEN_VARIANT);
+                if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v26_1)) {
+                    register(CHICKEN_SOUND_VARIANT);
+                }
                 if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_8)) {
                     register(ZOMBIE_NAUTILUS_VARIANT);
                 }
@@ -947,6 +762,10 @@ public final class EntityDataSerializers {
         CHICKEN_VARIANT,
         RESOLVABLE_PROFILE,
         HUMANOID_ARM,
-        ZOMBIE_NAUTILUS_VARIANT;
+        ZOMBIE_NAUTILUS_VARIANT,
+        CAT_SOUND_VARIANT,
+        CHICKEN_SOUND_VARIANT,
+        COW_SOUND_VARIANT,
+        PIG_SOUND_VARIANT;
     }
 }
