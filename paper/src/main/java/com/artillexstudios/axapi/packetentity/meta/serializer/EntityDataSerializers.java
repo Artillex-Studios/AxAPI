@@ -6,6 +6,7 @@ import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.data.GlobalPosition;
 import com.artillexstudios.axapi.packet.data.HumanoidArm;
+import com.artillexstudios.axapi.packet.data.PaintingVariant;
 import com.artillexstudios.axapi.packet.data.VillagerData;
 import com.artillexstudios.axapi.particle.ParticleData;
 import com.artillexstudios.axapi.particle.ParticleOption;
@@ -280,7 +281,42 @@ public final class EntityDataSerializers {
     public static final EntityDataSerializer<Integer> CAT_VARIANT = new VarIntSerializer(Type.INT);
     public static final EntityDataSerializer<Integer> WOLF_VARIANT = new VarIntSerializer(Type.INT);
     public static final EntityDataSerializer<Integer> FROG_VARIANT = new VarIntSerializer(Type.INT);
-    public static final EntityDataSerializer<Integer> PAINTING_VARIANT = new VarIntSerializer(Type.INT);
+    public static final EntityDataSerializer<PaintingVariant> PAINTING_VARIANT = new EntityDataSerializer<>() {
+
+        @Override
+        public void write(FriendlyByteBuf buf, PaintingVariant value) {
+            if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21)) {
+                if (value.direct()) {
+                    buf.writeVarInt(0);
+                    buf.writeVarInt(value.width());
+                    buf.writeVarInt(value.height());
+                    buf.writeResourceLocation(value.key());
+                } else {
+                    buf.writeVarInt(value.index());
+                }
+            } else {
+                buf.writeVarInt(value.index());
+            }
+        }
+
+        @Override
+        public PaintingVariant read(FriendlyByteBuf buf) {
+            if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21)) {
+                int varInt = buf.readVarInt();
+                if (varInt == 0) {
+                    return new PaintingVariant(0, buf.readVarInt(), buf.readVarInt(), buf.readResourceLocation(), true);
+                }
+                return new PaintingVariant(varInt, 0, 0, null, false);
+            }
+
+            return new PaintingVariant(buf.readVarInt(), 0, 0, null, false);
+        }
+
+        @Override
+        public Type type() {
+            return Type.INT;
+        }
+    };
     public static final EntityDataSerializer<Vector3f> VECTOR3 = new EntityDataSerializer<>() {
         @Override
         public void write(FriendlyByteBuf buf, Vector3f value) {
