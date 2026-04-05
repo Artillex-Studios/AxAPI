@@ -2,10 +2,10 @@ group = 'com.artillexstudios.axapi.paper'
 version = rootProject.version
 
 dependencies {
-    implementation("com.github.Artillex-Studios.Lamp:common:7705e0cf15") {
+    implementation("com.github.Artillex-Studios.Lamp:common:99475fe264") {
         exclude group: 'net.kyori', module: 'adventure'
     }
-    implementation("com.github.Artillex-Studios.Lamp:bukkit:7705e0cf15") {
+    implementation("com.github.Artillex-Studios.Lamp:bukkit:99475fe264") {
         exclude group: 'net.kyori', module: 'adventure'
     }
 
