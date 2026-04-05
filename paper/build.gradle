@@ -13,13 +13,13 @@ dependencies {
         exclude group: 'org.yaml', module: 'snakeyaml'
     }
 
-    implementation("net.kyori:adventure-text-serializer-legacy:4.25.0") {
+    implementation("net.kyori:adventure-text-serializer-legacy:4.26.1") {
         exclude group: 'net.kyori', module: 'adventure-api'
     }
-    implementation("net.kyori:adventure-text-serializer-plain:4.25.0") {
+    implementation("net.kyori:adventure-text-serializer-plain:4.26.1") {
         exclude group: 'net.kyori', module: 'adventure-api'
     }
-    implementation("net.kyori:adventure-text-serializer-gson:4.25.0") {
+    implementation("net.kyori:adventure-text-serializer-gson:4.26.1") {
         exclude group: 'com.google.code.gson', module: 'gson'
         exclude group: 'net.kyori', module: 'adventure-api'
     }

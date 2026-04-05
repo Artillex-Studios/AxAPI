@@ -70,7 +70,7 @@ public abstract class AxPlugin extends JavaPlugin {
         try {
             Class.forName("net.kyori.adventure.Adventure", false, this.getClass().getClassLoader());
         } catch (ClassNotFoundException exception) {
-            wrapper.dependency("net{}kyori:adventure-api:4.25.0");
+            wrapper.dependency("net{}kyori:adventure-api:4.26.1");
         }
 
         this.dependencies(wrapper);
