@@ -18,6 +18,7 @@ import com.artillexstudios.axapi.utils.PlayerModelType;
 import com.artillexstudios.axapi.utils.PlayerSkin;
 import com.artillexstudios.axapi.utils.Quaternion;
 import com.artillexstudios.axapi.utils.ResolvableProfile;
+import com.artillexstudios.axapi.utils.UncheckedUtils;
 import com.artillexstudios.axapi.utils.Vector3f;
 import com.artillexstudios.axapi.utils.Version;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
@@ -33,6 +34,7 @@ import org.bukkit.util.EulerAngle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.UUID;
@@ -55,6 +57,18 @@ public final class EntityDataSerializers {
         public Type type() {
             return Type.BYTE;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof EntityDataSerializer<?> that)) return false;
+
+            return Objects.equals(this.type(), that.type());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.type());
+        }
     };
     public static final EntityDataSerializer<Integer> INT = new VarIntSerializer(Type.INT);
     public static final EntityDataSerializer<Long> LONG = new EntityDataSerializer<>() {
@@ -72,6 +86,18 @@ public final class EntityDataSerializers {
         public Type type() {
             return Type.LONG;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof EntityDataSerializer<?> that)) return false;
+
+            return Objects.equals(this.type(), that.type());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.type());
+        }
     };
     public static final EntityDataSerializer<Float> FLOAT = new EntityDataSerializer<>() {
         @Override
@@ -87,6 +113,18 @@ public final class EntityDataSerializers {
         @Override
         public Type type() {
             return Type.FLOAT;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof EntityDataSerializer<?> that)) return false;
+
+            return Objects.equals(this.type(), that.type());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.type());
         }
     };
     public static final EntityDataSerializer<String> STRING = new EntityDataSerializer<>() {
@@ -104,6 +142,18 @@ public final class EntityDataSerializers {
         public Type type() {
             return Type.STRING;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof EntityDataSerializer<?> that)) return false;
+
+            return Objects.equals(this.type(), that.type());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.type());
+        }
     };
     public static final EntityDataSerializer<Component> COMPONENT = new EntityDataSerializer<>() {
         @Override
@@ -119,6 +169,18 @@ public final class EntityDataSerializers {
         @Override
         public Type type() {
             return Type.COMPONENT;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof EntityDataSerializer<?> that)) return false;
+
+            return Objects.equals(this.type(), that.type());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.type());
         }
     };
     public static final EntityDataSerializer<Optional<Component>> OPTIONAL_COMPONENT = new EntityDataSerializer<>() {
@@ -141,6 +203,18 @@ public final class EntityDataSerializers {
         public Type type() {
             return Type.OPTIONAL_COMPONENT;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof EntityDataSerializer<?> that)) return false;
+
+            return Objects.equals(this.type(), that.type());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.type());
+        }
     };
     public static final EntityDataSerializer<WrappedItemStack> ITEM_STACK = new EntityDataSerializer<>() {
         @Override
@@ -156,6 +230,18 @@ public final class EntityDataSerializers {
         @Override
         public Type type() {
             return Type.ITEM_STACK;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof EntityDataSerializer<?> that)) return false;
+
+            return Objects.equals(this.type(), that.type());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.type());
         }
     };
     public static final EntityDataSerializer<BlockData> BLOCK_DATA = new EntityDataSerializer<>() {
@@ -173,6 +259,18 @@ public final class EntityDataSerializers {
         public Type type() {
             return Type.BLOCK_DATA;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof EntityDataSerializer<?> that)) return false;
+
+            return Objects.equals(this.type(), that.type());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.type());
+        }
     };
     public static final EntityDataSerializer<Boolean> BOOLEAN = new EntityDataSerializer<>() {
         @Override
@@ -189,11 +287,23 @@ public final class EntityDataSerializers {
         public Type type() {
             return Type.BOOLEAN;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof EntityDataSerializer<?> that)) return false;
+
+            return Objects.equals(this.type(), that.type());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.type());
+        }
     };
     public static final EntityDataSerializer<ParticleData<? extends ParticleOption>> PARTICLE = new EntityDataSerializer<>() {
         @Override
         public void write(FriendlyByteBuf buf, ParticleData<? extends ParticleOption> value) {
-            ParticleTypes.write((ParticleData<ParticleOption>) value, buf);
+            ParticleTypes.write(UncheckedUtils.unsafeCast(value), buf);
         }
 
         @Override
@@ -204,6 +314,18 @@ public final class EntityDataSerializers {
         @Override
         public Type type() {
             return Type.PARTICLE;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof EntityDataSerializer<?> that)) return false;
+
+            return Objects.equals(this.type(), that.type());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.type());
         }
     };
     public static final EntityDataSerializer<EulerAngle> ROTATIONS = new EntityDataSerializer<>() {
@@ -223,6 +345,18 @@ public final class EntityDataSerializers {
         public Type type() {
             return Type.ROTATIONS;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof EntityDataSerializer<?> that)) return false;
+
+            return Objects.equals(this.type(), that.type());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.type());
+        }
     };
     public static final EntityDataSerializer<BlockPosition> BLOCK_POSITION = new EntityDataSerializer<>() {
         @Override
@@ -238,6 +372,18 @@ public final class EntityDataSerializers {
         @Override
         public Type type() {
             return Type.LOCATION;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof EntityDataSerializer<?> that)) return false;
+
+            return Objects.equals(this.type(), that.type());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.type());
         }
     };
     public static final EntityDataSerializer<Optional<BlockPosition>> OPTIONAL_BLOCK_POSITION = new EntityDataSerializer<>() {
@@ -261,6 +407,18 @@ public final class EntityDataSerializers {
         public Type type() {
             return Type.OPTIONAL_LOCATION;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof EntityDataSerializer<?> that)) return false;
+
+            return Objects.equals(this.type(), that.type());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.type());
+        }
     };
     public static final EntityDataSerializer<Pose> POSE = new EntityDataSerializer<>() {
         @Override
@@ -277,10 +435,22 @@ public final class EntityDataSerializers {
         public Type type() {
             return Type.POSE;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof EntityDataSerializer<?> that)) return false;
+
+            return Objects.equals(this.type(), that.type());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.type());
+        }
     };
-    public static final EntityDataSerializer<Integer> CAT_VARIANT = new VarIntSerializer(Type.INT);
-    public static final EntityDataSerializer<Integer> WOLF_VARIANT = new VarIntSerializer(Type.INT);
-    public static final EntityDataSerializer<Integer> FROG_VARIANT = new VarIntSerializer(Type.INT);
+    public static final EntityDataSerializer<Integer> CAT_VARIANT = new VarIntSerializer(Type.CAT_VARIANT);
+    public static final EntityDataSerializer<Integer> WOLF_VARIANT = new VarIntSerializer(Type.WOLF_VARIANT);
+    public static final EntityDataSerializer<Integer> FROG_VARIANT = new VarIntSerializer(Type.FROG_VARIANT);
     public static final EntityDataSerializer<PaintingVariant> PAINTING_VARIANT = new EntityDataSerializer<>() {
 
         @Override
@@ -314,7 +484,19 @@ public final class EntityDataSerializers {
 
         @Override
         public Type type() {
-            return Type.INT;
+            return Type.PAINTING_VARIANT;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof EntityDataSerializer<?> that)) return false;
+
+            return Objects.equals(this.type(), that.type());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.type());
         }
     };
     public static final EntityDataSerializer<Vector3f> VECTOR3 = new EntityDataSerializer<>() {
@@ -333,6 +515,18 @@ public final class EntityDataSerializers {
         @Override
         public Type type() {
             return Type.VECTOR3;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof EntityDataSerializer<?> that)) return false;
+
+            return Objects.equals(this.type(), that.type());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.type());
         }
     };
     public static final EntityDataSerializer<Quaternion> QUATERNION = new EntityDataSerializer<>() {
@@ -353,11 +547,22 @@ public final class EntityDataSerializers {
         public Type type() {
             return Type.QUATERNION;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof EntityDataSerializer<?> that)) return false;
+
+            return Objects.equals(this.type(), that.type());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.type());
+        }
     };
     public static final EntityDataSerializer<Integer> COPPER_GOLEM_STATE = new VarIntSerializer(Type.COPPER_GOLEM_STATE);
     public static final EntityDataSerializer<Integer> WEATHERING_COPPER_STATE = new VarIntSerializer(Type.WEATHERING_COPPER_STATE);
     public static final EntityDataSerializer<ResolvableProfile> RESOLVABLE_PROFILE = new EntityDataSerializer<>() {
-
         @Override
         public void write(FriendlyByteBuf buf, ResolvableProfile value) {
             boolean partial = value.getPartialProfile().name() == null || value.getPartialProfile().uuid() == null;
@@ -458,6 +663,18 @@ public final class EntityDataSerializers {
         public Type type() {
             return Type.RESOLVABLE_PROFILE;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof EntityDataSerializer<?> that)) return false;
+
+            return Objects.equals(this.type(), that.type());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.type());
+        }
     };
     public static final EntityDataSerializer<Optional<UUID>> OPTIONAL_UUID = new EntityDataSerializer<>() {
         @Override
@@ -481,6 +698,18 @@ public final class EntityDataSerializers {
         public Type type() {
             return Type.OPTIONAL_UUID;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof EntityDataSerializer<?> that)) return false;
+
+            return Objects.equals(this.type(), that.type());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.type());
+        }
     };
     public static final EntityDataSerializer<CompoundTag> COMPOUND_TAG = new EntityDataSerializer<>() {
         @Override
@@ -496,6 +725,18 @@ public final class EntityDataSerializers {
         @Override
         public Type type() {
             return Type.COMPOUND_TAG;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof EntityDataSerializer<?> that)) return false;
+
+            return Objects.equals(this.type(), that.type());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.type());
         }
     };
     public static final EntityDataSerializer<Integer> SNIFFER_STATE = new VarIntSerializer(Type.SNIFFER_STATE);
@@ -524,6 +765,18 @@ public final class EntityDataSerializers {
         public Type type() {
             return Type.PARTICLES;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof EntityDataSerializer<?> that)) return false;
+
+            return Objects.equals(this.type(), that.type());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.type());
+        }
     };
     public static final EntityDataSerializer<Direction> DIRECTION = new EntityDataSerializer<>() {
         @Override
@@ -539,6 +792,18 @@ public final class EntityDataSerializers {
         @Override
         public Type type() {
             return Type.DIRECTION;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof EntityDataSerializer<?> that)) return false;
+
+            return Objects.equals(this.type(), that.type());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.type());
         }
     };
     public static final EntityDataSerializer<VillagerData> VILLAGER_DATA = new EntityDataSerializer<>() {
@@ -558,6 +823,18 @@ public final class EntityDataSerializers {
         public Type type() {
             return Type.VILLAGER_DATA;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof EntityDataSerializer<?> that)) return false;
+
+            return Objects.equals(this.type(), that.type());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.type());
+        }
     };
     public static final EntityDataSerializer<OptionalInt> OPTIONAL_UNSIGNED_INT = new EntityDataSerializer<>() {
         @Override
@@ -574,6 +851,18 @@ public final class EntityDataSerializers {
         @Override
         public Type type() {
             return Type.OPTIONAL_UNSIGNED_INT;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof EntityDataSerializer<?> that)) return false;
+
+            return Objects.equals(this.type(), that.type());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.type());
         }
     };
     public static final EntityDataSerializer<Optional<GlobalPosition>> OPTIONAL_GLOBAL_POS = new EntityDataSerializer<>() {
@@ -598,6 +887,18 @@ public final class EntityDataSerializers {
         public Type type() {
             return Type.OPTIONAL_GLOBAL_POS;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof EntityDataSerializer<?> that)) return false;
+
+            return Objects.equals(this.type(), that.type());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.type());
+        }
     };
 
     public static final EntityDataSerializer<OptionalInt> OPTIONAL_BLOCK_DATA = new EntityDataSerializer<>() {
@@ -619,6 +920,18 @@ public final class EntityDataSerializers {
         @Override
         public Type type() {
             return Type.OPTIONAL_BLOCK_DATA;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof EntityDataSerializer<?> that)) return false;
+
+            return Objects.equals(this.type(), that.type());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.type());
         }
     };
     public static final EntityDataSerializer<Integer> COW_VARIANT = new VarIntSerializer(Type.COW_VARIANT);
@@ -645,6 +958,18 @@ public final class EntityDataSerializers {
         public Type type() {
             return Type.HUMANOID_ARM;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof EntityDataSerializer<?> that)) return false;
+
+            return Objects.equals(this.type(), that.type());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.type());
+        }
     };
 
     public record VarIntSerializer(Type type) implements EntityDataSerializer<Integer> {
@@ -658,10 +983,22 @@ public final class EntityDataSerializers {
         public Integer read(FriendlyByteBuf buf) {
             return buf.readVarInt();
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof EntityDataSerializer<?> that)) return false;
+
+            return Objects.equals(this.type(), that.type());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.type());
+        }
     }
 
     public static <T> EntityDataSerializer<T> byId(int id) {
-        return (EntityDataSerializer<T>) SERIALIZERS.get(id);
+        return UncheckedUtils.unsafeCast(SERIALIZERS.get(id));
     }
 
     public static <T> int getId(EntityDataSerializer<T> serializer) {
@@ -802,6 +1139,8 @@ public final class EntityDataSerializers {
         CAT_SOUND_VARIANT,
         CHICKEN_SOUND_VARIANT,
         COW_SOUND_VARIANT,
-        PIG_SOUND_VARIANT;
+        PIG_SOUND_VARIANT,
+        FROG_VARIANT,
+        PAINTING_VARIANT;
     }
 }
