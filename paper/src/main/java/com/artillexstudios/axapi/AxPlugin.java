@@ -27,6 +27,7 @@ import com.artillexstudios.axapi.scheduler.Scheduler;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.Nameable;
 import com.artillexstudios.axapi.utils.PaperNameable;
+import com.artillexstudios.axapi.utils.Version;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.file.FileUtils;
 import com.artillexstudios.axapi.utils.file.PaperFileUtils;
@@ -73,6 +74,7 @@ public abstract class AxPlugin extends JavaPlugin {
             wrapper.dependency("net{}kyori:adventure-api:4.26.1");
         }
 
+        Version.downloadVersion(wrapper);
         this.dependencies(wrapper);
         manager.load();
 

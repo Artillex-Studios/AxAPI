@@ -13,13 +13,17 @@ java {
     }
 }
 
+def java25NmsModules = ["v26_1"]
+
 dependencies {
     compileOnly project(path: ":api")
     implementation project(path: ":folia")
     implementation project(path: ":paper")
-    implementation(project(path: ":nms:v26_1")) {
-        attributes {
-            attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 25)
+    java25NmsModules.each {
+        compileOnly(project(path: ":nms:$it")) {
+            attributes {
+                attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 25)
+            }
         }
     }
     implementation project(path: ":nms:v1_21_R7", configuration: "reobf")
@@ -87,7 +91,7 @@ allprojects {
             }
 
             publications {
-                if (project == rootProject || project.name == "api") {
+                if (project == rootProject || project.name == "api" || java25NmsModules.contains(project.name.replace(":nms:", ""))) {
                     shadow(MavenPublication) { ->
                         if (project.name == "api") {
                             artifactId = "axapi-api"

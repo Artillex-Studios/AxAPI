@@ -1,5 +1,7 @@
 package com.artillexstudios.axapi.utils;
 
+import com.artillexstudios.axapi.BuildConstants;
+import com.artillexstudios.axapi.dependencies.DependencyManagerWrapper;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.reflection.FastMethodInvoker;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
@@ -12,7 +14,7 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 
 public enum Version {
-    v26_1(775, "v26_1", Arrays.asList("26.1", "26.1.1")),
+    v26_1(775, "v26_1", Arrays.asList("26.1", "26.1.1"), true),
     v1_21_8(774, "v1_21_R7", Collections.singletonList("1.21.11")),
     v1_21_7(773, "v1_21_R6", Arrays.asList("1.21.9", "1.21.10")),
     v1_21_6(772, "v1_21_R5", Arrays.asList("1.21.7", "1.21.8")),
@@ -81,12 +83,22 @@ public enum Version {
     private final int protocolId;
     private final String nmsVersion;
     private final BooleanSupplier supplier; // If the version is allowed in this environment
+    private final boolean requiresDownload;
 
-    Version(int protocolId, String nmsVersion, List<String> versions, BooleanSupplier supplier) {
+    Version(int protocolId, String nmsVersion, List<String> versions, BooleanSupplier supplier, boolean requiresDownload) {
         this.protocolId = protocolId;
         this.versions = versions;
         this.nmsVersion = nmsVersion;
         this.supplier = supplier;
+        this.requiresDownload = requiresDownload;
+    }
+
+    Version(int protocolId, String nmsVersion, List<String> versions, BooleanSupplier supplier) {
+        this(protocolId,  nmsVersion, versions, supplier, false);
+    }
+
+    Version(int protocolId, String nmsVersion, List<String> versions, boolean requiresDownload) {
+        this(protocolId,  nmsVersion, versions, () -> true, requiresDownload);
     }
 
     Version(int protocolId, String nmsVersion, List<String> versions) {
@@ -97,8 +109,21 @@ public enum Version {
         return versionMap.get(NMSHandlers.getNmsHandler().getProtocolVersionId(player));
     }
 
+    public boolean requiresDownload() {
+        return this.requiresDownload;
+    }
+
     public static Version getServerVersion() {
         return serverVersion;
+    }
+
+    public static void downloadVersion(DependencyManagerWrapper wrapper) {
+        if (!Version.getServerVersion().requiresDownload) {
+            return;
+        }
+
+        wrapper.dependency("com{}artillexstudios{}axapi.nms." + Version.getServerVersion().nmsVersion + ":axapi:" + BuildConstants.VERSION + ":all");
+        wrapper.relocate("com{}artillexstudios{}axapi", "com.artillexstudios.axapi");
     }
 
     public static int getProtocolVersion() {
