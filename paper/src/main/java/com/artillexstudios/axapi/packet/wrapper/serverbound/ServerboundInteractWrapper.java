@@ -56,7 +56,9 @@ public final class ServerboundInteractWrapper extends PacketWrapper {
     @Override
     public void write(FriendlyByteBuf out) {
         out.writeVarInt(this.entityId);
-        out.writeEnum(this.type);
+        if (Version.getServerVersion().isOlderThan(Version.v26_1)) {
+            out.writeEnum(this.type);
+        }
         this.action.write(out);
         out.writeBoolean(this.usingSecondaryAction);
     }
