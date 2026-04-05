@@ -71,7 +71,7 @@ public final class WorldWrapper implements com.artillexstudios.axapi.nms.wrapper
 
     @Override
     public void setBlockOwner(Location location, String texture) {
-        BlockState state = location.getBlock().getState(false);
+        BlockState state = location.getBlock().getState();
         if (!(state instanceof Skull skull)) {
             return;
         }
@@ -85,6 +85,7 @@ public final class WorldWrapper implements com.artillexstudios.axapi.nms.wrapper
         GameProfile gameProfile = new GameProfile(UUID.randomUUID(), "axapi");
         gameProfile.getProperties().put("textures", new Property("texutres", texture));
         accessor.set(craftSkull, gameProfile);
+        state.update();
     }
 
     @Override
