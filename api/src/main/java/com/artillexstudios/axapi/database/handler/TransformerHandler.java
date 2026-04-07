@@ -1,6 +1,8 @@
 package com.artillexstudios.axapi.database.handler;
 
 import com.artillexstudios.axapi.database.ResultHandler;
+import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
@@ -40,6 +42,9 @@ public class TransformerHandler<T> implements ResultHandler<T> {
                             }
 
                             if (!clazz.isInstance(object)) {
+                                if (FeatureFlags.DEBUG.get()) {
+                                    LogUtils.debug("Failed to cast objects! Found: {}, expected: {}", object, clazz);
+                                }
                                 return false;
                             }
                         }
