@@ -1,19 +1,27 @@
 package com.artillexstudios.axapi.database.handler;
 
+import com.artillexstudios.axapi.config.adapters.TypeAdapterHolder;
 import com.artillexstudios.axapi.database.ResultHandler;
+import com.artillexstudios.axapi.utils.UncheckedUtils;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 
 public class TransformerHandler<T> implements ResultHandler<T> {
+    private final TypeAdapterHolder holder;
     private final Class<T> clazz;
 
     public TransformerHandler(Class<T> clazz) {
+        this(clazz, new TypeAdapterHolder());
+    }
+
+    public TransformerHandler(Class<T> clazz, TypeAdapterHolder typeAdapterHolder) {
         this.clazz = clazz;
+        this.holder = typeAdapterHolder;
     }
 
     @Override
@@ -29,33 +37,39 @@ public class TransformerHandler<T> implements ResultHandler<T> {
         }
 
         try {
-            return this.clazz.cast(Arrays.stream(this.clazz.getDeclaredConstructors())
-                    .filter(it -> it.getParameterCount() == columnCount)
-                    .filter(constructor -> {
-                        Class<?>[] parameterTypes = constructor.getParameterTypes();
-                        for (int i = 0; i < parameterTypes.length; i++) {
-                            Class<?> clazz = parameterTypes[i];
-                            Object object = objects[i];
-                            // If we don't know the type, skip it
-                            if (object == null) {
-                                continue;
-                            }
+            Object[] deserialized = new Object[columnCount];
+            outer:
+            for (Constructor<?> declaredConstructor : this.clazz.getDeclaredConstructors()) {
+                if (declaredConstructor.getParameterCount() != columnCount) {
+                    continue;
+                }
 
-                            if (!clazz.isInstance(object)) {
-                                if (FeatureFlags.DEBUG.get()) {
-                                    LogUtils.debug("Failed to cast objects! Found: {}, expected: {}", object, clazz);
-                                }
-                                return false;
-                            }
+                Class<?>[] parameterTypes = declaredConstructor.getParameterTypes();
+                for (int i = 0; i < parameterTypes.length; i++) {
+                    Class<?> parameterType = parameterTypes[i];
+                    Object object = objects[i];
+
+                    if (object != null && parameterType.isAssignableFrom(object.getClass())) {
+                        deserialized[i] = object;
+                        continue;
+                    }
+
+                    try {
+                        deserialized[i] = this.holder.deserialize(object, parameterType);
+                    } catch (Exception exception) {
+                        if (FeatureFlags.DEBUG.get()) {
+                            LogUtils.info("Failed to convert {} into {}!", object, parameterType);
                         }
+                        continue outer;
+                    }
+                }
 
-                        return true;
-                    })
-                    .findFirst()
-                    .orElseThrow()
-                    .newInstance(objects));
+                return UncheckedUtils.unsafeCast(declaredConstructor.newInstance(deserialized));
+            }
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
+
+        return null;
     }
 }
