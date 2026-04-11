@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi;
 
+import com.artillexstudios.axapi.command.AxAPICommand;
 import com.artillexstudios.axapi.config.adapters.ItemStackAdapter;
 import com.artillexstudios.axapi.config.adapters.TypeAdapterHolder;
 import com.artillexstudios.axapi.config.adapters.WrappedItemStackAdapter;
@@ -42,6 +43,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import revxrsal.commands.CommandHandler;
+import revxrsal.commands.bukkit.BukkitCommandHandler;
 import revxrsal.zapper.DependencyManager;
 import revxrsal.zapper.classloader.URLClassLoaderWrapper;
 
@@ -91,6 +94,11 @@ public abstract class AxPlugin extends JavaPlugin {
         if (!NMSHandlers.British.initialise(this)) {
             Bukkit.getPluginManager().disablePlugin(this);
             return;
+        }
+
+        if (!Bukkit.getCommandMap().getKnownCommands().containsKey("axapi")) {
+            CommandHandler handler = BukkitCommandHandler.create(this);
+            handler.register(new AxAPICommand());
         }
 
         ComponentSerializer.INSTANCE.refresh();

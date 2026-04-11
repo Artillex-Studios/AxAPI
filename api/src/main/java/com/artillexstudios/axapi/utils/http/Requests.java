@@ -18,7 +18,7 @@ public final class Requests {
         private static final Gson GSON = new Gson();
     }
 
-    private static HttpRequest createRequest(RequestType type, String url, Map<String, String> headers, Supplier<JsonObject> bodySupplier) {
+    private static HttpRequest createRequest(RequestType type, String url, Map<String, String> headers, Supplier<String> bodySupplier) {
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(url));
 
@@ -29,12 +29,12 @@ public final class Requests {
                     throw new IllegalArgumentException("The body supplier of a POST request can't be null!");
                 }
 
-                JsonObject body = bodySupplier.get();
-                if (body == null) {
+                String object = bodySupplier.get();
+                if (object == null) {
                     throw new IllegalArgumentException("The body of a POST request can't be null!");
                 }
 
-                yield builder.POST(HttpRequest.BodyPublishers.ofString(Holder.GSON.toJson(body)));
+                yield builder.POST(HttpRequest.BodyPublishers.ofString(object));
             }
             case DELETE -> builder.DELETE();
         };
@@ -46,8 +46,19 @@ public final class Requests {
         return builder.build();
     }
 
+    private static Supplier<String> transformSupplier(Supplier<JsonObject> bodySupplier) {
+        return () -> {
+            JsonObject body = bodySupplier.get();
+            if (body == null) {
+                throw new IllegalArgumentException("The body of a POST request can't be null!");
+            }
+
+            return Holder.GSON.toJson(body);
+        };
+    }
+
     public static HttpResponse<String> sendTyped(RequestType type, String url, Map<String, String> headers, Supplier<JsonObject> body) {
-        HttpRequest request = createRequest(type, url, headers, body);
+        HttpRequest request = createRequest(type, url, headers, transformSupplier(body));
 
         try {
             return Holder.CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
@@ -56,7 +67,7 @@ public final class Requests {
         }
     }
 
-    public static CompletableFuture<HttpResponse<String>> sendTypedAsync(RequestType type, String url, Map<String, String> headers, Supplier<JsonObject> body) {
+    public static CompletableFuture<HttpResponse<String>> sendTypedAsync(RequestType type, String url, Map<String, String> headers, Supplier<String> body) {
         HttpRequest request = createRequest(type, url, headers, body);
         return Holder.CLIENT.sendAsync(request, HttpResponse.BodyHandlers.ofString());
     }
@@ -74,6 +85,10 @@ public final class Requests {
     }
 
     public static CompletableFuture<HttpResponse<String>> postAsync(String url, Map<String, String> headers, Supplier<JsonObject> body) {
+        return sendTypedAsync(RequestType.POST, url, headers, transformSupplier(body));
+    }
+
+    public static CompletableFuture<HttpResponse<String>> postAsyncString(String url, Map<String, String> headers, Supplier<String> body) {
         return sendTypedAsync(RequestType.POST, url, headers, body);
     }
 
