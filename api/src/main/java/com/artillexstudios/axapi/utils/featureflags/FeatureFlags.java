@@ -155,6 +155,12 @@ public final class FeatureFlags {
      * Can be controlled with the system property: %pluginName%hologramParsedLineCache
      */
     public static final IntegerFlag HOLOGRAM_PARSED_LINE_CACHE = new IntegerFlag(2000);
+    /**
+     * If the gui listeners should be enabled or not.
+     * <p>
+     * Can be controlled with the system property: %pluginName%enableGuiListeners
+     */
+    public static final BooleanFlag ENABLE_GUI_LISTENERS = new BooleanFlag(false);
 
     public static void refresh() {
         String name = Nameable.getInstance().getName();
@@ -181,5 +187,6 @@ public final class FeatureFlags {
         ENABLE_PACKET_LISTENERS.refresh(name + "enablePacketListeners");
         SERVER_PLAYER_CACHE_SIZE.refresh(name + "serverPlayerCacheSize");
         HOLOGRAM_PARSED_LINE_CACHE.refresh(name + "hologramParsedLineCache");
+        ENABLE_GUI_LISTENERS.refresh(name + "enableGuiListeners");
     }
 }

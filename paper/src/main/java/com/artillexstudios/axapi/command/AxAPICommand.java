@@ -46,6 +46,7 @@ public final class AxAPICommand {
     public void dumpPlugins(CommandSender sender) {
         String dump = """
                 AxAPI DUMP @ %time%
+                Server software: %server-software%
                 Server version: %server-version%
                 Minecraft version: %minecraft-version%
                 Bukkit version: %bukkit-version%
@@ -98,6 +99,7 @@ public final class AxAPICommand {
         }
 
         this.upload(dump.replace("%time%", formatter.format(LocalDateTime.now()))
+                .replace("%server-software%", Bukkit.getName())
                 .replace("%server-version%", Bukkit.getVersion())
                 .replace("%minecraft-version%", Bukkit.getMinecraftVersion())
                 .replace("%bukkit-version%", Bukkit.getBukkitVersion())

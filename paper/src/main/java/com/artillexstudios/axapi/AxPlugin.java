@@ -155,7 +155,9 @@ public abstract class AxPlugin extends JavaPlugin {
             }
         }, this);
         Bukkit.getPluginManager().registerEvents(new AnvilListener(), this);
-        Bukkit.getPluginManager().registerEvents(new InventoryClickListener(), this);
+        if (FeatureFlags.ENABLE_GUI_LISTENERS.get()) {
+            Bukkit.getPluginManager().registerEvents(new InventoryClickListener(), this);
+        }
 
         if (FeatureFlags.HOLOGRAM_UPDATE_TICKS.get() > 0) {
             Holograms.startTicking();
