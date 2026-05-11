@@ -2,6 +2,10 @@ package com.artillexstudios.axapi.command;
 
 import com.artillexstudios.axapi.BuildConstants;
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
+import com.artillexstudios.axapi.nms.wrapper.ServerWrapper;
+import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
+import com.artillexstudios.axapi.packet.PacketSide;
+import com.artillexstudios.axapi.packet.ServerboundPacketTypes;
 import com.artillexstudios.axapi.reflection.FieldAccessor;
 import com.artillexstudios.axapi.utils.ItemBuilder;
 import com.artillexstudios.axapi.utils.MessageUtils;
@@ -142,6 +146,9 @@ public final class AxAPICommand {
                 
                 Ax plugins:
                 %axplugins%
+                
+                Packets:
+                %packets%
                 """;
 
         StringBuilder axPlugins = new StringBuilder();
@@ -171,6 +178,25 @@ public final class AxAPICommand {
             axPlugins.append(axPlugin).append('\n');
         }
 
+        String packets = """
+                AXAPI Registered:
+                Clientbound:
+                %clientbound%
+                
+                Serverbound:
+                %serverbound%
+                
+                Server registered:
+                Clientbound:
+                %server-clientbound%
+                
+                Serverbound:
+                %server-serverbound%
+                """.replace("%clientbound%", ClientboundPacketTypes.dump())
+                .replace("%serverbound%", ServerboundPacketTypes.dump())
+                .replace("%server-clientbound%", ServerWrapper.INSTANCE.listPackets(PacketSide.CLIENT_BOUND))
+                .replace("%server-serverbound%", ServerWrapper.INSTANCE.listPackets(PacketSide.SERVER_BOUND));
+
         this.upload(dump.replace("%time%", formatter.format(LocalDateTime.now()))
                 .replace("%server-software%", Bukkit.getName())
                 .replace("%server-version%", Bukkit.getVersion())
@@ -180,6 +206,7 @@ public final class AxAPICommand {
                 .replace("%protocol-version%", String.valueOf(Version.getServerVersion().getProtocolId()))
                 .replace("%axapi-build%", BuildConstants.VERSION)
                 .replace("%axplugins%", axPlugins)
+                .replace("%packets%", packets.toString())
         ).thenAccept(response -> {
             String body = response.body();
             if (body == null || body.isBlank()) {

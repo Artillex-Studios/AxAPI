@@ -9,6 +9,7 @@ import com.artillexstudios.axapi.utils.logging.LogUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
@@ -212,5 +213,13 @@ public final class PacketTransformer {
 
     public static FriendlyByteBuf copy(FriendlyByteBufWrapper friendlyByteBufWrapper) {
         return wrap(friendlyByteBufWrapper.buf().copy());
+    }
+
+    public static String listPackets(PacketSide side) {
+        StringBuilder builder = new StringBuilder();
+        for (Int2ObjectMap.Entry<Class<? extends Packet<?>>> key : ConnectionProtocol.PLAY.getPacketsByIds(side == PacketSide.CLIENT_BOUND ? PacketFlow.CLIENTBOUND : PacketFlow.SERVERBOUND).int2ObjectEntrySet()) {
+            builder.append(key.getValue()).append('\n');
+        }
+        return builder.toString();
     }
 }

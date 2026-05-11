@@ -191,4 +191,14 @@ public final class ServerboundPacketTypes {
     public static int forPacketType(PacketType type) {
         return REVERSE_PACKET_TYPES.getOrDefault(type, -1);
     }
+
+    public static String dump() {
+        StringBuilder builder = new StringBuilder();
+        for (Int2ObjectMap.Entry<PacketType> entry : PACKET_TYPES.int2ObjectEntrySet()) {
+            builder.append(entry.getValue().name())
+                    .append('\n');
+        }
+
+        return builder.toString();
+    }
 }

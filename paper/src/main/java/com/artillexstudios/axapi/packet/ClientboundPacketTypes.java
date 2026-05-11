@@ -217,6 +217,7 @@ public final class ClientboundPacketTypes {
         register(EXPLODE);
         register(FORGET_LEVEL_CHUNK);
         register(GAME_EVENT);
+        register(GAME_RULE_VALUES); // 26.1
         register(GAME_TEST_HIGHLIGHT_POS); // 1.21.9
         register(HORSE_SCREEN);
         register(HURT_ANIMATION); // 1.19.4
@@ -242,7 +243,6 @@ public final class ClientboundPacketTypes {
         register(DEBUG_PONG); // 1.20.2
         register(UNLOCK_RECIPES);
         register(ABILITIES);
-        register(GAME_RULE_VALUES); // 26.1
         register(CHAT_HEADER); // 1.19
         register(CHAT_MESSAGE); // 1.19
         register(COMBAT_END);
@@ -348,5 +348,15 @@ public final class ClientboundPacketTypes {
 
     public static int forPacketType(PacketType type) {
         return REVERSE_PACKET_TYPES.getOrDefault(type, -1);
+    }
+
+    public static String dump() {
+        StringBuilder builder = new StringBuilder();
+        for (Int2ObjectMap.Entry<PacketType> entry : PACKET_TYPES.int2ObjectEntrySet()) {
+            builder.append(entry.getValue().name())
+                    .append('\n');
+        }
+
+        return builder.toString();
     }
 }

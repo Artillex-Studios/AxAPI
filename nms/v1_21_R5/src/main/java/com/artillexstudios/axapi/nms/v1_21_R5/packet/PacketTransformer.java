@@ -3,7 +3,7 @@ package com.artillexstudios.axapi.nms.v1_21_R5.packet;
 import com.artillexstudios.axapi.nms.v1_21_R5.wrapper.ServerPlayerWrapper;
 import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
-import com.artillexstudios.axapi.packet.PacketType;
+import com.artillexstudios.axapi.packet.PacketSide;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
 import com.artillexstudios.axapi.reflection.ClassUtils;
 import com.artillexstudios.axapi.reflection.FieldAccessor;
@@ -18,6 +18,7 @@ import net.minecraft.network.codec.IdDispatchCodec;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.protocol.PacketType;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.GameProtocols;
 import net.minecraft.network.protocol.game.ServerGamePacketListener;
@@ -34,8 +35,8 @@ public final class PacketTransformer {
             .withClass(IdDispatchCodec.class)
             .withField("d")
             .build();
-    private static final Object2IntMap<PacketType> clientboundIds = toIdAccessor.getUnchecked(clientboundCodec);
-    private final Object2IntMap<PacketType> serverboundIds;
+    private static final Object2IntMap<PacketType<?>> clientboundIds = toIdAccessor.getUnchecked(clientboundCodec);
+    private final Object2IntMap<PacketType<?>> serverboundIds;
 
     public PacketTransformer(ServerPlayerWrapper wrapper) {
         this.serverboundCodec = GameProtocols.SERVERBOUND_TEMPLATE.bind(decorator, wrapper.asMinecraft().connection).codec();
@@ -190,7 +191,7 @@ public final class PacketTransformer {
     public int packetId(Object input) {
         int packetId;
         if (input instanceof Packet<?> packet) {
-            net.minecraft.network.protocol.PacketType<?> type = packet.type();
+            PacketType<?> type = packet.type();
             if (type.flow() == PacketFlow.CLIENTBOUND) {
                 packetId = clientboundIds.getOrDefault(type, -1);
             } else {
@@ -216,5 +217,20 @@ public final class PacketTransformer {
 
     public static FriendlyByteBuf copy(FriendlyByteBufWrapper friendlyByteBufWrapper) {
         return wrap(friendlyByteBufWrapper.buf().copy());
+    }
+
+    public static String listPackets(PacketSide side) {
+        StringBuilder builder = new StringBuilder();
+        if (side == PacketSide.CLIENT_BOUND) {
+            GameProtocols.CLIENTBOUND_TEMPLATE.details().listPackets((type, id) -> {
+                builder.append(type.id()).append('\n');
+            });
+        } else {
+            GameProtocols.SERVERBOUND_TEMPLATE.details().listPackets((type, id) -> {
+                builder.append(type.id()).append('\n');
+            });
+        }
+
+        return builder.toString();
     }
 }

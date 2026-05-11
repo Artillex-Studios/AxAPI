@@ -2,6 +2,7 @@ package com.artillexstudios.axapi.nms.v26_1.wrapper;
 
 import com.artillexstudios.axapi.nms.v26_1.packet.PacketTransformer;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
+import com.artillexstudios.axapi.packet.PacketSide;
 import com.artillexstudios.axapi.reflection.FieldAccessor;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.players.NameAndId;
@@ -48,6 +49,11 @@ public final class ServerWrapper implements com.artillexstudios.axapi.nms.wrappe
     @Override
     public Object transformPacket(FriendlyByteBuf buf) {
         return PacketTransformer.transformClientbound(buf);
+    }
+
+    @Override
+    public String listPackets(PacketSide side) {
+        return PacketTransformer.listPackets(side);
     }
 
     @Override
