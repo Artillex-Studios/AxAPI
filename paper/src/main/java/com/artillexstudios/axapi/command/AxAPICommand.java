@@ -9,6 +9,7 @@ import com.artillexstudios.axapi.packet.ServerboundPacketTypes;
 import com.artillexstudios.axapi.reflection.FieldAccessor;
 import com.artillexstudios.axapi.utils.ItemBuilder;
 import com.artillexstudios.axapi.utils.MessageUtils;
+import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axapi.utils.Version;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.http.Requests;
@@ -16,6 +17,8 @@ import com.artillexstudios.axapi.utils.logging.LogUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -258,9 +261,11 @@ public final class AxAPICommand {
 
         String serialized = (String) builder.serialize(true).get("snbt");
         String escaped = MiniMessage.miniMessage().escapeTags(serialized);
-        System.out.println("Escaped " + escaped);
-        Component message = MiniMessage.miniMessage().deserialize(PREFIX + "<click:copy_to_clipboard:" + escaped + "><green>Dumped data! Click to copy to clipboard: " + escaped + "</click>");
-        System.out.println(message);
+        Component message = StringUtils.format(PREFIX).append(Component.text("Dumped data! Click to copy to clipboard: " + escaped)
+                .color(NamedTextColor.GREEN)
+                .clickEvent(ClickEvent.copyToClipboard(escaped))
+        );
+
         ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(player);
         wrapper.message(message);
     }
