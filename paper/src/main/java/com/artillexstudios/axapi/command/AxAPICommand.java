@@ -258,6 +258,7 @@ public final class AxAPICommand {
 
         String serialized = (String) builder.serialize(true).get("snbt");
         String escaped = MiniMessage.miniMessage().escapeTags(serialized);
+        System.out.println("Escaped " + escaped);
         Component message = MiniMessage.miniMessage().deserialize(PREFIX + "<click:copy_to_clipboard:" + escaped + "><green>Dumped data! Click to copy to clipboard: " + escaped + "</click>");
         System.out.println(message);
         ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(player);
