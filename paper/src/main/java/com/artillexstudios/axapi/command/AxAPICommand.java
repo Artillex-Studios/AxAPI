@@ -257,7 +257,7 @@ public final class AxAPICommand {
         ItemBuilder builder = ItemBuilder.create(stack);
 
         String serialized = (String) builder.serialize(true).get("snbt");
-        Component message = MiniMessage.miniMessage().deserialize(PREFIX + "<click:copy_to_clipboard:" + serialized + "><green>Dumped data! Click to copy to clipboard: " + serialized + "</click>");
+        Component message = MiniMessage.miniMessage().deserialize(PREFIX + "<click:copy_to_clipboard:" + serialized.replace("\n", "").replace("<br>", "") + "><green>Dumped data! Click to copy to clipboard: " + serialized + "</click>");
         ServerPlayerWrapper wrapper = ServerPlayerWrapper.wrap(player);
         wrapper.message(message);
     }
