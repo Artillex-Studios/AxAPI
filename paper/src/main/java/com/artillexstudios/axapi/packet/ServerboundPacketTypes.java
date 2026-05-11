@@ -1,11 +1,14 @@
 package com.artillexstudios.axapi.packet;
 
+import com.artillexstudios.axapi.utils.Maps;
 import com.artillexstudios.axapi.utils.Version;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
+
+import java.util.Map;
 
 public final class ServerboundPacketTypes {
     private static final Int2ObjectMap<PacketType> PACKET_TYPES = new Int2ObjectOpenHashMap<>();
@@ -194,7 +197,7 @@ public final class ServerboundPacketTypes {
 
     public static String dump() {
         StringBuilder builder = new StringBuilder();
-        for (Int2ObjectMap.Entry<PacketType> entry : PACKET_TYPES.int2ObjectEntrySet()) {
+        for (Map.Entry<Integer, PacketType> entry : Maps.order(PACKET_TYPES).entrySet()) {
             builder.append(entry.getValue().name())
                     .append('\n');
         }
