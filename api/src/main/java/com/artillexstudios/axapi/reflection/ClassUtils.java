@@ -75,42 +75,42 @@ public enum ClassUtils {
     private String debugClass(int indent, Class<?> clazz) {
         StringBuilder builder = new StringBuilder();
         builder.append("--- ").append(clazz.getName()).append(" ---").append(System.lineSeparator());
-        builder.append("\t".repeat(indent)).append("Interface: ").append(clazz.isInterface()).append(System.lineSeparator());
-        builder.append("\t".repeat(indent)).append("Record: ").append(clazz.isRecord()).append(System.lineSeparator());
-        builder.append("\t".repeat(indent)).append("Sealed: ").append(clazz.isSealed()).append(System.lineSeparator());
-        builder.append("\t".repeat(indent)).append("Member: ").append(clazz.isMemberClass()).append(System.lineSeparator());
-        builder.append("\t".repeat(indent)).append("Array: ").append(clazz.isArray()).append(System.lineSeparator());
-        builder.append("\t".repeat(indent)).append("Enum: ").append(clazz.isEnum()).append(System.lineSeparator());
-        builder.append("\t".repeat(indent)).append("Hidden: ").append(clazz.isHidden()).append(System.lineSeparator());
-        builder.append("\t".repeat(indent)).append("Implemented interfaces: ").append(String.join(", ", Arrays.stream(clazz.getInterfaces()).map(java.lang.Class::getName).toList()))
+        builder.repeat("\t", indent).append("Interface: ").append(clazz.isInterface()).append(System.lineSeparator());
+        builder.repeat("\t", indent).append("Record: ").append(clazz.isRecord()).append(System.lineSeparator());
+        builder.repeat("\t", indent).append("Sealed: ").append(clazz.isSealed()).append(System.lineSeparator());
+        builder.repeat("\t", indent).append("Member: ").append(clazz.isMemberClass()).append(System.lineSeparator());
+        builder.repeat("\t", indent).append("Array: ").append(clazz.isArray()).append(System.lineSeparator());
+        builder.repeat("\t", indent).append("Enum: ").append(clazz.isEnum()).append(System.lineSeparator());
+        builder.repeat("\t", indent).append("Hidden: ").append(clazz.isHidden()).append(System.lineSeparator());
+        builder.repeat("\t", indent).append("Implemented interfaces: ").append(String.join(", ", Arrays.stream(clazz.getInterfaces()).map(java.lang.Class::getName).toList()))
                 .append(System.lineSeparator());
-        builder.append("\t".repeat(indent)).append("Subclasses: ").append(System.lineSeparator());
+        builder.repeat("\t", indent).append("Subclasses: ").append(System.lineSeparator());
         for (Class<?> subClass : clazz.getClasses()) {
-            builder.append("\t".repeat(indent + 1)).append(debugClass(indent + 1, subClass)).append(System.lineSeparator());
+            builder.repeat("\t", indent + 1).append(debugClass(indent + 1, subClass)).append(System.lineSeparator());
         }
-        builder.append("\t".repeat(indent)).append("Fields: ").append(System.lineSeparator());
+        builder.repeat("\t", indent).append("Fields: ").append(System.lineSeparator());
         for (Field declaredField : clazz.getDeclaredFields()) {
-            builder.append("\t".repeat(indent + 1)).append("Name: ").append(declaredField.getName()).append(System.lineSeparator());
-            builder.append("\t".repeat(indent + 1)).append("Modifiers: ").append(Modifier.toString(declaredField.getModifiers())).append(System.lineSeparator());
-            builder.append("\t".repeat(indent + 1)).append("Type: ").append(declaredField.getType()).append(System.lineSeparator());
-            builder.append("\t".repeat(indent + 1)).append("Generic type: ").append(declaredField.getGenericType()).append(System.lineSeparator());
-            builder.append("\t".repeat(indent + 1)).append("Annotated type: ").append(declaredField.getAnnotatedType()).append(System.lineSeparator());
+            builder.repeat("\t", indent + 1).append("Name: ").append(declaredField.getName()).append(System.lineSeparator());
+            builder.repeat("\t", indent + 1).append("Modifiers: ").append(Modifier.toString(declaredField.getModifiers())).append(System.lineSeparator());
+            builder.repeat("\t", indent + 1).append("Type: ").append(declaredField.getType()).append(System.lineSeparator());
+            builder.repeat("\t", indent + 1).append("Generic type: ").append(declaredField.getGenericType()).append(System.lineSeparator());
+            builder.repeat("\t", indent + 1).append("Annotated type: ").append(declaredField.getAnnotatedType()).append(System.lineSeparator());
         }
-        builder.append("\t".repeat(indent)).append("Methods: ").append(System.lineSeparator());
+        builder.repeat("\t", indent).append("Methods: ").append(System.lineSeparator());
         for (Method method : clazz.getDeclaredMethods()) {
-            builder.append("\t".repeat(indent + 1)).append("Name: ").append(method.getName()).append(System.lineSeparator());
-            builder.append("\t".repeat(indent + 1)).append("Modifiers: ").append(Modifier.toString(method.getModifiers())).append(System.lineSeparator());
-            builder.append("\t".repeat(indent + 1)).append("Type: ").append(method.getReturnType()).append(System.lineSeparator());
-            builder.append("\t".repeat(indent + 1)).append("Generic type: ").append(method.getGenericReturnType()).append(System.lineSeparator());
-            builder.append("\t".repeat(indent + 1)).append("Annotated type: ").append(method.getAnnotatedReturnType()).append(System.lineSeparator());
-            builder.append("\t".repeat(indent + 1)).append("Parameter count: ").append(method.getParameterCount()).append(System.lineSeparator());
-            builder.append("\t".repeat(indent + 1)).append("Parameters: ").append(String.join(", ", Arrays.stream(method.getParameterTypes()).map(Class::getName).toList())).append(System.lineSeparator());
+            builder.repeat("\t", indent + 1).append("Name: ").append(method.getName()).append(System.lineSeparator());
+            builder.repeat("\t", indent + 1).append("Modifiers: ").append(Modifier.toString(method.getModifiers())).append(System.lineSeparator());
+            builder.repeat("\t", indent + 1).append("Type: ").append(method.getReturnType()).append(System.lineSeparator());
+            builder.repeat("\t", indent + 1).append("Generic type: ").append(method.getGenericReturnType()).append(System.lineSeparator());
+            builder.repeat("\t", indent + 1).append("Annotated type: ").append(method.getAnnotatedReturnType()).append(System.lineSeparator());
+            builder.repeat("\t", indent + 1).append("Parameter count: ").append(method.getParameterCount()).append(System.lineSeparator());
+            builder.repeat("\t", indent + 1).append("Parameters: ").append(String.join(", ", Arrays.stream(method.getParameterTypes()).map(Class::getName).toList())).append(System.lineSeparator());
         }
 
         Set<Class<?>> superClasses = this.superClasses(clazz);
-        builder.append("\t".repeat(indent)).append("Super classes: ").append(System.lineSeparator());
+        builder.repeat("\t", indent).append("Super classes: ").append(System.lineSeparator());
         for (Class<?> superClass : superClasses) {
-            builder.append("\t".repeat(indent + 1)).append(debugClass(indent + 1, superClass)).append(System.lineSeparator());
+            builder.repeat("\t", indent + 1).append(debugClass(indent + 1, superClass)).append(System.lineSeparator());
         }
 
         return builder.toString();
