@@ -5,6 +5,7 @@ import com.artillexstudios.axapi.particle.option.ColorParticleOption;
 import com.artillexstudios.axapi.particle.option.DustColorTransitionParticleOption;
 import com.artillexstudios.axapi.particle.option.DustParticleOption;
 import com.artillexstudios.axapi.particle.option.FloatParticleOption;
+import com.artillexstudios.axapi.particle.option.GeyserParticleOption;
 import com.artillexstudios.axapi.particle.option.IntegerParticleOption;
 import com.artillexstudios.axapi.particle.option.ItemStackParticleOption;
 import com.artillexstudios.axapi.particle.option.TrailParticleOption;
@@ -13,6 +14,7 @@ import com.artillexstudios.axapi.particle.type.ColorParticleType;
 import com.artillexstudios.axapi.particle.type.DustColorTransitionParticleType;
 import com.artillexstudios.axapi.particle.type.DustParticleType;
 import com.artillexstudios.axapi.particle.type.FloatParticleType;
+import com.artillexstudios.axapi.particle.type.GeyserParticleType;
 import com.artillexstudios.axapi.particle.type.IntegerParticleType;
 import com.artillexstudios.axapi.particle.type.ItemStackParticleType;
 import com.artillexstudios.axapi.particle.type.SimpleParticleType;
@@ -46,6 +48,13 @@ public final class ParticleTypes {
     public static final ParticleType<IntegerParticleOption> BLOCK = new VarIntParticleType();
     public static final ParticleType<IntegerParticleOption> BLOCK_MARKER = new VarIntParticleType();
     public static final ParticleType<?> BUBBLE = new SimpleParticleType();
+    public static final ParticleType<?> SULFUR_BUBBLES = new SimpleParticleType(); // 26.2
+    public static final ParticleType<?> NOXIOUS_GAS = new SimpleParticleType(); // 26.2
+    public static final ParticleType<?> NOXIOUS_GAS_CLOUD = new SimpleParticleType(); // 26.2
+    public static final ParticleType<GeyserParticleOption> GEYSER = new GeyserParticleType(); // 26.2
+    public static final ParticleType<GeyserParticleOption> GEYSER_BASE = new GeyserParticleType(); // 26.2
+    public static final ParticleType<GeyserParticleOption> GEYSER_POOF = new GeyserParticleType(); // 26.2
+    public static final ParticleType<GeyserParticleOption> GEYSER_PLUME = new GeyserParticleType(); // 26.2
     public static final ParticleType<?> CLOUD = new SimpleParticleType();
     public static final ParticleType<?> COPPER_FIRE_FLAME = new SimpleParticleType(); // 1.21.9
     public static final ParticleType<?> CRIT = new SimpleParticleType();
@@ -157,6 +166,7 @@ public final class ParticleTypes {
     public static final ParticleType<?> TRIAL_OMEN = new SimpleParticleType();
     public static final ParticleType<IntegerParticleOption> BLOCK_CRUMBLE = new VarIntParticleType();
     public static final ParticleType<IntegerParticleOption> FIREFLY = new VarIntParticleType();
+    public static final ParticleType<?> SULPHUR_CUBE_GOO = new SimpleParticleType();
 
     public static void init() {
         if (Version.getServerVersion().isOlderThan(Version.v1_20_4)) {
@@ -166,6 +176,15 @@ public final class ParticleTypes {
         register(ParticleTypes.BLOCK);
         register(ParticleTypes.BLOCK_MARKER);
         register(ParticleTypes.BUBBLE);
+        if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v26_2)) {
+            register(ParticleTypes.SULFUR_BUBBLES);
+            register(ParticleTypes.NOXIOUS_GAS);
+            register(ParticleTypes.NOXIOUS_GAS_CLOUD);
+            register(ParticleTypes.GEYSER);
+            register(ParticleTypes.GEYSER_BASE);
+            register(ParticleTypes.GEYSER_POOF);
+            register(ParticleTypes.GEYSER_PLUME);
+        }
         register(ParticleTypes.CLOUD);
         if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_7)) {
             register(COPPER_FIRE_FLAME);
@@ -322,6 +341,9 @@ public final class ParticleTypes {
                     register(ParticleTypes.BLOCK_CRUMBLE);
                     if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_4)) {
                         register(ParticleTypes.FIREFLY);
+                        if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v26_2)) {
+                            register(ParticleTypes.SULPHUR_CUBE_GOO);
+                        }
                     }
                 }
             }
