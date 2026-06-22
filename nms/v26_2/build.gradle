@@ -1,0 +1,25 @@
+plugins {
+    id("io.papermc.paperweight.userdev")
+}
+
+group = 'com.artillexstudios.axapi.nms.v26_2'
+version = rootProject.version
+
+repositories {
+    mavenLocal()
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+reobfJar {
+    enabled = false
+}
+
+
+dependencies {
+    paperweight.paperDevBundle("26.2.build.+")
+}

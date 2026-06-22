@@ -13,7 +13,7 @@ java {
     }
 }
 
-def java25NmsModules = ["v26_1"]
+def java25NmsModules = ["v26_1", "v26_2"]
 
 dependencies {
     compileOnly project(path: ":api")

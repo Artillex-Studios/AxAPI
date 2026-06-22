@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 
 public enum Version {
+    v26_2(776, "v26_2", Collections.singletonList("26.2"), true),
     v26_1(775, "v26_1", Arrays.asList("26.1", "26.1.1"), true),
     v1_21_8(774, "v1_21_R7", Collections.singletonList("1.21.11")),
     v1_21_7(773, "v1_21_R6", Arrays.asList("1.21.9", "1.21.10")),

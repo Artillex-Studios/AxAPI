@@ -37,5 +37,6 @@ public final class AnvilListener implements Listener {
         }
 
         input.closeEvent().accept(event);
+        event.getInventory().clear();
     }
 }

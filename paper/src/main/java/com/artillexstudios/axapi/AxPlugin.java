@@ -22,9 +22,10 @@ import com.artillexstudios.axapi.packet.ServerboundPacketTypes;
 import com.artillexstudios.axapi.packet.listeners.BuiltinPacketListener;
 import com.artillexstudios.axapi.packetentity.tracker.EntityTracker;
 import com.artillexstudios.axapi.particle.ParticleTypes;
-import com.artillexstudios.axapi.placeholders.PlaceholderAPIHook;
 import com.artillexstudios.axapi.placeholders.PaperPlaceholderHandler;
+import com.artillexstudios.axapi.placeholders.PlaceholderAPIHook;
 import com.artillexstudios.axapi.scheduler.Scheduler;
+import com.artillexstudios.axapi.utils.CommandUtils;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.Nameable;
 import com.artillexstudios.axapi.utils.PaperNameable;
@@ -96,7 +97,7 @@ public abstract class AxPlugin extends JavaPlugin {
             return;
         }
 
-        if (!Bukkit.getCommandMap().getKnownCommands().containsKey("axapi")) {
+        if (!CommandUtils.isRegistered("axapi")) {
             CommandHandler handler = BukkitCommandHandler.create(this);
             handler.register(new AxAPICommand());
         }

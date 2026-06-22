@@ -1,9 +1,9 @@
-package com.artillexstudios.axapi.nms.v26_1.items;
+package com.artillexstudios.axapi.nms.v26_2.items;
 
 import com.artillexstudios.axapi.items.HashGenerator;
 import com.artillexstudios.axapi.items.HashedStack;
 import com.artillexstudios.axapi.items.component.DataComponent;
-import com.artillexstudios.axapi.nms.v26_1.ItemStackSerializer;
+import com.artillexstudios.axapi.nms.v26_2.ItemStackSerializer;
 import com.artillexstudios.axapi.reflection.FieldAccessor;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
@@ -57,7 +57,7 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
     @Override
     public HashedStack toHashedStack(HashGenerator generator) {
-        return com.artillexstudios.axapi.nms.v26_1.items.HashedStack.create(this, generator);
+        return com.artillexstudios.axapi.nms.v26_2.items.HashedStack.create(this, generator);
     }
 
     @Override
