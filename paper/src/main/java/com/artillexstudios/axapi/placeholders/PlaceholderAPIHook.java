@@ -65,6 +65,11 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
     }
 
     @Override
+    public boolean persist() {
+        return true;
+    }
+
+    @Override
     public @NotNull List<String> getPlaceholders() {
         return PaperPlaceholderHandler.placeholders(FeatureFlags.PLACEHOLDER_API_IDENTIFIER.get());
     }
