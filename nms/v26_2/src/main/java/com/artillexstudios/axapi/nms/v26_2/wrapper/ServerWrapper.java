@@ -5,9 +5,9 @@ import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketSide;
 import com.artillexstudios.axapi.reflection.FieldAccessor;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.players.NameAndId;
 import net.minecraft.server.players.UserNameToIdResolver;
-import net.minecraft.world.entity.Entity;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
@@ -19,7 +19,7 @@ public final class ServerWrapper implements com.artillexstudios.axapi.nms.wrappe
     public static final ServerWrapper INSTANCE = new ServerWrapper();
     private static final MinecraftServer server = MinecraftServer.getServer();
     private static final FieldAccessor entityCounterAccessor = FieldAccessor.builder()
-            .withClass(Entity.class)
+            .withClass(ServerLevel.class)
             .withField("ENTITY_COUNTER")
             .build();
     private static final AtomicInteger entityCounter = entityCounterAccessor.get(null, AtomicInteger.class);
