@@ -46,7 +46,6 @@ import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.craftbukkit.inventory.CraftContainer;
-import org.bukkit.craftbukkit.util.CraftLocation;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -101,7 +100,7 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     @Override
     public void openSignInput(SignInput signInput) {
         ServerPlayer player = ((CraftPlayer) signInput.getPlayer()).getHandle();
-        BlockPos pos = CraftLocation.toBlockPos(signInput.getLocation());
+        BlockPos pos = new BlockPos(signInput.getLocation().getBlockX(), signInput.getLocation().getBlockY(), signInput.getLocation().getBlockZ());
         player.connection.send(new ClientboundBlockUpdatePacket(pos, ((CraftBlockData) Material.OAK_SIGN.createBlockData()).getState()));
 
         net.minecraft.nbt.CompoundTag tag = new net.minecraft.nbt.CompoundTag();
