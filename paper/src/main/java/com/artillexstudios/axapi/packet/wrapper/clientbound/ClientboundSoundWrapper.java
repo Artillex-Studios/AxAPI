@@ -5,7 +5,6 @@ import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketType;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
-import com.artillexstudios.axapi.utils.Version;
 import com.artillexstudios.axapi.utils.sound.SoundEvent;
 import com.artillexstudios.axapi.utils.sound.SoundSource;
 import net.kyori.adventure.key.Key;
@@ -20,7 +19,7 @@ public final class ClientboundSoundWrapper extends PacketWrapper {
     private float pitch;
     private long seed;
 
-    public ClientboundSoundWrapper(SoundEvent soundEvent, SoundSource source, double x, double z, double y, float volume, float pitch, long seed) {
+    public ClientboundSoundWrapper(SoundEvent soundEvent, SoundSource source, double x, double y, double z, float volume, float pitch, long seed) {
         this.soundEvent = soundEvent;
         this.source = source;
         this.x = (int) (x * 8.0);
@@ -101,9 +100,7 @@ public final class ClientboundSoundWrapper extends PacketWrapper {
 
     @Override
     public void write(FriendlyByteBuf out) {
-        if (Version.getServerVersion().isOlderThanOrEqualTo(Version.v1_20_4)) {
-            out.writeVarInt(0);
-        }
+        out.writeVarInt(0);
         out.writeResourceLocation(this.soundEvent.getResourceLocation());
         out.writeBoolean(this.soundEvent.isUseNewSystem());
         if (this.soundEvent.isUseNewSystem()) {
@@ -120,12 +117,12 @@ public final class ClientboundSoundWrapper extends PacketWrapper {
 
     @Override
     public void read(FriendlyByteBuf buf) {
-        if (Version.getServerVersion().isOlderThanOrEqualTo(Version.v1_20_4)) {
-            buf.readVarInt();
+        int type = buf.readVarInt();
+        if (type == 0) {
+            Key key = buf.readResourceLocation();
+            boolean newSystem = buf.readBoolean();
+            this.soundEvent = newSystem ? SoundEvent.createFixedRange(key, buf.readFloat()) : SoundEvent.createVariableRange(key);
         }
-        Key key = buf.readResourceLocation();
-        boolean newSystem = buf.readBoolean();
-        this.soundEvent = newSystem ? SoundEvent.createFixedRange(key, buf.readFloat()) : SoundEvent.createVariableRange(key);
         this.source = buf.readEnum(SoundSource.class);
         this.x = buf.readInt();
         this.y = buf.readInt();
