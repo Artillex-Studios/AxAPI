@@ -44,7 +44,10 @@ public final class LinkedHashMapAdapter implements TypeAdapter<LinkedHashMap<Str
 
         for (Map.Entry<?, ?> entry : value.entrySet()) {
             if (!hasParameterizedType) {
-                t = entry.getValue().getClass();
+                Object value1 = entry.getValue();
+                if (value1 != null) {
+                    t = value1.getClass();
+                }
             }
 
             returning.put((String) entry.getKey(), holder.serialize(entry.getValue(), t));

@@ -1,6 +1,9 @@
-package com.artillexstudios.axapi.libraries;
+package com.artillexstudios.axapi.libraries.config;
 
 import com.artillexstudios.axapi.config.annotation.ConfigurationPart;
+import com.artillexstudios.axapi.libraries.Library;
+import com.artillexstudios.axapi.libraries.Relocation;
+import com.artillexstudios.axapi.libraries.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
