@@ -46,4 +46,9 @@ public class ReflectionFieldAccessor implements FieldAccessor {
             throw new RuntimeException(exception);
         }
     }
+
+    @Override
+    public Field getReflectedField() {
+        return this.field;
+    }
 }

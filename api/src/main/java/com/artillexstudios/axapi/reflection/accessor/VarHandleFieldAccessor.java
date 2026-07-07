@@ -7,9 +7,11 @@ import java.lang.invoke.VarHandle;
 import java.lang.reflect.Field;
 
 public class VarHandleFieldAccessor implements FieldAccessor {
+    private final Field field;
     private final VarHandle handle;
 
     public VarHandleFieldAccessor(Field field) throws IllegalAccessException {
+        this.field = field;
         this.handle = MethodHandles.privateLookupIn(field.getDeclaringClass(), MethodHandles.lookup()).unreflectVarHandle(field);
     }
 
@@ -31,5 +33,10 @@ public class VarHandleFieldAccessor implements FieldAccessor {
     @Override
     public Object getVolatile(Object instance) {
         return this.handle.getVolatile(instance);
+    }
+
+    @Override
+    public Field getReflectedField() {
+        return this.field;
     }
 }

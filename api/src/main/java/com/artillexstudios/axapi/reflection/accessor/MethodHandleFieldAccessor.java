@@ -7,10 +7,12 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 
 public class MethodHandleFieldAccessor implements FieldAccessor {
+    private final Field field;
     private final MethodHandle getter;
     private final MethodHandle setter;
 
     public MethodHandleFieldAccessor(Field field) throws IllegalAccessException {
+        this.field = field;
         this.getter = MethodHandles.privateLookupIn(field.getDeclaringClass(), MethodHandles.lookup()).unreflectGetter(field);
         this.setter = MethodHandles.privateLookupIn(field.getDeclaringClass(), MethodHandles.lookup()).unreflectSetter(field);
     }
@@ -49,5 +51,10 @@ public class MethodHandleFieldAccessor implements FieldAccessor {
         } catch (Throwable throwable) {
             throw new RuntimeException(throwable);
         }
+    }
+
+    @Override
+    public Field getReflectedField() {
+        return this.field;
     }
 }

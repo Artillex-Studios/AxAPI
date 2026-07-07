@@ -42,6 +42,8 @@ public interface FieldAccessor {
         return UncheckedUtils.unsafeCast(this.getVolatile(instance));
     }
 
+    Field getReflectedField();
+
     class Builder {
         private AccessorType type = AccessorType.FIELD;
         private Class<?> clazz = null;

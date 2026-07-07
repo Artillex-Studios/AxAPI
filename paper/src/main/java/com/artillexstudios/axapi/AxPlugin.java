@@ -5,6 +5,7 @@ import com.artillexstudios.axapi.config.adapters.ItemStackAdapter;
 import com.artillexstudios.axapi.config.adapters.TypeAdapterHolder;
 import com.artillexstudios.axapi.config.adapters.WrappedItemStackAdapter;
 import com.artillexstudios.axapi.dependencies.DependencyManagerWrapper;
+import com.artillexstudios.axapi.dependencies.UnsafeDependencyLoader;
 import com.artillexstudios.axapi.dependency.DependencyContainer;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.gui.AnvilListener;
@@ -30,6 +31,7 @@ import com.artillexstudios.axapi.utils.CommandUtils;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.Nameable;
 import com.artillexstudios.axapi.utils.PaperNameable;
+import com.artillexstudios.axapi.utils.UncheckedUtils;
 import com.artillexstudios.axapi.utils.Version;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.file.FileUtils;
@@ -48,7 +50,7 @@ import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.CommandHandler;
 import revxrsal.commands.bukkit.BukkitCommandHandler;
 
-import java.io.File;
+import java.nio.file.Path;
 
 public abstract class AxPlugin extends JavaPlugin {
     public EntityTracker tracker;
@@ -62,7 +64,8 @@ public abstract class AxPlugin extends JavaPlugin {
         TypeAdapterHolder.registerExtraAdapter(WrappedItemStack.class, new WrappedItemStackAdapter());
         TypeAdapterHolder.registerExtraAdapter(ItemStack.class, new ItemStackAdapter());
 
-        LibraryDownloader manager = new LibraryDownloader(new File(this.getDataFolder(), "libs").toPath(), true);
+        Path librariesPath = this.getDataFolder().toPath().getParent().resolve("AxAPI").resolve("libraries").resolve(this.getName());
+        LibraryDownloader manager = new LibraryDownloader(librariesPath);
         DependencyManagerWrapper wrapper = new DependencyManagerWrapper(manager);
         wrapper.repository("https://repo.artillex-studios.com/releases/");
         wrapper.dependency("org{}apache{}commons:commons-math3:3.6.1");
@@ -79,6 +82,10 @@ public abstract class AxPlugin extends JavaPlugin {
         Version.downloadVersion(wrapper);
         this.dependencies(wrapper);
 
+        UnsafeDependencyLoader unsafeDependencyLoader = new UnsafeDependencyLoader();
+        for (Path path : wrapper.wrapped().getLibraryPaths()) {
+            unsafeDependencyLoader.loadUnsafeLibrary(UncheckedUtils.unsafeCast(this.getClassLoader()), path);
+        }
         FeatureFlags.refresh();
         this.updateFlags();
     }
