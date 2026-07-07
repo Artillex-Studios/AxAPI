@@ -52,6 +52,7 @@ public interface FieldAccessor {
         private Class<?> fieldType = null;
         private Integer fieldIndex = null;
         private boolean silent = false;
+        private boolean disableAccesschecking = false;
 
         public Builder methodHandle() {
             this.type = AccessorType.METHOD_HANDLE;
@@ -103,6 +104,11 @@ public interface FieldAccessor {
             return this;
         }
 
+        public Builder disableAccessChecking() {
+            this.disableAccesschecking = true;
+            return this;
+        }
+
         private void tryFetchField() {
             if (this.clazz == null) {
                 return;
@@ -118,7 +124,9 @@ public interface FieldAccessor {
                 return;
             }
 
-            this.field.setAccessible(true);
+            if (!this.disableAccesschecking) {
+                this.field.setAccessible(true);
+            }
             this.fieldType = null;
             this.fieldName = null;
             this.fieldIndex = null;

@@ -13,19 +13,23 @@ import java.util.List;
 
 public final class UnsafeDependencyLoader {
     private final Unsafe unsafe = FieldAccessor.builder()
+            .disableAccessChecking()
             .withClass(Unsafe.class)
             .withField("theUnsafe")
             .build()
             .get(null, Unsafe.class);
     private final FieldAccessor urlClassPathAccessor = FieldAccessor.builder()
+            .disableAccessChecking()
             .withClass(URLClassLoader.class)
             .withField("ucp")
             .build();
     private final FieldAccessor unopenedUrlsAccessor = FieldAccessor.builder()
+            .disableAccessChecking()
             .withClass("jdk.internal.loader.URLClassPath")
             .withField("unopenedUrls")
             .build();
     private final FieldAccessor pathAccessor = FieldAccessor.builder()
+            .disableAccessChecking()
             .withClass("jdk.internal.loader.URLClassPath")
             .withField("path")
             .build();
