@@ -81,7 +81,11 @@ public interface FieldAccessor {
         }
 
         public Builder withClass(String clazz) {
-            this.clazz = ClassUtils.INSTANCE.getClassOrNull(clazz);
+            try {
+                this.clazz = Class.forName(clazz);
+            } catch (ClassNotFoundException exception) {
+                this.clazz = null;
+            }
             this.tryFetchField();
             return this;
         }

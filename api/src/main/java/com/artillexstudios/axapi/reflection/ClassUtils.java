@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.reflection;
 
+import com.artillexstudios.axapi.utils.CachingSupplier;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
@@ -12,22 +13,25 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Supplier;
 
 public enum ClassUtils {
     INSTANCE;
 
-    private final LoadingCache<String, Class<?>> CLASS_CACHE = Caffeine.newBuilder()
-            .maximumSize(50)
-            .build(name -> {
-                try {
-                    return Class.forName(name, false, this.getClass().getClassLoader());
-                } catch (ClassNotFoundException exception) {
-                    return null;
-                }
-            });
+    private final Supplier<LoadingCache<String, Class<?>>> cacheSupplier = CachingSupplier.create(() -> {
+        return Caffeine.newBuilder()
+                .maximumSize(50)
+                .build(name -> {
+                    try {
+                        return Class.forName(name, false, this.getClass().getClassLoader());
+                    } catch (ClassNotFoundException exception) {
+                        return null;
+                    }
+                });
+    });
 
     public boolean classExists(@NonNull String className) {
-        return CLASS_CACHE.get(className) != null;
+        return cacheSupplier.get().get(className) != null;
     }
 
     public Class<?> getClass(String clazz) {
@@ -48,7 +52,7 @@ public enum ClassUtils {
     }
 
     public boolean isClass(Class<?> clazz, String other) {
-        return CLASS_CACHE.get(other) == clazz;
+        return cacheSupplier.get().get(other) == clazz;
     }
 
     public boolean classEquals(Class<?> clazz, Class<?> other) {
@@ -62,7 +66,8 @@ public enum ClassUtils {
 
         try {
             return clazz.getDeclaredConstructor(classes).newInstance(arguments);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException exception) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                 NoSuchMethodException exception) {
             LogUtils.error("Failed to initialize class {} with arguments {}!", clazz.getName(), Arrays.toString(arguments));
             return null;
         }

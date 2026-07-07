@@ -91,6 +91,10 @@ public final class LibraryDownloader {
             return path;
         }
 
+        if (path != null && Files.exists(path) && !this.loaded) {
+            return path;
+        }
+
         // remove the old version with transitive dependencies
         if (cachedLibrary != null) {
             LogUtils.info("Library {} has an older version, cleaning up...", library);

@@ -11,6 +11,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +27,11 @@ public final class TransitiveDependencyCollector {
     private static final Pattern PROPERTY_PATTERN = Pattern.compile("\\$\\{(.+)}");
     private final Set<Library> seen = new HashSet<>();
     private final LibraryDownloader downloader;
+
+    public static void main(String[] args) {
+        LibraryDownloader downloader = new LibraryDownloader(new File("/home/tamas/IdeaProjects/AxCosmetics/run/plugins/AxAPI/libraries/AxCosmetics/").toPath());
+        downloader.addLibrary(new Library("org.apache.commons", "commons-math3", "3.6.1", "", List.of()));
+    }
 
     public TransitiveDependencyCollector(LibraryDownloader downloader) {
         this.downloader = downloader;

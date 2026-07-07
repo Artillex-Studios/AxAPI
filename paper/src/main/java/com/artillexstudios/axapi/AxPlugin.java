@@ -64,6 +64,9 @@ public abstract class AxPlugin extends JavaPlugin {
         TypeAdapterHolder.registerExtraAdapter(WrappedItemStack.class, new WrappedItemStackAdapter());
         TypeAdapterHolder.registerExtraAdapter(ItemStack.class, new ItemStackAdapter());
 
+        FeatureFlags.refresh();
+        this.updateFlags();
+
         Path librariesPath = this.getDataFolder().toPath().getParent().resolve("AxAPI").resolve("libraries").resolve(this.getName());
         LibraryDownloader manager = new LibraryDownloader(librariesPath);
         DependencyManagerWrapper wrapper = new DependencyManagerWrapper(manager);
@@ -86,8 +89,6 @@ public abstract class AxPlugin extends JavaPlugin {
         for (Path path : wrapper.wrapped().getLibraryPaths()) {
             unsafeDependencyLoader.loadUnsafeLibrary(UncheckedUtils.unsafeCast(this.getClassLoader()), path);
         }
-        FeatureFlags.refresh();
-        this.updateFlags();
     }
 
     public void updateFlags() {

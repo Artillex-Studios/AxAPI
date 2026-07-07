@@ -9,11 +9,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
+import java.util.ArrayDeque;
 import java.util.List;
 
 public final class UnsafeDependencyLoader {
     private final Unsafe unsafe = FieldAccessor.builder()
-            .disableAccessChecking()
             .withClass(Unsafe.class)
             .withField("theUnsafe")
             .build()
@@ -38,7 +38,7 @@ public final class UnsafeDependencyLoader {
         long urlClassPathOffset = this.unsafe.objectFieldOffset(this.urlClassPathAccessor.getReflectedField());
         Object classPath = this.unsafe.getObject(classLoader, urlClassPathOffset);
         long unopenedUrlsOffset = this.unsafe.objectFieldOffset(this.unopenedUrlsAccessor.getReflectedField());
-        List<URL> unopenedUrls = UncheckedUtils.unsafeCast(this.unsafe.getObject(classPath, unopenedUrlsOffset));
+        ArrayDeque<URL> unopenedUrls = UncheckedUtils.unsafeCast(this.unsafe.getObject(classPath, unopenedUrlsOffset));
         long pathOffset = this.unsafe.objectFieldOffset(this.pathAccessor.getReflectedField());
         List<URL> path = UncheckedUtils.unsafeCast(this.unsafe.getObject(classPath, pathOffset));
         unopenedUrls.add(url);
