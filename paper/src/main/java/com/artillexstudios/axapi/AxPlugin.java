@@ -14,6 +14,7 @@ import com.artillexstudios.axapi.gui.inventory.renderer.InventoryRenderers;
 import com.artillexstudios.axapi.hologram.Holograms;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.component.DataComponents;
+import com.artillexstudios.axapi.libraries.LibraryDownloader;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
 import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
@@ -46,11 +47,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.CommandHandler;
 import revxrsal.commands.bukkit.BukkitCommandHandler;
-import revxrsal.zapper.DependencyManager;
-import revxrsal.zapper.classloader.URLClassLoaderWrapper;
 
 import java.io.File;
-import java.net.URLClassLoader;
 
 public abstract class AxPlugin extends JavaPlugin {
     public EntityTracker tracker;
@@ -64,7 +62,7 @@ public abstract class AxPlugin extends JavaPlugin {
         TypeAdapterHolder.registerExtraAdapter(WrappedItemStack.class, new WrappedItemStackAdapter());
         TypeAdapterHolder.registerExtraAdapter(ItemStack.class, new ItemStackAdapter());
 
-        DependencyManager manager = new DependencyManager(this.getDescription(), new File(this.getDataFolder(), "libs"), URLClassLoaderWrapper.wrap((URLClassLoader) this.getClassLoader()));
+        LibraryDownloader manager = new LibraryDownloader(new File(this.getDataFolder(), "libs").toPath(), true);
         DependencyManagerWrapper wrapper = new DependencyManagerWrapper(manager);
         wrapper.repository("https://repo.artillex-studios.com/releases/");
         wrapper.dependency("org{}apache{}commons:commons-math3:3.6.1");
@@ -80,7 +78,6 @@ public abstract class AxPlugin extends JavaPlugin {
 
         Version.downloadVersion(wrapper);
         this.dependencies(wrapper);
-        manager.load();
 
         FeatureFlags.refresh();
         this.updateFlags();
