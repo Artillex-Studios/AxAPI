@@ -71,19 +71,19 @@ public abstract class AxPlugin extends JavaPlugin {
         LibraryDownloader manager = new LibraryDownloader(librariesPath);
         DependencyManagerWrapper wrapper = new DependencyManagerWrapper(manager);
         wrapper.repository("https://repo.artillex-studios.com/releases/");
-        wrapper.dependency("org{}apache{}commons:commons-math3:3.6.1");
-        wrapper.dependency("com{}github{}ben-manes{}caffeine:caffeine:3.2.3");
-
         wrapper.relocate("org{}apache{}commons{}math3", "com.artillexstudios.axapi.libs.math3");
         wrapper.relocate("com{}github{}benmanes", "com.artillexstudios.axapi.libs.caffeine");
+
+        Version.downloadVersion(wrapper);
+        this.dependencies(wrapper);
+
+        wrapper.dependency("org{}apache{}commons:commons-math3:3.6.1");
+        wrapper.dependency("com{}github{}ben-manes{}caffeine:caffeine:3.2.3");
         try {
             Class.forName("net.kyori.adventure.Adventure", false, this.getClass().getClassLoader());
         } catch (ClassNotFoundException exception) {
             wrapper.dependency("net{}kyori:adventure-api:4.26.1");
         }
-
-        Version.downloadVersion(wrapper);
-        this.dependencies(wrapper);
 
         UnsafeDependencyLoader unsafeDependencyLoader = new UnsafeDependencyLoader();
         for (Path path : wrapper.wrapped().getLibraryPaths()) {

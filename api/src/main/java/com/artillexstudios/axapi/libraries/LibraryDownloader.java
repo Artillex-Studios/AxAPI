@@ -144,9 +144,10 @@ public final class LibraryDownloader {
 
         LogUtils.info("Downloading library {}...", library);
         Path path = this.getPath(library);
+        Path resolve = null;
         for (Repository repository : this.getRepositories()) {
             URI jarURI = repository.getJarURI(library);
-            Path resolve = this.loaded ? path.resolveSibling(path.getFileName() + ".resolving") : path;
+            resolve = this.loaded ? path.resolveSibling(path.getFileName() + ".resolving") : path;
             try (InputStream inputStream = jarURI.toURL().openStream(); FileOutputStream stream = new FileOutputStream(resolve.toFile())) {
                 byte[] bytes = new byte[8192];
                 int length;
@@ -154,18 +155,19 @@ public final class LibraryDownloader {
                     stream.write(bytes, 0, length);
                 }
 
-                if (this.loaded) {
-                    LogUtils.info("Relocating library: {}", library);
-                    this.helper.relocate(resolve, path, this.createRelocationsMap());
-                    this.deletePath(resolve);
-                    LogUtils.info("Relocated library: {}", library);
-                }
                 this.libraryPaths.add(path);
             } catch (IOException exception) {
                 exception.printStackTrace();
                 LogUtils.error("An exception occurred while downloading library {}!", library, exception);
             }
             break;
+        }
+
+        if (this.loaded && resolve != null) {
+            LogUtils.info("Relocating library: {}", library);
+            this.helper.relocate(resolve, path, this.createRelocationsMap());
+            this.deletePath(resolve);
+            LogUtils.info("Relocated library: {}", library);
         }
     }
 
