@@ -30,11 +30,18 @@ public final class LibraryCache {
     }
 
     public boolean cache(Library library) {
+        Library cachedLibrary = this.getCachedLibrary(library);
         boolean contains = CacheConfiguration.libraries.contains(library);
         if (!contains) {
             CacheConfiguration.libraries.add(library);
             this.save();
         }
+
+        if (cachedLibrary != null && !cachedLibrary.equals(library)) {
+            CacheConfiguration.libraries.remove(cachedLibrary);
+            this.save();
+        }
+
         return contains;
     }
 
@@ -53,18 +60,21 @@ public final class LibraryCache {
     // However, if the cached library is a transitive library, we have a bit of a problem,
     // and we need to check recursively
     public Library checkLibrary(Library loaded, Library other) {
-        if (this.checkWithoutVersion(loaded, other)) {
+        if (LibraryCache.checkWithoutVersion(loaded, other)) {
             return loaded;
         }
 
         for (Library transitiveDependency : loaded.transitiveDependencies()) {
-            return this.checkLibrary(transitiveDependency, other);
+            Library foundTransitive = this.checkLibrary(transitiveDependency, other);
+            if (foundTransitive != null) {
+                return foundTransitive;
+            }
         }
 
         return null;
     }
 
-    public boolean checkWithoutVersion(Library library1, Library library2) {
+    public static boolean checkWithoutVersion(Library library1, Library library2) {
         return library1.group().equals(library2.group()) && Objects.equals(library1.classifier(), library2.classifier()) && library1.artifactId().equals(library2.artifactId());
     }
 

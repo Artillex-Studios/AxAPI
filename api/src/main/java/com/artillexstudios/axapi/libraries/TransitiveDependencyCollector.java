@@ -19,8 +19,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class TransitiveDependencyCollector {
+    private static final Pattern PROPERTY_PATTERN = Pattern.compile("\\$\\{(.+)}");
     private final Set<Library> seen = new HashSet<>();
     private final LibraryDownloader downloader;
 
@@ -29,6 +32,7 @@ public final class TransitiveDependencyCollector {
     }
 
     private List<Library> findTransitiveDependencies(Library library) {
+        this.seen.add(library);
         List<Library> found = new ArrayList<>();
         for (Repository repository : this.downloader.getRepositories()) {
             URI pomURI = repository.getPomURI(library);
@@ -37,41 +41,8 @@ public final class TransitiveDependencyCollector {
             }
 
             try (InputStream stream = pomURI.toURL().openStream()) {
-                DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-                DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-
-                Document parse = documentBuilder.parse(stream);
-                NodeList childNodes = parse.getDocumentElement().getChildNodes();
-                for (int i = 0; i < childNodes.getLength(); i++) {
-                    Node item = childNodes.item(i);
-                    String nodeName = item.getNodeName();
-
-                    if (nodeName.equals("dependencies")) {
-                        NodeList dependencies = item.getChildNodes();
-                        for (int j = 0; j < dependencies.getLength(); j++) {
-                            Node dependency = dependencies.item(j);
-                            if (!(dependency instanceof Element element)) {
-                                continue;
-                            }
-
-                            String groupId = element.getElementsByTagName("groupId").item(0).getTextContent();
-                            String artifactId = element.getElementsByTagName("artifactId").item(0).getTextContent();
-                            NodeList versionNode = element.getElementsByTagName("version");
-                            String version = versionNode.getLength() == 0 ? "" : versionNode.item(0).getTextContent();
-                            NodeList scopeNode = element.getElementsByTagName("scope");
-                            String scope = scopeNode.getLength() == 0 ? "compile" : scopeNode.item(0).getTextContent();
-                            NodeList classifierNode = element.getElementsByTagName("classifier");
-                            String classifier = classifierNode.getLength() == 0 ? null : classifierNode.item(0).getTextContent();
-
-                            if (!scope.equals("compile")) {
-                                continue;
-                            }
-
-                            Library tempLibrary = new Library(groupId, artifactId, version, classifier, List.of());
-                            found.add(tempLibrary);
-                        }
-                    }
-                }
+                List<Library> foundLibrary = this.findLibrary(library, stream);
+                found.addAll(foundLibrary);
             } catch (FileNotFoundException exception) {
                 if (FeatureFlags.DEBUG.get()) {
                     LogUtils.debug("Library pom not found at: {}", pomURI);
@@ -79,12 +50,15 @@ public final class TransitiveDependencyCollector {
                 continue;
             } catch (IOException | ParserConfigurationException | SAXException exception) {
                 LogUtils.error("An exception occurred while trying to find transitive libraries for library: {}!", library, exception);
+                continue;
             }
+
+            break;
         }
 
         List<Library> transitiveDependencies = new ArrayList<>();
         for (Library dependency : found) {
-            if (this.seen.add(dependency)) {
+            if (!this.hasAlreadySeen(dependency)) {
                 List<Library> transitiveDependency = this.findTransitiveDependencies(dependency);
                 transitiveDependencies.add(new Library(dependency.group(), dependency.artifactId(), dependency.version(), dependency.classifier(), transitiveDependency));
             }
@@ -95,5 +69,154 @@ public final class TransitiveDependencyCollector {
 
     public Library withTransitiveDependencies(Library library) {
         return new Library(library.group(), library.artifactId(), library.version(), library.classifier(), this.findTransitiveDependencies(library));
+    }
+
+    public void reset() {
+        this.seen.clear();
+    }
+
+
+    public boolean hasAlreadySeen(Library library) {
+        for (Library loaded : this.seen) {
+            if (LibraryCache.checkWithoutVersion(library, loaded)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private String findProperty(Library library, Element documentElement, String property) throws IOException, ParserConfigurationException, SAXException {
+        NodeList properties = documentElement.getElementsByTagName("properties");
+        for (int i = 0; i < properties.getLength(); i++) {
+            if (properties.item(i) instanceof Element element) {
+                NodeList elementsByTagName = element.getElementsByTagName(property);
+                if (elementsByTagName.getLength() > 0) {
+                    return elementsByTagName.item(0).getTextContent();
+                }
+            }
+        }
+
+        NodeList elementsByTagName = documentElement.getElementsByTagName("parent");
+        for (int i = 0; i < elementsByTagName.getLength(); i++) {
+            if (elementsByTagName.item(i) instanceof Element element) {
+                Library created = this.createLibrary(library, element, documentElement);
+                for (Repository repository : this.downloader.getRepositories()) {
+                    URI pomURI = repository.getPomURI(created);
+                    try (InputStream stream = pomURI.toURL().openStream()) {
+                        String foundProperty = this.findProperty(created, this.createDocumentElement(stream), property);
+                        if (foundProperty != null) {
+                            return foundProperty;
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private List<Library> findLibrary(Library library, InputStream stream) throws SAXException, ParserConfigurationException, IOException {
+        List<Library> libraries = new ArrayList<>();
+        Element documentElement = this.createDocumentElement(stream);
+        NodeList childNodes = documentElement.getChildNodes();
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node item = childNodes.item(i);
+            String nodeName = item.getNodeName();
+
+            if (nodeName.equals("dependencies")) {
+                NodeList dependencies = item.getChildNodes();
+                for (int j = 0; j < dependencies.getLength(); j++) {
+                    Node dependency = dependencies.item(j);
+                    if (!(dependency instanceof Element element)) {
+                        continue;
+                    }
+
+                    Library created = this.createLibrary(library, element, documentElement);
+                    if (created == null) {
+                        continue;
+                    }
+
+                    libraries.add(created);
+                }
+            }
+        }
+
+        return libraries;
+    }
+
+    private Element createDocumentElement(InputStream stream) throws SAXException, ParserConfigurationException, IOException {
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+
+        Document parse = documentBuilder.parse(stream);
+        return parse.getDocumentElement();
+    }
+
+    private Library createLibrary(Library library, Element element, Element documentElement) throws IOException, ParserConfigurationException, SAXException {
+        String groupId = element.getElementsByTagName("groupId").item(0).getTextContent();
+        String artifactId = element.getElementsByTagName("artifactId").item(0).getTextContent();
+        NodeList versionNode = element.getElementsByTagName("version");
+        String version = versionNode.getLength() == 0 ? "" : versionNode.item(0).getTextContent();
+        NodeList scopeNode = element.getElementsByTagName("scope");
+        String scope = scopeNode.getLength() == 0 ? "compile" : scopeNode.item(0).getTextContent();
+        NodeList classifierNode = element.getElementsByTagName("classifier");
+        String classifier = classifierNode.getLength() == 0 ? "" : classifierNode.item(0).getTextContent();
+        NodeList optionalNode = element.getElementsByTagName("optional");
+        boolean optional = optionalNode.getLength() != 0 && Boolean.parseBoolean(optionalNode.item(0).getTextContent().trim());
+
+        if (optional) {
+            return null;
+        }
+
+        if (!scope.equals("compile")) {
+            return null;
+        }
+
+        if (version.equals("${project.version}")) {
+            version = library.version();
+        }
+
+        if (groupId.equals("${project.groupId}")) {
+            groupId = library.group();
+        }
+
+        Matcher versionMatcher = PROPERTY_PATTERN.matcher(version);
+        if (versionMatcher.find()) {
+            String group = versionMatcher.group(1);
+            String foundProperty = this.findProperty(library, documentElement, group);
+            if (foundProperty != null) {
+                version = foundProperty;
+            }
+        }
+
+        Matcher groupIdMatcher = PROPERTY_PATTERN.matcher(groupId);
+        if (groupIdMatcher.find()) {
+            String group = groupIdMatcher.group(1);
+            String foundProperty = this.findProperty(library, documentElement, group);
+            if (foundProperty != null) {
+                groupId = foundProperty;
+            }
+        }
+
+        Matcher artifactIdMatcher = PROPERTY_PATTERN.matcher(artifactId);
+        if (artifactIdMatcher.find()) {
+            String group = artifactIdMatcher.group(1);
+            String foundProperty = this.findProperty(library, documentElement, group);
+            if (foundProperty != null) {
+                artifactId = foundProperty;
+            }
+        }
+
+        Matcher classifierMatcher = PROPERTY_PATTERN.matcher(classifier);
+        if (classifierMatcher.find()) {
+            String group = classifierMatcher.group(1);
+            String foundProperty = this.findProperty(library, documentElement, group);
+            if (foundProperty != null) {
+                classifier = foundProperty;
+            }
+        }
+
+        return new Library(groupId.replace("${", "").replace("}", ""), artifactId.replace("${", "").replace("}", ""), version.replace("${", "").replace("}", ""), classifier.replace("${", "").replace("}", ""), List.of());
     }
 }
