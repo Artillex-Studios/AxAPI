@@ -58,7 +58,9 @@ public final class LibraryDownloader {
             }
             Files.delete(path);
         } catch (IOException exception) {
-            LogUtils.error("An exception occurred while cleaning library cache!", exception);
+            if (FeatureFlags.DEBUG.get()) {
+                LogUtils.error("An exception occurred while cleaning library cache!", exception);
+            }
         }
     }
 
