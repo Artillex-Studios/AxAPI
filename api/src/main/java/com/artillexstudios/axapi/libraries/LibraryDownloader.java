@@ -3,6 +3,7 @@ package com.artillexstudios.axapi.libraries;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,7 +53,9 @@ public final class LibraryDownloader {
             return;
         }
 
-        LogUtils.info("Cleaning up library at path: {}", path);
+        if (FeatureFlags.DEBUG.get()) {
+            LogUtils.info("Cleaning up library at path: {}", path);
+        }
         try {
             if (Files.isDirectory(path)) {
                 try (Stream<Path> stream = Files.list(path)) {
@@ -73,7 +76,9 @@ public final class LibraryDownloader {
 
     public Path addLibrary(Library library, boolean transitive) {
         long start = System.currentTimeMillis();
-        LogUtils.info("Loading library {}", library);
+        if (FeatureFlags.DEBUG.get()) {
+            LogUtils.info("Loading library {}", library);
+        }
         if (this.isAlreadyLoaded(library)) {
             LogUtils.info("Library {} has already been loaded, skipping!", library);
             return null;
@@ -83,9 +88,8 @@ public final class LibraryDownloader {
         Path path = this.getPath(library);
         if (cachedLibrary != null && path != null && Files.exists(path)) {
             if (FeatureFlags.DEBUG.get()) {
-                LogUtils.debug("Using cached library: {}", library);
+                LogUtils.info("Loading {} from cache...", library);
             }
-            LogUtils.info("Loading {} from cache...", library);
             // We already have the correct version of the library cached, we can just load it
             this.libraryPaths.add(path);
             this.libraries.add(cachedLibrary);
@@ -108,9 +112,13 @@ public final class LibraryDownloader {
         // find the new library with transitive dependencies
         Library withTransitives = library;
         if (this.loaded) {
-            LogUtils.info("Searching for transitive dependencies of library: {}...", library);
+            if (FeatureFlags.DEBUG.get()) {
+                LogUtils.info("Searching for transitive dependencies of library: {}...", library);
+            }
             withTransitives = this.collector.withTransitiveDependencies(library);
-            LogUtils.info("Found {} transitive dependencies of library: {}!", withTransitives.transitiveDependencies().size(), withTransitives);
+            if (FeatureFlags.DEBUG.get()) {
+                LogUtils.info("Found {} transitive dependencies of library: {}!", withTransitives.transitiveDependencies().size(), withTransitives);
+            }
             if (!transitive) {
                 this.libraryCache.cache(withTransitives);
             }
@@ -147,7 +155,10 @@ public final class LibraryDownloader {
             this.downloadLibrary(transitiveDependency);
         }
 
-        LogUtils.info("Downloading library {}...", library);
+        boolean found = false;
+        if (FeatureFlags.DEBUG.get()) {
+            LogUtils.info("Downloading library {}...", library);
+        }
         Path path = this.getPath(library);
         Path resolve = null;
         for (Repository repository : this.getRepositories()) {
@@ -161,19 +172,29 @@ public final class LibraryDownloader {
                 }
 
                 this.libraryPaths.add(path);
+                found = true;
+            } catch (FileNotFoundException exception) {
+                continue;
             } catch (IOException exception) {
-                exception.printStackTrace();
                 LogUtils.error("An exception occurred while downloading library {}!", library, exception);
                 continue;
             }
             break;
         }
 
+        if (!found) {
+            LogUtils.error("Failed to download library {}", library);
+        }
+
         if (this.loaded && resolve != null) {
-            LogUtils.info("Relocating library: {}", library);
+            if (FeatureFlags.DEBUG.get()) {
+                LogUtils.info("Relocating library: {}", library);
+            }
             this.helper.relocate(resolve, path, this.createRelocationsMap());
             this.deletePath(resolve);
-            LogUtils.info("Relocated library: {}", library);
+            if (FeatureFlags.DEBUG.get()) {
+                LogUtils.info("Relocated library: {}", library);
+            }
         }
     }
 
@@ -190,7 +211,9 @@ public final class LibraryDownloader {
             return;
         }
 
-        LogUtils.info("Re-downloading libraries, as a new relocation has been added!");
+        if (FeatureFlags.DEBUG.get()) {
+            LogUtils.info("Re-downloading libraries, as a new relocation has been added!");
+        }
         // We need to remove all cached jars and relocate them
         this.deletePath(this.librariesFolder);
         this.libraryCache.save();
