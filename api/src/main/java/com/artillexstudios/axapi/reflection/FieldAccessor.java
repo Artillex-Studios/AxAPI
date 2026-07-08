@@ -42,6 +42,8 @@ public interface FieldAccessor {
         return UncheckedUtils.unsafeCast(this.getVolatile(instance));
     }
 
+    Field getReflectedField();
+
     class Builder {
         private AccessorType type = AccessorType.FIELD;
         private Class<?> clazz = null;
@@ -50,6 +52,7 @@ public interface FieldAccessor {
         private Class<?> fieldType = null;
         private Integer fieldIndex = null;
         private boolean silent = false;
+        private boolean disableAccessChecking = false;
 
         public Builder methodHandle() {
             this.type = AccessorType.METHOD_HANDLE;
@@ -78,7 +81,11 @@ public interface FieldAccessor {
         }
 
         public Builder withClass(String clazz) {
-            this.clazz = ClassUtils.INSTANCE.getClassOrNull(clazz);
+            try {
+                this.clazz = Class.forName(clazz);
+            } catch (ClassNotFoundException exception) {
+                this.clazz = null;
+            }
             this.tryFetchField();
             return this;
         }
@@ -101,6 +108,11 @@ public interface FieldAccessor {
             return this;
         }
 
+        public Builder disableAccessChecking() {
+            this.disableAccessChecking = true;
+            return this;
+        }
+
         private void tryFetchField() {
             if (this.clazz == null) {
                 return;
@@ -116,7 +128,9 @@ public interface FieldAccessor {
                 return;
             }
 
-            this.field.setAccessible(true);
+            if (!this.disableAccessChecking) {
+                this.field.setAccessible(true);
+            }
             this.fieldType = null;
             this.fieldName = null;
             this.fieldIndex = null;

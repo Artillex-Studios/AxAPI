@@ -5,6 +5,7 @@ import com.artillexstudios.axapi.config.adapters.ItemStackAdapter;
 import com.artillexstudios.axapi.config.adapters.TypeAdapterHolder;
 import com.artillexstudios.axapi.config.adapters.WrappedItemStackAdapter;
 import com.artillexstudios.axapi.dependencies.DependencyManagerWrapper;
+import com.artillexstudios.axapi.dependencies.UnsafeDependencyLoader;
 import com.artillexstudios.axapi.dependency.DependencyContainer;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.gui.AnvilListener;
@@ -14,6 +15,7 @@ import com.artillexstudios.axapi.gui.inventory.renderer.InventoryRenderers;
 import com.artillexstudios.axapi.hologram.Holograms;
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.component.DataComponents;
+import com.artillexstudios.axapi.libraries.LibraryDownloader;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
 import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
@@ -29,6 +31,7 @@ import com.artillexstudios.axapi.utils.CommandUtils;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.Nameable;
 import com.artillexstudios.axapi.utils.PaperNameable;
+import com.artillexstudios.axapi.utils.UncheckedUtils;
 import com.artillexstudios.axapi.utils.Version;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.file.FileUtils;
@@ -46,11 +49,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.CommandHandler;
 import revxrsal.commands.bukkit.BukkitCommandHandler;
-import revxrsal.zapper.DependencyManager;
-import revxrsal.zapper.classloader.URLClassLoaderWrapper;
 
-import java.io.File;
-import java.net.URLClassLoader;
+import java.nio.file.Path;
 
 public abstract class AxPlugin extends JavaPlugin {
     public EntityTracker tracker;
@@ -64,26 +64,31 @@ public abstract class AxPlugin extends JavaPlugin {
         TypeAdapterHolder.registerExtraAdapter(WrappedItemStack.class, new WrappedItemStackAdapter());
         TypeAdapterHolder.registerExtraAdapter(ItemStack.class, new ItemStackAdapter());
 
-        DependencyManager manager = new DependencyManager(this.getDescription(), new File(this.getDataFolder(), "libs"), URLClassLoaderWrapper.wrap((URLClassLoader) this.getClassLoader()));
+        FeatureFlags.refresh();
+        this.updateFlags();
+
+        Path librariesPath = this.getDataFolder().toPath().getParent().resolve("AxAPI").resolve("libraries").resolve(this.getName());
+        LibraryDownloader manager = new LibraryDownloader(librariesPath);
         DependencyManagerWrapper wrapper = new DependencyManagerWrapper(manager);
         wrapper.repository("https://repo.artillex-studios.com/releases/");
-        wrapper.dependency("org{}apache{}commons:commons-math3:3.6.1");
-        wrapper.dependency("com{}github{}ben-manes{}caffeine:caffeine:3.2.3");
-
         wrapper.relocate("org{}apache{}commons{}math3", "com.artillexstudios.axapi.libs.math3");
         wrapper.relocate("com{}github{}benmanes", "com.artillexstudios.axapi.libs.caffeine");
+
+        Version.downloadVersion(wrapper);
+        this.dependencies(wrapper);
+
+        wrapper.dependency("org{}apache{}commons:commons-math3:3.6.1");
+        wrapper.dependency("com{}github{}ben-manes{}caffeine:caffeine:3.2.3");
         try {
             Class.forName("net.kyori.adventure.Adventure", false, this.getClass().getClassLoader());
         } catch (ClassNotFoundException exception) {
             wrapper.dependency("net{}kyori:adventure-api:4.26.1");
         }
 
-        Version.downloadVersion(wrapper);
-        this.dependencies(wrapper);
-        manager.load();
-
-        FeatureFlags.refresh();
-        this.updateFlags();
+        UnsafeDependencyLoader unsafeDependencyLoader = new UnsafeDependencyLoader();
+        for (Path path : wrapper.wrapped().getLibraryPaths()) {
+            unsafeDependencyLoader.loadUnsafeLibrary(UncheckedUtils.unsafeCast(this.getClassLoader()), path);
+        }
     }
 
     public void updateFlags() {
