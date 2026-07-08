@@ -181,42 +181,24 @@ public final class TransitiveDependencyCollector {
             groupId = library.group();
         }
 
-        Matcher versionMatcher = PROPERTY_PATTERN.matcher(version);
-        if (versionMatcher.find()) {
-            String group = versionMatcher.group(1);
-            String foundProperty = this.findProperty(library, documentElement, group);
-            if (foundProperty != null) {
-                version = foundProperty;
-            }
-        }
-
-        Matcher groupIdMatcher = PROPERTY_PATTERN.matcher(groupId);
-        if (groupIdMatcher.find()) {
-            String group = groupIdMatcher.group(1);
-            String foundProperty = this.findProperty(library, documentElement, group);
-            if (foundProperty != null) {
-                groupId = foundProperty;
-            }
-        }
-
-        Matcher artifactIdMatcher = PROPERTY_PATTERN.matcher(artifactId);
-        if (artifactIdMatcher.find()) {
-            String group = artifactIdMatcher.group(1);
-            String foundProperty = this.findProperty(library, documentElement, group);
-            if (foundProperty != null) {
-                artifactId = foundProperty;
-            }
-        }
-
-        Matcher classifierMatcher = PROPERTY_PATTERN.matcher(classifier);
-        if (classifierMatcher.find()) {
-            String group = classifierMatcher.group(1);
-            String foundProperty = this.findProperty(library, documentElement, group);
-            if (foundProperty != null) {
-                classifier = foundProperty;
-            }
-        }
+        version = this.findReplacement(library, documentElement, version);
+        groupId = this.findReplacement(library, documentElement, groupId);
+        artifactId = this.findReplacement(library, documentElement, artifactId);
+        classifier = this.findReplacement(library, documentElement, classifier);
 
         return new Library(groupId.replace("${", "").replace("}", ""), artifactId.replace("${", "").replace("}", ""), version.replace("${", "").replace("}", ""), classifier.replace("${", "").replace("}", ""), List.of());
+    }
+
+    private String findReplacement(Library library, Element documentElement, String property) throws IOException, ParserConfigurationException, SAXException {
+        Matcher matcher = PROPERTY_PATTERN.matcher(property);
+        if (matcher.find()) {
+            String group = matcher.group(1);
+            String foundProperty = this.findProperty(library, documentElement, group);
+            if (foundProperty != null) {
+                return foundProperty;
+            }
+        }
+
+        return property;
     }
 }

@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public final class LibraryDownloader {
     private final LibraryCache libraryCache;
@@ -54,7 +55,9 @@ public final class LibraryDownloader {
         LogUtils.info("Cleaning up library at path: {}", path);
         try {
             if (Files.isDirectory(path)) {
-                Files.list(path).forEach(this::deletePath);
+                try (Stream<Path> stream = Files.list(path)) {
+                    stream.forEach(this::deletePath);
+                }
             }
             Files.delete(path);
         } catch (IOException exception) {
@@ -161,6 +164,7 @@ public final class LibraryDownloader {
             } catch (IOException exception) {
                 exception.printStackTrace();
                 LogUtils.error("An exception occurred while downloading library {}!", library, exception);
+                continue;
             }
             break;
         }
