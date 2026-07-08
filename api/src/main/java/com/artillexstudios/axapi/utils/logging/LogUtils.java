@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.utils.logging;
 
+import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,11 +9,11 @@ public final class LogUtils {
     private static final FileLogger fileLogger = new FileLogger("debug-logs");
 
     public static void debug(String message, DebugMode mode) {
-        debug(LoggerFactory.getLogger(STACK_WALKER.getCallerClass()), message, mode);
+        debug(LoggerFactory.getLogger(FeatureFlags.LOGGER_NAME_FORMAT.get().getName(STACK_WALKER.getCallerClass())), message, mode);
     }
 
     public static void debug(String message) {
-        debug(LoggerFactory.getLogger(STACK_WALKER.getCallerClass()), message, DebugMode.ALL);
+        debug(LoggerFactory.getLogger(FeatureFlags.LOGGER_NAME_FORMAT.get().getName(STACK_WALKER.getCallerClass())), message, DebugMode.ALL);
     }
 
     public static void debug(Logger logger, String message, DebugMode mode) {
@@ -26,11 +27,11 @@ public final class LogUtils {
     }
 
     public static void debug(String message, Object object, DebugMode mode) {
-        debug(LoggerFactory.getLogger(STACK_WALKER.getCallerClass()), message, object, mode);
+        debug(LoggerFactory.getLogger(FeatureFlags.LOGGER_NAME_FORMAT.get().getName(STACK_WALKER.getCallerClass())), message, object, mode);
     }
 
     public static void debug(String message, Object object) {
-        debug(LoggerFactory.getLogger(STACK_WALKER.getCallerClass()), message, object, DebugMode.ALL);
+        debug(LoggerFactory.getLogger(FeatureFlags.LOGGER_NAME_FORMAT.get().getName(STACK_WALKER.getCallerClass())), message, object, DebugMode.ALL);
     }
 
     public static void debug(Logger logger, String message, Object object, DebugMode mode) {
@@ -45,11 +46,11 @@ public final class LogUtils {
     }
 
     public static void debug(String message, Object object, Object object2, DebugMode mode) {
-        debug(LoggerFactory.getLogger(STACK_WALKER.getCallerClass()), message, object, object2, mode);
+        debug(LoggerFactory.getLogger(FeatureFlags.LOGGER_NAME_FORMAT.get().getName(STACK_WALKER.getCallerClass())), message, object, object2, mode);
     }
 
     public static void debug(String message, Object object, Object object2) {
-        debug(LoggerFactory.getLogger(STACK_WALKER.getCallerClass()), message, object, object2, DebugMode.ALL);
+        debug(LoggerFactory.getLogger(FeatureFlags.LOGGER_NAME_FORMAT.get().getName(STACK_WALKER.getCallerClass())), message, object, object2, DebugMode.ALL);
     }
 
     public static void debug(Logger logger, String message, Object object, Object object2, DebugMode mode) {
@@ -65,11 +66,11 @@ public final class LogUtils {
     }
 
     public static void debug(String message, Object object, Object object2, Object object3) {
-        debug(LoggerFactory.getLogger(STACK_WALKER.getCallerClass()), message, object, object2, object3, DebugMode.ALL);
+        debug(LoggerFactory.getLogger(FeatureFlags.LOGGER_NAME_FORMAT.get().getName(STACK_WALKER.getCallerClass())), message, object, object2, object3, DebugMode.ALL);
     }
 
     public static void debug(String message, Object object, Object object2, Object object3, DebugMode mode) {
-        debug(LoggerFactory.getLogger(STACK_WALKER.getCallerClass()), message, object, object2, object3, mode);
+        debug(LoggerFactory.getLogger(FeatureFlags.LOGGER_NAME_FORMAT.get().getName(STACK_WALKER.getCallerClass())), message, object, object2, object3, mode);
     }
 
     public static void debug(Logger logger, String message, Object object, Object object2, Object object3, DebugMode mode) {
@@ -86,11 +87,11 @@ public final class LogUtils {
     }
 
     public static void debug(String message, Object object, Object object2, Object object3, Object object4) {
-        debug(LoggerFactory.getLogger(STACK_WALKER.getCallerClass()), message, object, object2, object3, object4, DebugMode.ALL);
+        debug(LoggerFactory.getLogger(FeatureFlags.LOGGER_NAME_FORMAT.get().getName(STACK_WALKER.getCallerClass())), message, object, object2, object3, object4, DebugMode.ALL);
     }
 
     public static void debug(String message, Object object, Object object2, Object object3, Object object4, DebugMode mode) {
-        debug(LoggerFactory.getLogger(STACK_WALKER.getCallerClass()), message, object, object2, object3, object4, mode);
+        debug(LoggerFactory.getLogger(FeatureFlags.LOGGER_NAME_FORMAT.get().getName(STACK_WALKER.getCallerClass())), message, object, object2, object3, object4, mode);
     }
 
     public static void debug(Logger logger, String message, Object object, Object object2, Object object3, Object object4, DebugMode mode) {
@@ -108,11 +109,11 @@ public final class LogUtils {
     }
 
     public static void debug(String message, DebugMode mode, Object... arguments) {
-        debug(LoggerFactory.getLogger(STACK_WALKER.getCallerClass()), message, mode, arguments);
+        debug(LoggerFactory.getLogger(FeatureFlags.LOGGER_NAME_FORMAT.get().getName(STACK_WALKER.getCallerClass())), message, mode, arguments);
     }
 
     public static void debug(String message, Object... arguments) {
-        debug(LoggerFactory.getLogger(STACK_WALKER.getCallerClass()), message, DebugMode.ALL, arguments);
+        debug(LoggerFactory.getLogger(FeatureFlags.LOGGER_NAME_FORMAT.get().getName(STACK_WALKER.getCallerClass())), message, DebugMode.ALL, arguments);
     }
 
     public static void debug(Logger logger, String message, DebugMode mode, Object... arguments) {
@@ -130,18 +131,18 @@ public final class LogUtils {
     }
 
     public static void warn(String message, Object... arguments) {
-        LoggerFactory.getLogger(STACK_WALKER.getCallerClass()).warn(message, arguments);
+        LoggerFactory.getLogger(FeatureFlags.LOGGER_NAME_FORMAT.get().getName(STACK_WALKER.getCallerClass())).warn(message, arguments);
     }
 
     public static void error(String message, Object... arguments) {
-        LoggerFactory.getLogger(STACK_WALKER.getCallerClass()).error(message, arguments);
+        LoggerFactory.getLogger(FeatureFlags.LOGGER_NAME_FORMAT.get().getName(STACK_WALKER.getCallerClass())).error(message, arguments);
     }
 
     public static void info(String message, Object... arguments) {
-        LoggerFactory.getLogger(STACK_WALKER.getCallerClass()).info(message, arguments);
+        LoggerFactory.getLogger(FeatureFlags.LOGGER_NAME_FORMAT.get().getName(STACK_WALKER.getCallerClass())).info(message, arguments);
     }
 
     public static Logger logger() {
-        return LoggerFactory.getLogger(STACK_WALKER.getCallerClass());
+        return LoggerFactory.getLogger(FeatureFlags.LOGGER_NAME_FORMAT.get().getName(STACK_WALKER.getCallerClass()));
     }
 }

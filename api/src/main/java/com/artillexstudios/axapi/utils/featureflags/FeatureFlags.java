@@ -2,11 +2,13 @@ package com.artillexstudios.axapi.utils.featureflags;
 
 import com.artillexstudios.axapi.utils.Nameable;
 import com.artillexstudios.axapi.utils.featureflags.type.BooleanFlag;
+import com.artillexstudios.axapi.utils.featureflags.type.EnumFlag;
 import com.artillexstudios.axapi.utils.featureflags.type.IntegerFlag;
 import com.artillexstudios.axapi.utils.featureflags.type.ListFlag;
 import com.artillexstudios.axapi.utils.featureflags.type.LongFlag;
 import com.artillexstudios.axapi.utils.featureflags.type.PatternFlag;
 import com.artillexstudios.axapi.utils.featureflags.type.StringFlag;
+import com.artillexstudios.axapi.utils.logging.LoggerNameFormat;
 
 import java.util.Arrays;
 import java.util.regex.Pattern;
@@ -161,6 +163,12 @@ public final class FeatureFlags {
      * Can be controlled with the system property: %pluginName%enableGuiListeners
      */
     public static final BooleanFlag ENABLE_GUI_LISTENERS = new BooleanFlag(false);
+    /**
+     * Change the logger name format.
+     * <p>
+     * Can be controlled with the system property: %pluginName%loggerNameFormat
+     */
+    public static final EnumFlag<LoggerNameFormat> LOGGER_NAME_FORMAT = new EnumFlag<>(LoggerNameFormat.FULL, LoggerNameFormat.class);
 
     public static void refresh() {
         String name = Nameable.getInstance().getName();
@@ -188,5 +196,6 @@ public final class FeatureFlags {
         SERVER_PLAYER_CACHE_SIZE.refresh(name + "serverPlayerCacheSize");
         HOLOGRAM_PARSED_LINE_CACHE.refresh(name + "hologramParsedLineCache");
         ENABLE_GUI_LISTENERS.refresh(name + "enableGuiListeners");
+        LOGGER_NAME_FORMAT.refresh(name + "loggerNameFormat");
     }
 }
