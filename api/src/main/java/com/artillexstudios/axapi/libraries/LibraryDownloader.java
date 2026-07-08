@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.libraries;
 
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
+import com.artillexstudios.axapi.utils.file.FileUtils;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 
 import java.io.FileNotFoundException;
@@ -15,7 +16,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 public final class LibraryDownloader {
     private final LibraryCache libraryCache;
@@ -56,18 +56,7 @@ public final class LibraryDownloader {
         if (FeatureFlags.DEBUG.get()) {
             LogUtils.info("Cleaning up library at path: {}", path);
         }
-        try {
-            if (Files.isDirectory(path)) {
-                try (Stream<Path> stream = Files.list(path)) {
-                    stream.forEach(this::deletePath);
-                }
-            }
-            Files.delete(path);
-        } catch (IOException exception) {
-            if (FeatureFlags.DEBUG.get()) {
-                LogUtils.error("An exception occurred while cleaning library cache!", exception);
-            }
-        }
+        FileUtils.deleteNested(path);
     }
 
     public Path addLibrary(Library library) {
