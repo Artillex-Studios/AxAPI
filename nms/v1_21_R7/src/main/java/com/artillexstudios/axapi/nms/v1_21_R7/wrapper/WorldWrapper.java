@@ -85,9 +85,9 @@ public final class WorldWrapper implements com.artillexstudios.axapi.nms.wrapper
                 .withField("profile")
                 .build();
 
-        PropertyMap propertyMap = new PropertyMap(HashMultimap.create());
-        propertyMap.put("textures", new Property("textures", texture));
-        GameProfile gameProfile = new GameProfile(UUID.randomUUID(), "axapi", propertyMap);
+        HashMultimap<String, Property> properties = HashMultimap.create();
+        properties.put("textures", new Property("textures", texture));
+        GameProfile gameProfile = new GameProfile(UUID.randomUUID(), "axapi", new PropertyMap(properties));
         ResolvableProfile resolvableProfile = ResolvableProfile.createResolved(gameProfile);
         accessor.set(craftSkull, resolvableProfile);
         state.update();
