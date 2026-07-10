@@ -186,6 +186,10 @@ public final class TransitiveDependencyCollector {
         artifactId = this.findReplacement(library, documentElement, artifactId);
         classifier = this.findReplacement(library, documentElement, classifier);
 
+        if (version.isBlank()) {
+            return null;
+        }
+
         return new Library(groupId.replace("${", "").replace("}", ""), artifactId.replace("${", "").replace("}", ""), version.replace("${", "").replace("}", ""), classifier.replace("${", "").replace("}", ""), List.of());
     }
 

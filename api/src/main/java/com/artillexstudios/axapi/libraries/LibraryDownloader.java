@@ -175,7 +175,7 @@ public final class LibraryDownloader {
             LogUtils.error("Failed to download library {}", library);
         }
 
-        if (this.loaded && resolve != null) {
+        if (this.loaded && resolve != null && Files.exists(resolve)) {
             if (FeatureFlags.DEBUG.get()) {
                 LogUtils.info("Relocating library: {}", library);
             }
