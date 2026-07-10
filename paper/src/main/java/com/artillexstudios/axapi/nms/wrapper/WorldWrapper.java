@@ -19,7 +19,5 @@ public interface WorldWrapper extends Wrapper<World> {
 
     List<ServerPlayerWrapper> players();
 
-    default void setBlockOwner(Location location, String texture) {
-
-    }
+    void setBlockOwner(Location location, String texture);
 }

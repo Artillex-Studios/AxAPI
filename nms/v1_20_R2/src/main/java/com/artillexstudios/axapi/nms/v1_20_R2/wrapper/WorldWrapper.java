@@ -2,16 +2,24 @@ package com.artillexstudios.axapi.nms.v1_20_R2.wrapper;
 
 import com.artillexstudios.axapi.nms.v1_20_R2.BlockSetterImpl;
 import com.artillexstudios.axapi.nms.v1_20_R2.ParallelBlockSetterImpl;
+import com.artillexstudios.axapi.reflection.FieldAccessor;
 import com.artillexstudios.axapi.selection.BlockSetter;
 import com.artillexstudios.axapi.selection.ParallelBlockSetter;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Skull;
 import org.bukkit.craftbukkit.v1_20_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_20_R2.block.CraftSkull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public final class WorldWrapper implements com.artillexstudios.axapi.nms.wrapper.WorldWrapper {
     private World wrapped;
@@ -59,6 +67,25 @@ public final class WorldWrapper implements com.artillexstudios.axapi.nms.wrapper
         }
 
         return playerList;
+    }
+
+    @Override
+    public void setBlockOwner(Location location, String texture) {
+        BlockState state = location.getBlock().getState();
+        if (!(state instanceof Skull skull)) {
+            return;
+        }
+
+        CraftSkull craftSkull = (CraftSkull) skull;
+        FieldAccessor accessor = FieldAccessor.builder()
+                .withClass(CraftSkull.class)
+                .withField("profile")
+                .build();
+
+        GameProfile gameProfile = new GameProfile(UUID.randomUUID(), "axapi");
+        gameProfile.getProperties().put("textures", new Property("texutres", texture));
+        accessor.set(craftSkull, gameProfile);
+        state.update();
     }
 
     @Override
