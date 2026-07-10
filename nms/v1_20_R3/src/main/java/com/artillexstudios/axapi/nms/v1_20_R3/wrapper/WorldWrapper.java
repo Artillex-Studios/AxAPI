@@ -83,7 +83,7 @@ public final class WorldWrapper implements com.artillexstudios.axapi.nms.wrapper
                 .build();
 
         GameProfile gameProfile = new GameProfile(UUID.randomUUID(), "axapi");
-        gameProfile.getProperties().put("textures", new Property("texutres", texture));
+        gameProfile.getProperties().put("textures", new Property("textures", texture));
         accessor.set(craftSkull, gameProfile);
         state.update();
     }

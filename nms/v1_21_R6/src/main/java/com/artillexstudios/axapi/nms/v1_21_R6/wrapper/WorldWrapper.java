@@ -5,8 +5,10 @@ import com.artillexstudios.axapi.nms.v1_21_R6.ParallelBlockSetterImpl;
 import com.artillexstudios.axapi.reflection.FieldAccessor;
 import com.artillexstudios.axapi.selection.BlockSetter;
 import com.artillexstudios.axapi.selection.ParallelBlockSetter;
+import com.google.common.collect.HashMultimap;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import com.mojang.authlib.properties.PropertyMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -83,8 +85,9 @@ public final class WorldWrapper implements com.artillexstudios.axapi.nms.wrapper
                 .withField("profile")
                 .build();
 
-        GameProfile gameProfile = new GameProfile(UUID.randomUUID(), "axapi");
-        gameProfile.properties().put("textures", new Property("texutres", texture));
+        PropertyMap propertyMap = new PropertyMap(HashMultimap.create());
+        propertyMap.put("textures", new Property("textures", texture));
+        GameProfile gameProfile = new GameProfile(UUID.randomUUID(), "axapi", propertyMap);
         ResolvableProfile resolvableProfile = ResolvableProfile.createResolved(gameProfile);
         accessor.set(craftSkull, resolvableProfile);
         state.update();
