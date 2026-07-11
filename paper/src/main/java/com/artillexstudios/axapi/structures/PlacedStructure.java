@@ -15,7 +15,6 @@ import java.util.List;
  * @param locations    The locations that are the parts of this structure.
  */
 public record PlacedStructure(Location baseLocation, Structure structure, List<Location> locations) {
-    private static final int[] quarters = new int[]{1, -1};
 
     /**
      * Tries to parse a PlacedStructure from the StructureRegistry based on a coordinate of the structure.
@@ -58,9 +57,9 @@ public record PlacedStructure(Location baseLocation, Structure structure, List<L
 
     // Since the structure can be oriented in any 4 of the cardinal directions, we need to check in all of them.
     // Cases: 1. x is x and z is z
-    //        2. x is -x and z is z
-    //        3. x is x and z is -z
-    //        4. x is -x and z is -z
+    //        2. x is -z and z is x
+    //        3. x is -x and z is -z
+    //        4. z is -x and x is z
     @Nullable
     private static PlacedStructure getPlacedStructure(Structure structure, Location location, ComplexOffset offset) {
         StructureLayer baseLayer = structure.getLayerByOffset(0);
@@ -73,41 +72,44 @@ public record PlacedStructure(Location baseLocation, Structure structure, List<L
             return null;
         }
 
-        for (int x : quarters) {
-            out:
-            for (int z : quarters) {
-                Location newLocation = offset.getRelativeLocation2D(location, x, z);
-                if (!position.isSameAs(newLocation)) {
-                    continue;
-                }
+        List<Location> locations = new ArrayList<>();
 
-                List<Location> locations = new ArrayList<>();
-                if (!isLayerComplete(newLocation.clone(), baseLayer, x, z, locations)) {
-                    continue;
-                }
-
-                for (int i = 1; i < structure.maxOffsetY(); i++) {
-                    StructureLayer layerByOffset = structure.getLayerByOffset(i);
-                    if (layerByOffset == null) {
-                        throw new IllegalStateException("The constructed StructureLayer does not contain a mapping for all y layers.");
-                    }
-
-                    if (!isLayerComplete(newLocation, layerByOffset, x, z, locations)) {
-                        continue out;
-                    }
-                }
-
-                return new PlacedStructure(newLocation, structure, new ArrayList<>(locations));
+        out:
+        for (FacingDirection direction : FacingDirection.values()) {
+            Location newLocation = offset.getRelativeLocation2D(location, direction);
+            if (!position.isSameAs(newLocation)) {
+                continue;
             }
+
+            locations.clear();
+            if (!collectLayerLocations(newLocation.clone(), baseLayer, direction, locations)) {
+                continue;
+            }
+
+            for (int i = 1; i <= structure.maxOffsetY(); i++) {
+                StructureLayer layerByOffset = structure.getLayerByOffset(i);
+                if (layerByOffset == null) {
+                    throw new IllegalStateException("The constructed StructureLayer does not contain a mapping for all y layers.");
+                }
+
+                if (!collectLayerLocations(newLocation, layerByOffset, direction, locations)) {
+                    continue out;
+                }
+            }
+
+            return new PlacedStructure(newLocation, structure, new ArrayList<>(locations));
         }
 
         return null;
     }
 
-    private static boolean isLayerComplete(Location cornerLocation, StructureLayer layer, int xQuarter, int zQuarter, List<Location> output) {
-        for (int i = 0; i < layer.maxOffsetX(); i++) {
-            for (int j = 0; j < layer.maxOffsetZ(); j++) {
-                Location location = cornerLocation.clone().add(i * xQuarter, 0, j * zQuarter);
+    private static boolean collectLayerLocations(Location cornerLocation, StructureLayer layer, FacingDirection direction, List<Location> output) {
+        int maxOffsetX = layer.maxOffsetX();
+        int maxOffsetZ = layer.maxOffsetZ();
+        for (int i = 0; i <= maxOffsetX; i++) {
+            for (int j = 0; j <= maxOffsetZ; j++) {
+                ComplexOffset offset = direction.getOffset(i, j);
+                Location location = cornerLocation.clone().add(offset.offsetX(), 0, offset.offsetZ());
                 StructurePosition position = layer.getByOffset(i, j);
                 if (position == null) {
                     throw new IllegalStateException("The constructed StructureLayer does not contain a mapping for all x and z offsets.");

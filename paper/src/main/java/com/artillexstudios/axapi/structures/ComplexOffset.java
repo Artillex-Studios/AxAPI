@@ -6,7 +6,8 @@ import org.jspecify.annotations.NonNull;
 public record ComplexOffset(int offsetX, int offsetY, int offsetZ) {
 
     @NonNull
-    public Location getRelativeLocation2D(@NonNull Location location, int xQuarter, int zQuarter) {
-        return location.clone().add(xQuarter * this.offsetX, 0, zQuarter * this.offsetZ);
+    public Location getRelativeLocation2D(@NonNull Location location, FacingDirection direction) {
+        ComplexOffset offset = direction.getOffset(this.offsetX, this.offsetZ);
+        return location.clone().add(offset.offsetX(), 0, offset.offsetZ());
     }
 }
