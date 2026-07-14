@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.structures;
 
 import org.bukkit.Location;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -26,33 +27,35 @@ public record PlacedStructure(Location baseLocation, Structure structure, List<L
     static PlacedStructure tryParse(Location location) {
         // Firstly, we need to check if the block at the location is the part of the structure at all.
         for (Structure structure : StructureRegistry.getInstance().structures()) {
-            ComplexOffset locationOffset = getLocationOffset(structure, location);
-            if (locationOffset == null) {
-                continue;
-            }
+            for (ComplexOffset locationOffset : getLocationOffsets(structure, location)) {
+                if (locationOffset == null) {
+                    continue;
+                }
 
-            PlacedStructure placedStructure = getPlacedStructure(structure, location.clone(), locationOffset);
-            if (placedStructure == null) {
-                continue;
-            }
+                PlacedStructure placedStructure = getPlacedStructure(structure, location.clone(), locationOffset);
+                if (placedStructure == null) {
+                    continue;
+                }
 
-            return placedStructure;
+                return placedStructure;
+            }
         }
 
         return null;
     }
 
-    @Nullable
-    private static ComplexOffset getLocationOffset(Structure structure, Location location) {
+    @NonNull
+    private static List<ComplexOffset> getLocationOffsets(Structure structure, Location location) {
+        final List<ComplexOffset> offsets = new ArrayList<>();
         for (StructureLayer layer : structure.layers()) {
             for (StructurePosition position : layer.positions()) {
                 if (position.isSameAs(location)) {
-                    return new ComplexOffset(position.offsetX(), layer.offsetY(), position.offsetZ());
+                    offsets.add(new ComplexOffset(position.offsetX(), layer.offsetY(), position.offsetZ()));
                 }
             }
         }
 
-        return null;
+        return offsets;
     }
 
     // Since the structure can be oriented in any 4 of the cardinal directions, we need to check in all of them.
