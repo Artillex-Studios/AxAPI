@@ -11,7 +11,6 @@ import com.artillexstudios.axapi.utils.logging.LogUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
-import org.yaml.snakeyaml.DumperOptions;
 
 import java.net.http.HttpResponse;
 import java.nio.file.Path;
@@ -35,9 +34,6 @@ public final class AxMetrics {
         Path path = plugin.getDataFolder().toPath();
         Path metricsConfigPath = path.getParent().resolve("AxAPI").resolve("metrics.yml");
         this.metricsConfig = YamlConfiguration.of(metricsConfigPath, MetricsConfig.class)
-                .withDumperOptions(options -> {
-                    options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-                })
                 .build();
 
         this.metricsConfig.load();

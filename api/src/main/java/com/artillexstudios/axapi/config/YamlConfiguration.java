@@ -306,6 +306,8 @@ public final class YamlConfiguration<T extends ConfigurationPart> extends MapCon
             this.clazz = clazz;
             this.dumperOptions.setProcessComments(true);
             this.loaderOptions.setProcessComments(true);
+            this.dumperOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+            this.dumperOptions.setSplitLines(false);
         }
 
         public Builder<T> addUpdater(int fromVersion, int toVersion, com.artillexstudios.axapi.config.ConfigurationUpdater updater) {

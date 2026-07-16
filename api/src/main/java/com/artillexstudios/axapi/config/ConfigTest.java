@@ -6,7 +6,6 @@ import com.artillexstudios.axapi.config.annotation.Header;
 import com.artillexstudios.axapi.config.annotation.Hidden;
 import com.artillexstudios.axapi.config.annotation.Named;
 import com.artillexstudios.axapi.config.annotation.Serializable;
-import org.yaml.snakeyaml.DumperOptions;
 
 import java.nio.file.Path;
 import java.util.Map;
@@ -22,7 +21,7 @@ public class ConfigTest implements ConfigurationPart {
     public static void main(String[] args) {
         var conf = YamlConfiguration.of(Path.of("D:\\EcoSkills\\rivals\\AxConfig\\asd\\bruh.yml"), ConfigTest.class)
                 .withDumperOptions((dumperOptions) -> {
-                    dumperOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+//                    dumperOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
                 }).withLoaderOptions(loaderOptions -> {
                     loaderOptions.setAllowDuplicateKeys(false);
                 })
