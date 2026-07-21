@@ -85,7 +85,7 @@ public class PlaceholderParameters extends HashMapContext {
             }
 
             try {
-                Object other = this.resolve(transformer.from());
+                Object other = this.resolve(transformer.from(), seen);
                 return UncheckedUtils.unsafeCast(transformer.function().apply(other));
             } catch (PlaceholderParameterNotInContextException ignored) {
                 if (FeatureFlags.DEBUG.get()) {
