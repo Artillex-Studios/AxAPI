@@ -3,17 +3,22 @@ package com.artillexstudios.axapi.libraries;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.file.FileUtils;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
+import org.jspecify.annotations.Nullable;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 
@@ -131,6 +136,30 @@ public final class LibraryDownloader {
         return false;
     }
 
+    @Nullable
+    public String getMd5Checksum(Library library) {
+        for (Repository repository : this.repositories) {
+            String md5Checksum = this.getMd5Checksum(repository, library);
+            if (md5Checksum != null) {
+                return md5Checksum;
+            }
+        }
+
+        return null;
+    }
+
+    @Nullable
+    public String getMd5Checksum(Repository repository, Library library) {
+        try (InputStream stream = repository.getMd5ChecksumURI(library).toURL().openStream()) {
+            return new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException exception) {
+            if (FeatureFlags.DEBUG.get()) {
+                LogUtils.error("Failed to get MD5 checksum of library {}", library);
+            }
+            return null;
+        }
+    }
+
     private void cleanupFiles(Library library) {
         for (Library transitiveDependency : library.transitiveDependencies()) {
             this.cleanupFiles(transitiveDependency);
@@ -160,11 +189,19 @@ public final class LibraryDownloader {
                     stream.write(bytes, 0, length);
                 }
 
+
+                String checksum = this.getMd5Checksum(library);
+                String fileChecksum = HexFormat.of().formatHex(MessageDigest.getInstance("MD5").digest(Files.readAllBytes(path)));
+                if (checksum != null && !checksum.equalsIgnoreCase(fileChecksum)) {
+                    LogUtils.info("Library {} failed checksum check! Downloading again...", library);
+                    this.downloadLibrary(library);
+                    return;
+                }
                 this.libraryPaths.add(path);
                 found = true;
             } catch (FileNotFoundException exception) {
                 continue;
-            } catch (IOException exception) {
+            } catch (IOException | NoSuchAlgorithmException exception) {
                 LogUtils.error("An exception occurred while downloading library {}!", library, exception);
                 continue;
             }

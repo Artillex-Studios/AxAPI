@@ -75,7 +75,6 @@ public final class TransitiveDependencyCollector {
         this.seen.clear();
     }
 
-
     public boolean hasAlreadySeen(Library library) {
         for (Library loaded : this.seen) {
             if (LibraryCache.checkWithoutVersion(library, loaded)) {
