@@ -189,9 +189,8 @@ public final class LibraryDownloader {
                     stream.write(bytes, 0, length);
                 }
 
-
                 String checksum = this.getMd5Checksum(library);
-                String fileChecksum = HexFormat.of().formatHex(MessageDigest.getInstance("MD5").digest(Files.readAllBytes(path)));
+                String fileChecksum = HexFormat.of().formatHex(MessageDigest.getInstance("MD5").digest(Files.readAllBytes(resolve)));
                 if (checksum != null && !checksum.equalsIgnoreCase(fileChecksum)) {
                     LogUtils.info("Library {} failed checksum check! Downloading again...", library);
                     this.downloadLibrary(library);
