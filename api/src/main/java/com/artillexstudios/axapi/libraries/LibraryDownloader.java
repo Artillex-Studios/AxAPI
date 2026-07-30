@@ -48,6 +48,7 @@ public final class LibraryDownloader {
         }
         this.libraryCache.load();
         this.addRepository(new Repository("https://repo.artillex-studios.com/releases/"));
+        this.addRepository(new Repository("https://repo2.artillex-studios.com/releases/"));
         this.addRepository(new Repository("https://repo1.maven.org/maven2/"));
         this.helper = new RelocationHelper(this);
         this.loaded = true;
