@@ -43,7 +43,7 @@ public final class RelocationHelper {
 
     public void relocate(Path path, Path relocated, Map<String, String> relocations) {
         if (FeatureFlags.DEBUG.get()) {
-            LogUtils.debug("Relocating from: {} to: {} with relocations: {}", path, relocated, relocated);
+            LogUtils.debug("Relocating from: {} to: {} with relocations: {}", path, relocated, relocations);
         }
         try {
             Constructor<?> declaredConstructor = this.clazz.getDeclaredConstructor(File.class, File.class, Map.class);

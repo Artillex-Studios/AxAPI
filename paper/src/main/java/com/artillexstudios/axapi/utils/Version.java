@@ -123,8 +123,8 @@ public enum Version {
             return;
         }
 
-        wrapper.dependency("com{}artillexstudios{}axapi.nms." + Version.getServerVersion().nmsVersion + ":axapi:" + BuildConstants.VERSION + ":all");
         wrapper.relocate("com{}artillexstudios{}axapi", "com.artillexstudios.axapi");
+        wrapper.dependency("com{}artillexstudios{}axapi.nms." + Version.getServerVersion().nmsVersion + ":axapi:" + BuildConstants.VERSION + ":all");
     }
 
     public static int getProtocolVersion() {
