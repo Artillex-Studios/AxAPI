@@ -1,5 +1,8 @@
 package com.artillexstudios.axapi.libraries;
 
+import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
+
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -39,6 +42,9 @@ public final class RelocationHelper {
     }
 
     public void relocate(Path path, Path relocated, Map<String, String> relocations) {
+        if (FeatureFlags.DEBUG.get()) {
+            LogUtils.debug("Relocating from: {} to: {} with relocations: {}", path, relocated, relocated);
+        }
         try {
             Constructor<?> declaredConstructor = this.clazz.getDeclaredConstructor(File.class, File.class, Map.class);
             declaredConstructor.setAccessible(true);
@@ -48,6 +54,7 @@ public final class RelocationHelper {
             run.invoke(object);
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
                  IllegalAccessException exception) {
+            LogUtils.error("An exception occurred while relocating!", exception);
             throw new RuntimeException(exception);
         }
     }
