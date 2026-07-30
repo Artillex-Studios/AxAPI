@@ -36,6 +36,7 @@ import com.artillexstudios.axapi.utils.Version;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.file.FileUtils;
 import com.artillexstudios.axapi.utils.file.PaperFileUtils;
+import com.artillexstudios.axapi.utils.logging.LogUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -87,6 +88,9 @@ public abstract class AxPlugin extends JavaPlugin {
 
         UnsafeDependencyLoader unsafeDependencyLoader = new UnsafeDependencyLoader();
         for (Path path : wrapper.wrapped().getLibraryPaths()) {
+            if (FeatureFlags.DEBUG.get()) {
+                LogUtils.debug("Loading library from path: {}", path);
+            }
             unsafeDependencyLoader.loadUnsafeLibrary(UncheckedUtils.unsafeCast(this.getClassLoader()), path);
         }
     }
