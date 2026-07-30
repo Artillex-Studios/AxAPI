@@ -43,6 +43,7 @@ public final class TransitiveDependencyCollector {
             try (InputStream stream = pomURI.toURL().openStream()) {
                 List<Library> foundLibrary = this.findLibrary(library, stream);
                 found.addAll(foundLibrary);
+                break;
             } catch (FileNotFoundException exception) {
                 if (FeatureFlags.DEBUG.get()) {
                     LogUtils.debug("Library pom not found at: {}", pomURI);
@@ -52,8 +53,6 @@ public final class TransitiveDependencyCollector {
                 LogUtils.error("An exception occurred while trying to find transitive libraries for library: {}!", library, exception);
                 continue;
             }
-
-            break;
         }
 
         List<Library> transitiveDependencies = new ArrayList<>();
