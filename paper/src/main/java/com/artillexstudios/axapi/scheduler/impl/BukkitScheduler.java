@@ -155,4 +155,9 @@ public class BukkitScheduler implements Scheduler {
     public void cancelAll() {
         Bukkit.getScheduler().cancelTasks(this.plugin);
     }
+
+    @Override
+    public boolean isRegionThread() {
+        return false;
+    }
 }

@@ -7,14 +7,25 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class FoliaScheduler implements Scheduler {
     private final JavaPlugin plugin;
+    private final Method currentRegionMethod;
 
     public FoliaScheduler(JavaPlugin plugin) {
         this.plugin = plugin;
+        Method method;
+        try {
+            method = Class.forName("io.papermc.paper.threadedregions.TickRegionScheduler").getDeclaredMethod("getCurrentRegion");
+            method.setAccessible(true);
+        } catch (ClassNotFoundException | NoSuchMethodException exception) {
+            method = null;
+        }
+        currentRegionMethod = method;
     }
 
     @Override
@@ -157,5 +168,19 @@ public class FoliaScheduler implements Scheduler {
     public void cancelAll() {
         Bukkit.getAsyncScheduler().cancelTasks(this.plugin);
         Bukkit.getGlobalRegionScheduler().cancelTasks(this.plugin);
+    }
+
+    @Override
+    public boolean isRegionThread() {
+        try {
+            Object region = this.currentRegionMethod.invoke(null);
+            if (region == null) {
+                return false;
+            }
+
+            return !Bukkit.isGlobalTickThread();
+        } catch (IllegalAccessException | InvocationTargetException exception) {
+            return false;
+        }
     }
 }

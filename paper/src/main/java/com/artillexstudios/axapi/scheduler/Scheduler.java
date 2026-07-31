@@ -68,4 +68,6 @@ public interface Scheduler {
     boolean isGlobalTickThread();
 
     void cancelAll();
+
+    boolean isRegionThread();
 }
