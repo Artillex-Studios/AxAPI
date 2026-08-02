@@ -11,6 +11,8 @@ import com.artillexstudios.axapi.items.components.data.DyedItemColor;
 import com.artillexstudios.axapi.items.components.data.ItemEnchantments;
 import com.artillexstudios.axapi.items.components.data.ItemLore;
 import com.artillexstudios.axapi.items.components.data.PotionContents;
+import com.artillexstudios.axapi.items.components.data.TooltipDisplay;
+import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.placeholders.PaperPlaceholderHandler;
 import com.artillexstudios.axapi.placeholders.PlaceholderParameters;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
@@ -63,7 +65,7 @@ public class ItemBuilder {
             this.stack = WrappedItemStack.wrap(new ItemStack(this.getMaterial(type)));
         }
 
-        Optionals.ifPresent(getter.getStringList("item-flags"), list -> this.flags.addAll(this.getItemFlags(list)));
+        Optionals.ifPresent(getter.getStringList("item-flags"), this::setHiddenComponents);
         Optionals.ifPresent(getter.getStringList("enchants"), enchants -> this.addEnchants(this.createEnchantmentsMap(enchants)));
         Optionals.ifPresent(getter.getString("name"), this::setName);
         Optionals.ifPresent(getter.getString("color"), this::setColor);
@@ -290,21 +292,11 @@ public class ItemBuilder {
         return enchantsMap;
     }
 
-    @NotNull
-    private List<ItemFlag> getItemFlags(@NotNull List<String> flags) {
-        final List<ItemFlag> flagList = new ArrayList<>(flags.size());
-        for (String flag : flags) {
-            ItemFlag itemFlag;
-            try {
-                itemFlag = ItemFlag.valueOf(flag.toUpperCase(Locale.ENGLISH));
-            } catch (Exception exception) {
-                continue;
-            }
 
-            flagList.add(itemFlag);
-        }
-
-        return flagList;
+    public void setHiddenComponents(List<String> hiddenComponents) {
+        this.stack.setNew(DataComponents.TOOLTIP_DISPLAY, new TooltipDisplay(false, UncheckedUtils.unsafeCast(hiddenComponents.stream().map(name -> {
+            return NMSHandlers.getNmsHandler().getDataComponent(name.toLowerCase(Locale.ENGLISH));
+        }).toList())));
     }
 
     public static String toTagResolver(String string, TagResolver... resolvers) {
@@ -513,7 +505,7 @@ public class ItemBuilder {
         if (snbt) {
             map.put("snbt", this.stack.toSNBT());
         } else {
-            map.put("type", this.stack.getNew(DataComponents.MATERIAL).name());
+//            map.put("type", this.stack.getNew(DataComponents.MATERIAL).name());
 
             Component name = this.stack.getNew(DataComponents.CUSTOM_NAME);
             if (name != Component.empty()) {
