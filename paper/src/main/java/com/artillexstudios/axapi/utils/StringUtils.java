@@ -72,28 +72,33 @@ public final class StringUtils {
         }
 
         // I will probably have to improve the performance of this code by a large margin...
-        String formatted = translateToMiniMessage(input, resolvers);
+        String formatted = translateToMiniMessage(input);
 
         if (formatted == null) {
             return Component.empty();
         }
 
+        formatted = ItemBuilder.toTagResolver(formatted, resolvers);
+
         return MINI_MESSAGE.deserialize(formatted, resolvers.length == 0 ? EMPTY_RESOLVER : TagResolver.resolver(resolvers)).applyFallbackStyle(TextDecoration.ITALIC.withState(false));
     }
 
-    public static String translateToMiniMessage(@NonNull String input, @NonNull TagResolver... resolvers) {
+    public static String translateToMiniMessage(@NonNull String input) {
         return COLOR_CACHE.get(input, str -> {
             String toFormat = str.replace('\u00a7', '&');
 
-            toFormat = ItemBuilder.toTagResolver(toFormat, resolvers);
             toFormat = replaceLegacyFormat(toFormat, "&l", "<b>", "</b>");
             toFormat = replaceLegacyFormat(toFormat, "&m", "<st>", "</st>");
             toFormat = replaceLegacyFormat(toFormat, "&n", "<u>", "</u>");
             toFormat = replaceLegacyFormat(toFormat, "&o", "<i>", "</i>");
             toFormat = replaceLegacyFormat(toFormat, "&k", "<obf>", "</obf>");
 
+            System.out.println(toFormat);
             toFormat = HEX_PATTERN.matcher(toFormat).replaceAll(fo -> "<#" + fo.group(1) + ">");
-            toFormat = UNUSUAL_LEGACY_HEX_PATTERN.matcher(toFormat).replaceAll(fo -> "<#" + fo.group(1) + fo.group(2) + fo.group(3) + fo.group(4) + fo.group(5) + fo.group(6) + ">");
+            toFormat = UNUSUAL_LEGACY_HEX_PATTERN.matcher(toFormat).replaceAll(fo -> {
+                System.out.println("Matching! " + fo);
+                return "<#" + fo.group(1) + fo.group(2) + fo.group(3) + fo.group(4) + fo.group(5) + fo.group(6) + ">";
+            });
             toFormat = UNUSUAL_LEGACY_HEX_PATTERN.matcher(toFormat).replaceAll(fo -> "");
 
             for (Pair<String, String> placeholder : COLOR_FORMATS) {
