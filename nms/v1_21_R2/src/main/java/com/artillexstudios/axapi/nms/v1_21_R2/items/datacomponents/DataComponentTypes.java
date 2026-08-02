@@ -12,6 +12,7 @@ import com.artillexstudios.axapi.nms.v1_21_R2.items.datacomponents.impl.Enchantm
 import com.artillexstudios.axapi.nms.v1_21_R2.items.datacomponents.impl.IdentifierDataComponent;
 import com.artillexstudios.axapi.nms.v1_21_R2.items.datacomponents.impl.IdentityDataComponent;
 import com.artillexstudios.axapi.nms.v1_21_R2.items.datacomponents.impl.LoreDataComponent;
+import com.artillexstudios.axapi.nms.v1_21_R2.items.datacomponents.impl.MaterialDataComponent;
 import com.artillexstudios.axapi.nms.v1_21_R2.items.datacomponents.impl.PotionContentsDataComponent;
 import com.artillexstudios.axapi.nms.v1_21_R2.items.datacomponents.impl.ProfileDataComponent;
 import com.artillexstudios.axapi.nms.v1_21_R2.items.datacomponents.impl.RarityDataComponent;
@@ -45,7 +46,7 @@ public final class DataComponentTypes {
         register("custom_model_data", DataComponents.CUSTOM_MODEL_DATA, new CustomModelDataDataComponent());
         register("enchantment_glint_override", DataComponents.ENCHANTMENT_GLINT_OVERRIDE, new IdentityDataComponent<>());
         register("profile", DataComponents.PROFILE, new ProfileDataComponent());
-//        register("material", null); // TODO: implement datacomponent for this
+        register("material", new MaterialDataComponent());
         register("dyed_color", DataComponents.DYED_COLOR, new DyedColorDataComponent());
         register("potion_contents", DataComponents.POTION_CONTENTS, new PotionContentsDataComponent());
         register("unbreakable", DataComponents.UNBREAKABLE, new UnbreakableDataComponent());

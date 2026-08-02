@@ -28,7 +28,6 @@ import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.NotNull;
@@ -48,7 +47,6 @@ import java.util.function.BiFunction;
 public class ItemBuilder {
     private static final BiFunction<String, PlaceholderParameters, String> PLACEHOLDER_PARSER = (line, parameters) -> FeatureFlags.PARSE_PLACEHOLDER_API_IN_ITEM_BUILDER.get() ? PaperPlaceholderHandler.parseWithPlaceholderAPI(line, parameters) : PaperPlaceholderHandler.parse(line, parameters);
     private static final UUID NIL_UUID = new UUID(0, 0);
-    private final List<ItemFlag> flags = new ArrayList<>(4);
     private final WrappedItemStack stack;
     private final TagResolver[] resolvers;
     private final PlaceholderParameters parameters;
@@ -84,12 +82,6 @@ public class ItemBuilder {
         Optionals.ifPresent(getter.getString("tooltip-style"), this::tooltipStyle);
         Optionals.ifPresent(ExceptionUtils.catching(() -> getter.getInteger("custom-model-data")), this::legacyModelData);
         Optionals.ifPresent(ExceptionUtils.catching(() -> getter.getMap("custom-model-data")), this::customModelData);
-
-//        ExceptionUtils.catching(() -> {
-//            if (this.flags.contains(ItemFlag.HIDE_POTION_EFFECTS)) {
-//                this.stack.set(DataComponents.HIDE(), Unit.INSTANCE);
-//            }
-//        });
     }
 
     public ItemBuilder(WrappedItemStack stack, PlaceholderParameters parameters, TagResolver... resolvers) {
@@ -517,7 +509,7 @@ public class ItemBuilder {
         if (snbt) {
             map.put("snbt", this.stack.toSNBT());
         } else {
-//            map.put("type", this.stack.getNew(DataComponents.MATERIAL).name());
+            map.put("type", this.stack.get(DataComponents.MATERIAL).name());
 
             Component name = this.stack.get(DataComponents.CUSTOM_NAME);
             if (name != Component.empty()) {
