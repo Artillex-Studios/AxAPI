@@ -42,7 +42,7 @@ public final class DataComponentTypes {
         register("custom_model_data", DataComponents.CUSTOM_MODEL_DATA, new CustomModelDataDataComponent());
         register("enchantment_glint_override", DataComponents.ENCHANTMENT_GLINT_OVERRIDE, new IdentityDataComponent<>());
         register("profile", DataComponents.PROFILE, new ProfileDataComponent());
-        register("material", null); // TODO: implement datacomponent for this
+//        register("material", null); // TODO: implement datacomponent for this
         register("dyed_color", DataComponents.DYED_COLOR, new DyedColorDataComponent());
         register("potion_contents", DataComponents.POTION_CONTENTS, new PotionContentsDataComponent());
         register("unbreakable", DataComponents.UNBREAKABLE, new UnitDataComponent());
