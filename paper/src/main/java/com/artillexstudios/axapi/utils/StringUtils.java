@@ -93,12 +93,8 @@ public final class StringUtils {
             toFormat = replaceLegacyFormat(toFormat, "&o", "<i>", "</i>");
             toFormat = replaceLegacyFormat(toFormat, "&k", "<obf>", "</obf>");
 
-            System.out.println(toFormat);
             toFormat = HEX_PATTERN.matcher(toFormat).replaceAll(fo -> "<#" + fo.group(1) + ">");
-            toFormat = UNUSUAL_LEGACY_HEX_PATTERN.matcher(toFormat).replaceAll(fo -> {
-                System.out.println("Matching! " + fo);
-                return "<#" + fo.group(1) + fo.group(2) + fo.group(3) + fo.group(4) + fo.group(5) + fo.group(6) + ">";
-            });
+            toFormat = UNUSUAL_LEGACY_HEX_PATTERN.matcher(toFormat).replaceAll(fo -> "<#" + fo.group(1) + fo.group(2) + fo.group(3) + fo.group(4) + fo.group(5) + fo.group(6) + ">");
             toFormat = UNUSUAL_LEGACY_HEX_PATTERN.matcher(toFormat).replaceAll(fo -> "");
 
             for (Pair<String, String> placeholder : COLOR_FORMATS) {
@@ -183,7 +179,9 @@ public final class StringUtils {
                     break;
                 } else if (firstChar == '&' && i + 1 < toFormat.length()) {
                     char c = toFormat.charAt(i + 1);
-                    if (c == 'r') {
+                    if (c == 'x') {
+                        i += 13;
+                    } else if (c == 'r') {
                         // We don't need to insert anything if we find a reset
                         break;
                     } else if (COLOR_CHARS.contains(c)) {
