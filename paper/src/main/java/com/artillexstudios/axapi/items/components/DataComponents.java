@@ -13,7 +13,6 @@ import com.artillexstudios.axapi.utils.ResolvableProfile;
 import com.artillexstudios.axapi.utils.UncheckedUtils;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Material;
 
 public final class DataComponents {
     public static final DataComponent<CompoundTag> CUSTOM_DATA = fetch("custom_data");
@@ -32,7 +31,7 @@ public final class DataComponents {
     public static final DataComponent<CustomModelData> CUSTOM_MODEL_DATA = fetch("custom_model_data");
     public static final DataComponent<Boolean> ENCHANTMENT_GLINT_OVERRIDE = fetch("enchantment_glint_override");
     public static final DataComponent<ResolvableProfile> PROFILE = fetch("profile");
-    public static final DataComponent<Material> MATERIAL = fetch("material");
+//    public static final DataComponent<Material> MATERIAL = fetch("material");
     public static final DataComponent<DyedItemColor> DYED_COLOR = fetch("dyed_color");
     public static final DataComponent<PotionContents> POTION_CONTENTS = fetch("potion_contents");
     public static final DataComponent<Unit> UNBREAKABLE = fetch("unbreakable");
