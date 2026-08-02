@@ -34,11 +34,11 @@ public final class LoreDataComponent implements DataComponentHandler<ItemLore> {
     public ItemLore getData(ItemStack stack) {
         CompoundTag tag = this.getDisplayTag(stack);
         if (tag == null) {
-            return null;
+            return ItemLore.create(List.of());
         }
 
         if (!tag.contains("Lore")) {
-            return null;
+            return ItemLore.create(List.of());
         }
 
         ListTag list = tag.getList("Lore", CraftMagicNumbers.NBT.TAG_STRING);
