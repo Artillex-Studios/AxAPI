@@ -2,8 +2,10 @@ package com.artillexstudios.axapi.nms.v1_21_R7;
 
 import com.artillexstudios.axapi.gui.AnvilInput;
 import com.artillexstudios.axapi.gui.SignInput;
+import com.artillexstudios.axapi.items.components.DataComponent;
 import com.artillexstudios.axapi.nms.v1_21_R7.entity.PacketEntity;
 import com.artillexstudios.axapi.nms.v1_21_R7.items.data.DataComponentImpl;
+import com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.DataComponentTypes;
 import com.artillexstudios.axapi.nms.v1_21_R7.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.nms.v1_21_R7.loot.LootTable;
 import com.artillexstudios.axapi.nms.v1_21_R7.packet.PacketTransformer;
@@ -177,5 +179,10 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     @Override
     public FriendlyByteBuf newBuf() {
         return PacketTransformer.newByteBuf();
+    }
+
+    @Override
+    public DataComponent<?> getDataComponent(String id) {
+        return DataComponentTypes.component(id);
     }
 }

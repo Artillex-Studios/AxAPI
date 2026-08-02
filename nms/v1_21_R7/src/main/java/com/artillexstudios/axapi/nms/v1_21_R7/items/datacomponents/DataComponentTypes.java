@@ -15,8 +15,8 @@ import com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.LoreData
 import com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.PotionContentsDataComponent;
 import com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.ProfileDataComponent;
 import com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.RarityDataComponent;
+import com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.TooltipDisplayDataComponent;
 import com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.UnitDataComponent;
-import com.artillexstudios.axapi.utils.UncheckedUtils;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
@@ -47,6 +47,7 @@ public final class DataComponentTypes {
         register("potion_contents", DataComponents.POTION_CONTENTS, new PotionContentsDataComponent());
         register("unbreakable", DataComponents.UNBREAKABLE, new UnitDataComponent());
         register("minimum_attack_charge", DataComponents.MINIMUM_ATTACK_CHARGE, new IdentityDataComponent<>()); // FLOAT
+        register("tooltip_display", DataComponents.TOOLTIP_DISPLAY, new TooltipDisplayDataComponent());
 //        register("trim", DataComponents.TRIM, new LoreDataComponent());
 //        register("base_color", DataComponents.BASE_COLOR, new DyedColorDataComponent());
     }
@@ -60,12 +61,12 @@ public final class DataComponentTypes {
     }
 
     public static <T, Z> void register(String id, DataComponentType<@NotNull Z> type, DataComponentHandler<T, Z> mapper) {
-        register(id, com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.DataComponent.create(type, mapper));
+        register(id, com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.DataComponent.create(id, type, mapper));
     }
 
-    public static <T extends DataComponent<?>> T component(String id) {
+    public static DataComponent<?> component(String id) {
         try {
-            return UncheckedUtils.unsafeCast(components.get(id));
+            return components.get(id);
         } catch (RegistrationFailedException exception) {
             LogUtils.error("Failed to find component {}! This is an issue with the code, and it should be reported to the developer of the plugin!",
                     id, exception);

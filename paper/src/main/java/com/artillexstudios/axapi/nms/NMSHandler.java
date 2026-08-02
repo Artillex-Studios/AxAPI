@@ -44,7 +44,7 @@ public interface NMSHandler {
 
     FriendlyByteBuf newBuf();
 
-    default <T extends DataComponent<?>> T getDataComponent(String id) {
+    default DataComponent<?> getDataComponent(String id) {
         return null;
     }
 }

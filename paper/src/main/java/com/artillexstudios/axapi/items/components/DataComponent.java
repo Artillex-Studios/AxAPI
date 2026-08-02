@@ -7,4 +7,6 @@ public interface DataComponent<T> {
     void apply(WrappedItemStack stack, T data);
 
     T getData(WrappedItemStack stack);
+
+    String getId();
 }

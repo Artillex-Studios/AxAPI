@@ -10,6 +10,7 @@ import com.artillexstudios.axapi.items.components.data.Rarity;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.utils.ResolvableProfile;
+import com.artillexstudios.axapi.utils.UncheckedUtils;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
@@ -37,7 +38,7 @@ public final class DataComponents {
     public static final DataComponent<Unit> UNBREAKABLE = fetch("unbreakable");
     public static final DataComponent<Float> MINIMUM_ATTACK_CHARGE = fetch("minimum_attack_charge");
 
-    private static <T extends DataComponent<?>> T fetch(String id) {
-        return NMSHandlers.getNmsHandler().getDataComponent(id);
+    private static <T> DataComponent<T> fetch(String id) {
+        return UncheckedUtils.unsafeCast(NMSHandlers.getNmsHandler().getDataComponent(id));
     }
 }

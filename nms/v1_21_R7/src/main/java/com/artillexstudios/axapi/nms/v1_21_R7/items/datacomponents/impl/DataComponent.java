@@ -6,8 +6,8 @@ import org.jetbrains.annotations.NotNull;
 
 public final class DataComponent {
 
-    public static <T, Z> com.artillexstudios.axapi.items.components.DataComponent<T> create(DataComponentType<@NotNull Z> type, DataComponentHandler<T, Z> handler) {
-        return new com.artillexstudios.axapi.items.components.DataComponent<T>() {
+    public static <T, Z> com.artillexstudios.axapi.items.components.DataComponent<T> create(String id, DataComponentType<@NotNull Z> type, DataComponentHandler<T, Z> handler) {
+        return new com.artillexstudios.axapi.items.components.DataComponent<>() {
 
             @Override
             public void apply(WrappedItemStack stack, T data) {
@@ -17,6 +17,11 @@ public final class DataComponent {
             @Override
             public T getData(WrappedItemStack stack) {
                 return handler.getData(stack, type);
+            }
+
+            @Override
+            public String getId() {
+                return id;
             }
         };
     }
