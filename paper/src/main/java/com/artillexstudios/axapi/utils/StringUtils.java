@@ -72,7 +72,7 @@ public final class StringUtils {
         }
 
         // I will probably have to improve the performance of this code by a large margin...
-        String formatted = translateToMiniMessage(input);
+        String formatted = translateToMiniMessage(input, resolvers);
 
         if (formatted == null) {
             return Component.empty();
