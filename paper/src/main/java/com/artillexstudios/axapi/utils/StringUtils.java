@@ -75,6 +75,7 @@ public final class StringUtils {
         String formatted = COLOR_CACHE.get(input, str -> {
             String toFormat = str.replace('\u00a7', '&');
 
+            toFormat = ItemBuilder.toTagResolver(toFormat, resolvers);
             toFormat = replaceLegacyFormat(toFormat, "&l", "<b>", "</b>");
             toFormat = replaceLegacyFormat(toFormat, "&m", "<st>", "</st>");
             toFormat = replaceLegacyFormat(toFormat, "&n", "<u>", "</u>");
@@ -82,14 +83,12 @@ public final class StringUtils {
             toFormat = replaceLegacyFormat(toFormat, "&k", "<obf>", "</obf>");
 
             toFormat = HEX_PATTERN.matcher(toFormat).replaceAll(fo -> "<#" + fo.group(1) + ">");
-            toFormat = UNUSUAL_LEGACY_HEX_PATTERN.matcher(toFormat).replaceAll(fo -> "<#" + fo.group(0) + fo.group(1) + fo.group(2) + fo.group(3) + fo.group(4) + fo.group(5) + ">");
+            toFormat = UNUSUAL_LEGACY_HEX_PATTERN.matcher(toFormat).replaceAll(fo -> "<#" + fo.group(1) + fo.group(2) + fo.group(3) + fo.group(4) + fo.group(5) + fo.group(6) + ">");
             toFormat = UNUSUAL_LEGACY_HEX_PATTERN.matcher(toFormat).replaceAll(fo -> "");
 
             for (Pair<String, String> placeholder : COLOR_FORMATS) {
                 toFormat = toFormat.replace(placeholder.first(), placeholder.second());
             }
-
-            toFormat = ItemBuilder.toTagResolver(toFormat, resolvers);
 
             return toFormat;
         });
@@ -166,11 +165,24 @@ public final class StringUtils {
         while ((index = toFormat.indexOf(search)) != -1) {
             toFormat = org.apache.commons.lang3.StringUtils.replaceOnce(toFormat, search, start);
             for (int i = index; i < toFormat.length(); i++) {
-                if (toFormat.charAt(i) == '&' && i + 1 < toFormat.length() && COLOR_CHARS.contains(toFormat.charAt(i + 1))) {
+                char firstChar = toFormat.charAt(i);
+                if (firstChar == '\n') {
+                    // If we find a newline character, we should insert the closing tag
                     StringBuilder stringBuilder = new StringBuilder(toFormat);
                     stringBuilder.insert(i, close);
                     toFormat = stringBuilder.toString();
                     break;
+                } else if (firstChar == '&' && i + 1 < toFormat.length()) {
+                    char c = toFormat.charAt(i + 1);
+                    if (c == 'r') {
+                        // We don't need to insert anything if we find a reset
+                        break;
+                    } else if (COLOR_CHARS.contains(c)) {
+                        StringBuilder stringBuilder = new StringBuilder(toFormat);
+                        stringBuilder.insert(i, close);
+                        toFormat = stringBuilder.toString();
+                        break;
+                    }
                 }
             }
         }
