@@ -12,7 +12,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.ChatColor;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import java.text.DecimalFormat;
 import java.time.Duration;
@@ -60,11 +60,11 @@ public final class StringUtils {
             .hexColors()
             .build();
 
-    public static Component format(@NotNull String input, @NotNull Map<String, String> replacements) {
+    public static Component format(@NonNull String input, @NonNull Map<String, String> replacements) {
         return format(input, ItemBuilder.mapResolvers(replacements));
     }
 
-    public static Component format(@NotNull String input, @NotNull TagResolver... resolvers) {
+    public static Component format(@NonNull String input, @NonNull TagResolver... resolvers) {
         if (FeatureFlags.USE_LEGACY_HEX_FORMATTER.get()) {
             input = ItemBuilder.toTagResolver(input, resolvers);
 
@@ -72,7 +72,17 @@ public final class StringUtils {
         }
 
         // I will probably have to improve the performance of this code by a large margin...
-        String formatted = COLOR_CACHE.get(input, str -> {
+        String formatted = translateToMiniMessage(input);
+
+        if (formatted == null) {
+            return Component.empty();
+        }
+
+        return MINI_MESSAGE.deserialize(formatted, resolvers.length == 0 ? EMPTY_RESOLVER : TagResolver.resolver(resolvers)).applyFallbackStyle(TextDecoration.ITALIC.withState(false));
+    }
+
+    public static String translateToMiniMessage(@NonNull String input, @NonNull TagResolver... resolvers) {
+        return COLOR_CACHE.get(input, str -> {
             String toFormat = str.replace('\u00a7', '&');
 
             toFormat = ItemBuilder.toTagResolver(toFormat, resolvers);
@@ -92,15 +102,9 @@ public final class StringUtils {
 
             return toFormat;
         });
-
-        if (formatted == null) {
-            return Component.empty();
-        }
-
-        return MINI_MESSAGE.deserialize(formatted, resolvers.length == 0 ? EMPTY_RESOLVER : TagResolver.resolver(resolvers)).applyFallbackStyle(TextDecoration.ITALIC.withState(false));
     }
 
-    public static String formatToString(@NotNull String string, @NotNull TagResolver... resolvers) {
+    public static String formatToString(@NonNull String string, @NonNull TagResolver... resolvers) {
         if (FeatureFlags.USE_LEGACY_HEX_FORMATTER.get()) {
             String changed = string.replace("§", "&");
             changed = ItemBuilder.toTagResolver(changed, resolvers);
@@ -110,12 +114,12 @@ public final class StringUtils {
         return LEGACY_COMPONENT_SERIALIZER.serialize(format(string, resolvers));
     }
 
-    public static String formatToString(@NotNull String string, @NotNull Map<String, String> replacements) {
+    public static String formatToString(@NonNull String string, @NonNull Map<String, String> replacements) {
         return formatToString(string, ItemBuilder.mapResolvers(replacements));
     }
 
-    @NotNull
-    public static List<Component> formatList(@NotNull List<String> list, TagResolver... resolvers) {
+    @NonNull
+    public static List<Component> formatList(@NonNull List<String> list, TagResolver... resolvers) {
         List<Component> newList = new ArrayList<>(list.size());
         for (String line : list) {
             newList.add(format(line, resolvers));
@@ -124,13 +128,13 @@ public final class StringUtils {
         return newList;
     }
 
-    @NotNull
-    public static List<Component> formatList(@NotNull List<String> list, Map<String, String> replacements) {
+    @NonNull
+    public static List<Component> formatList(@NonNull List<String> list, Map<String, String> replacements) {
         return formatList(list, ItemBuilder.mapResolvers(replacements));
     }
 
-    @NotNull
-    public static List<String> formatListToString(@NotNull List<String> list, TagResolver... resolvers) {
+    @NonNull
+    public static List<String> formatListToString(@NonNull List<String> list, TagResolver... resolvers) {
         List<String> newList = new ArrayList<>(list.size());
         for (String line : list) {
             newList.add(formatToString(line, resolvers));
@@ -139,8 +143,8 @@ public final class StringUtils {
         return newList;
     }
 
-    @NotNull
-    public static List<String> formatListToString(@NotNull List<String> list, Map<String, String> replacements) {
+    @NonNull
+    public static List<String> formatListToString(@NonNull List<String> list, Map<String, String> replacements) {
         return formatListToString(list, ItemBuilder.mapResolvers(replacements));
     }
 
@@ -149,7 +153,7 @@ public final class StringUtils {
         return formatter.format(number);
     }
 
-    @NotNull
+    @NonNull
     public static String formatTime(long time) {
         Duration remainingTime = Duration.ofMillis(time);
         long total = remainingTime.getSeconds();
