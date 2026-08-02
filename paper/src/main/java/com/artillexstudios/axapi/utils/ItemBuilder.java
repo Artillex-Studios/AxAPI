@@ -244,7 +244,7 @@ public class ItemBuilder {
 
         int i = 0;
         for (Map.Entry<String, String> entry : replacements.entrySet()) {
-            resolvers[i] = Placeholder.parsed(entry.getKey().replace("%", ""), entry.getValue());
+            resolvers[i] = Placeholder.parsed(entry.getKey().replace("%", ""), StringUtils.MINI_MESSAGE.serialize(StringUtils.format(entry.getValue())));
             i++;
         }
 

@@ -12,6 +12,11 @@ public final class CustomDataDataComponent implements DataComponentHandler<Compo
 
     @Override
     public CompoundTag fromNMS(CustomData data) {
-        return new com.artillexstudios.axapi.nms.v1_21_R2.items.nbt.CompoundTag(data.getUnsafe());
+        return new com.artillexstudios.axapi.nms.v1_21_R2.items.nbt.CompoundTag(data.copyTag());
+    }
+
+    @Override
+    public CustomData getDefault() {
+        return CustomData.of(new net.minecraft.nbt.CompoundTag());
     }
 }

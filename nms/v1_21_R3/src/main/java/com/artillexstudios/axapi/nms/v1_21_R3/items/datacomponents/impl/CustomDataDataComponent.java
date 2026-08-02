@@ -1,7 +1,6 @@
 package com.artillexstudios.axapi.nms.v1_21_R3.items.datacomponents.impl;
 
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
-import com.artillexstudios.axapi.nms.v1_21_R3.items.datacomponents.impl.DataComponentHandler;
 import net.minecraft.world.item.component.CustomData;
 
 public final class CustomDataDataComponent implements DataComponentHandler<CompoundTag, CustomData> {
@@ -13,6 +12,11 @@ public final class CustomDataDataComponent implements DataComponentHandler<Compo
 
     @Override
     public CompoundTag fromNMS(CustomData data) {
-        return new com.artillexstudios.axapi.nms.v1_21_R3.items.nbt.CompoundTag(data.getUnsafe());
+        return new com.artillexstudios.axapi.nms.v1_21_R3.items.nbt.CompoundTag(data.copyTag());
+    }
+
+    @Override
+    public CustomData getDefault() {
+        return CustomData.of(new net.minecraft.nbt.CompoundTag());
     }
 }
