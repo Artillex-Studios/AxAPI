@@ -36,8 +36,18 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
     }
 
     @Override
+    public <T> void setNew(com.artillexstudios.axapi.items.components.DataComponent<T> component, T value) {
+        component.apply(this, value);
+    }
+
+    @Override
     public <T> T get(DataComponent<T> component) {
         return component.get(this.itemStack);
+    }
+
+    @Override
+    public <T> T getNew(com.artillexstudios.axapi.items.components.DataComponent<T> component) {
+        return component.getData(this);
     }
 
     @Override

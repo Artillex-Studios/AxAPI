@@ -6,6 +6,8 @@ import java.util.List;
 
 public sealed interface ItemLore permits ItemLore.Unstyled, ItemLore.Styled {
 
+    List<Component> lines();
+
     static ItemLore create(List<Component> lines) {
         return new ItemLore.Unstyled(lines);
     }

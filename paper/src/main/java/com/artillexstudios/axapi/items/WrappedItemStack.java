@@ -22,7 +22,15 @@ public interface WrappedItemStack extends Wrapper<ItemStack> {
 
     <T> void set(DataComponent<T> component, T value);
 
+    default <T> void setNew(com.artillexstudios.axapi.items.components.DataComponent<T> component, T value) {
+        throw new IllegalStateException("Not yet implemented");
+    }
+
     <T> T get(DataComponent<T> component);
+
+    default <T> T getNew(com.artillexstudios.axapi.items.components.DataComponent<T> component) {
+        throw new IllegalStateException("Not yet implemented");
+    }
 
     void setAmount(int amount);
 
