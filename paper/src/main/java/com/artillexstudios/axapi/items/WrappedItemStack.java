@@ -1,6 +1,5 @@
 package com.artillexstudios.axapi.items;
 
-import com.artillexstudios.axapi.items.component.DataComponent;
 import com.artillexstudios.axapi.nms.wrapper.Wrapper;
 import com.artillexstudios.axapi.nms.wrapper.WrapperRegistry;
 import org.bukkit.inventory.ItemStack;
@@ -20,16 +19,14 @@ public interface WrappedItemStack extends Wrapper<ItemStack> {
         return result;
     }
 
-    <T> void set(DataComponent<T> component, T value);
+    <T> void set(com.artillexstudios.axapi.items.components.DataComponent<T> component, T value);
 
-    default <T> void setNew(com.artillexstudios.axapi.items.components.DataComponent<T> component, T value) {
-        throw new IllegalStateException("Not yet implemented");
-    }
+    default <T> T get(com.artillexstudios.axapi.items.components.DataComponent<T> component) {
+        if (component == null) {
+            return null;
+        }
 
-    <T> T get(DataComponent<T> component);
-
-    default <T> T getNew(com.artillexstudios.axapi.items.components.DataComponent<T> component) {
-        throw new IllegalStateException("Not yet implemented");
+        return component.getData(this);
     }
 
     void setAmount(int amount);

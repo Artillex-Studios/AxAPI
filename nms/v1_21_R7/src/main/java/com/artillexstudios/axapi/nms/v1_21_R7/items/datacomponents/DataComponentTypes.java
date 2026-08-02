@@ -22,8 +22,12 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public final class DataComponentTypes {
     private static final Registry<String, DataComponent<?>> components = new Registry<>();
+    private static final List<String> unsupportedComponents = new ArrayList<>();
 
     static {
         register("custom_data", DataComponents.CUSTOM_DATA, new CustomDataDataComponent());
@@ -64,10 +68,18 @@ public final class DataComponentTypes {
         register(id, com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.DataComponent.create(id, type, mapper));
     }
 
+    public static void registerUnsupported(String id) {
+        unsupportedComponents.add(id);
+    }
+
     public static DataComponent<?> component(String id) {
         try {
             return components.get(id);
         } catch (RegistrationFailedException exception) {
+            if (unsupportedComponents.contains(id)) {
+                return null;
+            }
+
             LogUtils.error("Failed to find component {}! This is an issue with the code, and it should be reported to the developer of the plugin!",
                     id, exception);
             return null;
