@@ -15,7 +15,7 @@ public final class LoreDataComponent implements DataComponentHandler<ItemLore> {
 
     @Override
     public void setData(ItemStack from, ItemLore data) {
-        CompoundTag tag = this.getOrCreateDisplayTag(from);
+        CompoundTag tag = this.getOrCreateTag(from);
         ListTag listTag = new ListTag();
         List<String> jsonLore = ComponentSerializer.INSTANCE.toGsonList(data.lines());
 

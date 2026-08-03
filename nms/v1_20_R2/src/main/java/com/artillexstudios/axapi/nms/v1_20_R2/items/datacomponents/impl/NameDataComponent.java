@@ -10,7 +10,7 @@ public final class NameDataComponent implements DataComponentHandler<Component> 
 
     @Override
     public void setData(ItemStack from, Component data) {
-        CompoundTag tag = this.getOrCreateDisplayTag(from);
+        CompoundTag tag = this.getOrCreateTag(from);
         this.setDisplayTag(tag, "Name", StringTag.valueOf(ComponentSerializer.INSTANCE.toGson(data)));
     }
 
