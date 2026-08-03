@@ -297,7 +297,9 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setHiddenComponents(boolean hideTooltip, Collection<String> hiddenComponents) {
-        this.stack.set(DataComponents.TOOLTIP_DISPLAY, new TooltipDisplay(hideTooltip, hiddenComponents));
+        ExceptionUtils.catching(() -> {
+            this.stack.set(DataComponents.TOOLTIP_DISPLAY, new TooltipDisplay(hideTooltip, hiddenComponents));
+        });
         return this;
     }
 
