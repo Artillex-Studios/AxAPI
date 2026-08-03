@@ -13,7 +13,7 @@ public final class CustomDataDataComponent implements DataComponentHandler<Compo
     @Override
     public CompoundTag getData(ItemStack stack) {
         net.minecraft.nbt.CompoundTag tag = this.getTag(stack);
-        return tag == null ? null : new com.artillexstudios.axapi.nms.v1_20_R3.items.nbt.CompoundTag(tag);
+        return  new com.artillexstudios.axapi.nms.v1_20_R3.items.nbt.CompoundTag(tag == null ? new net.minecraft.nbt.CompoundTag() : tag);
     }
 
     @Override
