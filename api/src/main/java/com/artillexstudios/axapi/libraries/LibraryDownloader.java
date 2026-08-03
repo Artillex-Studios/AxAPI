@@ -152,7 +152,7 @@ public final class LibraryDownloader {
     @Nullable
     public String getMd5Checksum(Repository repository, Library library) {
         try (InputStream stream = repository.getMd5ChecksumURI(library).toURL().openStream()) {
-            return new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+            return new String(stream.readAllBytes(), StandardCharsets.UTF_8).strip();
         } catch (IOException exception) {
             if (FeatureFlags.DEBUG.get()) {
                 LogUtils.error("Failed to get MD5 checksum of library {}", library);
