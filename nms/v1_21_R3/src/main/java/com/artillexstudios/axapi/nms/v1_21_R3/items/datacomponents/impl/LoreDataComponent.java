@@ -1,7 +1,6 @@
 package com.artillexstudios.axapi.nms.v1_21_R3.items.datacomponents.impl;
 
 import com.artillexstudios.axapi.items.components.data.ItemLore;
-import com.artillexstudios.axapi.nms.v1_21_R3.items.datacomponents.impl.DataComponentHandler;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import net.kyori.adventure.text.Component;
 
@@ -23,5 +22,10 @@ public final class LoreDataComponent implements DataComponentHandler<ItemLore, n
     @Override
     public ItemLore fromNMS(net.minecraft.world.item.component.ItemLore data) {
         return new ItemLore.Styled(ComponentSerializer.INSTANCE.fromVanillaList(new ArrayList<>(data.lines())), ComponentSerializer.INSTANCE.fromVanillaList(new ArrayList<>(data.styledLines())));
+    }
+
+    @Override
+    public net.minecraft.world.item.component.ItemLore getDefault() {
+        return net.minecraft.world.item.component.ItemLore.EMPTY;
     }
 }

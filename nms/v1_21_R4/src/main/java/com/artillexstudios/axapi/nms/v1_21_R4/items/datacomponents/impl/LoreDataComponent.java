@@ -23,4 +23,9 @@ public final class LoreDataComponent implements DataComponentHandler<ItemLore, n
     public ItemLore fromNMS(net.minecraft.world.item.component.ItemLore data) {
         return new ItemLore.Styled(ComponentSerializer.INSTANCE.fromVanillaList(new ArrayList<>(data.lines())), ComponentSerializer.INSTANCE.fromVanillaList(new ArrayList<>(data.styledLines())));
     }
+
+    @Override
+    public net.minecraft.world.item.component.ItemLore getDefault() {
+        return net.minecraft.world.item.component.ItemLore.EMPTY;
+    }
 }
