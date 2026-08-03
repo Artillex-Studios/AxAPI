@@ -4,6 +4,7 @@ import com.artillexstudios.axapi.items.WrappedItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public interface DataComponentHandler<T> {
@@ -50,6 +51,17 @@ public interface DataComponentHandler<T> {
         }
 
         return compoundTag.getCompound(DISPLAY_TAG);
+    }
+
+    @NonNull
+    default CompoundTag getOrCreateDisplayTag(ItemStack stack) {
+        CompoundTag compoundTag = this.getOrCreateTag(stack);
+        CompoundTag displayTag = compoundTag.getCompound(DISPLAY_TAG);
+        if (!compoundTag.contains(DISPLAY_TAG)) {
+            compoundTag.put(DISPLAY_TAG, displayTag);
+        }
+
+        return displayTag;
     }
 
    default void setDisplayTag(CompoundTag compoundTag, String key, Tag value) {
