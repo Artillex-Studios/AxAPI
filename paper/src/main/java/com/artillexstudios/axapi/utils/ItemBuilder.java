@@ -288,6 +288,10 @@ public class ItemBuilder {
 
     public ItemBuilder setHideTooltip(boolean hideTooltip) {
         TooltipDisplay tooltipDisplay = this.stack.get(DataComponents.TOOLTIP_DISPLAY);
+        if (tooltipDisplay == null) {
+            return this;
+        }
+
         this.setHiddenComponents(hideTooltip, tooltipDisplay.hiddenComponents());
         return this;
     }
@@ -299,6 +303,10 @@ public class ItemBuilder {
 
     public ItemBuilder setHiddenComponents(Collection<String> hiddenComponents) {
         TooltipDisplay tooltipDisplay = this.stack.get(DataComponents.TOOLTIP_DISPLAY);
+        if (tooltipDisplay == null) {
+            return this;
+        }
+
         this.setHiddenComponents(tooltipDisplay.hideTooltip(), hiddenComponents);
         return this;
     }
