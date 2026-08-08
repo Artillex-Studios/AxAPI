@@ -1,9 +1,11 @@
 package com.artillexstudios.axapi.utils.server;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -23,4 +25,8 @@ public interface ServerImplementation {
     boolean isChunkGenerated(World world, int x, int z);
 
     InventoryHolder getHolder(Inventory inventory, boolean useSnapshot);
+
+    Inventory createInventory(InventoryHolder holder, int size, Component title);
+
+    Inventory createInventory(InventoryHolder holder, InventoryType type, Component title);
 }

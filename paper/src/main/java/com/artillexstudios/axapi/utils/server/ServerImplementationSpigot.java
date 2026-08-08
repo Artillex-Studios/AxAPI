@@ -1,10 +1,14 @@
 package com.artillexstudios.axapi.utils.server;
 
 import com.artillexstudios.axapi.utils.PaperUtils;
+import com.artillexstudios.axapi.utils.StringUtils;
+import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -35,5 +39,15 @@ public class ServerImplementationSpigot implements ServerImplementation {
     @Override
     public InventoryHolder getHolder(Inventory inventory, boolean useSnapshot) {
         return inventory.getHolder();
+    }
+
+    @Override
+    public Inventory createInventory(InventoryHolder holder, int size, Component title) {
+        return Bukkit.createInventory(holder, size, StringUtils.formatToString(StringUtils.MINI_MESSAGE.serialize(title)));
+    }
+
+    @Override
+    public Inventory createInventory(InventoryHolder holder, InventoryType type, Component title) {
+        return Bukkit.createInventory(holder, type, StringUtils.formatToString(StringUtils.MINI_MESSAGE.serialize(title)));
     }
 }

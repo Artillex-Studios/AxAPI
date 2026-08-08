@@ -4,10 +4,12 @@ import com.artillexstudios.axapi.reflection.ClassUtils;
 import com.artillexstudios.axapi.utils.server.ServerImplementation;
 import com.artillexstudios.axapi.utils.server.ServerImplementationPaper;
 import com.artillexstudios.axapi.utils.server.ServerImplementationSpigot;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -70,6 +72,14 @@ public final class PaperUtils {
 
     public static InventoryHolder getHolder(Inventory inventory, boolean useSnapshot) {
         return IMPLEMENTATION.getHolder(inventory, useSnapshot);
+    }
+
+    public static Inventory createInventory(InventoryHolder holder, int size, Component title) {
+        return IMPLEMENTATION.createInventory(holder, size, title);
+    }
+
+    public static Inventory createInventory(InventoryHolder holder, InventoryType type, Component title) {
+        return IMPLEMENTATION.createInventory(holder, type, title);
     }
 
     public static boolean isPaper() {

@@ -8,14 +8,13 @@ import com.artillexstudios.axapi.gui.inventory.renderer.strategy.RenderStrategy;
 import com.artillexstudios.axapi.gui.inventory.renderer.strategy.StreamingRenderStrategy;
 import com.artillexstudios.axapi.gui.inventory.renderer.strategy.WaitingRenderStrategy;
 import com.artillexstudios.axapi.nms.NMSHandlers;
-import com.artillexstudios.axapi.utils.StringUtils;
+import com.artillexstudios.axapi.utils.PaperUtils;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.bukkit.Bukkit;
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -37,6 +36,7 @@ public class InventoryRenderer implements InventoryHolder {
     private boolean closed = true;
     private Inventory inventory;
     private Gui currentGui;
+    private Component lastTitle;
 
     public InventoryRenderer(Player player) {
         this.player = player;
@@ -84,7 +84,13 @@ public class InventoryRenderer implements InventoryHolder {
     }
 
     public void onTitleUpdate(HashMapContext context) {
-        NMSHandlers.getNmsHandler().setTitle(this.inventory, this.currentGui.provideTitle(context));
+        Component newTitle = this.currentGui.provideTitle(context);
+        if (newTitle.equals(this.lastTitle)) {
+            return;
+        }
+
+        this.lastTitle = newTitle;
+        NMSHandlers.getNmsHandler().setTitle(this.inventory, newTitle);
     }
 
     public boolean buildInventory(Gui gui, HashMapContext context) {
@@ -97,10 +103,12 @@ public class InventoryRenderer implements InventoryHolder {
     }
 
     private void recreateGui(Gui gui, HashMapContext context) {
+        Component title = gui.provideTitle(context);
+        this.lastTitle = title;
         if (gui.getType() == InventoryType.CHEST) {
-            this.inventory = Bukkit.createInventory(this, gui.getRows() * 9, StringUtils.formatToString(MiniMessage.miniMessage().serialize(gui.provideTitle(context))));
+            this.inventory = PaperUtils.createInventory(this, gui.getRows() * 9, title);
         } else {
-            this.inventory = Bukkit.createInventory(this, gui.getType(), StringUtils.formatToString(MiniMessage.miniMessage().serialize(gui.provideTitle(context))));
+            this.inventory = PaperUtils.createInventory(this, gui.getType(), title);
         }
     }
 
