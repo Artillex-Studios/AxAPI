@@ -25,7 +25,7 @@ public class WaitingRenderStrategy implements RenderStrategy {
                 BakedGuiItem item = futures[i].join();
                 BakedGuiItem previous = items.put(i, item);
                 // Don't update it we already have it there
-                if (previous != null && previous.stack().equals(item.stack())) {
+                if (!newInventory && previous != null && previous.stack().equals(item.stack())) {
                     continue;
                 }
 
