@@ -17,6 +17,8 @@ import org.jspecify.annotations.NonNull;
 import java.text.DecimalFormat;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -87,11 +89,13 @@ public final class StringUtils {
         return COLOR_CACHE.get(input, str -> {
             String toFormat = str.replace('\u00a7', '&');
 
-            toFormat = replaceLegacyFormat(toFormat, "&l", "<b>", "</b>");
-            toFormat = replaceLegacyFormat(toFormat, "&m", "<st>", "</st>");
-            toFormat = replaceLegacyFormat(toFormat, "&n", "<u>", "</u>");
-            toFormat = replaceLegacyFormat(toFormat, "&o", "<i>", "</i>");
-            toFormat = replaceLegacyFormat(toFormat, "&k", "<obf>", "</obf>");
+            CachingSupplier<Map<Integer, List<InsertData>>> orderedInsert = CachingSupplier.create(HashMap::new);
+            toFormat = replaceLegacyFormat(toFormat, "&l", "<b>", "</b>", orderedInsert);
+            toFormat = replaceLegacyFormat(toFormat, "&m", "<st>", "</st>", orderedInsert);
+            toFormat = replaceLegacyFormat(toFormat, "&n", "<u>", "</u>", orderedInsert);
+            toFormat = replaceLegacyFormat(toFormat, "&o", "<i>", "</i>", orderedInsert);
+            toFormat = replaceLegacyFormat(toFormat, "&k", "<obf>", "</obf>", orderedInsert);
+            toFormat = doInserts(toFormat, orderedInsert);
 
             toFormat = HEX_PATTERN.matcher(toFormat).replaceAll(fo -> "<#" + fo.group(1) + ">");
             toFormat = UNUSUAL_LEGACY_HEX_PATTERN.matcher(toFormat).replaceAll(fo -> "<#" + fo.group(1) + fo.group(2) + fo.group(3) + fo.group(4) + fo.group(5) + fo.group(6) + ">");
@@ -165,29 +169,45 @@ public final class StringUtils {
         return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
 
-    private static String replaceLegacyFormat(String toFormat, String search, String start, String close) {
+    private static String doInserts(String toFormat, CachingSupplier<Map<Integer, List<InsertData>>> insertsGetter) {
+        if (!insertsGetter.hasValue()) {
+            return toFormat;
+        }
+
+        Map<Integer, List<InsertData>> inserts = insertsGetter.get();
+        StringBuilder stringBuilder = new StringBuilder(toFormat);
+        for (Map.Entry<Integer, List<InsertData>> entry : inserts.entrySet()) {
+            List<InsertData> value = entry.getValue();
+            value.sort(Comparator.comparingInt(insertData -> ((InsertData) insertData).basePosition).reversed());
+            int offset = 0;
+            for (InsertData insertData : value) {
+                stringBuilder.insert(insertData.whereToInsert + offset, insertData.text);
+                offset += insertData.text.length();
+            }
+        }
+        return stringBuilder.toString();
+    }
+
+    private static String replaceLegacyFormat(String toFormat, String search, String start, String close, CachingSupplier<Map<Integer, List<InsertData>>> inserts) {
         int index;
         while ((index = toFormat.indexOf(search)) != -1) {
             toFormat = org.apache.commons.lang3.StringUtils.replaceOnce(toFormat, search, start);
+            shift(inserts, start.length() - search.length(), index);
             for (int i = index; i < toFormat.length(); i++) {
                 char firstChar = toFormat.charAt(i);
                 if (firstChar == '\n') {
                     // If we find a newline character, we should insert the closing tag
-                    StringBuilder stringBuilder = new StringBuilder(toFormat);
-                    stringBuilder.insert(i, close);
-                    toFormat = stringBuilder.toString();
+                    inserts.get().computeIfAbsent(i, q -> new ArrayList<>()).add(new InsertData(index, i, close));
                     break;
                 } else if (firstChar == '&' && i + 1 < toFormat.length()) {
                     char c = toFormat.charAt(i + 1);
                     if (c == 'x') {
                         i += 13;
                     } else if (c == 'r') {
-                        // We don't need to insert anything if we find a reset
+                        // We don't need whereToInsert insert anything if we find a reset
                         break;
                     } else if (COLOR_CHARS.contains(c)) {
-                        StringBuilder stringBuilder = new StringBuilder(toFormat);
-                        stringBuilder.insert(i, close);
-                        toFormat = stringBuilder.toString();
+                        inserts.get().computeIfAbsent(i, q -> new ArrayList<>()).add(new InsertData(index, i, close));
                         break;
                     }
                 }
@@ -195,6 +215,31 @@ public final class StringUtils {
         }
 
         return toFormat;
+    }
+
+    private static void shift(CachingSupplier<Map<Integer, List<InsertData>>> mapGetter, int amount, int fromIndex) {
+        if (!mapGetter.hasValue()) {
+            return;
+        }
+
+        Map<Integer, List<InsertData>> map = mapGetter.get();
+        for (Integer i : new ArrayList<>(map.keySet())) {
+            move(map, i, i < fromIndex ? i : i + amount, amount, fromIndex);
+        }
+    }
+
+    private static void move(Map<Integer, List<InsertData>> map, Integer key, Integer newKey, int shift, int fromIndex) {
+        List<InsertData> object = map.remove(key);
+        List<InsertData> shifted = new ArrayList<>();
+        for (InsertData insertData : object) {
+            shifted.add(new InsertData(insertData.basePosition, insertData.whereToInsert < fromIndex ? insertData.whereToInsert : insertData.whereToInsert + shift, insertData.text));
+        }
+
+        map.put(newKey, shifted);
+    }
+
+    record InsertData(int basePosition, int whereToInsert, String text) {
+
     }
 
     // Thanks! https://www.spigotmc.org/threads/hex-color-code-translate.449748/

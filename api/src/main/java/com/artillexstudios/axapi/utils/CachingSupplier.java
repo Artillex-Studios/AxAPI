@@ -4,8 +4,10 @@ import java.util.function.Supplier;
 
 public interface CachingSupplier<T> extends Supplier<T> {
 
-    static <Z> Supplier<Z> create(Supplier<Z> supplier) {
-        return new Supplier<>() {
+    boolean hasValue();
+
+    static <Z> CachingSupplier<Z> create(Supplier<Z> supplier) {
+        return new CachingSupplier<>() {
             private Z value;
 
             @Override
@@ -15,6 +17,11 @@ public interface CachingSupplier<T> extends Supplier<T> {
                 }
 
                 return this.value;
+            }
+
+            @Override
+            public boolean hasValue() {
+                return value != null;
             }
         };
     }
