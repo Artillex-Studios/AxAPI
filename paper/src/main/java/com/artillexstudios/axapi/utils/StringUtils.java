@@ -174,10 +174,12 @@ public final class StringUtils {
             return toFormat;
         }
 
-        Map<Integer, List<InsertData>> inserts = insertsGetter.get();
         StringBuilder stringBuilder = new StringBuilder(toFormat);
-        for (Map.Entry<Integer, List<InsertData>> entry : inserts.entrySet()) {
-            List<InsertData> value = entry.getValue();
+        Map<Integer, List<InsertData>> inserts = insertsGetter.get();
+        List<Integer> sorted = new ArrayList<>(inserts.keySet());
+        sorted.sort(Comparator.comparingInt(a -> (Integer) a).reversed());
+        for (Integer key : sorted) {
+            List<InsertData> value = inserts.get(key);
             value.sort(Comparator.comparingInt(insertData -> ((InsertData) insertData).basePosition).reversed());
             int offset = 0;
             for (InsertData insertData : value) {
