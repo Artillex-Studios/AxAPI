@@ -225,14 +225,14 @@ public final class StringUtils {
         }
 
         Map<Integer, List<InsertData>> map = mapGetter.get();
-        for (Integer i : new ArrayList<>(map.keySet())) {
+        for (Integer i : map.keySet().stream().sorted(Comparator.reverseOrder()).toList()) {
             move(map, i, i < fromIndex ? i : i + amount, amount, fromIndex);
         }
     }
 
     private static void move(Map<Integer, List<InsertData>> map, Integer key, Integer newKey, int shift, int fromIndex) {
         List<InsertData> object = map.remove(key);
-        List<InsertData> shifted = new ArrayList<>();
+        List<InsertData> shifted = map.getOrDefault(key, new ArrayList<>());
         for (InsertData insertData : object) {
             shifted.add(new InsertData(insertData.basePosition, insertData.whereToInsert < fromIndex ? insertData.whereToInsert : insertData.whereToInsert + shift, insertData.text));
         }
