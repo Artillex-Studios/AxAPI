@@ -8,6 +8,7 @@ import com.artillexstudios.axapi.particle.ParticleData;
 import com.artillexstudios.axapi.particle.ParticleOption;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.Quaternion;
+import com.artillexstudios.axapi.utils.ResolvableProfile;
 import net.minecraft.core.Rotations;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -207,6 +208,18 @@ public class Serializers {
             @Override
             public EntityDataSerializer<BlockState> serializer() {
                 return net.minecraft.network.syncher.EntityDataSerializers.BLOCK_STATE;
+            }
+        });
+
+        typeTransformers.put(EntityDataSerializers.Type.RESOLVABLE_PROFILE, new Transformer<ResolvableProfile>() {
+            @Override
+            public ResolvableProfile transform(Object other) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public EntityDataSerializer<ResolvableProfile> serializer() {
+                throw new UnsupportedOperationException();
             }
         });
     }

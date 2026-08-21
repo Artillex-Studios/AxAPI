@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.nms.v26_2.entity;
 
+import com.artillexstudios.axapi.items.component.type.ProfileProperties;
 import com.artillexstudios.axapi.nms.v26_2.items.WrappedItemStack;
 import com.artillexstudios.axapi.nms.v26_2.packet.FriendlyByteBufWrapper;
 import com.artillexstudios.axapi.nms.v26_2.packet.PacketTransformer;
@@ -8,6 +9,11 @@ import com.artillexstudios.axapi.particle.ParticleData;
 import com.artillexstudios.axapi.particle.ParticleOption;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.artillexstudios.axapi.utils.Quaternion;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
+import com.mojang.authlib.properties.PropertyMap;
 import net.minecraft.core.Rotations;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -15,16 +21,19 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.block.state.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import org.bukkit.util.EulerAngle;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
 import java.util.EnumMap;
+import java.util.Map;
 import java.util.Optional;
 
 public class Serializers {
@@ -209,6 +218,26 @@ public class Serializers {
             @Override
             public EntityDataSerializer<BlockState> serializer() {
                 return net.minecraft.network.syncher.EntityDataSerializers.BLOCK_STATE;
+            }
+        });
+
+        typeTransformers.put(EntityDataSerializers.Type.RESOLVABLE_PROFILE, new Transformer<ResolvableProfile>() {
+            @Override
+            public ResolvableProfile transform(Object other) {
+                com.artillexstudios.axapi.utils.ResolvableProfile data = (com.artillexstudios.axapi.utils.ResolvableProfile) other;
+                Multimap<@NotNull String, @NotNull Property> propertyMap = HashMultimap.create();
+                for (Map.Entry<String, ProfileProperties.Property> entry : data.getPartialProfile().properties().properties().entries()) {
+                    var property = entry.getValue();
+                    propertyMap.put(entry.getKey(), new Property(property.name(), property.value(), property.signature()));
+                }
+
+                GameProfile gameProfile = new GameProfile(data.getPartialProfile().properties().uuid(), data.getPartialProfile().properties().name(), new PropertyMap(propertyMap));
+                return ResolvableProfile.createResolved(gameProfile);
+            }
+
+            @Override
+            public EntityDataSerializer<ResolvableProfile> serializer() {
+                return net.minecraft.network.syncher.EntityDataSerializers.RESOLVABLE_PROFILE;
             }
         });
     }
