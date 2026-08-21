@@ -5,7 +5,9 @@ import com.artillexstudios.axapi.packetentity.meta.entity.ArmorStandMeta;
 import com.artillexstudios.axapi.packetentity.meta.entity.BlockDisplayMeta;
 import com.artillexstudios.axapi.packetentity.meta.entity.ItemDisplayMeta;
 import com.artillexstudios.axapi.packetentity.meta.entity.ItemEntityMeta;
+import com.artillexstudios.axapi.packetentity.meta.entity.MannequinMeta;
 import com.artillexstudios.axapi.packetentity.meta.entity.TextDisplayMeta;
+import com.artillexstudios.axapi.utils.Version;
 import org.bukkit.entity.EntityType;
 
 import java.util.HashMap;
@@ -21,6 +23,9 @@ public class EntityMetaFactory {
         register(EntityType.TEXT_DISPLAY, TextDisplayMeta::new);
         register(EntityType.BLOCK_DISPLAY, BlockDisplayMeta::new);
         register(EntityType.ITEM_DISPLAY, ItemDisplayMeta::new);
+        if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_7)) {
+            register(EntityType.valueOf("MANNEQUIN"), MannequinMeta::new);
+        }
     }
 
     public static void register(EntityType type, Function<Metadata, EntityMeta> generator) {
