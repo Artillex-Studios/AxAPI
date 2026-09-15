@@ -62,6 +62,7 @@ public final class ServerboundPacketTypes {
     public static final PacketType PLAYER_INPUT = new PacketType("PLAYER_INPUT", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType PLAYER_LOADED = new PacketType("PLAYER_LOADED", Version.v1_21_3, Version.FUTURE_RELEASE);
     public static final PacketType PONG = new PacketType("PONG", Version.v1_18, Version.FUTURE_RELEASE);
+    public static final PacketType PUNCH = new PacketType("PUNCH", Version.v26_3, Version.FUTURE_RELEASE);
     public static final PacketType CHAT_SESSION_UPDATE = new PacketType("CHAT_SESSION_UPDATE", Version.v1_18, Version.FUTURE_RELEASE); // Order changed to after serverboundchat in 1.19.3
     public static final PacketType RECIPE_BOOK_CHANGE_SETTINGS = new PacketType("RECIPE_BOOK_CHANGE_SETTINGS", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType RECIPE_BOOK_SEEN_RECIPE = new PacketType("RECIPE_BOOK_SEEN_RECIPE", Version.v1_18, Version.FUTURE_RELEASE);
@@ -80,7 +81,7 @@ public final class ServerboundPacketTypes {
     public static final PacketType SET_TEST_BLOCK = new PacketType("SET_TEST_BLOCK", Version.v1_21_4, Version.FUTURE_RELEASE);
     public static final PacketType SIGN_UPDATE = new PacketType("SIGN_UPDATE", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType SPECTATE_ENTITY = new PacketType("SPECTATE_ENTITY", Version.v26_1, Version.FUTURE_RELEASE);
-    public static final PacketType SWING = new PacketType("SWING", Version.v1_18, Version.FUTURE_RELEASE);
+    public static final PacketType SWING = new PacketType("SWING", Version.v1_18, Version.v26_2);
     public static final PacketType TELEPORT_TO_ENTITY = new PacketType("TELEPORT_TO_ENTITY", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType TEST_INSTANCE_BLOCK_ACTION = new PacketType("TEST_INSTANCE_BLOCK_ACTION", Version.v1_21_4, Version.FUTURE_RELEASE);
     public static final PacketType USE_ITEM_ON = new PacketType("USE_ITEM_ON", Version.v1_18, Version.FUTURE_RELEASE);
@@ -140,6 +141,7 @@ public final class ServerboundPacketTypes {
         register(PLAYER_INPUT);
         register(PLAYER_LOADED);
         register(PONG);
+        register(PUNCH);
         if (Version.getServerVersion().isOlderThan(Version.v1_19_3)) {
             register(CHAT_SESSION_UPDATE);
         }
@@ -171,6 +173,7 @@ public final class ServerboundPacketTypes {
     /**
      * Register a PacketType into the packet id system. Both first and last versions are inclusive!
      * For example, if the server is on 1.18.2, and the packet is from 1.18 to 1.18.2 then this will be registered on 1.18.2
+     *
      * @param packetType The PacketType to register
      */
     public static void register(PacketType packetType) {

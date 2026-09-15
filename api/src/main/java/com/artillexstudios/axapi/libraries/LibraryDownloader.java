@@ -32,6 +32,7 @@ public final class LibraryDownloader {
     private final List<Path> libraryPaths = new ArrayList<>();
     private final Path librariesFolder;
     private final boolean cleanIfNoCache;
+    private int maxDepth;
     private boolean loaded = false;
 
     public LibraryDownloader(Path librariesFolder) {
@@ -224,6 +225,11 @@ public final class LibraryDownloader {
         }
     }
 
+    public LibraryDownloader withMaxDepth(int maxDepth) {
+        this.maxDepth = maxDepth;
+        return this;
+    }
+
     public void addRepository(Repository repository) {
         this.repositories.add(repository);
         if (this.libraryCache.cache(repository)) {
@@ -266,6 +272,10 @@ public final class LibraryDownloader {
         }
 
         return this.librariesFolder.resolve("%s.%s-%s%s.jar".formatted(library.group(), library.artifactId(), library.version(), library.classifier() == null || library.classifier().isBlank() ? "" : '-' + library.classifier()));
+    }
+
+    public int getMaxDepth() {
+        return this.maxDepth;
     }
 
     public List<Path> getLibraryPaths() {

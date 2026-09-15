@@ -32,6 +32,13 @@ public final class TransitiveDependencyCollector {
     }
 
     private List<Library> findTransitiveDependencies(Library library) {
+        return this.findTransitiveDependencies(library, 0);
+    }
+
+    private List<Library> findTransitiveDependencies(Library library, int depth) {
+        if (depth > this.downloader.getMaxDepth()) {
+            return new ArrayList<>();
+        }
         this.seen.add(library);
         List<Library> found = new ArrayList<>();
         for (Repository repository : this.downloader.getRepositories()) {
@@ -58,7 +65,7 @@ public final class TransitiveDependencyCollector {
         List<Library> transitiveDependencies = new ArrayList<>();
         for (Library dependency : found) {
             if (!this.hasAlreadySeen(dependency)) {
-                List<Library> transitiveDependency = this.findTransitiveDependencies(dependency);
+                List<Library> transitiveDependency = this.findTransitiveDependencies(dependency, depth + 1);
                 transitiveDependencies.add(new Library(dependency.group(), dependency.artifactId(), dependency.version(), dependency.classifier(), transitiveDependency));
             }
         }

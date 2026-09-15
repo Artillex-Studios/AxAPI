@@ -59,6 +59,7 @@ public final class ClientboundPacketTypes {
     public static final PacketType ENTITY_EVENT = new PacketType("ENTITY_EVENT", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType ENTITY_POSITION_SYNC = new PacketType("ENTITY_POSITION_SYNC", Version.v1_21_2, Version.FUTURE_RELEASE);
     public static final PacketType EXPLODE = new PacketType("EXPLODE", Version.v1_18, Version.FUTURE_RELEASE);
+    public static final PacketType ADD_TRANSIENT_BLOCK = new PacketType("ADD_TRANSIENT_BLOCK", Version.v26_3, Version.FUTURE_RELEASE);
     public static final PacketType FORGET_LEVEL_CHUNK = new PacketType("FORGET_LEVEL_CHUNK", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType GAME_EVENT = new PacketType("GAME_EVENT", Version.v1_18, Version.FUTURE_RELEASE);
     private static final PacketType GAME_TEST_HIGHLIGHT_POS = new PacketType("GAME_TEST_HIGHLIGHT_POS", Version.v1_21_7, Version.FUTURE_RELEASE); // 1.21.9
@@ -108,6 +109,7 @@ public final class ClientboundPacketTypes {
     public static final PacketType REMOVE_RESOURCE_PACK = new PacketType("REMOVE_RESOURCE_PACK", Version.v1_20_3, Version.FUTURE_RELEASE);
     public static final PacketType RESOURCEPACK = new PacketType("RESOURCEPACK", Version.v1_18, Version.v1_20_2);
     public static final PacketType RESOURCEPACK_PUSH = new PacketType("RESOURCEPACK_PUSH", Version.v1_20_3, Version.FUTURE_RELEASE);
+    public static final PacketType POST_EFFECTS = new PacketType("POST_EFFECTS", Version.v26_3, Version.FUTURE_RELEASE);
     public static final PacketType RESPAWN = new PacketType("RESPAWN", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType ROTATE_HEAD = new PacketType("ROTATE_HEAD", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType SECTION_BLOCKS_UPDATE = new PacketType("SECTION_BLOCKS_UPDATE", Version.v1_18, Version.FUTURE_RELEASE);
@@ -149,6 +151,7 @@ public final class ClientboundPacketTypes {
     public static final PacketType CONFIGURATION_START = new PacketType("CONFIGURATION_START", Version.v1_20_2, Version.FUTURE_RELEASE);
     public static final PacketType STOP_SOUND = new PacketType("STOP_SOUND", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType STORE_COOKIE = new PacketType("STORE_COOKIE", Version.v1_20_4, Version.FUTURE_RELEASE);
+    public static final PacketType SWING_ANIMATION = new PacketType("SWING_ANIMATION", Version.v26_3, Version.FUTURE_RELEASE);
     public static final PacketType SYSTEM_CHAT_MESSAGE = new PacketType("SYSTEM_CHAT_MESSAGE", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType TAB_LIST = new PacketType("TAB_LIST", Version.v1_18, Version.FUTURE_RELEASE);
     public static final PacketType TAG_QUERY = new PacketType("TAG_QUERY", Version.v1_18, Version.FUTURE_RELEASE);
@@ -218,6 +221,7 @@ public final class ClientboundPacketTypes {
         register(ENTITY_EVENT);
         register(ENTITY_POSITION_SYNC);
         register(EXPLODE);
+        register(ADD_TRANSIENT_BLOCK); // 26.3
         register(FORGET_LEVEL_CHUNK);
         register(GAME_EVENT);
         register(GAME_RULE_VALUES); // 26.1
@@ -266,6 +270,7 @@ public final class ClientboundPacketTypes {
         register(RESET_SCORE); // 1.20.3
         register(REMOVE_RESOURCE_PACK); // 1.20.3
         register(RESOURCEPACK_PUSH); // 1.20.3
+        register(POST_EFFECTS); // 26.3
         register(RESOURCEPACK);
         register(RESPAWN);
         register(ROTATE_HEAD);
@@ -308,6 +313,7 @@ public final class ClientboundPacketTypes {
         register(CONFIGURATION_START); // 1.20.2
         register(STOP_SOUND);
         register(STORE_COOKIE);
+        register(SWING_ANIMATION); // 26.3
         register(SYSTEM_CHAT_MESSAGE); // 1.19
         register(TAB_LIST);
         register(TAG_QUERY);

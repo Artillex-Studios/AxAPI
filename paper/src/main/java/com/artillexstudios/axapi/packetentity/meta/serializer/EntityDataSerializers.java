@@ -971,6 +971,8 @@ public final class EntityDataSerializers {
             return Objects.hashCode(this.type());
         }
     };
+    public static final EntityDataSerializer<Integer> DYE_COLOR = new VarIntSerializer(Type.DYE_COLOR);
+
 
     public record VarIntSerializer(Type type) implements EntityDataSerializer<Integer> {
 
@@ -1093,6 +1095,9 @@ public final class EntityDataSerializers {
             }
             if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_8)) {
                 register(HUMANOID_ARM);
+                if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v26_3)) {
+                    register(DYE_COLOR);
+                }
             }
         }
     }
@@ -1141,6 +1146,7 @@ public final class EntityDataSerializers {
         COW_SOUND_VARIANT,
         PIG_SOUND_VARIANT,
         FROG_VARIANT,
-        PAINTING_VARIANT;
+        PAINTING_VARIANT,
+        DYE_COLOR;
     }
 }

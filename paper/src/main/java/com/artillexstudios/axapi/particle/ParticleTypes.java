@@ -1,27 +1,8 @@
 package com.artillexstudios.axapi.particle;
 
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
-import com.artillexstudios.axapi.particle.option.ColorParticleOption;
-import com.artillexstudios.axapi.particle.option.DustColorTransitionParticleOption;
-import com.artillexstudios.axapi.particle.option.DustParticleOption;
-import com.artillexstudios.axapi.particle.option.FloatParticleOption;
-import com.artillexstudios.axapi.particle.option.GeyserParticleOption;
-import com.artillexstudios.axapi.particle.option.IntegerParticleOption;
-import com.artillexstudios.axapi.particle.option.ItemStackParticleOption;
-import com.artillexstudios.axapi.particle.option.TrailParticleOption;
-import com.artillexstudios.axapi.particle.option.VibrationParticleOption;
-import com.artillexstudios.axapi.particle.type.ColorParticleType;
-import com.artillexstudios.axapi.particle.type.DustColorTransitionParticleType;
-import com.artillexstudios.axapi.particle.type.DustParticleType;
-import com.artillexstudios.axapi.particle.type.FloatParticleType;
-import com.artillexstudios.axapi.particle.type.GeyserParticleType;
-import com.artillexstudios.axapi.particle.type.IntegerParticleType;
-import com.artillexstudios.axapi.particle.type.ItemStackParticleType;
-import com.artillexstudios.axapi.particle.type.SimpleParticleType;
-import com.artillexstudios.axapi.particle.type.SpellParticleType;
-import com.artillexstudios.axapi.particle.type.TrailParticleType;
-import com.artillexstudios.axapi.particle.type.VarIntParticleType;
-import com.artillexstudios.axapi.particle.type.VibrationParticleType;
+import com.artillexstudios.axapi.particle.option.*;
+import com.artillexstudios.axapi.particle.type.*;
 import com.artillexstudios.axapi.utils.Maps;
 import com.artillexstudios.axapi.utils.Version;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
@@ -86,6 +67,9 @@ public final class ParticleTypes {
     public static final ParticleType<?> INFESTED = new SimpleParticleType();
     public static final ParticleType<?> CHERRY_LEAVES = new SimpleParticleType();
     public static final ParticleType<?> PALE_OAK_LEAVES = new SimpleParticleType();
+    public static final ParticleType<?> RED_POPLAR_LEAVES = new SimpleParticleType();
+    public static final ParticleType<?> ORANGE_POPLAR_LEAVES = new SimpleParticleType();
+    public static final ParticleType<?> YELLOW_POPLAR_LEAVES = new SimpleParticleType();
     public static final ParticleType<?> SCULK_SOUL = new SimpleParticleType();
     public static final ParticleType<FloatParticleOption> SCULK_CHARGE = new FloatParticleType();
     public static final ParticleType<?> SCULK_CHARGE_POP = new SimpleParticleType();
@@ -236,6 +220,11 @@ public final class ParticleTypes {
             if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_3)) {
                 register(ParticleTypes.PALE_OAK_LEAVES);
                 if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_4)) {
+                    if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v26_3)) {
+                        register(ParticleTypes.RED_POPLAR_LEAVES);
+                        register(ParticleTypes.ORANGE_POPLAR_LEAVES);
+                        register(ParticleTypes.YELLOW_POPLAR_LEAVES);
+                    }
                     register(ParticleTypes.TINTED_LEAVES);
                 }
             }
