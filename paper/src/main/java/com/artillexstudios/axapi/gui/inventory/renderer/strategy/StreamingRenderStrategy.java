@@ -33,7 +33,7 @@ public class StreamingRenderStrategy implements RenderStrategy {
             provide.thenAccept(item -> {
                 BakedGuiItem previous = items.put(slot.intValue(), item);
                 // Don't update it we already have it there
-                if (previous != null && previous.stack().equals(item.stack())) {
+                if (!newInventory && previous != null && previous.stack().equals(item.stack())) {
                     return;
                 }
 

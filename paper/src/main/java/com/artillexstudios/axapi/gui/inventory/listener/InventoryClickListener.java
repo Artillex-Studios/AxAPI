@@ -2,7 +2,7 @@ package com.artillexstudios.axapi.gui.inventory.listener;
 
 import com.artillexstudios.axapi.gui.inventory.renderer.InventoryRenderer;
 import com.artillexstudios.axapi.items.WrappedItemStack;
-import com.artillexstudios.axapi.items.component.DataComponents;
+import com.artillexstudios.axapi.items.components.DataComponents;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.utils.PaperUtils;
 import org.bukkit.event.EventHandler;
@@ -81,7 +81,7 @@ public final class InventoryClickListener implements Listener {
         }
 
         WrappedItemStack wrapped = WrappedItemStack.wrap(stack);
-        CompoundTag compoundTag = wrapped.get(DataComponents.customData());
+        CompoundTag compoundTag = wrapped.get(DataComponents.CUSTOM_DATA);
         if (!compoundTag.contains("axapi-gui")) {
             return;
         }

@@ -12,18 +12,23 @@ import com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.Enchantm
 import com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.IdentifierDataComponent;
 import com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.IdentityDataComponent;
 import com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.LoreDataComponent;
+import com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.MaterialDataComponent;
 import com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.PotionContentsDataComponent;
 import com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.ProfileDataComponent;
 import com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.RarityDataComponent;
+import com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.TooltipDisplayDataComponent;
 import com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.UnitDataComponent;
-import com.artillexstudios.axapi.utils.UncheckedUtils;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public final class DataComponentTypes {
     private static final Registry<String, DataComponent<?>> components = new Registry<>();
+    private static final List<String> unsupportedComponents = new ArrayList<>();
 
     static {
         register("custom_data", DataComponents.CUSTOM_DATA, new CustomDataDataComponent());
@@ -42,11 +47,12 @@ public final class DataComponentTypes {
         register("custom_model_data", DataComponents.CUSTOM_MODEL_DATA, new CustomModelDataDataComponent());
         register("enchantment_glint_override", DataComponents.ENCHANTMENT_GLINT_OVERRIDE, new IdentityDataComponent<>());
         register("profile", DataComponents.PROFILE, new ProfileDataComponent());
-        register("material", null); // TODO: implement datacomponent for this
+        register("material", new MaterialDataComponent());
         register("dyed_color", DataComponents.DYED_COLOR, new DyedColorDataComponent());
         register("potion_contents", DataComponents.POTION_CONTENTS, new PotionContentsDataComponent());
         register("unbreakable", DataComponents.UNBREAKABLE, new UnitDataComponent());
         register("minimum_attack_charge", DataComponents.MINIMUM_ATTACK_CHARGE, new IdentityDataComponent<>()); // FLOAT
+        register("tooltip_display", DataComponents.TOOLTIP_DISPLAY, new TooltipDisplayDataComponent());
 //        register("trim", DataComponents.TRIM, new LoreDataComponent());
 //        register("base_color", DataComponents.BASE_COLOR, new DyedColorDataComponent());
     }
@@ -60,13 +66,21 @@ public final class DataComponentTypes {
     }
 
     public static <T, Z> void register(String id, DataComponentType<@NotNull Z> type, DataComponentHandler<T, Z> mapper) {
-        register(id, com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.DataComponent.create(type, mapper));
+        register(id, com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl.DataComponent.create(id, type, mapper));
     }
 
-    public static <T extends DataComponent<?>> T component(String id) {
+    public static void registerUnsupported(String id) {
+        unsupportedComponents.add(id);
+    }
+
+    public static DataComponent<?> component(String id) {
         try {
-            return UncheckedUtils.unsafeCast(components.get(id));
+            return components.get(id);
         } catch (RegistrationFailedException exception) {
+            if (unsupportedComponents.contains(id)) {
+                return null;
+            }
+
             LogUtils.error("Failed to find component {}! This is an issue with the code, and it should be reported to the developer of the plugin!",
                     id, exception);
             return null;

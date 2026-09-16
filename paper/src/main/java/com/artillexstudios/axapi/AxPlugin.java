@@ -14,7 +14,6 @@ import com.artillexstudios.axapi.gui.inventory.listener.InventoryClickListener;
 import com.artillexstudios.axapi.gui.inventory.renderer.InventoryRenderers;
 import com.artillexstudios.axapi.hologram.Holograms;
 import com.artillexstudios.axapi.items.WrappedItemStack;
-import com.artillexstudios.axapi.items.component.DataComponents;
 import com.artillexstudios.axapi.libraries.LibraryDownloader;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
@@ -112,7 +111,6 @@ public abstract class AxPlugin extends JavaPlugin {
         }
 
         ComponentSerializer.INSTANCE.refresh();
-        DataComponents.setDataComponentImpl(NMSHandlers.getNmsHandler().dataComponents());
         Scheduler.scheduler.init(this);
 
         if (FeatureFlags.PACKET_ENTITY_TRACKER_ENABLED.get()) {

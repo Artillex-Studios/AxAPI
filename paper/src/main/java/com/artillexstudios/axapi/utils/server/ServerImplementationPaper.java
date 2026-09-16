@@ -1,9 +1,12 @@
 package com.artillexstudios.axapi.utils.server;
 
+import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -30,5 +33,15 @@ public class ServerImplementationPaper implements ServerImplementation {
     @Override
     public InventoryHolder getHolder(Inventory inventory, boolean useSnapshot) {
         return inventory.getHolder(useSnapshot);
+    }
+
+    @Override
+    public Inventory createInventory(InventoryHolder holder, int size, Component title) {
+        return Bukkit.createInventory(holder, size, title);
+    }
+
+    @Override
+    public Inventory createInventory(InventoryHolder holder, InventoryType type, Component title) {
+        return Bukkit.createInventory(holder, type, title);
     }
 }

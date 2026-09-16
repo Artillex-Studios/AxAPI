@@ -4,6 +4,7 @@ import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.particle.ParticleData;
 import com.artillexstudios.axapi.particle.ParticleOption;
 import com.artillexstudios.axapi.utils.Quaternion;
+import com.artillexstudios.axapi.utils.ResolvableProfile;
 import com.artillexstudios.axapi.utils.Vector3f;
 import com.artillexstudios.axapi.utils.Version;
 import net.kyori.adventure.text.Component;
@@ -57,4 +58,7 @@ public final class Accessors {
     public static final EntityDataAccessor<Integer> BACKGROUND_COLOR = EntityDataSerializers.INT.createAccessor(25);
     public static final EntityDataAccessor<Byte> TEXT_OPACITY = EntityDataSerializers.BYTE.createAccessor(26);
     public static final EntityDataAccessor<Byte> TEXT_DISPLAY_DATA = EntityDataSerializers.BYTE.createAccessor(27);
+    public static final EntityDataAccessor<ResolvableProfile> PROFILE = EntityDataSerializers.RESOLVABLE_PROFILE.createAccessor(17);
+    public static final EntityDataAccessor<Boolean> IMMOVABLE = EntityDataSerializers.BOOLEAN.createAccessor(18);
+    public static final EntityDataAccessor<Optional<Component>> DESCRIPTION = EntityDataSerializers.OPTIONAL_COMPONENT.createAccessor(19);
 }

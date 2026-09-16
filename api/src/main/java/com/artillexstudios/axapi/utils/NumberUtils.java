@@ -23,4 +23,24 @@ public class NumberUtils {
             return false;
         }
     }
+
+    public static boolean isLong(@Nullable String value) {
+        if (value == null) return false;
+        try {
+            Long.parseLong(value);
+            return true;
+        } catch (Exception exception) {
+            return false;
+        }
+    }
+
+    public static boolean isFloat(@Nullable String value) {
+        if (value == null) return false;
+        try {
+            Float.parseFloat(value);
+            return true;
+        } catch (Exception exception) {
+            return false;
+        }
+    }
 }

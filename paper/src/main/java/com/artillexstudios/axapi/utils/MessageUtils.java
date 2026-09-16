@@ -2,8 +2,10 @@ package com.artillexstudios.axapi.utils;
 
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
 import dev.dejvokep.boostedyaml.YamlDocument;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
@@ -79,5 +81,13 @@ public class MessageUtils {
         }
 
         sendFormatted(sender, prefixConfig.getString(prefixRoute) + parsed, replacements);
+    }
+
+    public static void send(CommandSender commandSender, Component component) {
+        if (commandSender instanceof Player player) {
+            ServerPlayerWrapper.wrap(player).message(component);
+        } else if (commandSender instanceof ConsoleCommandSender) {
+            commandSender.sendMessage(StringUtils.LEGACY_COMPONENT_SERIALIZER.serialize(component));
+        }
     }
 }

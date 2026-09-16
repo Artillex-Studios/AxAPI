@@ -1,7 +1,7 @@
 package com.artillexstudios.axapi.gui.inventory.modifier;
 
 import com.artillexstudios.axapi.items.WrappedItemStack;
-import com.artillexstudios.axapi.items.component.DataComponents;
+import com.artillexstudios.axapi.items.components.DataComponents;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
 
 public enum DefaultWrappedItemStackModifier implements WrappedItemStackModifier {
@@ -9,9 +9,9 @@ public enum DefaultWrappedItemStackModifier implements WrappedItemStackModifier 
 
     @Override
     public WrappedItemStack modify(WrappedItemStack stack) {
-        CompoundTag tag = stack.get(DataComponents.customData());
+        CompoundTag tag = stack.get(DataComponents.CUSTOM_DATA);
         tag.putBoolean("axapi-gui", true);
-        stack.set(DataComponents.customData(), tag);
+        stack.set(DataComponents.CUSTOM_DATA, tag);
         return stack;
     }
 }

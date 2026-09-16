@@ -20,6 +20,10 @@ public interface DataComponentHandler<T, Z> {
         ItemStack wrapped = ((com.artillexstudios.axapi.nms.v1_21_R7.items.WrappedItemStack) stack).itemStack;
         Z data = wrapped.get(type);
         if (data == null) {
+            data = this.getDefault();
+        }
+
+        if (data == null) {
             return null;
         }
 
@@ -29,4 +33,8 @@ public interface DataComponentHandler<T, Z> {
     Z toNMS(T from);
 
     T fromNMS(Z data);
+
+    default Z getDefault() {
+        return null;
+    }
 }

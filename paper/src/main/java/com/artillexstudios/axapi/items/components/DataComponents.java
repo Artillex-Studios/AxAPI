@@ -7,9 +7,11 @@ import com.artillexstudios.axapi.items.components.data.ItemEnchantments;
 import com.artillexstudios.axapi.items.components.data.ItemLore;
 import com.artillexstudios.axapi.items.components.data.PotionContents;
 import com.artillexstudios.axapi.items.components.data.Rarity;
+import com.artillexstudios.axapi.items.components.data.TooltipDisplay;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.utils.ResolvableProfile;
+import com.artillexstudios.axapi.utils.UncheckedUtils;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
@@ -36,8 +38,9 @@ public final class DataComponents {
     public static final DataComponent<PotionContents> POTION_CONTENTS = fetch("potion_contents");
     public static final DataComponent<Unit> UNBREAKABLE = fetch("unbreakable");
     public static final DataComponent<Float> MINIMUM_ATTACK_CHARGE = fetch("minimum_attack_charge");
+    public static final DataComponent<TooltipDisplay> TOOLTIP_DISPLAY = fetch("tooltip_display");
 
-    private static <T extends DataComponent<?>> T fetch(String id) {
-        return NMSHandlers.getNmsHandler().getDataComponent(id);
+    private static <T> DataComponent<T> fetch(String id) {
+        return UncheckedUtils.unsafeCast(NMSHandlers.getNmsHandler().getDataComponent(id));
     }
 }

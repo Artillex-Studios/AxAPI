@@ -1,6 +1,6 @@
 package com.artillexstudios.axapi.items;
 
-import com.artillexstudios.axapi.items.component.DataComponents;
+import com.artillexstudios.axapi.items.components.DataComponents;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.items.nbt.ListTag;
 import com.artillexstudios.axapi.items.nbt.Tag;
@@ -15,7 +15,7 @@ public class NBTWrapper {
 
     public NBTWrapper(WrappedItemStack wrappedItemStack) {
         this.wrappedItemStack = wrappedItemStack;
-        this.tag = wrappedItemStack.get(DataComponents.customData());
+        this.tag = wrappedItemStack.get(DataComponents.CUSTOM_DATA);
     }
 
     public NBTWrapper(ItemStack itemStack) {
@@ -238,7 +238,7 @@ public class NBTWrapper {
     }
 
     public void build() {
-        this.wrappedItemStack.set(DataComponents.customData(), this.tag);
+        this.wrappedItemStack.set(DataComponents.CUSTOM_DATA, this.tag);
         this.wrappedItemStack.finishEdit();
     }
 }

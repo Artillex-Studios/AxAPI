@@ -585,7 +585,10 @@ public final class EntityDataSerializers {
             for (Map.Entry<String, ProfileProperties.Property> entry : value.getPartialProfile().properties().properties().entries()) {
                 buf.writeUTF(entry.getKey());
                 buf.writeUTF(entry.getValue().value());
-                buf.writeUTF(entry.getValue().signature());
+                buf.writeBoolean(entry.getValue().signature() != null);
+                if (entry.getValue().signature() != null) {
+                    buf.writeUTF(entry.getValue().signature());
+                }
             }
 
             value.getPatch().body().ifPresentOrElse(texture -> {

@@ -12,11 +12,13 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.ChatColor;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import java.text.DecimalFormat;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -60,11 +62,11 @@ public final class StringUtils {
             .hexColors()
             .build();
 
-    public static Component format(@NotNull String input, @NotNull Map<String, String> replacements) {
+    public static Component format(@NonNull String input, @NonNull Map<String, String> replacements) {
         return format(input, ItemBuilder.mapResolvers(replacements));
     }
 
-    public static Component format(@NotNull String input, @NotNull TagResolver... resolvers) {
+    public static Component format(@NonNull String input, @NonNull TagResolver... resolvers) {
         if (FeatureFlags.USE_LEGACY_HEX_FORMATTER.get()) {
             input = ItemBuilder.toTagResolver(input, resolvers);
 
@@ -72,36 +74,42 @@ public final class StringUtils {
         }
 
         // I will probably have to improve the performance of this code by a large margin...
-        String formatted = COLOR_CACHE.get(input, str -> {
+        String formatted = translateToMiniMessage(input);
+
+        if (formatted == null) {
+            return Component.empty();
+        }
+
+        formatted = ItemBuilder.toTagResolver(formatted, resolvers);
+
+        return MINI_MESSAGE.deserialize(formatted, resolvers.length == 0 ? EMPTY_RESOLVER : TagResolver.resolver(resolvers)).applyFallbackStyle(TextDecoration.ITALIC.withState(false));
+    }
+
+    public static String translateToMiniMessage(@NonNull String input) {
+        return COLOR_CACHE.get(input, str -> {
             String toFormat = str.replace('\u00a7', '&');
 
-            toFormat = replaceLegacyFormat(toFormat, "&l", "<b>", "</b>");
-            toFormat = replaceLegacyFormat(toFormat, "&m", "<st>", "</st>");
-            toFormat = replaceLegacyFormat(toFormat, "&n", "<u>", "</u>");
-            toFormat = replaceLegacyFormat(toFormat, "&o", "<i>", "</i>");
-            toFormat = replaceLegacyFormat(toFormat, "&k", "<obf>", "</obf>");
+            CachingSupplier<Map<Integer, List<InsertData>>> orderedInsert = CachingSupplier.create(HashMap::new);
+            toFormat = replaceLegacyFormat(toFormat, "&l", "<b>", "</b>", orderedInsert);
+            toFormat = replaceLegacyFormat(toFormat, "&m", "<st>", "</st>", orderedInsert);
+            toFormat = replaceLegacyFormat(toFormat, "&n", "<u>", "</u>", orderedInsert);
+            toFormat = replaceLegacyFormat(toFormat, "&o", "<i>", "</i>", orderedInsert);
+            toFormat = replaceLegacyFormat(toFormat, "&k", "<obf>", "</obf>", orderedInsert);
+            toFormat = doInserts(toFormat, orderedInsert);
 
             toFormat = HEX_PATTERN.matcher(toFormat).replaceAll(fo -> "<#" + fo.group(1) + ">");
-            toFormat = UNUSUAL_LEGACY_HEX_PATTERN.matcher(toFormat).replaceAll(fo -> "<#" + fo.group(0) + fo.group(1) + fo.group(2) + fo.group(3) + fo.group(4) + fo.group(5) + ">");
+            toFormat = UNUSUAL_LEGACY_HEX_PATTERN.matcher(toFormat).replaceAll(fo -> "<#" + fo.group(1) + fo.group(2) + fo.group(3) + fo.group(4) + fo.group(5) + fo.group(6) + ">");
             toFormat = UNUSUAL_LEGACY_HEX_PATTERN.matcher(toFormat).replaceAll(fo -> "");
 
             for (Pair<String, String> placeholder : COLOR_FORMATS) {
                 toFormat = toFormat.replace(placeholder.first(), placeholder.second());
             }
 
-            toFormat = ItemBuilder.toTagResolver(toFormat, resolvers);
-
             return toFormat;
         });
-
-        if (formatted == null) {
-            return Component.empty();
-        }
-
-        return MINI_MESSAGE.deserialize(formatted, resolvers.length == 0 ? EMPTY_RESOLVER : TagResolver.resolver(resolvers)).applyFallbackStyle(TextDecoration.ITALIC.withState(false));
     }
 
-    public static String formatToString(@NotNull String string, @NotNull TagResolver... resolvers) {
+    public static String formatToString(@NonNull String string, @NonNull TagResolver... resolvers) {
         if (FeatureFlags.USE_LEGACY_HEX_FORMATTER.get()) {
             String changed = string.replace("§", "&");
             changed = ItemBuilder.toTagResolver(changed, resolvers);
@@ -111,12 +119,12 @@ public final class StringUtils {
         return LEGACY_COMPONENT_SERIALIZER.serialize(format(string, resolvers));
     }
 
-    public static String formatToString(@NotNull String string, @NotNull Map<String, String> replacements) {
+    public static String formatToString(@NonNull String string, @NonNull Map<String, String> replacements) {
         return formatToString(string, ItemBuilder.mapResolvers(replacements));
     }
 
-    @NotNull
-    public static List<Component> formatList(@NotNull List<String> list, TagResolver... resolvers) {
+    @NonNull
+    public static List<Component> formatList(@NonNull List<String> list, TagResolver... resolvers) {
         List<Component> newList = new ArrayList<>(list.size());
         for (String line : list) {
             newList.add(format(line, resolvers));
@@ -125,13 +133,13 @@ public final class StringUtils {
         return newList;
     }
 
-    @NotNull
-    public static List<Component> formatList(@NotNull List<String> list, Map<String, String> replacements) {
+    @NonNull
+    public static List<Component> formatList(@NonNull List<String> list, Map<String, String> replacements) {
         return formatList(list, ItemBuilder.mapResolvers(replacements));
     }
 
-    @NotNull
-    public static List<String> formatListToString(@NotNull List<String> list, TagResolver... resolvers) {
+    @NonNull
+    public static List<String> formatListToString(@NonNull List<String> list, TagResolver... resolvers) {
         List<String> newList = new ArrayList<>(list.size());
         for (String line : list) {
             newList.add(formatToString(line, resolvers));
@@ -140,8 +148,8 @@ public final class StringUtils {
         return newList;
     }
 
-    @NotNull
-    public static List<String> formatListToString(@NotNull List<String> list, Map<String, String> replacements) {
+    @NonNull
+    public static List<String> formatListToString(@NonNull List<String> list, Map<String, String> replacements) {
         return formatListToString(list, ItemBuilder.mapResolvers(replacements));
     }
 
@@ -150,7 +158,7 @@ public final class StringUtils {
         return formatter.format(number);
     }
 
-    @NotNull
+    @NonNull
     public static String formatTime(long time) {
         Duration remainingTime = Duration.ofMillis(time);
         long total = remainingTime.getSeconds();
@@ -161,21 +169,79 @@ public final class StringUtils {
         return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
 
-    private static String replaceLegacyFormat(String toFormat, String search, String start, String close) {
+    private static String doInserts(String toFormat, CachingSupplier<Map<Integer, List<InsertData>>> insertsGetter) {
+        if (!insertsGetter.hasValue()) {
+            return toFormat;
+        }
+
+        StringBuilder stringBuilder = new StringBuilder(toFormat);
+        Map<Integer, List<InsertData>> inserts = insertsGetter.get();
+        List<Integer> sorted = new ArrayList<>(inserts.keySet());
+        sorted.sort(Comparator.comparingInt(a -> (Integer) a).reversed());
+        for (Integer key : sorted) {
+            List<InsertData> value = inserts.get(key);
+            value.sort(Comparator.comparingInt(insertData -> ((InsertData) insertData).basePosition).reversed());
+            int offset = 0;
+            for (InsertData insertData : value) {
+                stringBuilder.insert(insertData.whereToInsert + offset, insertData.text);
+                offset += insertData.text.length();
+            }
+        }
+        return stringBuilder.toString();
+    }
+
+    private static String replaceLegacyFormat(String toFormat, String search, String start, String close, CachingSupplier<Map<Integer, List<InsertData>>> inserts) {
         int index;
         while ((index = toFormat.indexOf(search)) != -1) {
             toFormat = org.apache.commons.lang3.StringUtils.replaceOnce(toFormat, search, start);
+            shift(inserts, start.length() - search.length(), index);
             for (int i = index; i < toFormat.length(); i++) {
-                if (toFormat.charAt(i) == '&' && i + 1 < toFormat.length() && COLOR_CHARS.contains(toFormat.charAt(i + 1))) {
-                    StringBuilder stringBuilder = new StringBuilder(toFormat);
-                    stringBuilder.insert(i, close);
-                    toFormat = stringBuilder.toString();
+                char firstChar = toFormat.charAt(i);
+                if (firstChar == '\n') {
+                    // If we find a newline character, we should insert the closing tag
+                    inserts.get().computeIfAbsent(i, q -> new ArrayList<>()).add(new InsertData(index, i, close));
                     break;
+                } else if (firstChar == '&' && i + 1 < toFormat.length()) {
+                    char c = toFormat.charAt(i + 1);
+                    if (c == 'x') {
+                        i += 13;
+                    } else if (c == 'r') {
+                        // We don't need whereToInsert insert anything if we find a reset
+                        break;
+                    } else if (COLOR_CHARS.contains(c)) {
+                        inserts.get().computeIfAbsent(i, q -> new ArrayList<>()).add(new InsertData(index, i, close));
+                        break;
+                    }
                 }
             }
         }
 
         return toFormat;
+    }
+
+    private static void shift(CachingSupplier<Map<Integer, List<InsertData>>> mapGetter, int amount, int fromIndex) {
+        if (!mapGetter.hasValue()) {
+            return;
+        }
+
+        Map<Integer, List<InsertData>> map = mapGetter.get();
+        for (Integer i : map.keySet().stream().sorted(Comparator.reverseOrder()).toList()) {
+            move(map, i, i < fromIndex ? i : i + amount, amount, fromIndex);
+        }
+    }
+
+    private static void move(Map<Integer, List<InsertData>> map, Integer key, Integer newKey, int shift, int fromIndex) {
+        List<InsertData> object = map.remove(key);
+        List<InsertData> shifted = map.getOrDefault(key, new ArrayList<>());
+        for (InsertData insertData : object) {
+            shifted.add(new InsertData(insertData.basePosition, insertData.whereToInsert < fromIndex ? insertData.whereToInsert : insertData.whereToInsert + shift, insertData.text));
+        }
+
+        map.put(newKey, shifted);
+    }
+
+    record InsertData(int basePosition, int whereToInsert, String text) {
+
     }
 
     // Thanks! https://www.spigotmc.org/threads/hex-color-code-translate.449748/

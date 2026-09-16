@@ -3,14 +3,15 @@ package com.artillexstudios.axapi.utils;
 import com.artillexstudios.axapi.config.adapters.ConfigurationGetter;
 import com.artillexstudios.axapi.config.adapters.MapConfigurationGetter;
 import com.artillexstudios.axapi.items.WrappedItemStack;
-import com.artillexstudios.axapi.items.component.DataComponents;
-import com.artillexstudios.axapi.items.component.type.CustomModelData;
-import com.artillexstudios.axapi.items.component.type.DyedColor;
-import com.artillexstudios.axapi.items.component.type.ItemEnchantments;
-import com.artillexstudios.axapi.items.component.type.ItemLore;
 import com.artillexstudios.axapi.items.component.type.ProfileProperties;
-import com.artillexstudios.axapi.items.component.type.Unbreakable;
 import com.artillexstudios.axapi.items.component.type.Unit;
+import com.artillexstudios.axapi.items.components.DataComponents;
+import com.artillexstudios.axapi.items.components.data.CustomModelData;
+import com.artillexstudios.axapi.items.components.data.DyedItemColor;
+import com.artillexstudios.axapi.items.components.data.ItemEnchantments;
+import com.artillexstudios.axapi.items.components.data.ItemLore;
+import com.artillexstudios.axapi.items.components.data.PotionContents;
+import com.artillexstudios.axapi.items.components.data.TooltipDisplay;
 import com.artillexstudios.axapi.placeholders.PaperPlaceholderHandler;
 import com.artillexstudios.axapi.placeholders.PlaceholderParameters;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
@@ -27,17 +28,18 @@ import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiFunction;
@@ -45,7 +47,6 @@ import java.util.function.BiFunction;
 public class ItemBuilder {
     private static final BiFunction<String, PlaceholderParameters, String> PLACEHOLDER_PARSER = (line, parameters) -> FeatureFlags.PARSE_PLACEHOLDER_API_IN_ITEM_BUILDER.get() ? PaperPlaceholderHandler.parseWithPlaceholderAPI(line, parameters) : PaperPlaceholderHandler.parse(line, parameters);
     private static final UUID NIL_UUID = new UUID(0, 0);
-    private final List<ItemFlag> flags = new ArrayList<>(4);
     private final WrappedItemStack stack;
     private final TagResolver[] resolvers;
     private final PlaceholderParameters parameters;
@@ -62,7 +63,8 @@ public class ItemBuilder {
             this.stack = WrappedItemStack.wrap(new ItemStack(this.getMaterial(type)));
         }
 
-        Optionals.ifPresent(getter.getStringList("item-flags"), list -> this.flags.addAll(this.getItemFlags(list)));
+        Optionals.ifPresent(getter.getStringList("item-flags"), this::setHiddenComponents);
+        Optionals.ifPresent(getter.getBoolean("hide-tooltip"), this::setHideTooltip);
         Optionals.ifPresent(getter.getStringList("enchants"), enchants -> this.addEnchants(this.createEnchantmentsMap(enchants)));
         Optionals.ifPresent(getter.getString("name"), this::setName);
         Optionals.ifPresent(getter.getString("color"), this::setColor);
@@ -80,12 +82,6 @@ public class ItemBuilder {
         Optionals.ifPresent(getter.getString("tooltip-style"), this::tooltipStyle);
         Optionals.ifPresent(ExceptionUtils.catching(() -> getter.getInteger("custom-model-data")), this::legacyModelData);
         Optionals.ifPresent(ExceptionUtils.catching(() -> getter.getMap("custom-model-data")), this::customModelData);
-
-        ExceptionUtils.catching(() -> {
-            if (this.flags.contains(ItemFlag.HIDE_POTION_EFFECTS)) {
-                this.stack.set(DataComponents.hideAdditionalTooltip(), Unit.INSTANCE);
-            }
-        });
     }
 
     public ItemBuilder(WrappedItemStack stack, PlaceholderParameters parameters, TagResolver... resolvers) {
@@ -248,7 +244,7 @@ public class ItemBuilder {
 
         int i = 0;
         for (Map.Entry<String, String> entry : replacements.entrySet()) {
-            resolvers[i] = Placeholder.parsed(entry.getKey().replace("%", ""), entry.getValue());
+            resolvers[i] = Placeholder.parsed(entry.getKey().replace("%", ""), StringUtils.translateToMiniMessage(entry.getValue()));
             i++;
         }
 
@@ -289,21 +285,32 @@ public class ItemBuilder {
         return enchantsMap;
     }
 
-    @NotNull
-    private List<ItemFlag> getItemFlags(@NotNull List<String> flags) {
-        final List<ItemFlag> flagList = new ArrayList<>(flags.size());
-        for (String flag : flags) {
-            ItemFlag itemFlag;
-            try {
-                itemFlag = ItemFlag.valueOf(flag.toUpperCase(Locale.ENGLISH));
-            } catch (Exception exception) {
-                continue;
-            }
 
-            flagList.add(itemFlag);
+    public ItemBuilder setHideTooltip(boolean hideTooltip) {
+        TooltipDisplay tooltipDisplay = this.stack.get(DataComponents.TOOLTIP_DISPLAY);
+        if (tooltipDisplay == null) {
+            return this;
         }
 
-        return flagList;
+        this.setHiddenComponents(hideTooltip, tooltipDisplay.hiddenComponents());
+        return this;
+    }
+
+    public ItemBuilder setHiddenComponents(boolean hideTooltip, Collection<String> hiddenComponents) {
+        ExceptionUtils.catching(() -> {
+            this.stack.set(DataComponents.TOOLTIP_DISPLAY, new TooltipDisplay(hideTooltip, hiddenComponents));
+        });
+        return this;
+    }
+
+    public ItemBuilder setHiddenComponents(Collection<String> hiddenComponents) {
+        TooltipDisplay tooltipDisplay = this.stack.get(DataComponents.TOOLTIP_DISPLAY);
+        if (tooltipDisplay == null) {
+            return this;
+        }
+
+        this.setHiddenComponents(tooltipDisplay.hideTooltip(), hiddenComponents);
+        return this;
     }
 
     public static String toTagResolver(String string, TagResolver... resolvers) {
@@ -366,7 +373,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setPotion(String potion) {
-        this.stack.set(DataComponents.potionType(), PotionType.valueOf(potion.toUpperCase(Locale.ENGLISH)));
+        this.stack.set(DataComponents.POTION_CONTENTS, new PotionContents(Optional.of(PotionType.valueOf(potion.toUpperCase(Locale.ENGLISH))), Optional.empty(), List.of(), Optional.empty()));
         return this;
     }
 
@@ -389,7 +396,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setName(String name, TagResolver... resolvers) {
-        this.stack.set(DataComponents.customName(), StringUtils.format(
+        this.stack.set(DataComponents.CUSTOM_NAME, StringUtils.format(
                 toTagResolver(Optionals.applyIfPresent(this.parameters, name, PLACEHOLDER_PARSER), resolvers), resolvers));
         return this;
     }
@@ -398,55 +405,51 @@ public class ItemBuilder {
         String[] rgb = colorString.replace(" ", "").split(",");
         Color color = Color.fromRGB(Integer.parseInt(rgb[0]), Integer.parseInt(rgb[1]), Integer.parseInt(rgb[2]));
 
-        this.stack.set(DataComponents.dyedColor(), new DyedColor(color, this.flags.contains(ItemFlag.HIDE_DYE)));
+        this.stack.set(DataComponents.DYED_COLOR, new DyedItemColor(color.asRGB()));
 
         return this;
     }
 
     public ItemBuilder glow(boolean glow) {
         if (glow) {
-            this.stack.set(DataComponents.enchantmentGlintOverride(), true);
+            this.stack.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
         }
         return this;
     }
 
     public ItemBuilder unbreakable(boolean unbreakable) {
         if (unbreakable) {
-            this.stack.set(DataComponents.unbreakable(), new Unbreakable(!this.flags.contains(ItemFlag.HIDE_UNBREAKABLE)));
+            this.stack.set(DataComponents.UNBREAKABLE, Unit.INSTANCE);
         } else {
-            this.stack.set(DataComponents.unbreakable(), null);
+            this.stack.set(DataComponents.UNBREAKABLE, null);
         }
         return this;
     }
 
     public ItemBuilder itemModel(String model) {
-        this.stack.set(DataComponents.itemModel(), model == null ? null : Key.key(model));
+        this.stack.set(DataComponents.ITEM_MODEL, model == null ? null : Key.key(model));
         return this;
     }
 
     public ItemBuilder tooltipStyle(String model) {
-        this.stack.set(DataComponents.tooltipStyle(), model == null ? null : Key.key(model));
+        this.stack.set(DataComponents.TOOLTIP_STYLE, model == null ? null : Key.key(model));
         return this;
     }
 
     public ItemBuilder addEnchantment(Enchantment enchantment, int level) {
-        ItemEnchantments enchants = this.stack.get(DataComponents.enchantments());
-        enchants = enchants.add(enchantment, level);
-        if (this.flags.contains(ItemFlag.HIDE_ENCHANTS)) {
-            enchants = enchants.withTooltip(false);
-        }
-
-        this.stack.set(DataComponents.enchantments(), enchants);
+        ItemEnchantments enchants = this.stack.get(com.artillexstudios.axapi.items.components.DataComponents.ENCHANTMENTS);
+        enchants = enchants.setLevel(enchantment, level);
+        this.stack.set(com.artillexstudios.axapi.items.components.DataComponents.ENCHANTMENTS, enchants);
         return this;
     }
 
     public ItemBuilder legacyModelData(Integer modelData) {
-        this.stack.set(DataComponents.customModelData(), new CustomModelData(List.of(), List.of(), modelData == null ? List.of() : List.of(modelData.floatValue()), List.of()));
+        this.stack.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(modelData == null ? List.of() : List.of(modelData.floatValue()), List.of(), List.of(), List.of()));
         return this;
     }
 
     public ItemBuilder customModelData(Map<Object, Object> modelData) {
-        this.stack.set(DataComponents.customModelData(), new CustomModelData((List<String>) modelData.getOrDefault("strings", List.of()), (List<Boolean>) modelData.getOrDefault("flags", List.of()), Lists.transform((List<Number>) modelData.getOrDefault("floats", List.of()), num -> num.floatValue()), Lists.transform((List<String>) modelData.getOrDefault("colors", List.of()), a -> {
+        this.stack.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(Lists.transform((List<Number>) modelData.getOrDefault("floats", List.of()), num -> num.floatValue()), (List<Boolean>) modelData.getOrDefault("flags", List.of()), (List<String>) modelData.getOrDefault("strings", List.of()), Lists.transform((List<String>) modelData.getOrDefault("colors", List.of()), a -> {
             String[] rgb = a.replace(" ", "").split(",");
             Color color = Color.fromRGB(Integer.parseInt(rgb[0]), Integer.parseInt(rgb[1]), Integer.parseInt(rgb[2]));
             return color.asRGB();
@@ -483,7 +486,7 @@ public class ItemBuilder {
             multiLineLore.addAll(Arrays.asList(line.split("\n")));
         }
 
-        this.stack.set(DataComponents.lore(), new ItemLore(StringUtils.formatList(
+        this.stack.set(DataComponents.LORE, ItemLore.create(StringUtils.formatList(
                 toTagResolver(Lists.transform(multiLineLore, line -> Optionals.applyIfPresent(this.parameters, line, PLACEHOLDER_PARSER)), resolvers), resolvers)
         ));
         return this;
@@ -493,7 +496,7 @@ public class ItemBuilder {
         ProfileProperties properties = new ProfileProperties(NIL_UUID, "axapi");
         texture = StringUtils.formatToString(toTagResolver(texture), this.resolvers);
         properties.put("textures", new ProfileProperties.Property("textures", texture, null));
-        this.stack.set(DataComponents.profile(), properties);
+        this.stack.set(DataComponents.PROFILE, new ResolvableProfile(new GameProfile("axapi", NIL_UUID, properties), new PlayerSkin.Patch(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty())));
         return this;
     }
 
@@ -516,20 +519,20 @@ public class ItemBuilder {
         if (snbt) {
             map.put("snbt", this.stack.toSNBT());
         } else {
-            map.put("type", this.stack.get(DataComponents.material()).name());
+            map.put("type", this.stack.get(DataComponents.MATERIAL).name());
 
-            Component name = this.stack.get(DataComponents.customName());
+            Component name = this.stack.get(DataComponents.CUSTOM_NAME);
             if (name != Component.empty()) {
                 map.put("name", MiniMessage.miniMessage().serialize(name));
             }
 
-            List<Component> lore = this.stack.get(DataComponents.lore()).lines();
+            List<Component> lore = this.stack.get(DataComponents.LORE).lines();
             if (!lore.isEmpty()) {
                 map.put("lore", Lists.transform(lore, a -> MiniMessage.miniMessage().serialize(a)));
             }
 
             map.put("amount", this.stack.getAmount());
-            CustomModelData modelData = this.stack.get(DataComponents.customModelData());
+            CustomModelData modelData = this.stack.get(DataComponents.CUSTOM_MODEL_DATA);
             if (!modelData.floats().isEmpty() && modelData.colors().isEmpty() && modelData.flags().isEmpty() && modelData.strings().isEmpty()) {
                 int data = modelData.floats().get(0).intValue();
                 if (data != 0) {
@@ -537,9 +540,9 @@ public class ItemBuilder {
                 }
             }
 
-            ProfileProperties profileProperties = this.stack.get(DataComponents.profile());
+            ResolvableProfile profileProperties = this.stack.get(DataComponents.PROFILE);
             if (profileProperties != null) {
-                map.put("texture", profileProperties.properties().get("textures").stream().findFirst().orElse(new ProfileProperties.Property("", "", null)).value());
+                map.put("texture", profileProperties.getPartialProfile().properties().properties().get("textures").stream().findFirst().orElse(new ProfileProperties.Property("", "", null)).value());
             }
         }
 

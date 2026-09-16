@@ -11,9 +11,8 @@ public record ArtifactVersion(String string, long version) {
         long v = 0;
         int j = 0;
         for (int i = split.length - 1; i >= 0; i--) {
-            int len = split[i].length();
-            v += Integer.parseInt(split[i]) * (long) Math.pow(10, j);
-            j += len;
+            v += Integer.parseInt(split[i]) * (long) Math.pow(100, j);
+            j++;
         }
 
         return v;

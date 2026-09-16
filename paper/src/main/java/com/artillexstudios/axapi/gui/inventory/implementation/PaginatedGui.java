@@ -134,17 +134,39 @@ public class PaginatedGui extends Gui {
         super.open();
     }
 
+    public void open(int page) {
+        this.page(page);
+        this.open();
+    }
+
+    public boolean next() {
+        if (!this.hasNextPage()) {
+            return false;
+        }
+
+        return this.page(this.page() + 1);
+    }
+
+    public boolean previous() {
+        if (!this.hasPreviousPage()) {
+            return false;
+        }
+
+        return this.page(this.page() - 1);
+    }
+
     // 3 max pages, current page: 2 -> we are on the last page
-    public void page(int page) {
+    public boolean page(int page) {
         if (page >= this.maxPages()) {
-            throw new IllegalStateException("Max pages: " + this.maxPages());
+            return false;
         }
 
         if (page < 0) {
-            throw new IllegalStateException("Min page is 0!");
+            return false;
         }
 
         this.page = page;
+        return true;
     }
 
     public int maxPages() {
