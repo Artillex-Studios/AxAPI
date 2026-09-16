@@ -2,9 +2,8 @@ package com.artillexstudios.axapi.nms.v26_3.items;
 
 import com.artillexstudios.axapi.items.HashGenerator;
 import com.artillexstudios.axapi.items.HashedStack;
-import com.artillexstudios.axapi.items.component.DataComponent;
+import com.artillexstudios.axapi.items.components.DataComponent;
 import com.artillexstudios.axapi.nms.v26_3.ItemStackSerializer;
-import com.artillexstudios.axapi.reflection.ClassUtils;
 import com.artillexstudios.axapi.reflection.FieldAccessor;
 import com.artillexstudios.axapi.reflection.MethodUtils;
 import com.artillexstudios.axapi.utils.PaperUtils;
@@ -12,7 +11,6 @@ import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.lang.reflect.Method;
 import java.util.Objects;
 
 public class WrappedItemStack implements com.artillexstudios.axapi.items.WrappedItemStack {
@@ -35,13 +33,12 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
 
     @Override
     public <T> void set(DataComponent<T> component, T value) {
-        this.dirty = true;
-        component.apply(this.itemStack, value);
-    }
+        if (component == null) {
+            return;
+        }
 
-    @Override
-    public <T> T get(DataComponent<T> component) {
-        return component.get(this.itemStack);
+        this.dirty = true;
+        component.apply(this, value);
     }
 
     @Override
