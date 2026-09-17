@@ -174,7 +174,7 @@ public final class FeatureFlags {
      * <p>
      * Can be controlled with the system property: %pluginName%libraryDownloaderDepth
      */
-    public static final IntegerFlag LIBRARY_DOWNLOADER_DEPTH = new IntegerFlag(1);
+    public static final IntegerFlag LIBRARY_DOWNLOADER_DEPTH = new IntegerFlag(5);
 
     public static void refresh() {
         String name = Nameable.getInstance().getName();
