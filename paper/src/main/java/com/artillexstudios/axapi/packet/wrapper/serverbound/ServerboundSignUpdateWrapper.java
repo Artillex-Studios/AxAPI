@@ -4,6 +4,7 @@ import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketType;
 import com.artillexstudios.axapi.packet.ServerboundPacketTypes;
+import com.artillexstudios.axapi.packet.data.SignTextSlot;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
 import com.artillexstudios.axapi.utils.Version;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
@@ -48,19 +49,23 @@ public final class ServerboundSignUpdateWrapper extends PacketWrapper {
     @Override
     public void write(FriendlyByteBuf out) {
         out.writeBlockPos(this.position);
-        if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_20_1)) {
+        if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_20_1) && Version.getServerVersion().isOlderThan(Version.v26_3)) {
             out.writeBoolean(this.frontText);
         }
 
         for (int i = 0; i < 4; i++) {
             out.writeUTF(this.lines[i]);
         }
+
+        if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v26_3)) {
+            out.writeEnum(SignTextSlot.get(this.frontText));
+        }
     }
 
     @Override
     public void read(FriendlyByteBuf buf) {
         this.position = buf.readBlockPosition();
-        if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_20_1)) {
+        if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_20_1) && Version.getServerVersion().isOlderThan(Version.v26_3)) {
             this.frontText = buf.readBoolean();
         } else {
             this.frontText = true;
@@ -69,6 +74,11 @@ public final class ServerboundSignUpdateWrapper extends PacketWrapper {
         this.lines = new String[4];
         for (int i = 0; i < 4; i++) {
             this.lines[i] = buf.readUTF(384);
+        }
+
+        if (Version.getServerVersion().isNewerThanOrEqualTo(Version.v26_3)) {
+            SignTextSlot signTextSlot = buf.readEnum(SignTextSlot.class);
+            this.frontText = signTextSlot == SignTextSlot.FRONT;
         }
 
         if (FeatureFlags.DEBUG.get()) {
