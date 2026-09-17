@@ -69,6 +69,7 @@ public abstract class AxPlugin extends JavaPlugin {
 
         Path librariesPath = this.getDataFolder().toPath().getParent().resolve("AxAPI").resolve("libraries").resolve(this.getName());
         LibraryDownloader manager = new LibraryDownloader(librariesPath);
+        manager.withMaxDepth(FeatureFlags.LIBRARY_DOWNLOADER_DEPTH.get());
         DependencyManagerWrapper wrapper = new DependencyManagerWrapper(manager);
         wrapper.repository("https://repo.artillex-studios.com/releases/");
         wrapper.relocate("org{}apache{}commons{}math3", "com.artillexstudios.axapi.libs.math3");

@@ -169,6 +169,12 @@ public final class FeatureFlags {
      * Can be controlled with the system property: %pluginName%loggerNameFormat
      */
     public static final EnumFlag<LoggerNameFormat> LOGGER_NAME_FORMAT = new EnumFlag<>(LoggerNameFormat.FULL, LoggerNameFormat.class);
+    /**
+     * Change the max depth of the library downloader.
+     * <p>
+     * Can be controlled with the system property: %pluginName%libraryDownloaderDepth
+     */
+    public static final IntegerFlag LIBRARY_DOWNLOADER_DEPTH = new IntegerFlag(1);
 
     public static void refresh() {
         String name = Nameable.getInstance().getName();
@@ -197,5 +203,6 @@ public final class FeatureFlags {
         HOLOGRAM_PARSED_LINE_CACHE.refresh(name + "hologramParsedLineCache");
         ENABLE_GUI_LISTENERS.refresh(name + "enableGuiListeners");
         LOGGER_NAME_FORMAT.refresh(name + "loggerNameFormat");
+        LIBRARY_DOWNLOADER_DEPTH.refresh(name + "libraryDownloaderDepth");
     }
 }
