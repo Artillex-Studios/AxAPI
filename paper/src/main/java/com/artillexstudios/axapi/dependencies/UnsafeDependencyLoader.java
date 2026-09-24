@@ -25,24 +25,38 @@ public final class UnsafeDependencyLoader {
             .build();
     private final FieldAccessor unopenedUrlsAccessor = FieldAccessor.builder()
             .disableAccessChecking()
+            .silent()
             .withClass("jdk.internal.loader.URLClassPath")
             .withField("unopenedUrls")
             .build();
     private final FieldAccessor pathAccessor = FieldAccessor.builder()
             .disableAccessChecking()
+            .silent()
             .withClass("jdk.internal.loader.URLClassPath")
             .withField("path")
+            .build();
+    private final FieldAccessor searchPathAccessor = FieldAccessor.builder()
+            .disableAccessChecking()
+            .silent()
+            .withClass("jdk.internal.loader.URLClassPath")
+            .withField("searchPath")
             .build();
 
     private void addURL(URLClassLoader classLoader, URL url) {
         long urlClassPathOffset = this.unsafe.objectFieldOffset(this.urlClassPathAccessor.getReflectedField());
         Object classPath = this.unsafe.getObject(classLoader, urlClassPathOffset);
-        long unopenedUrlsOffset = this.unsafe.objectFieldOffset(this.unopenedUrlsAccessor.getReflectedField());
-        ArrayDeque<URL> unopenedUrls = UncheckedUtils.unsafeCast(this.unsafe.getObject(classPath, unopenedUrlsOffset));
-        long pathOffset = this.unsafe.objectFieldOffset(this.pathAccessor.getReflectedField());
-        List<URL> path = UncheckedUtils.unsafeCast(this.unsafe.getObject(classPath, pathOffset));
-        unopenedUrls.add(url);
-        path.add(url);
+        if (this.searchPathAccessor != null) {
+            long searchPathOffset = this.unsafe.objectFieldOffset(this.searchPathAccessor.getReflectedField());
+            List<URL> searchPath = UncheckedUtils.unsafeCast(this.unsafe.getObject(classPath, searchPathOffset));
+            searchPath.add(url);
+        } else {
+            long unopenedUrlsOffset = this.unsafe.objectFieldOffset(this.unopenedUrlsAccessor.getReflectedField());
+            ArrayDeque<URL> unopenedUrls = UncheckedUtils.unsafeCast(this.unsafe.getObject(classPath, unopenedUrlsOffset));
+            long pathOffset = this.unsafe.objectFieldOffset(this.pathAccessor.getReflectedField());
+            List<URL> path = UncheckedUtils.unsafeCast(this.unsafe.getObject(classPath, pathOffset));
+            unopenedUrls.add(url);
+            path.add(url);
+        }
     }
 
     public void loadUnsafeLibrary(URLClassLoader classLoader, Path path) {
