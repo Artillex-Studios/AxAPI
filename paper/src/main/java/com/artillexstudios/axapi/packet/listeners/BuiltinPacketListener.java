@@ -6,6 +6,7 @@ import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
 import com.artillexstudios.axapi.packet.ClientboundPacketTypes;
 import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketListener;
+import com.artillexstudios.axapi.packet.PacketType;
 import com.artillexstudios.axapi.packet.ServerboundPacketTypes;
 import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundAddEntityWrapper;
 import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundBlockUpdateWrapper;
@@ -17,6 +18,9 @@ import com.artillexstudios.axapi.packetentity.PacketEntity;
 import com.artillexstudios.axapi.packetentity.tracker.EntityTracker;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import org.bukkit.Bukkit;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public final class BuiltinPacketListener extends PacketListener {
     private final EntityTracker tracker;
@@ -84,5 +88,17 @@ public final class BuiltinPacketListener extends PacketListener {
                 playerWrapper.sendPacket(new ClientboundBlockUpdateWrapper(signInput.getLocation(), signInput.getLocation().getBlock().getType()));
             });
         }
+    }
+
+    @Override
+    public List<PacketType> getListeningTo() {
+        List<PacketType> packetTypes = new ArrayList<>();
+        packetTypes.add(ServerboundPacketTypes.INTERACT);
+        packetTypes.add(ServerboundPacketTypes.ATTACK);
+        packetTypes.add(ServerboundPacketTypes.SIGN_UPDATE);
+        if (FeatureFlags.LISTEN_TO_RIDE_PACKET.get()) {
+            packetTypes.add(ClientboundPacketTypes.ADD_ENTITY);
+        }
+        return packetTypes;
     }
 }

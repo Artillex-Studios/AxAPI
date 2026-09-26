@@ -7,12 +7,15 @@ import com.artillexstudios.axapi.utils.featureflags.exception.IllegalFeatureFlag
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
+import java.util.List;
+
 public enum PacketEvents {
     INSTANCE;
 
     private final ObjectArrayList<PacketListener> listeners = new ObjectArrayList<>();
     private PacketListener[] baked = new PacketListener[0];
-    private boolean listening = false;
+    private boolean listeningToClientbound = false;
+    private boolean listeningToServerbound = false;
 
     public void addListener(PacketListener listener) {
         if (!FeatureFlags.ENABLE_PACKET_LISTENERS.get()) {
@@ -20,12 +23,33 @@ public enum PacketEvents {
         }
 
         this.listeners.add(listener);
-        this.listening = true;
         this.baked = this.listeners.toArray(new PacketListener[0]);
+        this.updateListening();
+    }
+
+    private void updateListening() {
+        this.listeningToClientbound = false;
+        this.listeningToServerbound = false;
+        for (PacketListener packetListener : baked) {
+            List<PacketType> listeningTo = packetListener.getListeningTo();
+            if (listeningTo == null) {
+                this.listeningToServerbound = true;
+                this.listeningToClientbound = true;
+                break;
+            }
+
+            for (PacketType packetType : listeningTo) {
+                if (packetType.packetSide() == PacketSide.CLIENT_BOUND) {
+                    this.listeningToClientbound = true;
+                } else {
+                    this.listeningToServerbound = true;
+                }
+            }
+        }
     }
 
     public void callEvent(PacketEvent event) {
-        if (!this.listening) {
+        if (!(this.listeningToClientbound || this.listeningToServerbound)) {
             return;
         }
 
@@ -57,8 +81,11 @@ public enum PacketEvents {
         }
     }
 
+    public boolean isListeningToClientbound() {
+        return this.listeningToClientbound;
+    }
 
-    public boolean listening() {
-        return this.listening;
+    public boolean isListeningToServerbound() {
+        return this.listeningToServerbound;
     }
 }

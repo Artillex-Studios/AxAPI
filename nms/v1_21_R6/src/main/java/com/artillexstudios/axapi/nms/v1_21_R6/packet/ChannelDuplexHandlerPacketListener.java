@@ -34,7 +34,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
 
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-        if (!PacketEvents.INSTANCE.listening()) {
+        if (!PacketEvents.INSTANCE.isListeningToClientbound()) {
             super.write(ctx, msg, promise);
             return;
         }
@@ -196,7 +196,7 @@ public final class ChannelDuplexHandlerPacketListener extends ChannelDuplexHandl
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (!PacketEvents.INSTANCE.listening()) {
+        if (!PacketEvents.INSTANCE.isListeningToServerbound()) {
             super.channelRead(ctx, msg);
             return;
         }
