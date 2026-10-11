@@ -1,7 +1,7 @@
 package com.artillexstudios.axapi.nms.v1_20_R3.items.datacomponents.impl;
 
 import com.artillexstudios.axapi.items.components.data.ItemEnchantments;
-import it.unimi.dsi.fastutil.objects.Object2IntAVLTreeMap;
+import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
@@ -32,7 +32,7 @@ public final class EnchantmentsDataComponent implements DataComponentHandler<Ite
     @Override
     public ItemEnchantments getData(ItemStack stack) {
         Map<Enchantment, Integer> enchants = EnchantmentHelper.getEnchantments(stack);
-        Object2IntMap<org.bukkit.enchantments.Enchantment> enchantments = new Object2IntAVLTreeMap<>();
+        Object2IntMap<org.bukkit.enchantments.Enchantment> enchantments = new Object2IntArrayMap<>();
         for (Map.Entry<net.minecraft.world.item.enchantment.Enchantment, Integer> entry : enchants.entrySet()) {
             enchantments.put(CraftEnchantment.minecraftToBukkit(entry.getKey()), (int) entry.getValue());
         }
