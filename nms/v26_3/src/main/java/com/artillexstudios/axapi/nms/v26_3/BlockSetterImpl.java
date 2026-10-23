@@ -87,10 +87,9 @@ public class BlockSetterImpl implements BlockSetter {
         var set = new HashSet<>(this.chunks);
         MinecraftServer.getServer().executeBlocking(() -> {
             var lightEngine = this.level.getChunkSource().getLightEngine();
-            // TODO: relight chunks
-//            lightEngine.starlight$serverRelightChunks(set, c -> {
-//            }, c -> {
-//            });
+            lightEngine.starlight$serverRelightChunks(set, c -> {
+            }, c -> {
+            });
         });
     }
 
