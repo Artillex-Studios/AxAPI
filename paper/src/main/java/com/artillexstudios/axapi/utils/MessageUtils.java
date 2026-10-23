@@ -67,11 +67,19 @@ public class MessageUtils {
         sendFormatted(commandSender, prefixConfig.getString(prefixRoute) + configString, resolvers);
     }
 
+    public void sendLang(CommandSender commandSender, Component message) {
+        sendFormatted(commandSender, StringUtils.format(this.prefixConfig.getString(this.prefixRoute)).append(message));
+    }
+
     public void sendFormatted(CommandSender sender, String message, Map<String, String> replacements) {
         AtomicReference<String> toFormat = new AtomicReference<>(message);
         replacements.forEach((pattern, replacement) -> toFormat.set(toFormat.get().replace(pattern, replacement)));
 
         sendFormatted(sender, toFormat.get());
+    }
+
+    public void sendFormatted(CommandSender sender, Component message) {
+        send(sender, message);
     }
 
     public void sendLang(CommandSender sender, String message, Map<String, String> replacements) {
