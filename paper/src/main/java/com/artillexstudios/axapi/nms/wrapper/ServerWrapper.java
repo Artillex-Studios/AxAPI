@@ -18,7 +18,5 @@ public interface ServerWrapper extends Wrapper<Server> {
 
     String listPackets(PacketSide side);
 
-    default Tag serializeComponentAsNBT(Component component) {
-        return null;
-    }
+    Tag serializeComponentAsNBT(Component component);
 }
