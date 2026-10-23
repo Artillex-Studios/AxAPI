@@ -4,6 +4,7 @@ import com.artillexstudios.axapi.gui.AnvilInput;
 import com.artillexstudios.axapi.gui.SignInput;
 import com.artillexstudios.axapi.items.component.DataComponentImpl;
 import com.artillexstudios.axapi.items.components.DataComponent;
+import com.artillexstudios.axapi.items.nbt.ListTag;
 import com.artillexstudios.axapi.nms.v1_21_R4.entity.PacketEntity;
 import com.artillexstudios.axapi.nms.v1_21_R4.items.datacomponents.DataComponentTypes;
 import com.artillexstudios.axapi.nms.v1_21_R4.items.nbt.CompoundTag;
@@ -88,6 +89,11 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     @Override
     public CompoundTag newTag() {
         return new CompoundTag(new net.minecraft.nbt.CompoundTag());
+    }
+
+    @Override
+    public ListTag newListTag() {
+        return new com.artillexstudios.axapi.nms.v1_21_R4.items.nbt.ListTag(new net.minecraft.nbt.ListTag());
     }
 
     @Override

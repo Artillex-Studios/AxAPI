@@ -15,7 +15,11 @@ public class CompoundTag implements com.artillexstudios.axapi.items.nbt.Compound
 
     @Override
     public void put(String key, Tag tag) {
-        this.parent.put(key, tag.getParent() instanceof net.minecraft.nbt.CompoundTag compoundTag ? compoundTag : (net.minecraft.nbt.ListTag) tag.getParent());
+        if (!(tag.getParent() instanceof net.minecraft.nbt.Tag minecraftTag)) {
+            throw new IllegalArgumentException();
+        }
+
+        this.parent.put(key,  minecraftTag);
     }
 
     @Override

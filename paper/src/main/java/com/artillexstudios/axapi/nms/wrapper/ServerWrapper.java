@@ -1,7 +1,9 @@
 package com.artillexstudios.axapi.nms.wrapper;
 
+import com.artillexstudios.axapi.items.nbt.Tag;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketSide;
+import net.kyori.adventure.text.Component;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
 
@@ -15,4 +17,8 @@ public interface ServerWrapper extends Wrapper<Server> {
     Object transformPacket(FriendlyByteBuf buf);
 
     String listPackets(PacketSide side);
+
+    default Tag serializeComponentAsNBT(Component component) {
+        return null;
+    }
 }

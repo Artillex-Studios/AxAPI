@@ -1,9 +1,15 @@
 package com.artillexstudios.axapi.nms.v26_3.wrapper;
 
+import com.artillexstudios.axapi.items.nbt.HolderTag;
+import com.artillexstudios.axapi.items.nbt.Tag;
 import com.artillexstudios.axapi.nms.v26_3.packet.PacketTransformer;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketSide;
 import com.artillexstudios.axapi.reflection.FieldAccessor;
+import com.artillexstudios.axapi.utils.ComponentSerializer;
+import net.kyori.adventure.text.Component;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.players.NameAndId;
@@ -54,6 +60,11 @@ public final class ServerWrapper implements com.artillexstudios.axapi.nms.wrappe
     @Override
     public String listPackets(PacketSide side) {
         return PacketTransformer.listPackets(side);
+    }
+
+    @Override
+    public Tag serializeComponentAsNBT(Component component) {
+        return new HolderTag(ComponentSerialization.CODEC.encodeStart(NbtOps.INSTANCE, ComponentSerializer.INSTANCE.toVanilla(component)));
     }
 
     @Override

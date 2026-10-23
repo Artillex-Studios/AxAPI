@@ -91,6 +91,11 @@ public class NMSHandler implements com.artillexstudios.axapi.nms.NMSHandler {
     }
 
     @Override
+    public com.artillexstudios.axapi.items.nbt.ListTag newListTag() {
+        return new com.artillexstudios.axapi.nms.v1_20_R3.items.nbt.ListTag(new net.minecraft.nbt.ListTag());
+    }
+
+    @Override
     public void openSignInput(SignInput signInput) {
         ServerPlayer player = ((CraftPlayer) signInput.getPlayer()).getHandle();
         BlockPos pos = CraftLocation.toBlockPosition(signInput.getLocation());

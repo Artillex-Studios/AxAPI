@@ -5,6 +5,7 @@ import com.artillexstudios.axapi.gui.SignInput;
 import com.artillexstudios.axapi.items.component.DataComponentImpl;
 import com.artillexstudios.axapi.items.components.DataComponent;
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
+import com.artillexstudios.axapi.items.nbt.ListTag;
 import com.artillexstudios.axapi.loot.LootTable;
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
 import com.artillexstudios.axapi.nms.wrapper.WrapperMapper;
@@ -27,6 +28,8 @@ public interface NMSHandler {
     PacketEntity createEntity(EntityType entityType, Location location);
 
     CompoundTag newTag();
+
+    ListTag newListTag();
 
     void openSignInput(SignInput signInput);
 

@@ -1,5 +1,9 @@
 package com.artillexstudios.axapi.items.nbt;
 
+import com.artillexstudios.axapi.nms.NMSHandlers;
+import com.artillexstudios.axapi.nms.wrapper.ServerWrapper;
+import net.kyori.adventure.text.Component;
+
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -75,4 +79,25 @@ public interface CompoundTag extends Tag {
     boolean isEmpty();
 
     Set<String> getAllKeys();
+
+    default void writeTagList(String key, List<Tag> tag) {
+        ListTag listTag = NMSHandlers.getNmsHandler().newListTag();
+        for (Tag entry : tag) {
+            listTag.add(entry);
+        }
+
+        this.put(key, listTag);
+    }
+
+    default void writeCompactTagList(String key, List<Tag> tag) {
+        if (tag.size() == 1) {
+            this.put(key, tag.getFirst());
+        } else {
+            this.writeTagList(key, tag);
+        }
+    }
+
+    default void putComponent(String key, Component component) {
+        this.put(key, ServerWrapper.INSTANCE.serializeComponentAsNBT(component));
+    }
 }
