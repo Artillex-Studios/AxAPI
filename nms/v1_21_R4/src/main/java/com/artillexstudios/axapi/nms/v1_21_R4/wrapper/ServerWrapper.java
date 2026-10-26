@@ -67,7 +67,7 @@ public final class ServerWrapper implements com.artillexstudios.axapi.nms.wrappe
 
     @Override
     public Tag serializeComponentAsNBT(Component component) {
-        return new HolderTag(ComponentSerialization.CODEC.encodeStart(NbtOps.INSTANCE, ComponentSerializer.INSTANCE.toVanilla(component)));
+        return new HolderTag(ComponentSerialization.CODEC.encodeStart(NbtOps.INSTANCE, ComponentSerializer.INSTANCE.toVanilla(component)).getOrThrow());
     }
 
     @Override
