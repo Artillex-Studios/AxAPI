@@ -46,13 +46,13 @@ public record CommonDialogData(Component title, @Nullable Component externalTitl
 
         if (!this.inputs.isEmpty()) {
             List<Tag> tagList = new ArrayList<>();
-            for (Input input :this. inputs) {
+            for (Input input : this.inputs) {
                 CompoundTag compoundTag = NMSHandlers.getNmsHandler().newTag();
                 input.encode(compoundTag);
                 tagList.add(compoundTag);
             }
 
-            tag.writeCompactTagList("inputs", tagList);
+            tag.writeTagList("inputs", tagList);
         }
     }
 }
