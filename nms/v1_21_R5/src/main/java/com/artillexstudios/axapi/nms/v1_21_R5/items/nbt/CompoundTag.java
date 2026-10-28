@@ -236,4 +236,9 @@ public class CompoundTag implements com.artillexstudios.axapi.items.nbt.Compound
     private static int[] leastMostToIntArray(long uuidMost, long uuidLeast) {
         return new int[]{(int) (uuidMost >> 32), (int) uuidMost, (int) (uuidLeast >> 32), (int) uuidLeast};
     }
+
+    @Override
+    public String toString() {
+        return this.parent.toString();
+    }
 }

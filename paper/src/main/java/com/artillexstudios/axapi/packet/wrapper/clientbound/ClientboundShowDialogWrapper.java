@@ -27,6 +27,10 @@ public final class ClientboundShowDialogWrapper extends PacketWrapper {
         out.writeNBT(tag);
     }
 
+    public Dialog getDialog() {
+        return this.dialog;
+    }
+
     @Override
     public void read(FriendlyByteBuf buf) {
         throw new UnsupportedOperationException();

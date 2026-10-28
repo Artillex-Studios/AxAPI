@@ -365,4 +365,9 @@ public class CompoundTag implements com.artillexstudios.axapi.items.nbt.Compound
         crashReportCategory.setDetail("Tag name", tagName);
         return crashReport;
     }
+
+    @Override
+    public String toString() {
+        return this.parent.toString();
+    }
 }
