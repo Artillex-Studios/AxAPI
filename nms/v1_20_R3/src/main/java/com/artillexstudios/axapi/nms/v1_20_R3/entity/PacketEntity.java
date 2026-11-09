@@ -72,6 +72,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     private final Set<Player> invertedVisibilityEntities = Collections.newSetFromMap(new WeakHashMap<>());
     private final NonNullList<ItemStack> handSlots;
     private final NonNullList<ItemStack> armorSlots;
+    private final UUID uuid = UUID.randomUUID();
     private Location location;
     private volatile EntityTracker.TrackedEntity tracker;
     private List<SynchedEntityData.DataValue<?>> trackedValues;
@@ -84,7 +85,6 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     private boolean hasInvertedVisibility = false;
     private float yHeadRot = 0;
     private int viewDistanceSquared = 32 * 32;
-    private UUID uuid = UUID.randomUUID();
 
     public PacketEntity(EntityType entityType, Location location) {
         this.id = ServerWrapper.INSTANCE.nextEntityId();
@@ -112,7 +112,7 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
     }
 
     private static ClientboundAddEntityPacket getAddEntityPacket(PacketEntity entity) {
-        return new ClientboundAddEntityPacket(entity.id(), entity.uuid, entity.location().getX(), entity.location().getY(), entity.location().getZ(), entity.location().getPitch(), entity.location().getYaw(), entity.type, 1, Vec3.ZERO, 0);
+        return new ClientboundAddEntityPacket(entity.id(), entity.getUUID(), entity.location().getX(), entity.location().getY(), entity.location().getZ(), entity.location().getPitch(), entity.location().getYaw(), entity.type, 1, Vec3.ZERO, 0);
     }
 
     @Override
@@ -122,6 +122,11 @@ public class PacketEntity implements com.artillexstudios.axapi.packetentity.Pack
             this.vec3 = new Vec3(location.getX(), location.getY(), location.getZ());
             this.shouldTeleport = true;
         }
+    }
+
+    @Override
+    public UUID getUUID() {
+        return this.uuid;
     }
 
     @Override
