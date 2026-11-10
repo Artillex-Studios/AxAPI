@@ -174,7 +174,7 @@ public final class TransitiveDependencyCollector {
             return null;
         }
 
-        if (!scope.equals("compile")) {
+        if (!scope.equals("compile") && !scope.equals("runtime")) {
             return null;
         }
 
