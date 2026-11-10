@@ -3,7 +3,6 @@ package com.artillexstudios.axapi.utils;
 import com.artillexstudios.axapi.BuildConstants;
 import com.artillexstudios.axapi.dependencies.DependencyManagerWrapper;
 import com.artillexstudios.axapi.nms.NMSHandlers;
-import com.artillexstudios.axapi.reflection.ClassUtils;
 import com.artillexstudios.axapi.reflection.FastMethodInvoker;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
@@ -52,8 +51,11 @@ public enum Version {
                 () -> FastMethodInvoker.createSilently("net.minecraft.SharedConstants", "getProtocolVersion"),
                 exception -> {
                     // Don't throw if not on Bukkit
-                    if (ClassUtils.INSTANCE.classExists("org.bukkit.entity.Entity")) {
+                    try {
+                        Class.forName("org.bukkit.entity.Entity");
                         LogUtils.error("Failed to fetch the version information!");
+                    } catch (ClassNotFoundException ignored) {
+
                     }
 
                     return null;
