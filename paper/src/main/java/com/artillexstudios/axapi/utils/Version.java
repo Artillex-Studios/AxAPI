@@ -3,6 +3,7 @@ package com.artillexstudios.axapi.utils;
 import com.artillexstudios.axapi.BuildConstants;
 import com.artillexstudios.axapi.dependencies.DependencyManagerWrapper;
 import com.artillexstudios.axapi.nms.NMSHandlers;
+import com.artillexstudios.axapi.reflection.ClassUtils;
 import com.artillexstudios.axapi.reflection.FastMethodInvoker;
 import com.artillexstudios.axapi.utils.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
@@ -50,9 +51,13 @@ public enum Version {
                 () -> FastMethodInvoker.createSilently("net.minecraft.SharedConstants", "c"),
                 () -> FastMethodInvoker.createSilently("net.minecraft.SharedConstants", "getProtocolVersion"),
                 exception -> {
-            LogUtils.error("Failed to fetch the version information!");
-            return null;
-        });
+                    // Don't throw if not on Bukkit
+                    if (ClassUtils.INSTANCE.classExists("org.bukkit.entity.Entity")) {
+                        LogUtils.error("Failed to fetch the version information!");
+                    }
+
+                    return null;
+                });
 
         if (methodInvoker == null) {
             Version.serverVersion = UNKNOWN;
@@ -96,11 +101,11 @@ public enum Version {
     }
 
     Version(int protocolId, String nmsVersion, List<String> versions, BooleanSupplier supplier) {
-        this(protocolId,  nmsVersion, versions, supplier, false);
+        this(protocolId, nmsVersion, versions, supplier, false);
     }
 
     Version(int protocolId, String nmsVersion, List<String> versions, boolean requiresDownload) {
-        this(protocolId,  nmsVersion, versions, () -> true, requiresDownload);
+        this(protocolId, nmsVersion, versions, () -> true, requiresDownload);
     }
 
     Version(int protocolId, String nmsVersion, List<String> versions) {
