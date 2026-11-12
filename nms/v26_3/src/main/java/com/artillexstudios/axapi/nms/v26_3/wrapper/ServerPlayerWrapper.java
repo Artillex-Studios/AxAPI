@@ -2,7 +2,6 @@ package com.artillexstudios.axapi.nms.v26_3.wrapper;
 
 import com.artillexstudios.axapi.items.HashGenerator;
 import com.artillexstudios.axapi.nms.v26_3.packet.ChannelDuplexHandlerPacketListener;
-import com.artillexstudios.axapi.nms.v26_3.packet.PacketTransformer;
 import com.artillexstudios.axapi.packet.wrapper.PacketWrapper;
 import com.artillexstudios.axapi.reflection.FieldAccessor;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
@@ -49,19 +48,16 @@ public final class ServerPlayerWrapper implements com.artillexstudios.axapi.nms.
             .withClass("net.minecraft.server.level.ServerPlayer$1")
             .withField("cache")
             .build();
-    private final PacketTransformer transformer;
     private LoadingCache<Object, Integer> cache;
     private Player wrapped;
     private ServerPlayer serverPlayer;
 
     public ServerPlayerWrapper(Player player) {
         this.wrapped = player;
-        this.transformer = new PacketTransformer(this);
     }
 
     public ServerPlayerWrapper(ServerPlayer player) {
         this.serverPlayer = player;
-        this.transformer = new PacketTransformer(this);
     }
 
     @Override
