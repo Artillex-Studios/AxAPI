@@ -49,11 +49,11 @@ public final class LoreDataComponent implements DataComponentHandler<ItemLore> {
 
     @Override
     public void removeData(ItemStack itemStack) {
-        CompoundTag tag = this.getDisplayTag(itemStack);
-        if (tag == null) {
+        CompoundTag compoundTag = this.getTag(itemStack);
+        if (compoundTag == null) {
             return;
         }
 
-        this.setDisplayTag(tag, "Lore", null);
+        this.setDisplayTag(compoundTag, "Lore", null);
     }
 }
