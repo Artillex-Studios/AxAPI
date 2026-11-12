@@ -89,8 +89,8 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
             return;
         }
 
-        if (CraftItemStack.class.isAssignableFrom(bukkitStack.getClass())) {
-            CraftItemStack craftItemStack = (CraftItemStack) bukkitStack;
+        if (this.bukkitStack != null && CraftItemStack.class.isAssignableFrom(this.bukkitStack.getClass())) {
+            CraftItemStack craftItemStack = (CraftItemStack) this.bukkitStack;
             net.minecraft.world.item.ItemStack handle = handleAccessor.get(craftItemStack, net.minecraft.world.item.ItemStack.class);
             handle.setTag(tag);
         } else {
