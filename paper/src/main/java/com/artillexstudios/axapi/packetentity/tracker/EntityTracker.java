@@ -125,6 +125,12 @@ public final class EntityTracker {
     }
 
     public void process() {
+        // Nothing to track, so don't wrap every player in every world 20 times a second
+        // New entities are tracked right away in addEntity, so they don't have to wait for this
+        if (this.entityMap.isEmpty()) {
+            return;
+        }
+
         if (!this.trackingQueue.isEmpty()) {
             if (FeatureFlags.DEBUG.get()) {
                 LogUtils.warn("The tracker queue has not been drained yet! This means that tracking took longer than a tick! Increase the entity tracker thread count! Tracker size: {}", this.trackingQueue.size());
