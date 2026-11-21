@@ -50,6 +50,14 @@ public final class ServerboundCustomClickActionWrapper extends PacketWrapper {
         buf.readerIndex(i1 + length);
     }
 
+    public Key key() {
+        return this.key;
+    }
+
+    public CompoundTag tag() {
+        return this.tag;
+    }
+
     @Override
     public PacketType packetType() {
         return ServerboundPacketTypes.CUSTOM_CLICK_ACTION;
