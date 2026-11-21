@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.items;
 
+import com.artillexstudios.axapi.items.nbt.Tag;
 import com.artillexstudios.axapi.nms.wrapper.Wrapper;
 import com.artillexstudios.axapi.nms.wrapper.WrapperRegistry;
 import org.bukkit.inventory.ItemStack;
@@ -40,6 +41,13 @@ public interface WrappedItemStack extends Wrapper<ItemStack> {
     String toSNBT();
 
     byte[] serialize();
+
+    /**
+     * Serializes the ItemStack as NBT for dialogs, uses STRICT_CODEC when available
+     * otherwise ItemStackTemplate on 26.1 and up.
+     * @return A Tag with the data of the item.
+     */
+    Tag serializeAsNBT();
 
     void finishEdit();
 

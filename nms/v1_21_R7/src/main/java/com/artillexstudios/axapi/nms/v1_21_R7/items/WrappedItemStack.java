@@ -3,8 +3,11 @@ package com.artillexstudios.axapi.nms.v1_21_R7.items;
 import com.artillexstudios.axapi.items.HashGenerator;
 import com.artillexstudios.axapi.items.HashedStack;
 import com.artillexstudios.axapi.items.components.DataComponent;
+import com.artillexstudios.axapi.items.nbt.HolderTag;
+import com.artillexstudios.axapi.items.nbt.Tag;
 import com.artillexstudios.axapi.nms.v1_21_R7.ItemStackSerializer;
 import com.artillexstudios.axapi.reflection.FieldAccessor;
+import net.minecraft.nbt.NbtOps;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -67,6 +70,11 @@ public class WrappedItemStack implements com.artillexstudios.axapi.items.Wrapped
     @Override
     public byte[] serialize() {
         return ItemStackSerializer.INSTANCE.serializeAsBytes(this.toBukkit());
+    }
+
+    @Override
+    public Tag serializeAsNBT() {
+        return new HolderTag(net.minecraft.world.item.ItemStack.STRICT_CODEC.encodeStart(NbtOps.INSTANCE, this.itemStack).getOrThrow());
     }
 
     @Override
