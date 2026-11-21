@@ -21,10 +21,10 @@ public final class ServerboundCustomClickActionWrapper extends PacketWrapper {
     public void write(FriendlyByteBuf out) {
         out.writeResourceLocation(this.key);
         FriendlyByteBuf buf = FriendlyByteBuf.alloc();
-        buf.writeBoolean(this.tag != null);
-        if (this.tag != null) {
+//        buf.writeBoolean(this.tag != null);
+//        if (this.tag != null) {
             buf.writeNBT(this.tag);
-        }
+//        }
         int i = buf.readableBytes();
         if (i > PAYLOAD_LIMIT) {
             throw new IllegalArgumentException("Buffer size " + i + " is  larger than maximum of " + PAYLOAD_LIMIT + "!");
@@ -43,10 +43,10 @@ public final class ServerboundCustomClickActionWrapper extends PacketWrapper {
 
         int i1 = buf.readerIndex();
         FriendlyByteBuf byteBuf = buf.slice(i1, length);
-        boolean b = byteBuf.readBoolean();
-        if (b) {
+//        boolean b = byteBuf.readBoolean();
+//        if (b) {
             this.tag = byteBuf.readNBT();
-        }
+//        }
         buf.readerIndex(i1 + length);
     }
 
