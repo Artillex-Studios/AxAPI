@@ -13,13 +13,14 @@ public record StaticAction(ClickEvent clickEvent) implements Action {
     private static final Map<ClickEvent.Action, String> names;
     static {
         Map<ClickEvent.Action, String> loadingNames = new HashMap<>();
-        loadingNames.put(ClickEvent.Action.COPY_TO_CLIPBOARD, "value");
-        loadingNames.put(ClickEvent.Action.OPEN_FILE, Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_5) ? "path" : "value");
-        loadingNames.put(ClickEvent.Action.OPEN_URL, Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_5) ? "url" : "value");
-        loadingNames.put(ClickEvent.Action.RUN_COMMAND, Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_5) ? "command" : "value");
-        loadingNames.put(ClickEvent.Action.SUGGEST_COMMAND, Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_5) ? "command" : "value");
+
+        loadingNames.put(ClickEvent.Action.NAMES.value("copy_to_clipboard"), "value");
+        loadingNames.put(ClickEvent.Action.NAMES.value("open_file"), Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_5) ? "path" : "value");
+        loadingNames.put(ClickEvent.Action.NAMES.value("open_url"), Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_5) ? "url" : "value");
+        loadingNames.put(ClickEvent.Action.NAMES.value("run_command"), Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_5) ? "command" : "value");
+        loadingNames.put(ClickEvent.Action.NAMES.value("suggest_command"), Version.getServerVersion().isNewerThanOrEqualTo(Version.v1_21_5) ? "command" : "value");
         try {
-            loadingNames.put(ClickEvent.Action.SHOW_DIALOG, "dialog");
+            loadingNames.put(ClickEvent.Action.NAMES.value("show_dialog"), "dialog");
         } catch (Exception exception) {
             // On older versions this does not exist
         }
