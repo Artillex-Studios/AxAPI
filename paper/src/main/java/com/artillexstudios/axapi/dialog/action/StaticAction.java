@@ -2,7 +2,6 @@ package com.artillexstudios.axapi.dialog.action;
 
 import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.utils.Version;
-import com.artillexstudios.axapi.utils.logging.LogUtils;
 import net.kyori.adventure.text.event.ClickEvent;
 
 import java.util.Collections;
@@ -35,7 +34,6 @@ public record StaticAction(ClickEvent clickEvent) implements Action {
     @Override
     public void encode(CompoundTag tag) {
         // I have no clue if this is correct, this is not easy to figure out
-        LogUtils.debug("Action name: {}, asString: {}", this.clickEvent.action().name(), this.clickEvent.toString());
         tag.putString(names.get(this.clickEvent.action()), ((ClickEvent.Payload.Text) this.clickEvent.payload()).value());
     }
 }

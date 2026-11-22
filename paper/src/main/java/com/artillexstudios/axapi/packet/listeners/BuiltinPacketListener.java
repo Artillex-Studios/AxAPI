@@ -1,5 +1,6 @@
 package com.artillexstudios.axapi.packet.listeners;
 
+import com.artillexstudios.axapi.dialog.DialogInputs;
 import com.artillexstudios.axapi.events.PacketEntityInteractEvent;
 import com.artillexstudios.axapi.gui.SignInput;
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
@@ -12,11 +13,13 @@ import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundAddEntity
 import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundBlockUpdateWrapper;
 import com.artillexstudios.axapi.packet.wrapper.clientbound.ClientboundSetPassengersWrapper;
 import com.artillexstudios.axapi.packet.wrapper.serverbound.ServerboundAttackWrapper;
+import com.artillexstudios.axapi.packet.wrapper.serverbound.ServerboundCustomClickActionWrapper;
 import com.artillexstudios.axapi.packet.wrapper.serverbound.ServerboundInteractWrapper;
 import com.artillexstudios.axapi.packet.wrapper.serverbound.ServerboundSignUpdateWrapper;
 import com.artillexstudios.axapi.packetentity.PacketEntity;
 import com.artillexstudios.axapi.packetentity.tracker.EntityTracker;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
+import net.kyori.adventure.key.Key;
 import org.bukkit.Bukkit;
 
 import java.util.ArrayList;
@@ -87,6 +90,12 @@ public final class BuiltinPacketListener extends PacketListener {
                 ServerPlayerWrapper playerWrapper = ServerPlayerWrapper.wrap(event.player());
                 playerWrapper.sendPacket(new ClientboundBlockUpdateWrapper(signInput.getLocation(), signInput.getLocation().getBlock().getType()));
             });
+        } else if (event.type() == ServerboundPacketTypes.CUSTOM_CLICK_ACTION) {
+            ServerboundCustomClickActionWrapper wrapper = new ServerboundCustomClickActionWrapper(event);
+            Key key = wrapper.key();
+            if (key.namespace().equals("axapi_dialogs")) {
+                DialogInputs.call(event.player(), key.value(), wrapper.tag());
+            }
         }
     }
 
@@ -96,6 +105,7 @@ public final class BuiltinPacketListener extends PacketListener {
         packetTypes.add(ServerboundPacketTypes.INTERACT);
         packetTypes.add(ServerboundPacketTypes.ATTACK);
         packetTypes.add(ServerboundPacketTypes.SIGN_UPDATE);
+        packetTypes.add(ServerboundPacketTypes.CUSTOM_CLICK_ACTION);
         if (FeatureFlags.LISTEN_TO_RIDE_PACKET.get()) {
             packetTypes.add(ClientboundPacketTypes.ADD_ENTITY);
         }
