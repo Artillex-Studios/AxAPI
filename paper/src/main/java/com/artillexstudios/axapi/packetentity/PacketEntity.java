@@ -14,6 +14,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.time.Duration;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public interface PacketEntity {
@@ -24,6 +25,8 @@ public interface PacketEntity {
             .build(parsed -> ComponentSerializer.INSTANCE.toVanilla(StringUtils.format(parsed)));
 
     void teleport(Location location);
+
+    UUID getUUID();
 
     Location location();
 

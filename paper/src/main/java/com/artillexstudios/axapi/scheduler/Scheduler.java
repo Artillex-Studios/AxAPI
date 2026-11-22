@@ -1,6 +1,7 @@
 package com.artillexstudios.axapi.scheduler;
 
 import com.artillexstudios.axapi.scheduler.impl.SchedulerHandler;
+import com.artillexstudios.axapi.utils.PaperUtils;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 
@@ -62,6 +63,33 @@ public interface Scheduler {
     void runLater(Entity entity, Consumer<ScheduledTask> task, Runnable retired, long delayTicks);
 
     ScheduledTask runLater(Entity entity, Runnable task, Runnable retired, long delayTicks);
+
+    /**
+     * Run a task on the thread of the entity. This method runs the Runnable if this is called from the correct thread
+     * or schedules it if not run from the entities thread.
+     * @param entity The entity to run the task in relation to.
+     * @param task The task to run.
+     */
+    default void runWith(Entity entity, Runnable task) {
+        if ((PaperUtils.isFolia() && this.isOwnedByCurrentRegion(entity.getLocation())) || (!PaperUtils.isFolia() && this.isGlobalTickThread())) {
+            task.run();
+        } else {
+            this.run(entity, t -> task.run(), () -> {});
+        }
+    }
+
+    /**
+     * If the calling thread is the Global tick thread on Folia, or the main thread on Bukkit servers,
+     * the task is run, from other threads the task is scheduled.
+     * @param task The task to run.
+     */
+    default void runGlobal(Runnable task) {
+        if (this.isGlobalTickThread()) {
+            task.run();
+        } else {
+            this.run(task);
+        }
+    }
 
     boolean isOwnedByCurrentRegion(Location location);
 

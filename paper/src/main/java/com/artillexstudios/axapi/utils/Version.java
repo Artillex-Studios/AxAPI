@@ -50,9 +50,16 @@ public enum Version {
                 () -> FastMethodInvoker.createSilently("net.minecraft.SharedConstants", "c"),
                 () -> FastMethodInvoker.createSilently("net.minecraft.SharedConstants", "getProtocolVersion"),
                 exception -> {
-            LogUtils.error("Failed to fetch the version information!");
-            return null;
-        });
+                    // Don't throw if not on Bukkit
+                    try {
+                        Class.forName("org.bukkit.entity.Entity");
+                        LogUtils.error("Failed to fetch the version information!");
+                    } catch (ClassNotFoundException ignored) {
+
+                    }
+
+                    return null;
+                });
 
         if (methodInvoker == null) {
             Version.serverVersion = UNKNOWN;
@@ -96,11 +103,11 @@ public enum Version {
     }
 
     Version(int protocolId, String nmsVersion, List<String> versions, BooleanSupplier supplier) {
-        this(protocolId,  nmsVersion, versions, supplier, false);
+        this(protocolId, nmsVersion, versions, supplier, false);
     }
 
     Version(int protocolId, String nmsVersion, List<String> versions, boolean requiresDownload) {
-        this(protocolId,  nmsVersion, versions, () -> true, requiresDownload);
+        this(protocolId, nmsVersion, versions, () -> true, requiresDownload);
     }
 
     Version(int protocolId, String nmsVersion, List<String> versions) {
