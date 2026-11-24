@@ -14,6 +14,10 @@ import java.util.List;
 public record CommonDialogData(Component title, @Nullable Component externalTitle, boolean canCloseWithEscape, boolean pause,
                                DialogAction action, List<DialogBody> body, List<Input> inputs) {
 
+    public static CommonDialogData.Builder builder() {
+        return new CommonDialogData.Builder();
+    }
+
     public void encode(CompoundTag tag) {
         tag.putComponent("title", this.title);
         if (this.externalTitle != null) {
@@ -25,7 +29,7 @@ public record CommonDialogData(Component title, @Nullable Component externalTitl
         }
 
         if (!this.pause) {
-            tag.putBoolean("can_close_with_escape", false);
+            tag.putBoolean("pause", false);
         }
 
         if (this.action != DialogAction.CLOSE) {
@@ -53,6 +57,55 @@ public record CommonDialogData(Component title, @Nullable Component externalTitl
             }
 
             tag.writeTagList("inputs", tagList);
+        }
+    }
+
+    public static final class Builder {
+        private final List<DialogBody> body = new ArrayList<>();
+        private final List<Input> inputs = new ArrayList<>();
+        private Component title = Component.empty();
+        private Component externalTitle = null;
+        private boolean canCloseWithEscape = true;
+        private boolean pause = false;
+        private DialogAction action = DialogAction.CLOSE;
+
+        public CommonDialogData.Builder withTitle(Component title) {
+            this.title = title;
+            return this;
+        }
+
+        public CommonDialogData.Builder withExternalTitle(Component externalTitle) {
+            this.externalTitle = externalTitle;
+            return this;
+        }
+
+        public CommonDialogData.Builder canCloseWithEscape(boolean canCloseWithEscape) {
+            this.canCloseWithEscape = canCloseWithEscape;
+            return this;
+        }
+
+        public CommonDialogData.Builder pause(boolean pause) {
+            this.pause = pause;
+            return this;
+        }
+
+        public CommonDialogData.Builder withAction(DialogAction action) {
+            this.action = action;
+            return this;
+        }
+
+        public CommonDialogData.Builder withBody(DialogBody body) {
+            this.body.add(body);
+            return this;
+        }
+
+        public CommonDialogData.Builder withInput(Input input) {
+            this.inputs.add(input);
+            return this;
+        }
+
+        public CommonDialogData build() {
+            return new CommonDialogData(this.title, this.externalTitle, this.canCloseWithEscape, this.pause, this.action, this.body, this.inputs);
         }
     }
 }

@@ -5,6 +5,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
@@ -16,6 +17,14 @@ public final class Optionals {
         }
 
         consumer.accept(object);
+    }
+
+    public static <T, Z> Z ifPresent(@Nullable T object, Function<T, Z> presentFunction, Supplier<Z> missingFunction) {
+        if (object == null) {
+            return missingFunction.get();
+        }
+
+        return presentFunction.apply(object);
     }
 
     public static <T, Z> T applyIfPresent(@Nullable Z value, @Nullable T object, @NonNull BiFunction<T, Z, T> function) {
